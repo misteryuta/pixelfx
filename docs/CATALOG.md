@@ -1,7 +1,19 @@
 # Catalog
 
-244 effects in 21 categories. Every one is a file in
+249 effects in 22 categories. Every one is a file in
 `src/fx/<category>/<name>.js`; render any of them with `node tools/render.mjs <id> --gif`.
+
+## jutsu
+
+Build A Shinobi: hand seals into one element release each, remixed from the effects below.
+
+| effect | id | | size | what it does |
+|---|---|---|---|---|
+| Rock spears | `jutsu/earth-rock-spears` | one-shot 4.25s | 366×150 | Earth release: seals, both palms slammed to the floor, and a glowing seam races out as stone spears ram up along it, each taller than the last, the tallest under the target. |
+| Phoenix flower | `jutsu/fire-phoenix-flower` | one-shot 6.44s | 300×212 | Fire release: seals, a breath drawn through a cupped hand, then five small fireballs spat in a fan that arc down over the floor, one into the target, leaving little fires. |
+| Lightning current | `jutsu/lightning-current` | one-shot 3.25s | 220×110 | Lightning release: seals, a fist crackling at the hip, then an open palm thrust out and a current that holds the target, re-striking as charge races down it, surging once. |
+| Water bullets | `jutsu/water-bullets` | one-shot 4.07s | 260×120 | Water release: seals, a deep breath, then three heavy bullets of water spat in rhythm, each bigger than the last, bursting on the target in sprays of beads and a splash. |
+| Vacuum blades | `jutsu/wind-vacuum-blades` | one-shot 2.42s | 270×110 | Wind release: seals, a long breath in, then three crescents of cutting air breathed out one after another that swell as they fly and slash across the target. |
 
 ## moves
 

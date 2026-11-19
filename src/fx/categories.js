@@ -1,6 +1,7 @@
 // The categories, in gallery order, with a line for each.
 
 export const categories = [
+  { id: "jutsu", name: "jutsu", blurb: "Build A Shinobi: hand seals into one element release each, remixed from the effects below" },
   { id: "moves", name: "moves", blurb: "whole attacks, wind-up to recovery, chained from the effects below" },
   { id: "fire", name: "fire", blurb: "torches, breath, pillars, walls of flame" },
   { id: "explosions", name: "explosions", blurb: "blasts, smoke, fireworks, mushroom clouds" },
