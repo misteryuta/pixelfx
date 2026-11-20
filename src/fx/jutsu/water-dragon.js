@@ -12,7 +12,7 @@ import { WATER, bead, Ripples, Mist } from "../water/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
 const NAMES = ["ushi", "saru", "u", "ne", "i", "tori", "ushi", "uma", "tori", "ne", "tora", "inu", "tora", "mi", "ushi", "hitsuji", "mi", "i", "hitsuji", "ne", "saru", "tori", "tatsu", "tori", "ushi", "uma", "hitsuji", "tora", "mi", "i", "ne", "saru", "u", "i", "tatsu", "hitsuji", "ne", "ushi", "saru", "tori", "i", "ne", "mi", "tori"];
-const SEALS = sealRun(0.05, NAMES, 0.042, { hold: 0.2 });
+const SEALS = sealRun(0.05, NAMES, 0.042, { hold: 0.2, kind: "water" });
 const SRC = 34, RISE = SEALS.end + 0.15, FLY = 1.15, TX = 150;
 const HIT = RISE + FLY;
 // the dragon's path: up out of the water, a coil high overhead, then down onto the target
@@ -172,7 +172,7 @@ export const act = {
   ],
   hits: [
     { t: HIT, stop: 0.18, shake: 0.4, amp: 3, push: 3.8, straw: 30, y: -16 },
-    { t: HIT + 0.3, stop: 0.03, push: 1.4, straw: 8 },
+    { t: HIT + 0.3, stop: 0.03, flash: 0, push: 1.4, straw: 8 },
   ],
   dust: [{ t: RISE, x: 12, n: 5, dir: 1 }],
 };

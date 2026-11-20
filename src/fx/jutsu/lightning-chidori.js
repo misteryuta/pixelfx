@@ -10,7 +10,7 @@ import * as crit from "../impacts/crit-hit.js";
 import { VOLT, PLASMA, zigzag, crackle, scorch } from "../lightning/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["ushi", "u", "saru"], 0.13, { hold: 0.12 });
+const SEALS = sealRun(0.05, ["ushi", "u", "saru"], 0.13, { hold: 0.12, kind: "lightning" });
 const GRIP = SEALS.end, DASH = GRIP + 0.75, ARRIVE = DASH + 0.3, BACK = ARRIVE + 0.85, TX = 140;
 const REACH = TX - 22; // where the body stops: the hand goes in at the target
 const VOLT_HIT = ["#120a33", "#2a1b78", "#4630c0", "#58a6ff", "#9ed8ff", "#e4f6ff", "#ffffff", "#ffffff"];

@@ -9,7 +9,7 @@ import * as blast from "../explosions/small-explosion.js";
 import { pnoise, hotFirst } from "../fire/_lib.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["mi", "hitsuji", "saru", "i", "uma", "tora"], 0.11, { hold: 0.12 });
+const SEALS = sealRun(0.05, ["mi", "hitsuji", "saru", "i", "uma", "tora"], 0.11, { hold: 0.12, kind: "fire" });
 const RING = SEALS.end, BLOW = RING + 0.36, GROW = 0.42, ROLL = BLOW + GROW, SPEED = 95, TX = 150;
 const [MX, MY] = [MOUTH[0] + 2, MOUTH[1] + 1];
 const RMAX = 23;

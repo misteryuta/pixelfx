@@ -7,7 +7,7 @@ import { Particles, Lights, P, PF, Rng, READY, fit, clamp, smooth, hex, WHITE, T
 import * as spark from "../impacts/hit-spark.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["inu"], 0.12, { hold: 0.28 });
+const SEALS = sealRun(0.05, ["inu"], 0.12, { hold: 0.28, kind: "wind" });
 const BREATH = SEALS.end, FIRE = BREATH + 0.4, GAP = 0.085, SPEED = 380, TX = 136;
 const [MX, MY] = [MOUTH[0] + 2, MOUTH[1] + 1];
 // each bullet: aim height at the target (or past it into the floor), and a little sideways wobble
@@ -55,7 +55,7 @@ export const act = {
     [land(SHOTS.length - 1) + 0.9, READY],
     [meta.duration, READY],
   ],
-  hits: SHOTS.map((s, i) => (s.miss ? null : { t: land(i), stop: 0.04, shake: 0.1, amp: 1, push: 1.4, straw: 8, y: s.y })).filter(Boolean),
+  hits: SHOTS.map((s, i) => (s.miss ? null : { t: land(i), stop: 0.04, flash: 0, shake: 0.1, amp: 1, push: 1.4, straw: 8, y: s.y })).filter(Boolean),
   dust: [{ t: FIRE, x: 10, n: 4, dir: 1 }],
 };
 

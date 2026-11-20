@@ -8,7 +8,7 @@ import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
 // Fuuton: Shinkuuha (Narutopedia): seals Rat, Snake, Horse, Dog; air is drawn into the lungs and blown out of the
 // mouth as a blast that cuts like blades.
-const SEALS = sealRun(0.05, ["ne", "mi", "uma", "inu"], 0.12, { hold: 0.1 });
+const SEALS = sealRun(0.05, ["ne", "mi", "uma", "inu"], 0.12, { hold: 0.1, kind: "wind" });
 const BREATH = SEALS.end, FIRE = BREATH + 0.5, GAP = 0.11, SPEED = 340, TX = 136;
 // [height they travel at, tilt, full radius]
 const BLADES = [

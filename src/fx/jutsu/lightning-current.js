@@ -9,7 +9,7 @@ import * as zap from "../lightning/zap-hit.js";
 import { VOLT, PLASMA, zigzag, bowed, stroke, crackle, trace, scorch } from "../lightning/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["i", "tora", "mi"], 0.13, { hold: 0.15 });
+const SEALS = sealRun(0.05, ["i", "tora", "mi"], 0.13, { hold: 0.15, kind: "lightning" });
 const CHARGE = SEALS.end, FIRE = CHARGE + 0.55, LEAP = 0.06, SURGE = FIRE + 0.5, HOLD = FIRE + 1.05, BREAK = 0.18, TX = 124;
 // the body the current crawls over while it charges: shoulder to fist, and the trunk
 const ARM = [[3, -29], [-1, -22], [-3, -17]], BODY = [-6, -36, 10, -4];
@@ -31,7 +31,7 @@ export const meta = {
 
 const DRAWN = { ...READY, x: -3, crouch: 5, lean: -3, fx: -3, fy: -17, bx: 10, by: -27, armsFront: true, ffx: 9, fbx: -9 };
 const THRUST = { ...READY, x: 1, crouch: 4, lean: 5, fx: HAND[0], fy: HAND[1], bx: -5, by: -24, ffx: 12, fbx: -10, toeB: true };
-const zapHit = (t, stop, push) => ({ t, stop, push, straw: 6, skin: "shock", shiver: 0.8, y: -22 });
+const zapHit = (t, stop, push) => ({ t, stop, push, straw: 6, flash: stop > 0.06 ? 0.05 : 0, skin: "shock", shiver: 0.8, y: -22 });
 
 export const act = {
   target: { x: TX },

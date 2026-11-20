@@ -8,7 +8,7 @@ import { Particles, Lights, P, Rng, READY, fit, clamp, smooth, ease, hex, noise2
 import { bead } from "../water/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["i", "tora"], 0.14, { hold: 0.2 });
+const SEALS = sealRun(0.05, ["i", "tora"], 0.14, { hold: 0.2, kind: "earth" });
 const SLAM = SEALS.end + 0.3, RUN = 0.4, OPEN = SLAM + RUN, SPREAD = 0.6, SINK = OPEN + 0.25, DEEP = 2.0, TX = 136;
 const PALMS = 14, RX = 36, RY = 6;
 const MUD = ["#1a120c", "#2c1e14", "#43301f", "#5c432b", "#7a5a3a", "#9a7650", "#c4a070"];
@@ -43,8 +43,8 @@ export const act = {
   hits: [
     { t: SLAM, stop: 0.08, shake: 0.2, amp: 2, target: false },
     { t: OPEN, stop: 0.06, shake: 0.15, amp: 1, push: 0.6, straw: 6 },
-    { t: OPEN + 0.6, stop: 0, push: -0.8, straw: 4 },
-    { t: OPEN + 1.2, stop: 0, push: 0.8, straw: 4 },
+    { t: OPEN + 0.6, stop: 0, flash: 0, push: -0.8, straw: 4 },
+    { t: OPEN + 1.2, stop: 0, flash: 0, push: 0.8, straw: 4 },
   ],
   dust: [{ t: SLAM, x: PALMS, n: 8 }],
 };

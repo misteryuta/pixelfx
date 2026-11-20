@@ -8,7 +8,7 @@ import { play, sealRun, drawSeals } from "./_lib.js";
 
 // Doton: Doryuusou (Narutopedia): the Bird seal, then many rock spears grow out of the ground; earth jutsu often end
 // with the hands slammed onto the floor.
-const SEALS = sealRun(0.05, ["tori"], 0.12, { hold: 0.3 });
+const SEALS = sealRun(0.05, ["tori"], 0.12, { hold: 0.3, kind: "earth" });
 const SLAM = SEALS.end + 0.4, STEP = 0.085, UP = 0.34, TX = 126;
 const SPEARS = [
   { x: 32, h: 15 },
@@ -57,7 +57,7 @@ export const act = {
   ],
   hits: [
     { t: SLAM, stop: 0.1, shake: 0.2, amp: 2, target: false },
-    { t: ram(4), stop: 0.03, push: -0.8, straw: 6 },
+    { t: ram(4), stop: 0.03, flash: 0, push: -0.8, straw: 6 },
     { t: ram(5), stop: 0.16, shake: 0.32, amp: 3, push: -3.4, straw: 34, y: -12 },
   ],
   dust: [{ t: SLAM, x: 14, n: 9 }],

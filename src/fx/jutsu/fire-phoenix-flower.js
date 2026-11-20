@@ -10,7 +10,7 @@ import { noiseFor, hotFirst, flameBlade, LAYERS } from "../fire/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
 // the effect's clock starts with the first seal (anything before t = 0 is never drawn), so the whole jutsu is laid out after it
-const SEALS = sealRun(0.05, ["ne", "tora", "inu", "ushi", "u", "tora"], 0.11, { hold: 0.42, last: { fx: 8, fy: -30, bx: 9, by: -30, lean: 0 } });
+const SEALS = sealRun(0.05, ["ne", "tora", "inu", "ushi", "u", "tora"], 0.11, { hold: 0.42, kind: "fire", last: { fx: 8, fy: -30, bx: 9, by: -30, lean: 0 } });
 const T0 = SEALS.end, CROUCH = T0 + 0.02, LEAP = T0 + 0.12, TOP = T0 + 0.34, H = 30, SPIT = T0 + 0.36, GAP = 0.065, FALL = T0 + 0.86, LAND = T0 + 1.02, TX = 150;
 // the balls: where each lands on the floor and how long it flies; they fan out over the ground ahead
 const BALLS = [
@@ -65,8 +65,8 @@ export const act = {
   ],
   hits: [
     { t: HIT, stop: 0.14, shake: 0.3, amp: 2, push: 3, straw: 26, skin: "char" },
-    { t: land(5), stop: 0.03, push: 1, straw: 8 },
-    { t: LAND, stop: 0.04, shake: 0.12, amp: 1, target: false },
+    { t: land(5), stop: 0.03, flash: 0, push: 1, straw: 8 },
+    { t: LAND, stop: 0.04, flash: 0, shake: 0.12, amp: 1, target: false },
     { t: meta.duration - 0.6, push: 0, straw: 0, flash: 0, skin: null },
   ],
   dust: [{ t: LEAP, x: 0, n: 6 }, { t: LAND, x: 2, n: 8 }],

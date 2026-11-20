@@ -7,7 +7,7 @@ import { Particles, Lights, P, PF, Rng, READY, fit, clamp, smooth, ease, mix, he
 import { drawLeaf } from "../nature/_lib.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["tora", "ushi", "inu", "u", "mi"], 0.12, { hold: 0.1 });
+const SEALS = sealRun(0.05, ["tora", "ushi", "inu", "u", "mi"], 0.12, { hold: 0.1, kind: "wind" });
 const BREATH = SEALS.end, BLAST = BREATH + 0.42, GUST = 1.2, SPEED = 260, TX = 140;
 const [MX, MY] = [MOUTH[0] + 2, MOUTH[1] + 1];
 const HIT = BLAST + (TX - 10 - MX) / SPEED;
@@ -45,8 +45,8 @@ export const act = {
   ],
   hits: [
     { t: HIT, stop: 0.12, shake: 0.35, amp: 2, push: 5, straw: 40 },
-    { t: HIT + 0.35, stop: 0, push: 3, straw: 16 },
-    { t: HIT + 0.7, stop: 0, push: 2, straw: 10 },
+    { t: HIT + 0.35, stop: 0, flash: 0, push: 3, straw: 16 },
+    { t: HIT + 0.7, stop: 0, flash: 0, push: 2, straw: 10 },
   ],
   dust: [{ t: BLAST, x: 10, n: 8, dir: 1 }, { t: BLAST, x: -8, n: 4, dir: -1 }],
 };

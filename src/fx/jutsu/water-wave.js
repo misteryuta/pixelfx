@@ -8,7 +8,7 @@ import * as splash from "../water/splash.js";
 import { WATER, bead, Ripples, Mist } from "../water/_lib.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["tatsu", "ushi", "u"], 0.14, { hold: 0.2 });
+const SEALS = sealRun(0.05, ["tatsu", "ushi", "u"], 0.14, { hold: 0.2, kind: "water" });
 const FILL = SEALS.end, OPEN = FILL + 0.34, REACH = 0.2, HOLD = OPEN + 1.25, CUT = 0.3, TX = 132, HY = -20;
 const [MX, MY] = [MOUTH[0] + 2, MOUTH[1] + 1];
 const LEN = TX - 6 - MX;
@@ -46,8 +46,8 @@ export const act = {
   ],
   hits: [
     { t: OPEN + REACH, stop: 0.1, shake: 0.22, amp: 2, push: 2.6, straw: 18, y: HY },
-    { t: OPEN + REACH + 0.35, stop: 0.03, push: 1.2, straw: 8, y: HY },
-    { t: OPEN + REACH + 0.7, stop: 0.03, push: 1.4, straw: 8, y: HY },
+    { t: OPEN + REACH + 0.35, stop: 0.03, flash: 0, push: 1.2, straw: 8, y: HY },
+    { t: OPEN + REACH + 0.7, stop: 0.03, flash: 0, push: 1.4, straw: 8, y: HY },
     { t: HOLD, stop: 0.06, shake: 0.12, amp: 1, push: 2, straw: 12, y: HY },
   ],
   dust: [{ t: OPEN, x: 12, n: 4, dir: 1 }],

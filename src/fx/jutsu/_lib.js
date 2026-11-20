@@ -1,7 +1,7 @@
 // Shared by the jutsu moves (files starting with _ are helpers, not effects): the hand-seal poses every jutsu
 // starts with, the mouth and palm the elements leave from, and a cue player like core chain() that can also
 // steer a cue's angle over time (a projectile that tilts along its arc) and keep custom drawing in the same frame.
-import { createFx, READY, WHITE, clamp, ease, hex, mix } from "../../core/index.js";
+import { createFx, READY, WHITE, TAU, clamp, ease, hex, mix, rand, smooth } from "../../core/index.js";
 
 // Where the stock character's mouth sits, in px from the feet, facing right.
 export const MOUTH = [6, -31];
@@ -34,7 +34,7 @@ const handsOf = (pose) => [(pose.fx + pose.bx) / 2, (pose.fy + pose.by) / 2];
  * at: overrides for where the last (held) sign sits, e.g. Tiger raised to the mouth for fire.
  * Returns { keys, list: [{ t, sign, x, y }], end } for drawSeals().
  */
-export function sealRun(t0, names, dt, { hold = 0, last = {} } = {}) {
+export function sealRun(t0, names, dt, { hold = 0, last = {}, kind = null } = {}) {
   const keys = [], list = [];
   names.forEach((n, i) => {
     const sign = SIGNS[n], fin = i === names.length - 1, pose = fin ? { ...sign.pose, ...last } : sign.pose, t = t0 + i * dt;
@@ -42,7 +42,7 @@ export function sealRun(t0, names, dt, { hold = 0, last = {} } = {}) {
     list.push({ t, sign, xy: handsOf(pose), fin });
   });
   const end = t0 + (names.length - 1) * dt + Math.max(dt, hold);
-  return { keys, list, end, dt };
+  return { keys, list, end, dt, kind };
 }
 
 /**
@@ -51,6 +51,7 @@ export function sealRun(t0, names, dt, { hold = 0, last = {} } = {}) {
  */
 export function drawSeals(p, t, run, C) {
   const n = C.length, OUT = hex("#120c18");
+  aura(p, t, run, C);
   for (const s of run.list) {
     const a = t - s.t, life = s.fin ? run.end - s.t + 0.15 : run.dt;
     if (a < 0 || a > life) continue;
@@ -137,4 +138,57 @@ export function arcPath(x0, y0, x1, y1, h) {
     const x = x0 + (x1 - x0) * u, y = a * u * u + b * u + c;
     return { x, y, ang: Math.atan2(2 * a * u + b, x1 - x0) };
   };
+}
+
+/**
+ * The chakra each element stirs up while its seals are made, so every jutsu opens in its own way: embers rising
+ * off the hands for fire, beads of water circling them, sparks jumping over the body for lightning, rings of wind
+ * turning round it, pebbles lifting off the ground for earth. Builds with each seal, fades once the last is held.
+ */
+function aura(p, t, run, C) {
+  if (!run.kind) return;
+  const t0 = run.list[0].t, cur = [...run.list].reverse().find((s) => t >= s.t);
+  if (!cur || t > run.end + 0.35) return;
+  const done = run.list.indexOf(cur) + 1, k = Math.min(1, 0.35 + done / run.list.length) * (1 - smooth(run.end, run.end + 0.35, t));
+  const [hx, hy] = cur.xy, n = C.length, a = t - t0;
+  if (run.kind === "fire")
+    for (let i = 0; i < 10; i++) {
+      const per = 0.5 + 0.4 * rand(i, 1), u = (a / per + rand(i, 2)) % 1, x = hx + (rand(i, 3) - 0.5) * 14 + Math.sin(u * 6 + i) * 1.5, y = hy + 2 - u * 24;
+      if (u * k > 0.9) continue;
+      p.px(x, y, u < 0.3 ? C[n - 1] : u < 0.65 ? C[n - 3] : C[Math.max(0, n - 6)]);
+      p.glow(x, y, 4, C[n - 3], 0.25 * k * (1 - u));
+    }
+  else if (run.kind === "water")
+    for (let i = 0; i < 7; i++) {
+      const th = a * 4.5 + (i * TAU) / 7, r = 8 + 2 * Math.sin(a * 3 + i), x = hx + Math.cos(th) * r, y = hy + Math.sin(th) * r * 0.45 - 1, near = Math.sin(th) > 0;
+      p.circle(x, y, near ? 1.2 : 0.8, near ? C[n - 2] : C[n - 4], k);
+      if (near) p.px(x - 0.5, y - 0.5, WHITE);
+    }
+  else if (run.kind === "lightning") {
+    const f = Math.floor(t * 24);
+    for (let i = 0; i < 3; i++) {
+      if (rand(f, i + 9) > 0.35 + 0.5 * k) continue;
+      let x = 2 + (rand(f, i) - 0.5) * 18, y = -6 - rand(f, i + 3) * 30;
+      for (let s2 = 0; s2 < 3; s2++) {
+        const nx = x + (rand(f, i * 7 + s2) - 0.5) * 7, ny = y + (rand(f, i * 5 + s2 + 1) - 0.5) * 7;
+        p.line(x, y, nx, ny, s2 === 1 ? WHITE : C[n - 2]);
+        (x = nx), (y = ny);
+      }
+      p.glow(x, y, 8, C[n - 3], 0.4 * k);
+    }
+  } else if (run.kind === "wind")
+    for (let ring = 0; ring < 2; ring++) {
+      const cy = -12 - ring * 14, rx = 13 - ring * 2, ry = 3.5, sp = 7 + ring * 2;
+      for (let j = 0; j < 14; j++) {
+        const th = a * sp + ring * 2 + j * 0.16, x = 2 + Math.cos(th) * rx, y = cy + Math.sin(th) * ry;
+        p.px(x, y, Math.sin(th) > 0 ? C[n - 2] : C[n - 4]);
+      }
+    }
+  else if (run.kind === "earth")
+    for (let i = 0; i < 8; i++) {
+      const per = 0.9 + 0.5 * rand(i, 4), u = (a / per + rand(i, 5)) % 1, x = (rand(i, 6) - 0.5) * 26, lift = Math.sin(Math.PI * u) * (6 + 8 * rand(i, 7)) * k;
+      if (lift < 0.6) continue;
+      p.rect(x, -lift - 1, 2, 2, C[Math.min(n - 1, 2)]);
+      p.px(x, -lift - 1, C[n - 1]);
+    }
 }

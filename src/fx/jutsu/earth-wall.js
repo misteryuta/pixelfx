@@ -11,7 +11,7 @@ import * as blast from "../explosions/small-explosion.js";
 import { stoneShape, drawRock } from "../nature/_lib.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["hitsuji", "inu", "ushi", "mi"], 0.12, { hold: 0.12 });
+const SEALS = sealRun(0.05, ["hitsuji", "inu", "ushi", "mi"], 0.12, { hold: 0.12, kind: "earth" });
 const SPIT = SEALS.end + 0.2, MUD = 0.32, RISE = SPIT + MUD, UP = 0.32, TX = 190;
 const WX = 50, WW = 26, WH = 62;
 const SHOT = RISE + 0.5, IMPACT = SHOT + 0.62, SINK = IMPACT + 1.3;

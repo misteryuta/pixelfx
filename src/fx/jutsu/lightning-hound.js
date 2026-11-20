@@ -9,7 +9,7 @@ import * as zap from "../lightning/zap-hit.js";
 import { VOLT, PLASMA, zigzag, crackle, stroke } from "../lightning/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["ushi", "u", "saru"], 0.13, { hold: 0.1 });
+const SEALS = sealRun(0.05, ["ushi", "u", "saru"], 0.13, { hold: 0.1, kind: "lightning" });
 const FORM = SEALS.end, LOOSE = FORM + 0.55, BITE = LOOSE + 0.62, TX = 150;
 const HAND = [16, -22];
 
@@ -42,7 +42,7 @@ export const act = {
   ],
   hits: [
     { t: BITE, stop: 0.16, shake: 0.32, amp: 2, push: 3.2, straw: 22, skin: "shock", shiver: 1.1, y: -20 },
-    { t: BITE + 0.3, stop: 0.03, push: 1, straw: 6, y: -20 },
+    { t: BITE + 0.3, stop: 0.03, flash: 0, push: 1, straw: 6, y: -20 },
     { t: meta.duration - 0.4, push: 0, straw: 0, flash: 0, skin: null },
   ],
   dust: [{ t: LOOSE, x: 12, n: 5, dir: 1 }],

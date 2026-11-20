@@ -8,7 +8,7 @@ import { Lights, Rng, READY, fit, clamp, smooth, mix, hex, noise, WHITE } from "
 import { WATER, Ripples, Mist } from "../water/_lib.js";
 import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["tairitsu"], 0.12, { hold: 0.7 });
+const SEALS = sealRun(0.05, ["tairitsu"], 0.12, { hold: 0.7, kind: "water" });
 const RISE = SEALS.end - 0.45, THICK = RISE + 1.4, HOLD = THICK + 1.6, THIN = HOLD + 1.6, TX = 130;
 const FOG = ["#9fb6bc", "#b9ccd0", "#d4e2e4", "#eef6f6"].map(hex);
 

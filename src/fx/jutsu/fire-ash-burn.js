@@ -7,7 +7,7 @@ import { Particles, Lights, P, PF, Rng, READY, fit, clamp, smooth, mix, hex, WHI
 import * as blast from "../explosions/small-explosion.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const SEALS = sealRun(0.05, ["mi", "ne", "tora"], 0.13, { hold: 0.12 });
+const SEALS = sealRun(0.05, ["mi", "ne", "tora"], 0.13, { hold: 0.12, kind: "fire" });
 const DRAW = SEALS.end, BLOW = DRAW + 0.3, POUR = 1.0, CLICK = BLOW + POUR + 0.75, FUSE = 0.32, TX = 132;
 const [MX, MY] = [MOUTH[0] + 2, MOUTH[1] + 1];
 const ASH = ["#2a2428", "#3e3538", "#55494a", "#6e6060", "#8c7c78"].map(hex);
