@@ -1,7 +1,31 @@
 // Shared by the jutsu moves (files starting with _ are helpers, not effects): the hand-seal poses every jutsu
 // starts with, the mouth and palm the elements leave from, and a cue player like core chain() that can also
 // steer a cue's angle over time (a projectile that tilts along its arc) and keep custom drawing in the same frame.
-import { createFx, READY, WHITE, TAU, clamp, ease, hex, mix, rand, smooth } from "../../core/index.js";
+import { createFx, READY, WHITE, TAU, clamp, ease, hex, mix, rand, smooth, noise2, poseAt, skeleton, posed } from "../../core/index.js";
+
+/**
+ * Where the user's body is at time t on an act's pose track: { q (the pose), head, crown, chest, handN (near hand),
+ * handF (far hand), footN, footF } as [x, y] in the effect's own space (feet at 0, 0 at rest).
+ */
+export function bodyAt(poses, t) {
+  const q = poseAt(poses, t), j = skeleton(q).joints, ox = q.x ?? 0, oy = q.y ?? 0;
+  const P = (n) => [j[n][0] + ox, j[n][1] + oy];
+  return { q, head: P("head"), crown: P("crown"), chest: P("chest"), handN: P("handN"), handF: P("handF"), footN: P("ankleN"), footF: P("ankleF") };
+}
+
+/**
+ * Paint a whole figure in a pose (a shadow clone, a silhouette, a chakra shroud): feet at (x, y), face 1 right / -1 left.
+ * tint mixes every pixel toward one color by k; a fades it (dithered); only: "ink" paints just the outline pixels.
+ */
+export function drawFigure(p, pose, x, y, { face = 1, tint = 0, k = 0, a = 1, solid = 0 } = {}) {
+  const r = posed(pose);
+  for (let i = 0; i < r.n; i++) {
+    const px = face > 0 ? x + r.xs[i] : x - r.xs[i] - 1, py = y + r.ys[i];
+    const c = solid || (tint ? mix(r.color[i], tint, k) : r.color[i]);
+    if (a >= 1) p.px(px, py, c);
+    else p.dot(px, py, c, a);
+  }
+}
 
 // Where the stock character's mouth sits, in px from the feet, facing right.
 export const MOUTH = [6, -31];
@@ -25,7 +49,188 @@ export const SIGNS = {
   i: { name: "I", pose: { ...S, fx: 10, fy: -23, bx: 11, by: -25, crouch: 5, lean: 3 } }, // boar
   // the seal of confrontation (Tairitsu no In): one hand, two fingers raised before the face; Shunshin, Kirigakure
   tairitsu: { name: "TAIRITSU", pose: { ...READY, crouch: 3, fx: 9, fy: -30, bx: -4, by: -20, ffx: 7, fbx: -7 } },
+  // the clone seal: two fingers of each hand crossed into a cross before the chest (Kage Bunshin)
+  juuji: { name: "JUUJI", pose: { ...S, crouch: 4, lean: 2, fx: 11, fy: -26, bx: 10, by: -25 } },
+  // hands clapped flat together (Chibaku Tensei, Edo Tensei, Tenten's scrolls)
+  gassho: { name: "GASSHO", pose: { ...S, crouch: 2, fx: 10, fy: -27, bx: 10, by: -27 } },
+  // a seal of the user's own: whatever the clan's secret technique is shaped by (Ino's ring of fingers, Haku's one hand)
+  hiden: { name: "HIDEN", pose: { ...S, crouch: 4, fx: 9, fy: -28, bx: 12, by: -27 } },
 };
+
+// ---- small things many moves share
+
+/**
+ * The Eight Gates opened on a body in pose q (feet at x, y): from the third gate the skin goes red, the chakra burns
+ * round the outline green (from the seventh, blue-green, with the sweat steaming off), k how far it's come on.
+ * Draw `back` in drawBack (the aura), `front` in draw (the skin over the body).
+ */
+export function drawGates(p, t, q, gate, k, layer) {
+  if (k <= 0) return;
+  const x = q.x ?? 0, y = q.y ?? 0, aura = gate >= 7 ? hex("#5ae8d0") : hex("#5ae86a"), aura2 = gate >= 7 ? hex("#1a8a9a") : hex("#1a8a3a");
+  if (layer === "back") {
+    drawOutline(p, q, x, y, aura, { w: 1, a: k, flick: t * 16 });
+    drawOutline(p, q, x, y, aura2, { w: 2, a: 0.6 * k, flick: t * 12 + 4 });
+    // steam rolling up off him
+    for (let i = 0; i < 6; i++) {
+      const u = (t * 1.6 + i / 6) % 1, sx = x + (rand(i, 3) - 0.5) * 16 + Math.sin(u * 6 + i) * 3, sy = y - 10 - rand(i, 4) * 26 - u * 26;
+      p.disc(sx, sy, 2 + u * 4, gate >= 7 ? hex("#c8f4ff") : hex("#e8f4e8"), 0.35 * (1 - u) * k);
+    }
+  } else if (gate >= 3) drawFigure(p, q, x, y, { tint: hex("#e0503a"), k: 0.32 * k });
+}
+
+/** A glow traced round a body in a pose (chakra cloaks, natural energy, gates): the figure in one color, nudged out
+ * by w px all round, to be drawn behind the body. flick: a number that changes over time to make the edge crawl. */
+export function drawOutline(p, pose, x, y, c, { w = 1, a = 1, face = 1, flick = 0 } = {}) {
+  const r = posed(pose);
+  for (let i = 0; i < r.n; i++) {
+    const bx = face > 0 ? x + r.xs[i] : x - r.xs[i] - 1, by = y + r.ys[i];
+    for (const [dx, dy] of [[-w, 0], [w, 0], [0, -w], [0, w]]) {
+      const up = dy < 0 && flick ? Math.round(rand(i + Math.floor(flick), 3) * 2) : 0;
+      if (a >= 1) p.px(bx + dx, by + dy - up, c);
+      else p.dot(bx + dx, by + dy - up, c, a);
+    }
+  }
+}
+
+// Amaterasu's black flame: inky inside, a ragged rim of deep crimson, licking upward. Used by Itachi and Sasuke.
+export const BLACK_FIRE = ["#050306", "#120810", "#2a0c1a", "#6a1028", "#c02040"].map(hex);
+/** A tongue of black flame standing on (x, y), w wide and h tall, k how big it's grown. */
+export function drawBlackFlame(p, x, y, w, h, t, seed = 0, k = 1) {
+  if (k <= 0) return;
+  const W = w * k, Hh = h * k, F = BLACK_FIRE;
+  // a crimson heat round it, so the black reads on any background
+  p.glow(x, y - Hh * 0.45, Math.max(W * 2.2, Hh * 1.1), F[4], 0.32 * k);
+  p.shade(x - W - 2, y - Hh - 2, x + W + 2, y + 1, (px, py, out) => {
+    const u = (px - x) / W, v = (y - py) / Hh;
+    if (v < -0.05 || v > 1.1) return;
+    const n = noise2(u * 2.2 + seed, v * 3 - t * 5, seed + 7), lim = Math.pow(Math.max(0, 1 - v), 0.8) * (0.55 + 0.6 * n);
+    const a = Math.abs(u + Math.sin(v * 5 + t * 7 + seed) * 0.18 * v);
+    if (a > lim) return;
+    const e = lim - a;
+    if (e < 0.08) return F[4];
+    if (e < 0.18) return F[3];
+    return e < 0.3 ? F[2] : n > 0.6 ? F[1] : F[0];
+  });
+}
+
+/**
+ * Twist space: whatever is already drawn in a disc (cx, cy, R) is read back and redrawn swirled about its centre by up
+ * to `twist` radians at the middle and pulled inward by `pull` (0..1: 1 crushes it to a point). Pixels whose source is
+ * empty are cleared, so the target or body really is warped, not painted over. Draw it in the front layer: by then the
+ * target and the body are in the frame. Kamui.
+ */
+const CLEAR = 0x00010101;
+export function warp(p, cx, cy, R, twist, pull = 0) {
+  if (twist === 0 && pull === 0) return;
+  const x0 = Math.floor(cx - R), y0 = Math.floor(cy - R), n = Math.ceil(R * 2) + 1, snap = new Uint32Array(n * n);
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) snap[j * n + i] = p.get(x0 + i + 0.5, y0 + j + 0.5);
+  for (let j = 0; j < n; j++)
+    for (let i = 0; i < n; i++) {
+      const x = x0 + i + 0.5, y = y0 + j + 0.5, dx = x - cx, dy = y - cy, r = Math.hypot(dx, dy);
+      if (r > R) continue;
+      const f = 1 - r / R, a = twist * f * f, s = 1 + pull * 3 * f, c = Math.cos(a), sn = Math.sin(a);
+      const sx = cx + (dx * c - dy * sn) * s, sy = cy + (dx * sn + dy * c) * s;
+      const si = Math.floor(sx - x0), sj = Math.floor(sy - y0);
+      const col = si >= 0 && sj >= 0 && si < n && sj < n && Math.hypot(sx - cx, sy - cy) <= R ? snap[sj * n + si] : 0;
+      p.px(x, y, col || CLEAR);
+    }
+}
+
+/** A see-through wash of color over a box (a darkening sky, a red genjutsu world, a flash): blended, never dithered. */
+export function veil(p, x0, y0, x1, y1, c, a) {
+  if (a <= 0.004) return;
+  p.shade(x0, y0, x1, y1, (x, y) => {
+    p.blend(x, y, c, a);
+  });
+}
+
+/**
+ * A jagged bolt from (x0, y0) to (x1, y1): midpoint-displaced, re-rolled every frame f (pass floor(t * 24)), with a white
+ * core and a colored edge; jag: how far it strays, as a share of its length. Returns the points.
+ */
+export function bolt(p, x0, y0, x1, y1, f, C, { jag = 0.18, seed = 0, glow = 0.5, core = WHITE } = {}) {
+  let pts = [[x0, y0], [x1, y1]];
+  const L = Math.hypot(x1 - x0, y1 - y0);
+  for (let level = 0, amp = L * jag; level < 5 && amp > 0.8; level++, amp *= 0.55) {
+    const out = [pts[0]];
+    for (let i = 1; i < pts.length; i++) {
+      const [ax, ay] = pts[i - 1], [bx, by] = pts[i], dx = bx - ax, dy = by - ay, n = Math.hypot(dx, dy) || 1;
+      const o = (rand(f * 31 + seed, level * 97 + i) - 0.5) * 2 * amp;
+      out.push([(ax + bx) / 2 - (dy / n) * o, (ay + by) / 2 + (dx / n) * o], pts[i]);
+    }
+    pts = out;
+  }
+  const n = C.length;
+  for (let i = 1; i < pts.length; i++) {
+    const [ax, ay] = pts[i - 1], [bx, by] = pts[i];
+    p.line(ax + 1, ay, bx + 1, by, C[n - 3]);
+    p.line(ax, ay + 1, bx, by + 1, C[n - 2]);
+    p.line(ax, ay, bx, by, core);
+  }
+  if (glow) p.glowLine(x0, y0, x1, y1, 10, C[n - 2], glow);
+  return pts;
+}
+
+/** Chidori in a hand: a knot of white lightning with bolts crackling off it in every direction. k: how strong. */
+export function drawChidori(p, x, y, t, C, k = 1, seed = 0) {
+  if (k <= 0) return;
+  const f = Math.floor(t * 24), n = C.length;
+  p.glow(x, y, 22 * k, C[n - 2], 0.7 * k);
+  for (let i = 0; i < 5; i++) {
+    const a = rand(f + seed, i) * TAU, L = (6 + 12 * rand(f + seed, i + 9)) * k;
+    bolt(p, x, y, x + Math.cos(a) * L, y + Math.sin(a) * L * 0.8, f + i, C, { jag: 0.3, seed: seed + i, glow: 0 });
+  }
+  p.circle(x, y, 2.5 * k + 0.5, C[n - 2]);
+  p.circle(x, y, 1.5 * k, WHITE);
+}
+
+/** A shinobi's puff of smoke (a clone appearing or bursting, a summoning): age in seconds, s its size (1 is man-sized). */
+export function drawPoof(p, x, y, age, s = 1, seed = 1) {
+  if (age < 0 || age > 0.55) return;
+  const u = age / 0.55, R = (6 + 9 * ease.outCubic(Math.min(1, u * 1.6))) * s, fade = 1 - smooth(0.25, 0.9, u);
+  const LT = hex("#ffffff"), MID = hex("#dfe3ec"), SH = hex("#9aa0b4");
+  if (u < 0.12) p.circle(x, y, R * 0.8, LT);
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 9) * TAU + rand(seed, i) * 0.6, d = R * (0.45 + 0.35 * rand(seed, i + 9)), r = R * (0.42 + 0.22 * rand(seed, i + 20)) * (1 - 0.3 * u);
+    const cx = x + Math.cos(a) * d, cy = y + Math.sin(a) * d * 0.8 - 6 * s * u;
+    if (u < 0.5) p.disc(cx + 1, cy + 1.5, r, SH, (dd) => fade * (dd < 0.85 ? 0.7 : 0.3));
+    p.disc(cx, cy, r * (1 - 0.25 * u), (dd) => (dd < 0.5 ? LT : MID), (dd) => fade * (dd < 0.8 ? 1 : 0.5));
+  }
+  if (u < 0.3) for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * TAU + seed, d = R * (1 + u * 2);
+    p.px(x + Math.cos(a) * d, y + Math.sin(a) * d * 0.7, LT);
+  }
+}
+
+/**
+ * The Rasengan: a ball of chakra turning in every direction at once, held in a shell. A shaded sphere with bands
+ * of light racing round it on three axes, a white core, a spiky rim of wind and a wide glow. k: how formed (0..1).
+ * C: ramp dark to light (blue for Naruto, Minato and Jiraiya; anything for the variants).
+ */
+export function drawRasengan(p, x, y, R, t, C, k = 1) {
+  if (k <= 0 || R < 0.5) return;
+  const n = C.length, r = R * (0.35 + 0.65 * k);
+  p.glow(x, y, r * 3.2, C[n - 3], 0.55 * k);
+  // the shell of wind: short strokes whipping round the outside
+  for (let i = 0; i < 12; i++) {
+    const a = t * (i % 2 ? 19 : -23) + i * 1.7, rr = r + 1 + (i % 3);
+    p.arc(x, y, rr, 1, a, a + 0.9 + 0.3 * Math.sin(t * 30 + i), i % 3 ? C[n - 2] : WHITE, 0.9 * k);
+  }
+  p.shade(x - r, y - r, x + r, y + r, (px, py, out) => {
+    const dx = (px - x) / r, dy = (py - y) / r, d2 = dx * dx + dy * dy;
+    if (d2 > 1) return;
+    const z = Math.sqrt(1 - d2);
+    // three spinning band systems, about three different axes
+    const b1 = Math.sin(Math.atan2(dy, dx) * 3 - t * 26 + z * 4);
+    const b2 = Math.sin((dx * 0.7 + z) * 7 + t * 31);
+    const b3 = Math.sin((dy + z * 0.6) * 8 - t * 22);
+    const lit = 0.55 * z + 0.25 * (-dx - dy) + 0.2 * Math.max(b1, b2, b3);
+    out.k = 0.25;
+    if (d2 < 0.12) return WHITE;
+    if (Math.max(b1, b2, b3) > 0.86) return d2 < 0.5 ? WHITE : C[n - 1];
+    return lit > 0.55 ? C[n - 1] : lit > 0.3 ? C[n - 2] : lit > 0.05 ? C[n - 3] : C[n - 4];
+  });
+}
 // where the hands meet for a sign, for the chakra flash
 const handsOf = (pose) => [(pose.fx + pose.bx) / 2, (pose.fy + pose.by) / 2];
 

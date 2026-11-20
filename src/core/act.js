@@ -358,9 +358,13 @@ export function createAct(mod, o = {}) {
         // the effect doesn't care about the body: back, body, front
         if (active) fx.draw(frame, "back");
         drawTargets();
-        shadow();
+        // an effect can take him away (a teleport, a body dissolving into crows): actorAlpha() 0 hides him, in between dithers him
+        const seen = active ? actorAlphaOf(mod, meta.loop ? (t < 0 ? 0 : t % D) : clamp(t, 0, D), fx.options) : 1;
+        if (seen > 0) shadow();
         drawGhosts();
-        for (let i = 0; i < r.n; i++) paint(i, r.color[i]);
+        if (seen >= 1) for (let i = 0; i < r.n; i++) paint(i, r.color[i]);
+        else if (seen > 0)
+          for (let i = 0; i < r.n; i++) if (((r.xs[i] * 7 + r.ys[i] * 13) & 15) / 16 < seen) paint(i, r.color[i]);
         if (active) fx.draw(frame, "front");
         drawStraw();
         drawDust();
