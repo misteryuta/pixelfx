@@ -2,10 +2,9 @@
 // seals a huge fireball is blown at the enemy; the Uchiha's rite of passage. Staged as in the anime: the hand comes up
 // to the lips as a ring, the chest fills, and a roaring stream of fire swells at the mouth into a ball wider than the
 // shinobi, which rolls forward and swallows the target.
-// Built from: the library fire breath (the stream at the lips), the fire kit's noise for the ball's churning skin
+// Built from: a tongue of toolkit flame at the lips, the fire kit's noise for the ball's churning skin
 // (fire/_lib), the toolkit's fire and smoke particles, and the small explosion (enlarged) where it lands.
 import { Particles, Lights, P, PF, Rng, READY, fit, clamp, smooth, ease, mix, hex, WHITE, TAU } from "../../core/index.js";
-import * as breath from "../fire/fire-breath.js";
 import * as blast from "../explosions/small-explosion.js";
 import { pnoise, hotFirst } from "../fire/_lib.js";
 import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
@@ -13,15 +12,15 @@ import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 const SEALS = sealRun(0.05, ["mi", "hitsuji", "saru", "i", "uma", "tora"], 0.11, { hold: 0.12 });
 const RING = SEALS.end, BLOW = RING + 0.36, GROW = 0.42, ROLL = BLOW + GROW, SPEED = 95, TX = 150;
 const [MX, MY] = [MOUTH[0] + 2, MOUTH[1] + 1];
-const RMAX = 19;
+const RMAX = 23;
 const HIT = ROLL + (TX - 8 - (MX + RMAX)) / SPEED;
 
 export const meta = {
   name: "Great fireball",
   desc: "Katon: Snake, Ram, Monkey, Boar, Horse, Tiger, a hand at the lips, and a roaring stream of fire swells into a ball wider than the shinobi that rolls on and swallows the target.",
   tags: ["jutsu", "fire", "katon", "move", "one-shot"],
-  size: [306, 220],
-  origin: [56, 186],
+  size: [306, 240],
+  origin: [56, 204],
   duration: HIT + 5.4,
   loop: false,
   fps: 30,
@@ -63,7 +62,6 @@ function ball(t) {
 
 export const create = play(
   [
-    { fx: breath, t: BLOW, until: ROLL + 0.12, x: MX, y: MY, light: 0.6 },
     { fx: blast, t: HIT, x: TX, size: 0.85, light: 0.8 },
   ],
   (o) => {
@@ -76,6 +74,9 @@ export const create = play(
           const a = R.range(0, TAU), d = R.range(8, 18), T = R.range(0.07, 0.12), v = (d * 3) / (Math.exp(3 * T) - 1);
           ps.spawn(P.STREAK, MX + Math.cos(a) * d, MY + Math.sin(a) * d, -Math.cos(a) * v, -Math.sin(a) * v, T, R.chance(0.5) ? F[6] : F[4]);
         }
+        // the first gust of the blow: a short tongue of flame off the lips that the ball swells out of
+        if (t > BLOW && t < BLOW + 0.2)
+          for (let j = 0; j < Math.max(1, Math.round(90 * dt)); j++) ps.spawn(P.FIRE, MX + 2, MY + R.range(-1.5, 1.5), R.range(60, 140), R.range(-25, 15), R.range(0.12, 0.25), 0, R.range(1.5, 3), 0, R.chance(0.3) ? PF.SMOKES : 0);
         const b = ball(t);
         if (b) {
           // flame licked off the ball's skin and thrown back, cooling into smoke

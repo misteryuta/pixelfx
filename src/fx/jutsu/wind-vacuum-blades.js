@@ -73,7 +73,7 @@ function crescent(p, C, x, y, R, rot, alpha, W = R * 0.55) {
     const d = R - ro, v = Math.abs(ly) / R;
     const ci = d < 1 ? 0 : d < 2.2 ? 1 : 2 + Math.round((d - 2.2) * 0.6);
     out.c = C[n - 1 - clamp(ci + Math.round(v * v * 2.5), 0, n - 2)];
-    out.a = alpha * (v > 0.8 ? 0.65 : 1);
+    out.a = 1;
   });
 }
 
@@ -135,7 +135,8 @@ export const create = play(
           const b = bladeAt(i, t);
           if (!b) return;
           // echoes a beat behind it, then the blade itself
-          crescent(p, C.slice(0, 5), b.x - 8, b.y, b.R * 0.9, b.rot, 0.4, b.R * 0.3);
+          // the smear of torn air behind it: soft, truly translucent
+          p.disc(b.x - b.R * 0.9, b.y, b.R * 0.9, C[3], (d) => 0.22 * (1 - d * d));
           crescent(p, C, b.x, b.y, b.R, b.rot, 1);
           p.glow(b.x - b.R * 0.3, b.y, 16 + b.R, C[3], 0.35);
           if (b.u < 0.12) sparkle(p, b.x, b.y, Math.round(8 * (1 - b.u / 0.12)), C[6], C[4], 0.5);
