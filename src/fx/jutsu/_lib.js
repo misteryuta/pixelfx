@@ -1,22 +1,79 @@
 // Shared by the jutsu moves (files starting with _ are helpers, not effects): the hand-seal poses every jutsu
 // starts with, the mouth and palm the elements leave from, and a cue player like core chain() that can also
 // steer a cue's angle over time (a projectile that tilts along its arc) and keep custom drawing in the same frame.
-import { createFx, READY } from "../../core/index.js";
+import { createFx, READY, WHITE, clamp, ease, hex, mix } from "../../core/index.js";
 
-// Where the stock character's mouth and palm sit, in px from the feet, facing right.
+// Where the stock character's mouth sits, in px from the feet, facing right.
 export const MOUTH = [6, -31];
 
-// Seals: both hands pressed together in front of the chest, the fingers up. Two shapes so a quick run of seals
-// reads as the hands changing sign, not as a still pose.
-export const SEAL_A = { ...READY, crouch: 3, lean: 1, fx: 9, fy: -25, bx: 11, by: -25, armsFront: true, ffx: 7, fbx: -7 };
-export const SEAL_B = { ...SEAL_A, crouch: 4, fx: 10, fy: -27, bx: 12, by: -24 };
-export const SEAL_C = { ...SEAL_A, crouch: 3, lean: 2, fx: 8, fy: -23, bx: 12, by: -26 };
+// ---- hand seals (in, 印): the twelve signs of the zodiac. Every sign is its own hand shape, so a run of seals reads
+// as the hands really changing: where the two hands meet, how high, which one is on top, how the body sits.
+// (Narutopedia: Tiger is the sign of most fire jutsu, Snake of earth and water, Hare of lightning.)
+const S = { ...READY, crouch: 3, lean: 1, armsFront: true, ffx: 7, fbx: -7 };
+export const SIGNS = {
+  ne: { name: "NE", pose: { ...S, fx: 9, fy: -24, bx: 11, by: -22 } }, // rat: one fist wrapped round two fingers
+  ushi: { name: "USHI", pose: { ...S, fx: 8, fy: -23, bx: 12, by: -23, crouch: 4 } }, // ox: hands stacked flat, crosswise
+  tora: { name: "TORA", pose: { ...S, fx: 10, fy: -27, bx: 11, by: -27 } }, // tiger: fingers up, pressed together
+  u: { name: "U", pose: { ...S, fx: 9, fy: -22, bx: 12, by: -25, lean: 2 } }, // hare: one hand over the other's fist
+  tatsu: { name: "TATSU", pose: { ...S, fx: 11, fy: -26, bx: 9, by: -24 } }, // dragon: thumbs out, palms together
+  mi: { name: "MI", pose: { ...S, fx: 10, fy: -24, bx: 10, by: -23, crouch: 4 } }, // snake: fingers laced
+  uma: { name: "UMA", pose: { ...S, fx: 10, fy: -21, bx: 11, by: -22, lean: 2 } }, // horse: fingers pointing down
+  hitsuji: { name: "HITSUJI", pose: { ...S, fx: 9, fy: -25, bx: 11, by: -24 } }, // ram: half tiger
+  saru: { name: "SARU", pose: { ...S, fx: 8, fy: -26, bx: 12, by: -25 } }, // monkey
+  tori: { name: "TORI", pose: { ...S, fx: 11, fy: -25, bx: 8, by: -26, crouch: 4 } }, // bird
+  inu: { name: "INU", pose: { ...S, fx: 9, fy: -21, bx: 12, by: -21, crouch: 4 } }, // dog: one flat hand on the other fist
+  i: { name: "I", pose: { ...S, fx: 10, fy: -23, bx: 11, by: -25, crouch: 5, lean: 3 } }, // boar
+};
+// where the hands meet for a sign, for the chakra flash
+const handsOf = (pose) => [(pose.fx + pose.bx) / 2, (pose.fy + pose.by) / 2];
 
-/** Pose keys for n seals from t0, one every dt seconds, each one snapped on so the hands click into place. */
-export function seals(t0, n, dt) {
-  const keys = [];
-  for (let i = 0; i < n; i++) keys.push([t0 + i * dt, [SEAL_A, SEAL_B, SEAL_C][i % 3], i ? "snap" : "out"]);
-  return keys;
+/**
+ * A run of seals: pose keys snapped on one after another every dt from t0, the last one held until `hold`.
+ * at: overrides for where the last (held) sign sits, e.g. Tiger raised to the mouth for fire.
+ * Returns { keys, list: [{ t, sign, x, y }], end } for drawSeals().
+ */
+export function sealRun(t0, names, dt, { hold = 0, last = {} } = {}) {
+  const keys = [], list = [];
+  names.forEach((n, i) => {
+    const sign = SIGNS[n], fin = i === names.length - 1, pose = fin ? { ...sign.pose, ...last } : sign.pose, t = t0 + i * dt;
+    keys.push([t, pose, i ? "snap" : "out"]);
+    list.push({ t, sign, xy: handsOf(pose), fin });
+  });
+  const end = t0 + (names.length - 1) * dt + Math.max(dt, hold);
+  return { keys, list, end, dt };
+}
+
+/**
+ * Draw what a seal run looks like: on each new sign a pulse of chakra flashes between the hands in the element's
+ * color, and the sign's name pops up over the head (the last one held and glowing). C: the element ramp, dark to bright.
+ */
+export function drawSeals(p, t, run, C) {
+  const n = C.length, OUT = hex("#120c18");
+  for (const s of run.list) {
+    const a = t - s.t, life = s.fin ? run.end - s.t + 0.15 : run.dt;
+    if (a < 0 || a > life) continue;
+    const [hx, hy] = s.xy;
+    // the flash between the hands: hot for two frames, then a ring that opens and fades
+    const k = 1 - clamp(a / Math.min(life, 0.3));
+    if (a < 0.07) {
+      p.circle(hx, hy, 2.2, C[n - 2]);
+      p.px(hx, hy, WHITE);
+    }
+    if (k > 0) {
+      p.ring(hx, hy, 2 + 6 * (1 - k), 1, C[n - 3], k);
+      p.glow(hx, hy, 12, C[n - 3], 0.5 * k);
+    }
+    if (s.fin && a > 0.07) p.glow(hx, hy, 9, C[n - 2], 0.35 + 0.15 * Math.sin(t * 30));
+    // the sign's name: pops up with a little overshoot, white for a frame, then in the element's light color
+    const up = ease.outBack(clamp(a / 0.08), 2.5), fade = s.fin ? 1 - clamp((a - life + 0.15) / 0.15) : 1 - clamp((a - life * 0.75) / (life * 0.25));
+    if (fade <= 0) continue;
+    const y = -44 - 3 * up;
+    p.text(s.sign.name, 6, y, a < 0.04 ? WHITE : C[n - 2], { font: "mini", align: "center", outline: OUT, a: fade });
+  }
+  // the count of signs so far: little dots under the name
+  const done = run.list.filter((s) => t >= s.t).length;
+  if (done && t < run.end + 0.15)
+    run.list.forEach((s, i) => p.px(6 - (run.list.length - 1) + i * 2, -38, i < done ? C[n - 2] : mix(OUT, C[1], 0.5)));
 }
 
 /**

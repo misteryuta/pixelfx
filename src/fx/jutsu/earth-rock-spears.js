@@ -4,9 +4,12 @@
 // through the moment the seam reaches it; the seam, the shudder and the palms' glow are new.
 import { Particles, Lights, P, Rng, READY, fit, clamp, smooth, ease, mix, hex, WHITE } from "../../core/index.js";
 import * as spike from "../nature/earth-spike.js";
-import { play, seals } from "./_lib.js";
+import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SLAM = 0.36, STEP = 0.085, UP = 0.34, TX = 126;
+// Doton: Doryuusou (Narutopedia): the Bird seal, then many rock spears grow out of the ground; earth jutsu often end
+// with the hands slammed onto the floor.
+const SEALS = sealRun(0.05, ["tori"], 0.12, { hold: 0.3 });
+const SLAM = SEALS.end + 0.4, STEP = 0.085, UP = 0.34, TX = 126;
 const SPEARS = [
   { x: 32, h: 15 },
   { x: 50, h: 19 },
@@ -42,9 +45,9 @@ const SLAMMED = { ...READY, x: 5, crouch: 11, lean: 9, fx: PALMS, fy: -1, bx: PA
 export const act = {
   target: { x: TX },
   poses: [
-    [-0.8, READY],
-    ...seals(-0.66, 4, 0.11),
-    [-0.1, RAISE],
+    [-0.25, READY],
+    ...SEALS.keys,
+    [SEALS.end + 0.08, RAISE],
     [SLAM - 0.04, { ...RAISE, y: -1, crouch: 0 }],
     [SLAM, SLAMMED, "snap"],
     [ram(5), { ...SLAMMED, lean: 10 }],
@@ -117,6 +120,7 @@ export const create = play(
         }
       },
       draw(p, t) {
+        drawSeals(p, t, SEALS, G);
         // the palms on the floor: chakra pouring out of them while the seam runs
         const g = t >= SLAM ? 1 - smooth(ram(5), ram(5) + 0.5, t) : 0;
         if (g > 0) {

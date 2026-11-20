@@ -3,7 +3,7 @@
 import * as jutsu_earth_rock_spears from "./jutsu/earth-rock-spears.js";
 import * as jutsu_fire_phoenix_flower from "./jutsu/fire-phoenix-flower.js";
 import * as jutsu_lightning_current from "./jutsu/lightning-current.js";
-import * as jutsu_water_bullets from "./jutsu/water-bullets.js";
+import * as jutsu_water_wave from "./jutsu/water-wave.js";
 import * as jutsu_wind_vacuum_blades from "./jutsu/wind-vacuum-blades.js";
 import * as moves_arrow_shot from "./moves/arrow-shot.js";
 import * as moves_dash_strike from "./moves/dash-strike.js";
@@ -256,7 +256,7 @@ export const effects = {
   "jutsu/earth-rock-spears": jutsu_earth_rock_spears,
   "jutsu/fire-phoenix-flower": jutsu_fire_phoenix_flower,
   "jutsu/lightning-current": jutsu_lightning_current,
-  "jutsu/water-bullets": jutsu_water_bullets,
+  "jutsu/water-wave": jutsu_water_wave,
   "jutsu/wind-vacuum-blades": jutsu_wind_vacuum_blades,
   "moves/arrow-shot": moves_arrow_shot,
   "moves/dash-strike": moves_dash_strike,

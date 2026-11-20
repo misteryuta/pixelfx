@@ -4,9 +4,12 @@
 // Each lands with the library's hit spark recolored to wind, and leaves a cut drawn across the target.
 import { Particles, Lights, P, Rng, READY, fit, clamp, smooth, ease, mix, hex, WHITE, TAU, sparkle } from "../../core/index.js";
 import * as spark from "../impacts/hit-spark.js";
-import { play, seals, MOUTH } from "./_lib.js";
+import { play, sealRun, drawSeals, MOUTH } from "./_lib.js";
 
-const FIRE = 0.44, GAP = 0.11, SPEED = 340, TX = 136;
+// Fuuton: Shinkuuha (Narutopedia): seals Rat, Snake, Horse, Dog; air is drawn into the lungs and blown out of the
+// mouth as a blast that cuts like blades.
+const SEALS = sealRun(0.05, ["ne", "mi", "uma", "inu"], 0.12, { hold: 0.1 });
+const BREATH = SEALS.end, FIRE = BREATH + 0.5, GAP = 0.11, SPEED = 340, TX = 136;
 // [height they travel at, tilt, full radius]
 const BLADES = [
   { y: -27, rot: -0.22, R: 11 },
@@ -37,9 +40,9 @@ const BLOW = { ...READY, crouch: 5, lean: 7, fx: 12, fy: -22, bx: 3, by: -21, ff
 export const act = {
   target: { x: TX },
   poses: [
-    [-0.8, READY],
-    ...seals(-0.66, 4, 0.11),
-    [-0.1, BREATHE],
+    [-0.25, READY],
+    ...SEALS.keys,
+    [BREATH + 0.08, BREATHE],
     [FIRE - 0.04, { ...BREATHE, lean: -8, crouch: 1 }],
     ...BLADES.flatMap((b, i) => [[at(i), { ...BLOW, lean: 6 + i * 2, crouch: 5 + (i & 1) }, "snap"], [at(i) + 0.06, { ...BLOW, lean: 4, crouch: 4 }]]),
     [at(2) + 0.5, { ...BLOW, lean: 2, crouch: 3 }],
@@ -84,7 +87,7 @@ export const create = play(
     return {
       update(t, dt) {
         // the breath in: wisps pulled towards the mouth
-        if (t > -0.1 && t < FIRE && R.chance(40 * dt)) {
+        if (t > BREATH && t < FIRE && R.chance(40 * dt)) {
           const a = R.range(-1.2, 1.2), d = R.range(10, 22), T = R.range(0.1, 0.16), v = (d * 3) / (Math.exp(3 * T) - 1);
           ps.spawn(P.STREAK, mx + 4 + Math.cos(a) * d, my + Math.sin(a) * d, -Math.cos(a) * v, -Math.sin(a) * v, T, R.chance(0.5) ? C[5] : C[3]);
         }
@@ -123,6 +126,7 @@ export const create = play(
         ps.draw(p, "back");
       },
       draw(p, t) {
+        drawSeals(p, t, SEALS, C.slice(1));
         for (const s of streaks) {
           const k = 1 - s.max / s.life;
           p.line(s.x - s.len * (0.6 + 0.4 * (1 - k)), s.y, s.x - s.len * 0.2 * (1 - k), s.y, s.c, k);

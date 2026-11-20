@@ -1,13 +1,18 @@
-// Lightning release: a current held from the open palm to the target. Not a strike from the sky and not a chain:
-// one channel that keeps re-striking between the same two points while knots of charge race down it. Inked with the
-// lightning kit (lightning/_lib: bowed bolts, stroke, crackle, trace, scorch); the target end opens with the library's
-// zap hit, and fires it again when the current surges.
+// Raiton: Jibashi (lightning current). Narutopedia: Raiton chakra is made to vibrate until it becomes electricity,
+// steered by the user out of the hand; Jibashi's seals are Boar, Tiger, Snake. The reference clip gives the look: the
+// current first crawls all over the arm and body, then is let go in a blinding white-cored blast streaked with speed
+// lines. Here: one channel held from the palm to the target that keeps re-striking while knots of charge race down it.
+// Inked with the lightning kit (lightning/_lib: bowed bolts, stroke, crackle, trace, scorch); the target end opens with
+// the library's zap hit, and fires it again when the current surges.
 import { Particles, Lights, P, Rng, READY, fit, clamp, smooth, ease, rng, lerp, mix, hex, WHITE, TAU, sparkle } from "../../core/index.js";
 import * as zap from "../lightning/zap-hit.js";
 import { VOLT, PLASMA, zigzag, bowed, stroke, crackle, trace, scorch } from "../lightning/_lib.js";
-import { play, seals } from "./_lib.js";
+import { play, sealRun, drawSeals } from "./_lib.js";
 
-const CHARGE = 0, FIRE = 0.42, LEAP = 0.06, SURGE = FIRE + 0.5, HOLD = FIRE + 1.05, BREAK = 0.18, TX = 124;
+const SEALS = sealRun(0.05, ["i", "tora", "mi"], 0.13, { hold: 0.15 });
+const CHARGE = SEALS.end, FIRE = CHARGE + 0.55, LEAP = 0.06, SURGE = FIRE + 0.5, HOLD = FIRE + 1.05, BREAK = 0.18, TX = 124;
+// the body the current crawls over while it charges: shoulder to fist, and the trunk
+const ARM = [[3, -29], [-1, -22], [-3, -17]], BODY = [-6, -36, 10, -4];
 const HAND = [17, -22], TGT = [TX - 6, -22];
 
 export const meta = {
@@ -31,9 +36,9 @@ const zapHit = (t, stop, push) => ({ t, stop, push, straw: 6, skin: "shock", shi
 export const act = {
   target: { x: TX },
   poses: [
-    [-0.8, READY],
-    ...seals(-0.66, 4, 0.11),
-    [CHARGE, DRAWN],
+    [-0.25, READY],
+    ...SEALS.keys,
+    [CHARGE + 0.08, DRAWN],
     [FIRE - 0.04, { ...DRAWN, crouch: 6, lean: -4 }],
     [FIRE, THRUST, "snap"],
     [SURGE, { ...THRUST, crouch: 5 }],
@@ -130,13 +135,35 @@ export const create = play(
       },
       draw(p, t) {
         const f = Math.floor(t * 30 + 1e-4), f2 = f >> 1, k = level(t);
+        drawSeals(p, t, SEALS, C.slice(2));
+        // charging: the current crawls over the whole body; arcs run down the drawn-back arm into the fist
+        const body = t > CHARGE ? (t < FIRE ? smooth(CHARGE, FIRE - 0.15, t) : Math.min(1, k) * 0.6) : 0;
+        if (body > 0.02) {
+          const r2 = rng(o.seed, 21, f), [x0, y0, x1, y1] = BODY;
+          for (let j = 0; j < 2 + Math.round(3 * body); j++) {
+            const ax = r2.range(x0, x1), ay = r2.range(y0, y1), a = r2.range(0, TAU), d = r2.range(4, 9);
+            crackle(p, zigzag(r2, ax, ay, ax + Math.cos(a) * d, ay + Math.sin(a) * d, 0.45, 0.3), r2.range(0.45, 0.8) * body, C, 0.3);
+          }
+          if (t < FIRE) crackle(p, zigzag(r2, ARM[0][0], ARM[0][1], ARM[2][0], ARM[2][1], 0.35, 0.4), 0.8 * body, C, 0.4);
+          p.glow(2, -20, 28, C[4], 0.3 * body);
+          if (r2.next() < 0.4 * body) crackle(p, zigzag(r2, r2.range(-4, 6), -6, r2.range(-8, 10), -0.5, 0.3, 0.2), 0.6 * body, C, 0.3);
+        }
         // the fist at the hip while it charges: a crackling knot
         if (t > CHARGE && t < FIRE) {
           const g = smooth(CHARGE, FIRE, t), r2 = rng(o.seed, 5, f), a = r2.range(0, TAU), d = r2.range(4, 8) * (0.5 + g);
-          p.circle(-3, -17, 1 + 1.5 * g, C[5]);
-          p.px(-3, -17, WHITE);
-          p.glow(-3, -17, 16, C[4], 0.6 * g);
+          p.circle(-3, -17, 1 + 2 * g, C[5]);
+          p.circle(-3, -17, 0.8 + g, WHITE);
+          p.glow(-3, -17, 20, C[4], 0.7 * g);
           crackle(p, zigzag(r2, -3, -17, -3 + Math.cos(a) * d, -17 + Math.sin(a) * d, 0.4, 0.3), 0.6 * g, C, 0.3);
+        }
+        // the release, as in the clip: one white frame over the channel, then speed lines raking along it while it holds
+        if (k > 0) {
+          const L = tx - hx, r3 = rng(o.seed, 41, f);
+          for (let j = 0; j < 7; j++) {
+            const u0 = ((t * 3.2 + j * 0.37) % 1), len = r3.range(10, 26), off = r3.range(-11, 11);
+            const sx = hx + L * u0, sy = hy + (ty - hy) * u0 + off;
+            p.line(sx, sy, Math.min(tx, sx + len), sy, Math.abs(off) < 5 ? C[6] : C[5], 0.55 * Math.min(1, k));
+          }
         }
         // the leap: the current races out of the palm with a hot head
         if (t >= FIRE && t < FIRE + LEAP) {
@@ -147,10 +174,13 @@ export const create = play(
           p.glow(px, py, 16, C[5], 0.7);
         }
         if (k > 0) {
-          const main = shape(f2, 0, f2 % 2 ? -7 : 6);
-          stroke(p, main, Math.min(1, k), C, 0.8 + 0.35 * Math.max(0, k - 1) * 2.5, { light: 0.55 });
-          // the second strand: thin, wound the other way, flickering in and out
-          if (f % 3 !== 2) crackle(p, shape(f, 1, f % 2 ? 9 : -9), 0.55 * Math.min(1, k), C, 0.25);
+          const main = shape(f2, 0, f2 % 2 ? -7 : 6), hero = t - FIRE - LEAP < 0.07;
+          // a fat channel with a thick white core, like the blast in the clip, thickening further on the surge
+          stroke(p, main, Math.min(1, k), C, 1.6 + 0.5 * Math.max(0, k - 1) * 2.5, { light: 0.7, core: 1.1, hero });
+          // two more strands wound round it, flickering in and out on their own beats
+          if (f % 3 !== 2) stroke(p, shape(f, 1, f % 2 ? 10 : -10), 0.6 * Math.min(1, k), C, 0.8, { light: 0.3 });
+          if (f % 4 !== 1) crackle(p, shape(f + 7, 2, f % 2 ? -13 : 12), 0.55 * Math.min(1, k), C, 0.25);
+          p.glowLine(hx, hy, tx, ty, 18, C[4], 0.35 * Math.min(1, k));
           // knots of charge racing down the channel from the palm to the target
           const pts = main.paths[0].pts;
           for (let j = 0; j < 3; j++) {

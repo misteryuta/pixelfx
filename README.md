@@ -30,7 +30,7 @@ the idea at library scale, with a skill to keep going.
 <!-- catalog -->
 | category | effects | some of them |
 |---|---|---|
-| **jutsu** | 5 | rock spears, phoenix flower, lightning current, water bullets, vacuum blades |
+| **jutsu** | 5 | rock spears, phoenix flower, lightning current, raging waves, vacuum blades |
 | **moves** | 12 | arrow shot, dash strike, earth stomp, fireball throw, ground pound, holy smite… |
 | **fire** | 12 | brazier, campfire, candle, fire breath, fire ring, fire tornado… |
 | **explosions** | 12 | barrel explosion, big explosion, cartoon pow, dirt explosion, firework burst, firework rocket… |

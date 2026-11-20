@@ -1,33 +1,39 @@
-// Fire release: a burst of small fireballs spat in a fan. The balls are the library fireball's recipe made small:
-// its swept-back flame blades and white-hot head (fire/_lib), but the tail is left in the world as real flame puffs,
-// so it bends along each arc instead of trailing straight behind. The ball that finds the target gets the library's
-// small explosion (shrunk) and hit spark; the ones on the floor pop and leave the toolkit's blazes burning.
-import { Particles, Blazes, Lights, P, PF, Rng, READY, fit, clamp, smooth, mix, hex, WHITE, TAU } from "../../core/index.js";
+// Katon: Housenka no Jutsu (Phoenix flower). Narutopedia: fire chakra is melted in the belly and breathed out of the
+// mouth; the seals are Rat, Tiger, Dog, Ox, Hare, Tiger, the last one held; many football-sized fireballs instead of one
+// stream. The reference clip adds the staging: the last Tiger is held right at the lips, he leaps, and from the top of
+// the jump spits the balls down at the ground ahead, where each one goes up in a billow of smoke and fire.
+// Built from: the fire kit's flame blades and puffs (fire/_lib) for the balls, the library's small explosion (shrunk)
+// for every landing, and the toolkit's blazes for the fires left burning.
+import { Particles, Blazes, Lights, P, PF, Rng, READY, fit, ease, TAU } from "../../core/index.js";
 import * as blast from "../explosions/small-explosion.js";
-import * as spark from "../impacts/hit-spark.js";
 import { noiseFor, hotFirst, flameBlade, LAYERS } from "../fire/_lib.js";
-import { play, seals, arcPath, MOUTH } from "./_lib.js";
+import { play, sealRun, drawSeals } from "./_lib.js";
 
-const SPIT = 0.38, GAP = 0.075, TX = 132;
-// the volley: where each ball lands [x, y (0 is the floor), flight time, arc height, radius]; the third finds the target
+// the effect's clock starts with the first seal (anything before t = 0 is never drawn), so the whole jutsu is laid out after it
+const SEALS = sealRun(0.05, ["ne", "tora", "inu", "ushi", "u", "tora"], 0.11, { hold: 0.42, last: { fx: 8, fy: -30, bx: 9, by: -30, lean: 0 } });
+const T0 = SEALS.end, CROUCH = T0 + 0.02, LEAP = T0 + 0.12, TOP = T0 + 0.34, H = 30, SPIT = T0 + 0.36, GAP = 0.065, FALL = T0 + 0.86, LAND = T0 + 1.02, TX = 150;
+// the balls: where each lands on the floor and how long it flies; they fan out over the ground ahead
 const BALLS = [
-  [92, 0, 0.42, 20, 2.6],
-  [168, 0, 0.6, 34, 2.2],
-  [TX - 2, -20, 0.46, 18, 3.2],
-  [112, 0, 0.5, 30, 2.4],
-  [190, 0, 0.66, 38, 2.2],
+  [118, 0.38],
+  [86, 0.3],
+  [TX, 0.42],
+  [104, 0.34],
+  [176, 0.48],
+  [134, 0.4],
 ];
 const at = (i) => SPIT + i * GAP;
-const land = (i) => at(i) + BALLS[i][2];
+const land = (i) => at(i) + BALLS[i][1];
 const HIT = land(2);
+// the mouth at the top of the jump, leaning into the spit
+const MX = 10, MY = -31 - H + 2;
 
 export const meta = {
   name: "Phoenix flower",
-  desc: "Fire release: seals, a breath drawn through a cupped hand, then five small fireballs spat in a fan that arc down over the floor, one into the target, leaving little fires.",
-  tags: ["jutsu", "fire", "move", "projectile", "spread", "one-shot"],
-  size: [300, 212],
-  origin: [56, 188],
-  duration: HIT + 5.45,
+  desc: "Katon: Rat, Tiger, Dog, Ox, Hare, Tiger held at the lips, a leap, and from the top of it six fireballs spat down over the ground, each bursting in smoke and fire.",
+  tags: ["jutsu", "fire", "katon", "move", "projectile", "spread", "one-shot"],
+  size: [320, 230],
+  origin: [56, 196],
+  duration: HIT + 5.3,
   loop: false,
   fps: 30,
   bg: "ground",
@@ -35,128 +41,103 @@ export const meta = {
   options: { palette: ["#4a1712", "#8a1f17", "#c9281f", "#f2561d", "#ff8a2a", "#ffc23d", "#ffe26b", "#fff3a6", "#ffffff"], seed: 3 },
 };
 
-// breathing in: the near hand rolled into a tube at the mouth, the chest filling and leaning back
-const DRAW = { ...READY, crouch: 2, lean: -4, fx: 9, fy: -30, bx: 9, by: -22, armsFront: true, ffx: 8, fbx: -8 };
-const SPAT = { ...READY, crouch: 5, lean: 6, fx: 12, fy: -30, bx: 2, by: -20, ffx: 11, fbx: -10, toeB: true };
+const TIGER = SEALS.keys[SEALS.keys.length - 1][1];
+const DUCK = { ...TIGER, crouch: 8, lean: 3 };
+const RISE = { ...READY, y: -H, crouch: 1, lean: -2, fx: 8, fy: -30, bx: 9, by: -30, armsFront: true, ffx: 5, ffy: -5, fbx: -6, fby: -3 };
+const BLOW = { ...RISE, lean: 8, crouch: 3, fx: 12, fy: -26, bx: -4, by: -28, ffx: 7, ffy: -7, fbx: -8, fby: -2 };
+const DOWN = { ...READY, crouch: 9, lean: 4, fx: 13, fy: -12, bx: -3, by: -16, ffx: 10, fbx: -9 };
 
 export const act = {
   target: { x: TX },
   poses: [
-    [-0.8, READY],
-    ...seals(-0.62, 4, 0.12),
-    [0, DRAW],
-    [SPIT - 0.04, { ...DRAW, lean: -6, crouch: 1 }],
-    [SPIT, SPAT, "snap"],
-    [at(2), { ...SPAT, lean: 4, crouch: 4 }, "snap"],
-    [at(4), { ...SPAT, lean: 5 }, "snap"],
-    [at(4) + 0.5, { ...SPAT, lean: 2, crouch: 3 }],
-    [at(4) + 1.2, READY],
+    [-0.25, READY],
+    ...SEALS.keys,
+    [CROUCH, DUCK],
+    [LEAP, DUCK],
+    [TOP, RISE, "out"],
+    [SPIT, BLOW, "snap"],
+    ...BALLS.slice(1).map((b, i) => [at(i + 1), { ...BLOW, lean: 8 + ((i + 1) % 2) * 2, crouch: 3 + ((i + 1) % 2) }, "snap"]),
+    [FALL, { ...BLOW, lean: 4 }],
+    [LAND, DOWN, "in"],
+    [LAND + 0.5, { ...DOWN, crouch: 5 }],
+    [LAND + 1.1, READY],
     [meta.duration, READY],
   ],
   hits: [
     { t: HIT, stop: 0.14, shake: 0.3, amp: 2, push: 3, straw: 26, skin: "char" },
-    { t: land(3), stop: 0.03, push: 0.8, straw: 6 },
+    { t: land(5), stop: 0.03, push: 1, straw: 8 },
+    { t: LAND, stop: 0.04, shake: 0.12, amp: 1, target: false },
     { t: meta.duration - 0.6, push: 0, straw: 0, flash: 0, skin: null },
   ],
-  dust: [{ t: SPIT, x: 12, n: 5, dir: 1 }],
+  dust: [{ t: LEAP, x: 0, n: 6 }, { t: LAND, x: 2, n: 8 }],
 };
 
-const paths = BALLS.map(([x, y, , h]) => arcPath(MOUTH[0] + 3, MOUTH[1], x, y - 2, h));
-const ballAt = (i, t) => {
-  const u = (t - at(i)) / BALLS[i][2];
-  return u < 0 || u >= 1 ? null : paths[i](u);
-};
+// a ball's flight: straight down at the ground with a little sag, from the mouth to its spot
+function ballAt(i, t) {
+  const u = (t - at(i)) / BALLS[i][1];
+  if (u < 0 || u >= 1) return null;
+  const [x1, T] = BALLS[i], y1 = i === 2 ? -18 : -1, e = ease.inQuad(u) * 0.35 + u * 0.65;
+  const x = MX + (x1 - MX) * u, y = MY + (y1 - MY) * e, dy = ((y1 - MY) * (0.65 + 0.7 * u)) / T, dx = (x1 - MX) / T;
+  return { x, y, ang: Math.atan2(dy, dx) };
+}
 
 export const create = play(
-  [
-    { fx: spark, t: HIT, x: BALLS[2][0] - 6, height: 20, aim: 0.15 },
-    { fx: blast, t: HIT, x: BALLS[2][0], size: 0.34, light: 0.7 },
-  ],
+  BALLS.map(([x], i) => ({ fx: blast, t: land(i), x, size: i === 2 ? 0.4 : 0.3, light: 0.7, seed: 7 + i })),
   (o) => {
-    const F = fit(o.palette, 9), H = hotFirst(F), R = new Rng(o.seed + 40), floor = () => 0, NL = noiseFor(0);
+    const F = fit(o.palette, 9), H2 = hotFirst(F), R = new Rng(o.seed + 40), floor = () => 0, NL = noiseFor(0);
     const ps = new Particles({ rng: R, ground: floor }), blazes = new Blazes(ps), lights = new Lights();
     const lit = BALLS.map(() => false), spat = BALLS.map(() => false);
-    const [mx, my] = MOUTH;
     return {
       update(t, dt) {
-        // the breath: sparks and flecks of flame drawn in to the cupped hand
-        if (t > 0 && t < SPIT && R.chance(60 * dt)) {
-          const a = R.range(0, TAU), d = R.range(9, 20), T = R.range(0.08, 0.14), v = (d * 3) / (Math.exp(3 * T) - 1);
-          ps.spawn(P.STREAK, mx + 2 + Math.cos(a) * d, my + Math.sin(a) * d, -Math.cos(a) * v, -Math.sin(a) * v, T, R.chance(0.5) ? F[6] : F[4]);
+        // the held Tiger: heat drawn up into the chest, sparks gathering at the lips
+        if (t > SEALS.end - 0.4 && t < SPIT && R.chance(55 * dt)) {
+          const cx = t < LEAP ? 8 : MX, cy = t < LEAP ? -31 : MY - 1, a = R.range(0, TAU), d = R.range(8, 18), T = R.range(0.07, 0.12), v = (d * 3) / (Math.exp(3 * T) - 1);
+          ps.spawn(P.STREAK, cx + Math.cos(a) * d, cy + Math.sin(a) * d, -Math.cos(a) * v, -Math.sin(a) * v, T, R.chance(0.5) ? F[6] : F[4]);
         }
-        if (t > SPIT - 0.2 && t < SPIT && R.chance(30 * dt)) ps.spawn(P.FIRE, mx + 3, my, R.range(5, 20), R.range(-20, -5), R.range(0.1, 0.2), 0, R.range(0.8, 1.4));
-        BALLS.forEach(([x, y, , , r], i) => {
-          // each spit: a puff of flame off the lips and a flash of light
+        BALLS.forEach(([x], i) => {
           if (!spat[i] && t >= at(i)) {
             spat[i] = true;
-            lights.add(mx + 4, my, 34, F[5], 0.6, 0.12);
-            for (let j = 0; j < 5; j++) ps.spawn(P.FIRE, mx + 4, my, R.range(40, 110), R.range(-40, 10), R.range(0.12, 0.24), 0, R.range(1, 2), 0, R.chance(0.4) ? PF.SMOKES : 0);
+            lights.add(MX + 3, MY + 2, 40, F[5], 0.7, 0.12);
+            for (let j = 0; j < 6; j++) ps.spawn(P.FIRE, MX + 3, MY + 2, R.range(20, 90), R.range(10, 80), R.range(0.12, 0.24), 0, R.range(1.2, 2.2), 0, R.chance(0.4) ? PF.SMOKES : 0);
           }
-          // in flight: the ball sheds flame puffs where it has been, so its tail follows the arc
           const b = ballAt(i, t);
           if (b) {
-            const n = Math.max(1, Math.round(110 * dt));
+            // the tail: flame puffs left where the ball has been, cooling into smoke
+            const n = Math.max(1, Math.round(140 * dt));
             for (let j = 0; j < n; j++)
-              if (R.chance(0.8)) ps.spawn(P.FIRE, b.x + R.range(-1, 1), b.y + R.range(-1, 1), -Math.cos(b.ang) * R.range(5, 25), -Math.sin(b.ang) * R.range(5, 25) - 8, R.range(0.12, 0.3), 0, r * R.range(0.5, 0.85), 0, R.chance(0.2) ? PF.SMOKES : 0);
-            if (R.chance(14 * dt)) ps.spawn(P.SPARK, b.x, b.y, -Math.cos(b.ang) * 60 + R.range(-30, 30), -Math.sin(b.ang) * 60 - R.range(0, 40), R.range(0.15, 0.35), F[R.int(5, 7)]);
+              if (R.chance(0.85)) ps.spawn(P.FIRE, b.x + R.range(-1.5, 1.5), b.y + R.range(-1.5, 1.5), -Math.cos(b.ang) * R.range(5, 30), -Math.sin(b.ang) * R.range(5, 30) - 10, R.range(0.14, 0.32), 0, R.range(2, 3.4), 0, R.chance(0.3) ? PF.SMOKES : 0);
+            if (R.chance(16 * dt)) ps.spawn(P.SPARK, b.x, b.y, -Math.cos(b.ang) * 60 + R.range(-30, 30), -Math.sin(b.ang) * 60 - R.range(0, 40), R.range(0.15, 0.35), F[R.int(5, 7)]);
           }
-          // each landing on the floor: a white blink, a splash of flame thrown low and forward, sparks, a fire that stays
           if (!lit[i] && t >= land(i)) {
             lit[i] = true;
-            if (y === 0) {
-              lights.add(x, -3, 30, F[5], 0.7, 0.14);
-              lights.add(x, -2, 10, WHITE, 0.6, 0.05);
-              for (let j = 0; j < 9; j++) {
-                const a = -Math.PI / 2 + R.range(-1.2, 1.3), sp = R.range(30, 90);
-                ps.spawn(P.FIRE, x, -1, Math.cos(a) * sp + 15, Math.sin(a) * sp * 0.7, R.range(0.2, 0.42), 0, R.range(1.4, 2.6), 0, R.chance(0.35) ? PF.SMOKES : 0);
-              }
-              for (let j = 0; j < 7; j++) {
-                const a = -Math.PI / 2 + R.range(-1.3, 1.3), sp = R.range(80, 220);
-                ps.spawn(P.SPARK, x, -1, Math.cos(a) * sp, Math.sin(a) * sp, R.range(0.15, 0.4), F[R.int(5, 7)]);
-              }
-              for (let j = 0; j < 3; j++) ps.spawn(P.DUST, x + R.range(-3, 3), -1, R.sign() * R.range(15, 40), -R.range(3, 10), R.range(0.4, 0.7), hex("#6a5a5e"), R.range(1.5, 2.5));
-              blazes.add(x + R.range(-2, 2), 0, R.range(1.4, 2.2), R.range(0.7, 1));
-            } else for (let j = 0; j < 2; j++) blazes.add(x + R.range(-6, 4), 0, R.range(1, 1.5), 0.6);
+            blazes.add(x + R.range(-3, 3), 0, R.range(1.6, 2.6), R.range(0.8, 1.1));
           }
         });
         blazes.update(dt);
         ps.update(dt);
         lights.update(dt);
       },
-      drawBack(p, t) {
+      drawBack(p) {
         ps.draw(p, "back");
-        // scorch marks where the balls came down, cooling from ember red to soot
-        BALLS.forEach(([x, y], i) => {
-          const a = t - land(i);
-          if (a < 0 || y !== 0) return;
-          const k = 1 - smooth(1.6, 2.4, a), hot = 1 - smooth(0.1, 1.2, a);
-          p.ellipse(x, 0.5, 7, 1.6, mix(hex("#140c10"), F[2], hot * 0.8), 0.7 * k);
-          if (hot > 0.05) p.glow(x, -1, 14, F[4], 0.35 * hot);
-        });
       },
       draw(p, t) {
-        // a coal of fire glowing in the hand while the breath is drawn
-        const g = t > 0 && t < SPIT ? smooth(0, SPIT, t) : 0;
-        if (g > 0) {
-          p.circle(mx + 3, my, 1 + 1.5 * g, F[6]);
-          p.circle(mx + 3, my, 0.8 * g, WHITE);
-          p.glow(mx + 3, my, 16, F[5], 0.5 * g);
-        }
+        drawSeals(p, t, SEALS, F.slice(2));
         ps.draw(p, "front");
-        // the balls: three short flame blades swept back off a white-hot head, a warm light round each
+        // the balls: an orange ball of fire, yellow at heart, three tongues swept back off it
         const N = (rate, seed = 0, off = 0) => NL(t, rate, seed, off);
-        BALLS.forEach(([, , , , r], i) => {
+        BALLS.forEach((_, i) => {
           const b = ballAt(i, t);
           if (!b) return;
-          const ux = -Math.cos(b.ang), uy = -Math.sin(b.ang), nx = -uy, ny = ux;
-          [[0, 7.5], [1, 5.5], [-1, 5.5]].forEach(([side, len], j) => {
+          const r = i === 2 ? 4.4 : 3.6 + (i % 3) * 0.3, ux = -Math.cos(b.ang), uy = -Math.sin(b.ang), nx = -uy, ny = ux;
+          [[0, 10], [1, 7], [-1, 7]].forEach(([side, len], j) => {
             const n = i * 31 + j * 7;
-            flameBlade(p, b.x + nx * side * r * 0.45, b.y + ny * side * r * 0.45, ux, uy, len * (r / 2.6) * (0.85 + 0.25 * N(6, n)), r * 0.85, side * 1.2 + N(5, n + 3), N, n, H, LAYERS, 0.4, 0.8);
+            flameBlade(p, b.x + nx * side * r * 0.5, b.y + ny * side * r * 0.5, ux, uy, len * (r / 3.6) * (0.85 + 0.25 * N(6, n)), r * 0.9, side * 1.4 + N(5, n + 3), N, n, H2, LAYERS, 0.5, 0.9);
           });
-          p.circle(b.x, b.y, r, H[2]);
-          p.circle(b.x - 0.3, b.y - 0.3, r * 0.62, H[1]);
-          p.circle(b.x - 0.4, b.y - 0.4, r * 0.3, WHITE);
-          p.glow(b.x, b.y, 18 + r * 3, H[3], 0.4);
+          p.circle(b.x, b.y, r, H2[4]);
+          p.circle(b.x - 0.4, b.y - 0.4, r * 0.7, H2[3]);
+          p.circle(b.x - 0.6, b.y - 0.6, r * 0.4, H2[2]);
+          p.px(b.x - 1, b.y - 1, H2[1]);
+          p.glow(b.x, b.y, 20 + r * 3, H2[3], 0.45);
         });
         lights.draw(p);
       },
