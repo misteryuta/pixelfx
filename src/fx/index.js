@@ -45,6 +45,7 @@ import * as jutsu_naruto_uzumaki_rendan from "./jutsu/naruto-uzumaki-rendan.js";
 import * as jutsu_neji_64_palms from "./jutsu/neji-64-palms.js";
 import * as jutsu_neji_kaiten from "./jutsu/neji-kaiten.js";
 import * as jutsu_obito_kamui from "./jutsu/obito-kamui.js";
+import * as jutsu_obito_kamui_surinuke from "./jutsu/obito-kamui-surinuke.js";
 import * as jutsu_orochimaru_senei_jashu from "./jutsu/orochimaru-senei-jashu.js";
 import * as jutsu_pain_banshou_tenin from "./jutsu/pain-banshou-tenin.js";
 import * as jutsu_pain_chibaku_tensei from "./jutsu/pain-chibaku-tensei.js";
@@ -358,6 +359,7 @@ export const effects = {
   "jutsu/neji-64-palms": jutsu_neji_64_palms,
   "jutsu/neji-kaiten": jutsu_neji_kaiten,
   "jutsu/obito-kamui": jutsu_obito_kamui,
+  "jutsu/obito-kamui-surinuke": jutsu_obito_kamui_surinuke,
   "jutsu/orochimaru-senei-jashu": jutsu_orochimaru_senei_jashu,
   "jutsu/pain-banshou-tenin": jutsu_pain_banshou_tenin,
   "jutsu/pain-chibaku-tensei": jutsu_pain_chibaku_tensei,

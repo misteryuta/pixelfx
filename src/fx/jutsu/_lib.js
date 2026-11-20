@@ -399,3 +399,42 @@ function aura(p, t, run, C) {
       p.px(x, -lift - 1, C[n - 1]);
     }
 }
+
+/**
+ * Anime impact frames over the whole picture painted so far: everything drawn turns to an ink silhouette on white paper,
+ * burst lines rush in at (cx, cy); inv swaps ink and paper (the second beat). Covers the local box x0..x1, y0..y1.
+ */
+const INK = hex("#08070e"), PAPER = hex("#fffdf6");
+export function impactFrame(p, x0, y0, x1, y1, cx, cy, inv = false, seed = 1) {
+  const n = 60, lines = Array.from({ length: n }, (_, i) => {
+    const thick = rand(i, seed + 3) < 0.2;
+    return { a: ((i + 0.2 + rand(i, seed) * 0.6) / n) * TAU - Math.PI, inner: thick ? 26 + rand(i, seed + 1) * 20 : 16 + rand(i, seed + 1) * 60, w: thick ? 4 + rand(i, seed + 2) * 3 : 1 + rand(i, seed + 2) * 2.4 };
+  });
+  p.each(x0, y0, x1, y1, (lx, ly, sx, sy) => {
+    const i = (sy - p.oy) * p.w + (sx - p.ox), c = p.C[i];
+    const dx = lx - cx, dy = (ly - cy) * 1.3, rho = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
+    const slot = Math.floor(((ang + Math.PI) / TAU) * n);
+    let line = false;
+    for (let k = -1; k <= 1 && !line; k++) {
+      const l = lines[(slot + k + n) % n];
+      let d = Math.abs(ang - l.a);
+      if (d > Math.PI) d = TAU - d;
+      line = rho > l.inner && d * rho < l.w * clamp((rho - l.inner) / 40);
+    }
+    const ink = ((c >>> 24) > 70) !== line;
+    p.C[i] = ink !== inv ? INK : PAPER;
+    p.L[i] = 0;
+  });
+}
+
+/** A chunk of rock: a lumpy polygon of size s at (x, y), turned by a, lit from the upper left. C: dark..light (4). */
+export function drawChunk(p, x, y, s, a, C, k = 1) {
+  const pts = [];
+  for (let i = 0; i < 6; i++) {
+    const aa = a + (i / 6) * TAU, r = s * (0.7 + 0.3 * rand(i, Math.floor(s * 7)));
+    pts.push([x + Math.cos(aa) * r, y + Math.sin(aa) * r]);
+  }
+  p.poly(pts, C[1], k);
+  p.poly(pts.map(([px, py]) => [x + (px - x) * 0.6 - s * 0.15, y + (py - y) * 0.6 - s * 0.15]), C[2], k);
+  p.px(x - s * 0.35, y - s * 0.4, C[3]);
+}

@@ -138,9 +138,36 @@ export class Target {
     }
     this.straw = this.straw.filter((s) => s.age < s.life);
   }
-  draw(C, W, H, X, Y, flip) {
+  /**
+   * st (from an effect's targetState(t)): { dx, dy, rot, s, a, tint: [color, k] }: an effect can lift it, spin it, shrink it
+   * (pulled into a vortex, packed into a moon), tint it, and hide (a = 0) or dither (0..1) it.
+   */
+  draw(C, W, H, X, Y, flip, st) {
     const tan = Math.tan(this.theta), sv = this.shiver > 0 ? (Math.floor(this.clock * 30) & 1 ? 1 : -1) : 0, name = this.flashT > 0 ? "flash" : this.skin, sk = name ? SKINS[name] : null;
     const base = X + (flip ? -this.x - 1 : this.x);
+    if (st) {
+      const a = st.a ?? 1, sc = st.s ?? 1, rot = st.rot ?? 0, tint = st.tint;
+      if (a <= 0 || sc <= 0.02) return;
+      const shade = (c) => {
+        if (sk) c = mix(c, sk[0], sk[1]);
+        return tint && tint[1] > 0 ? mix(c, tint[0], tint[1]) : c;
+      };
+      // inverse-mapped: every pixel round the pivot (26 up from its feet) looks up the sprite pixel it shows
+      const cx = st.dx ?? 0, cy = -26 + (st.dy ?? 0), cs = Math.cos(-rot), sn = Math.sin(-rot), Rr = Math.ceil(36 * sc) + 2;
+      for (let qy = Math.floor(cy - Rr); qy <= cy + Rr; qy++)
+        for (let qx = Math.floor(cx - Rr); qx <= cx + Rr; qx++) {
+          const ux = (qx - cx) / sc, uy = (qy - cy) / sc, ly = Math.round(ux * sn + uy * cs) - 26, r = ly + TH;
+          if (r < 0 || r >= TH) continue;
+          const x = Math.round(ux * cs - uy * sn) + 19 - (Math.round((TH - 1 - r) * tan * 0.8) + sv);
+          if (x < 0 || x >= TW) continue;
+          const c = DUMMY[r * TW + x];
+          if (!c) continue;
+          const px = base + (flip ? -qx - 1 : qx), py = Y + qy;
+          if (a < 1 && ((px * 7 + py * 13) & 15) / 16 >= a) continue;
+          if (px >= 0 && py >= 0 && px < W && py < H) C[py * W + px] = shade(c);
+        }
+      return;
+    }
     for (let r = 0; r < TH; r++) {
       const o = Math.round((TH - 1 - r) * tan * 0.8) + sv;
       for (let x = 0; x < TW; x++) {
@@ -303,7 +330,9 @@ export function createAct(mod, o = {}) {
     draw(frame, { body = true, target: showTarget = true } = {}) {
       const W = frame.w, H = frame.h, q = last ?? poseNow(), active = t >= 0;
       const tgt = showTarget ? targets : [];
-      const drawTargets = () => tgt.forEach((g) => g.draw(frame.color, W, H, FX, FY, flip));
+      // an effect can move, spin, shrink, tint or hide its (first) target: targetState(t) (see Target.draw)
+      const tst = active && typeof mod.targetState === "function" ? mod.targetState(meta.loop ? (t < 0 ? 0 : t % D) : clamp(t, 0, D), fx.options) : null;
+      const drawTargets = () => tgt.forEach((g, i) => g.draw(frame.color, W, H, FX, FY, flip, i === 0 ? tst : null));
       const drawStraw = () => tgt.forEach((g) => g.drawStraw(frame.color, W, H, FX, FY, flip));
       const drawDust = () => {
         for (const k of specks) {

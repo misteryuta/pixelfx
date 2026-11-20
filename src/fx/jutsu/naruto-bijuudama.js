@@ -5,7 +5,9 @@
 // behind, dark and light motes pulled into its open jaws and balanced into a black sphere, fired at the target, where
 // it goes off in a dark dome and a white flash.
 // New: the cloak (drawFigure in gold over his body, flames off its edge, the six magatama at the neck), the fox head
-// (one shaded shape: skull, ears, muzzle, slit eye, jaws), the ball. From the library: the dark explosion, recolored.
+// (one shaded shape: skull, ears, muzzle, slit eye, jaws), the ball. The head aims: it rears back while the ball
+// gathers, then drops its jaws onto the line to the target and holds there, the ball fired straight down that line,
+// the head kicked up by the recoil. From the library: the dark explosion, recolored.
 import { Lights, Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, mix, rand, WHITE, TAU, posed } from "../../core/index.js";
 import * as dark from "../shadow/dark-explosion.js";
 import { play, bodyAt, drawFigure, drawOutline } from "./_lib.js";
@@ -15,14 +17,33 @@ const MODE = 0.55, FOX = MODE + 0.35, FOXED = FOX + 0.45, GATHER = FOXED, BALL =
 const GOLD = ["#5a2a06", "#c86a10", "#ff9a1c", "#ffc830", "#fff0a0"];
 const BB = ["#08040e", "#1c1030", "#3c2070", "#7a4ad0", "#c8b0ff"].map(hex);
 // the fox's head, in its own space (snout to the right): the mouth is at MOUTH
-const FX0 = 10, FY0 = -60, MOUTH = [FX0 + 36, FY0 + 12];
+const FX0 = 10, FY0 = -60, MOUTH = [FX0 + 36, FY0 + 12], PIVOT = [FX0 - 10, FY0 + 34], AIMT = [TX - 10, -24];
+// the head's tilt (radians, + is down toward the target): reared back while it gathers, lowered onto the aim, the recoil
+const AIM = (() => {
+  // solve for the tilt that puts the jaws on the line to the target (a few rounds of fixed point are plenty)
+  let a = 0;
+  for (let i = 0; i < 6; i++) {
+    const mx = PIVOT[0] + (MOUTH[0] - PIVOT[0]) * Math.cos(a) - (MOUTH[1] - PIVOT[1]) * Math.sin(a), my = PIVOT[1] + (MOUTH[0] - PIVOT[0]) * Math.sin(a) + (MOUTH[1] - PIVOT[1]) * Math.cos(a);
+    a = Math.atan2(AIMT[1] - my, AIMT[0] - mx);
+  }
+  return a;
+})();
+const tiltAt = (t) => {
+  if (t < GATHER) return 0;
+  if (t < BALL) return -0.14 * smooth(GATHER, GATHER + 0.4, t) + (AIM + 0.14) * ease.inOutCubic(smooth(BALL - 0.45, BALL - 0.05, t));
+  if (t < FIRE) return AIM;
+  const r = t - FIRE;
+  return AIM - 0.22 * Math.exp(-r * 9) * Math.sin(Math.min(Math.PI, r * 14)) - AIM * smooth(HIT, HIT + 0.5, t);
+};
+const turn = (x, y, a) => [PIVOT[0] + (x - PIVOT[0]) * Math.cos(a) - (y - PIVOT[1]) * Math.sin(a), PIVOT[1] + (x - PIVOT[0]) * Math.sin(a) + (y - PIVOT[1]) * Math.cos(a)];
+const mouthAt = (t) => turn(MOUTH[0], MOUTH[1], tiltAt(t));
 
 export const meta = {
   name: "Tailed beast ball",
   desc: "Naruto in Kurama Chakra Mode: the golden cloak flares over him, a giant chakra fox head rises behind, dark and light chakra are balanced into a black sphere in its jaws and fired, bursting in a dark dome.",
   tags: ["jutsu", "naruto", "kurama", "bijuu", "projectile", "aoe", "one-shot"],
-  size: [404, 236],
-  origin: [84, 182],
+  size: [410, 262],
+  origin: [84, 208],
   duration: HIT + 4.5,
   loop: false,
   fps: 30,
@@ -73,9 +94,9 @@ export const create = play([{ fx: dark, t: HIT, x: TX - 8, y: -16, palette: ["#0
   let fired = false;
   const ballR = (t) => (t < GATHER ? 0 : 3 + 7 * ease.outCubic(clamp((t - GATHER) / (BALL - GATHER))));
   const ballPos = (t) => {
-    if (t < FIRE) return MOUTH;
-    const u = clamp((t - FIRE) / FLY);
-    return [MOUTH[0] + (TX - 10 - MOUTH[0]) * u, MOUTH[1] + (-24 - MOUTH[1]) * u];
+    if (t < FIRE) return mouthAt(t);
+    const m = mouthAt(FIRE), u = clamp((t - FIRE) / FLY);
+    return [m[0] + (AIMT[0] - m[0]) * u, m[1] + (AIMT[1] - m[1]) * u];
   };
   return {
     update(t, dt) {
@@ -89,12 +110,14 @@ export const create = play([{ fx: dark, t: HIT, x: TX - 8, y: -16, palette: ["#0
       if (t > GATHER && t < BALL) {
         for (let n = 0; n < 2; n++) if (R.chance(60 * dt)) {
           const a = R.range(0, TAU), d = R.range(30, 60), T = R.range(0.2, 0.35), v = (d * 3) / (Math.exp(3 * T) - 1);
-          ps.spawn(P.STREAK, MOUTH[0] + Math.cos(a) * d, MOUTH[1] + Math.sin(a) * d, -Math.cos(a) * v, -Math.sin(a) * v, T, R.chance(0.8) ? BB[3] : WHITE);
+          const m = mouthAt(t);
+          ps.spawn(P.STREAK, m[0] + Math.cos(a) * d, m[1] + Math.sin(a) * d, -Math.cos(a) * v, -Math.sin(a) * v, T, R.chance(0.8) ? BB[3] : WHITE);
         }
       }
       if (!fired && t >= FIRE) {
         fired = true;
-        lights.add(MOUTH[0], MOUTH[1], 80, BB[3], 0.8, 0.2);
+        const m = mouthAt(t);
+        lights.add(m[0], m[1], 80, BB[3], 0.8, 0.2);
       }
       ps.update(dt);
       lights.update(dt);
@@ -118,8 +141,11 @@ export const create = play([{ fx: dark, t: HIT, x: TX - 8, y: -16, palette: ["#0
             }
           }
         }
-        p.shade(FX0 - 40, oy - 36, FX0 + 44, Math.min(0, oy + 62), (x, y, out) => {
-          const hx = x - FX0, hy = y - oy;
+        const tl = tiltAt(t), ct = Math.cos(-tl), st = Math.sin(-tl), py0 = PIVOT[1] + (oy - FY0);
+        p.shade(FX0 - 46, oy - 44, FX0 + 54, Math.min(0, oy + 62), (x, y, out) => {
+          // the head turned about its chest: look up the unturned point
+          const rx = PIVOT[0] + (x - PIVOT[0]) * ct - (y - py0) * st, ry = py0 + (x - PIVOT[0]) * st + (y - py0) * ct;
+          const hx = rx - FX0, hy = ry - oy;
           if (!inFox(hx, hy, j)) return;
           const edge = !inFox(hx - 1.5, hy, j) || !inFox(hx + 1.5, hy, j) || !inFox(hx, hy - 1.5, j) || !inFox(hx, hy + 1.5 + rand(Math.floor(hx), f) * 2, j);
           // the slit eye, the dark of the open mouth
@@ -174,7 +200,10 @@ export const create = play([{ fx: dark, t: HIT, x: TX - 8, y: -16, palette: ["#0
         p.arc(x, y, r - 1, 1, Math.PI * 1.05, Math.PI * 1.45, BB[4]);
         p.px(x - r * 0.45, y - r * 0.5, WHITE);
         if (t < FIRE) for (let i = 0; i < 3; i++) p.ring(x, y, r + 4 + ((t * 30 + i * 4) % 12), 1, i ? BB[3] : BB[4], 0.6);
-        if (t >= FIRE) for (let i = 1; i < 4; i++) p.line(x - i * 8, y, x - i * 8 - 7, y, BB[3]);
+        if (t >= FIRE) {
+          const m = mouthAt(FIRE), dx = AIMT[0] - m[0], dy = AIMT[1] - m[1], n = Math.hypot(dx, dy), ux = dx / n, uy = dy / n;
+          for (let i = 1; i < 4; i++) p.line(x - ux * i * 8, y - uy * i * 8, x - ux * (i * 8 + 7), y - uy * (i * 8 + 7), BB[3]);
+        }
       }
       if (t > HIT && t < HIT + 0.08) p.circle(TX - 8, -24, 40, WHITE);
       ps.draw(p, "front");
