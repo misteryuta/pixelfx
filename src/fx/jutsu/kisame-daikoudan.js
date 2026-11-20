@@ -15,7 +15,7 @@ import { drawBadge } from "./_badge.js";
 
 const SEALS = sealRun(0.05, ["gassho", "mi", "hiden"], 0.13, { hold: 0.2, kind: "water" });
 const WELL = SEALS.end, FORMED = WELL + 0.55, SEND = FORMED + 0.12, DIVE = SEND + 0.25, SURF = DIVE + 0.6, HIT = SURF + 0.3, END = HIT + 2.6, TX = 180;
-const LEAPX = TX - 54;
+const LEAPX = TX - 66;
 const SW = ["#0a2a4a", "#1f5fa6", "#3f86cf", "#8ac8f0", "#e4f4ff"].map(hex);
 
 export const meta = {
@@ -66,20 +66,24 @@ function inShark(x, y, L, j) {
 
 export const create = play([{ fx: splash, t: SURF, x: LEAPX, stone: false, light: 0.5 }, { fx: splash, t: HIT, x: TX - 6, stone: false, light: 0.8 }], (o) => {
   const C = fit(o.palette, 8), R = new Rng(o.seed), beads = [];
-  // where the shark is: risen out of the pool, nose-diving into the floor, swimming under it, bursting out at the target
+  // where the shark is: one smooth path from the pool, nose down into the floor, a run just under it with only the dorsal
+  // fin cutting the surface (the floor hides the rest), and up out of it in an arc onto the target. Its heading is the
+  // path's own direction, so nothing jumps: it speeds up all the way (slow off his hands, fastest as it hits).
+  const X0 = 36, X1 = TX - 28, DEPTH = 11;
+  const pathX = (t) => { const u = clamp((t - SEND) / (HIT - SEND)); return X0 + (X1 - X0) * (0.35 * u + 0.65 * u * u); };
+  const pathY = (x, t) => {
+    // out of the floor it climbs steeply and levels off right at the target: still rising as it bursts out, flat as it hits
+    const dive = smooth(X0, 84, x), v = clamp((x - 110) / (X1 - 110)), leap = 1 - (1 - v) * (1 - v);
+    return -26 + (DEPTH + 26) * dive - (DEPTH + 26) * leap + 1.2 * Math.sin(x * 0.22) * dive * (1 - leap);
+  };
+  const posAt = (t) => { const x = pathX(t); return [x, pathY(x, t)]; };
   const sharkAt = (t) => {
     const L = 40 + 30 * ease.outCubic(clamp((t - WELL) / (FORMED - WELL)));
-    if (t < SEND) return { x: 36, y: -26 + (1 - clamp((t - WELL) / (FORMED - WELL))) * 20 + Math.sin(t * 8) * 1.5, L, j: 0.3 + 0.2 * Math.sin(t * 6), a: 0 };
-    if (t < DIVE) {
-      const u = (t - SEND) / (DIVE - SEND);
-      return { x: 36 + 34 * u, y: -26 + 52 * u * u, L, j: 0.2, a: 1.0 * u };
-    }
-    if (t < SURF) {
-      const u = (t - DIVE) / (SURF - DIVE);
-      return { x: 70 + (LEAPX - 70) * u, y: 22, L, j: 0.2, a: 0, under: true };
-    }
-    const v = clamp((t - SURF) / (HIT - SURF)), x = LEAPX + (TX - 16 - LEAPX) * v, y = 22 - 56 * v - 34 * Math.sin(Math.PI * v);
-    return { x, y, L, j: 0.4 + 0.6 * smooth(0, 0.6, v), a: -0.95 + 1.35 * v };
+    const settle = 1 - smooth(FORMED, SEND, t);
+    if (t < SEND) return { x: X0, y: -26 + (1 - clamp((t - WELL) / (FORMED - WELL))) * 20 + Math.sin(t * 8) * 1.5 * settle, L, j: 0.3 + 0.2 * Math.sin(t * 6) * settle, a: 0 };
+    const [x, y] = posAt(t), [x2, y2] = posAt(t + 0.01), [x1, y1] = posAt(t - 0.01);
+    const a = Math.atan2(y2 - y1, x2 - x1) * smooth(SEND, SEND + 0.08, t);
+    return { x, y, L, j: 0.3 + 0.7 * smooth(SURF, HIT - 0.05, t), a, under: y > 6 };
   };
   return {
     update(t, dt) {
@@ -113,22 +117,19 @@ export const create = play([{ fx: splash, t: SURF, x: LEAPX, stone: false, light
       // his gills
       for (let i = 0; i < 3; i++) p.px(hx - 2 + i, hy + 1, hex("#1e3a5c"));
       // under the floor: only the dorsal fin cuts along it, a furrow of churning water and foam behind
-      if (t > DIVE - 0.08 && t < SURF + 0.06) {
-        const s = sharkAt(Math.min(Math.max(t, DIVE), SURF)), fx = s.x - s.L * 0.02, k = smooth(DIVE - 0.08, DIVE + 0.05, t) * (1 - smooth(SURF, SURF + 0.06, t)), h = 15 * k;
+      if (t > SEND && t < HIT) {
+        const s = sharkAt(t), fx = s.x - s.L * 0.02, k = smooth(0, 8, s.y) * (1 - smooth(SURF, SURF + 0.12, t));
         for (let i = 0; i < 9; i++) {
           const x = fx - 6 - i * 7;
           if (x < 60) break;
           p.ellipse(x, 0, 7 - i * 0.4, 1.6, i % 2 ? SW[3] : SW[4], (0.9 - i * 0.09) * k);
         }
         p.ellipse(fx - 30, 0.6, 34, 1.2, SW[1], 0.6 * k);
-        p.tri(fx - 7, 0, fx + 6, 0, fx - 3, -h, SW[2], k);
-        p.line(fx + 6, 0, fx - 3, -h, WHITE, k);
-        p.line(fx - 7, 0, fx - 3, -h, SW[3], k);
         p.arc(fx + 8, 0, 7, 2, Math.PI, Math.PI * 1.6, SW[4], k);
       }
-      if (t > WELL && t < HIT + 0.05 && !sharkAt(t).under) {
+      if (t > WELL && t < HIT + 0.05) {
         const s = sharkAt(t), f = Math.floor(t * 20), ca = Math.cos(-s.a), sa = Math.sin(-s.a), RR = s.L * 0.62;
-        p.glow(s.x, Math.min(-2, s.y), s.L * 0.8, SW[2], 0.5);
+        p.glow(s.x, Math.min(-2, s.y), s.L * 0.8, SW[2], 0.5 * (1 - 0.6 * smooth(4, 12, s.y)));
         p.shade(s.x - RR, s.y - RR, s.x + RR, Math.min(0, s.y + RR), (px, py, out) => {
           const x0 = px - s.x, y0 = py - s.y, x = x0 * ca - y0 * sa, y = x0 * sa + y0 * ca;
           if (!inShark(x, y, s.L, s.j)) return;

@@ -203,6 +203,7 @@ export const outfitName = () => (OUTFIT ? OUTFIT.name : "");
 function stampHead(S) {
   const F = S.B.head, Rm = F.R, f = mv(Rm, [1, 0, 0]), up = mv(Rm, [0, 1, 0]);
   let view = OUTFIT.head.side, flip = f[0] < 0;
+  if (flip && OUTFIT.head.sideL) (view = OUTFIT.head.sideL), (flip = false);
   if (f[2] > 0.82 && OUTFIT.head.front) (view = OUTFIT.head.front), (flip = false);
   else if (f[2] < -0.82 && OUTFIT.head.back) (view = OUTFIT.head.back), (flip = false);
   const c = add(F.t, mv(Rm, [0.3, 0.3, 0])), th = Math.abs(up[0]) > 0.12 ? -Math.atan2(up[0], up[1]) : 0, cs = Math.cos(th), sn = Math.sin(th);
@@ -210,7 +211,7 @@ function stampHead(S) {
     const dx = flip ? -dx0 : dx0, wx = Math.round(c[0] + dx * cs - dy * sn), wy = Math.round(c[1] + dx * sn + dy * cs);
     const idx = (OY - wy) * BW + (OX + wx);
     if (idx < 0 || idx >= BW * BH) continue;
-    plot(idx, c[2] + 2.6, 2, PART.head, 2, wx, wy, col);
+    plot(idx, c[2] + (view === OUTFIT.head.back ? 7 : 2.6), 2, PART.head, 2, wx, wy, col);
   }
 }
 // parts: each has its own number, so edges between them can be seen
@@ -403,6 +404,18 @@ function finish(S, restFrames) {
     if (Mat[i] === 2) continue;
     const ramp = OUTFIT && OUTFIT.parts[Part[i]];
     Col[i] = ramp ? ramp[tones.get(i)] : (Mat[i] === 1 ? CORE : SHELL)[tones.get(i)];
+  }
+  // the outfit's details, painted in each bone's own frame so they ride along with the limb
+  if (OUTFIT && OUTFIT.paint) {
+    const { B } = S;
+    for (const i of touched) {
+      if (Mat[i] === 2 || Fr[i] < 0) continue;
+      const name = FRAME_IDS[Fr[i]], A = B[name];
+      if (!A) continue;
+      const lp = tv(A.R, sub([(i % BW) - OX, OY - ((i / BW) | 0), Zb[i]], A.t));
+      const c = OUTFIT.paint(name, lp, tones.get(i), Part[i]);
+      if (c != null) Col[i] = c;
+    }
   }
   // where two parts meet: a soft seam if they touch, ink if one stands in front of the other
   const marks = new Map();

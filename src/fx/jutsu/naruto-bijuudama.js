@@ -22,7 +22,7 @@ const BALLC = ["#0c0406", "#2a0c0c", "#5a1a14", "#a03a1c", "#ff7a3a"].map(hex);
 const BOOM = ["#06020a", "#1a0814", "#3a1020", "#7a2028", "#c8502a", "#ffa040", "#fff0c0"].map(hex);
 const DOME = ["#08020a", "#1a0610", "#3a0c18", "#7a1a20", "#ffe0c0"].map(hex);
 // the fox's neck pivot and its open mouth (where the ball sits), in its own space before the head turns
-const NECK = [28, -70], MOUTH = [94, -101], AIMT = [TX - 10, -24];
+const NECK = [34, -66], MOUTH = [99, -86], AIMT = [TX - 10, -24];
 // the whole avatar, standing on all fours round Naruto (he stands in its chest)
 const HO = [0, 0];
 const turnAbout = (x, y, a, c = NECK) => [c[0] + (x - c[0]) * Math.cos(a) - (y - c[1]) * Math.sin(a), c[1] + (x - c[0]) * Math.sin(a) + (y - c[1]) * Math.cos(a)];
@@ -90,10 +90,11 @@ export const act = {
 };
 
 // ---- the fox, in its own space (feet on y = 0, facing right): part id at (x, y) or 0; far legs return 2, head 3
-// the head is drawn a fifth bigger than the body would make it, about the back of the skull
+// the head is big (a third over the body's scale) and sits low, right on the chest: the back of the skull at (44, -80)
+const HS = 1.45;
 const headSpace = (x, y, tilt) => {
   const [hx, hy] = turnAbout(x, y, -tilt);
-  return [48 + (hx - 48) / 1.2, -96 + (hy + 96) / 1.2, hx, hy];
+  return [48 + (hx - 44) / HS, -96 + (hy + 80) / HS, hx, hy];
 };
 const capsule = (x, y, ax, ay, bx, by, ra, rb) => {
   const dx = bx - ax, dy = by - ay, u = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)), qx = x - ax - dx * u, qy = y - ay - dy * u;
@@ -108,17 +109,19 @@ function foxPart(x, y, tilt, j) {
   if (hx > 62 && hx < 92 && hy < -96 + (hx - 62) * 0.05 && hy > -108 + (hx - 62) * 0.12) return 3;
   const jy = -94 + j * (hx - 62) * 0.55;
   if (hx > 58 && hx < 88 && hy > jy && hy < jy + 7 - (hx - 58) * 0.1) return 3;
-  if (capsule(nx, ny, 28, -60, 50, -90, 15, 12)) return 3;
-  // the body: a deep chest, a waist drawn in, a strong haunch, standing low on its legs
-  if (((x - 22) / 20) ** 2 + ((y + 50) / 19) ** 2 < 1) return 1;
-  if (capsule(x, y, 20, -52, -34, -46, 16, 13)) return 1;
-  if (((x + 38) / 16) ** 2 + ((y + 36) / 16) ** 2 < 1) return 1;
-  // the near legs: a front leg planted, a hind leg folded under
-  if (capsule(x, y, 24, -42, 30, -22, 8.5, 6.5) || capsule(x, y, 30, -22, 34, -3, 6.5, 5) || (((x - 38) / 8) ** 2 + ((y + 2) / 3) ** 2 < 1)) return 1;
-  if (capsule(x, y, -40, -28, -28, -16, 9, 6) || capsule(x, y, -28, -16, -34, -3, 5.5, 4.5) || (((x + 30) / 7) ** 2 + ((y + 2) / 2.5) ** 2 < 1)) return 1;
+  // a short, thick neck: the head sits almost on the shoulders
+  if (capsule(nx, ny, 30, -60, 50, -78, 19, 16)) return 1;
+  // the body: a massive chest and hunched shoulders, the waist drawn in, a strong haunch, low on its legs
+  if (((x - 22) / 25) ** 2 + ((y + 54) / 23) ** 2 < 1) return 1;
+  if (((x - 14) / 18) ** 2 + ((y + 70) / 10) ** 2 < 1) return 1;
+  if (capsule(x, y, 18, -56, -34, -46, 18, 13)) return 1;
+  if (((x + 38) / 17) ** 2 + ((y + 36) / 17) ** 2 < 1) return 1;
+  // the near legs: a heavy front leg planted, a hind leg folded under
+  if (capsule(x, y, 28, -48, 33, -22, 11.5, 8) || capsule(x, y, 33, -22, 37, -3, 8, 6.5) || (((x - 41) / 10) ** 2 + ((y + 2) / 3.5) ** 2 < 1)) return 1;
+  if (capsule(x, y, -40, -28, -28, -16, 10, 7) || capsule(x, y, -28, -16, -34, -3, 6.5, 5) || (((x + 30) / 8) ** 2 + ((y + 2) / 2.8) ** 2 < 1)) return 1;
   // the far legs, a step behind
-  if (capsule(x, y, 12, -42, 16, -22, 7, 5) || capsule(x, y, 16, -22, 18, -3, 5, 4.5) || (((x - 21) / 6.5) ** 2 + ((y + 2) / 2.5) ** 2 < 1)) return 2;
-  if (capsule(x, y, -50, -28, -48, -3, 6.5, 4.5)) return 2;
+  if (capsule(x, y, 14, -46, 18, -22, 9.5, 6.5) || capsule(x, y, 18, -22, 20, -3, 6.5, 5.5) || (((x - 24) / 8) ** 2 + ((y + 2) / 3) ** 2 < 1)) return 2;
+  if (capsule(x, y, -50, -28, -48, -3, 7.5, 5)) return 2;
   return 0;
 }
 
@@ -233,13 +236,15 @@ export const create = play([], (o) => {
               if (j > 0.3 && (Math.floor(hx) % 3 === 0) && (hy < -95 + (hx - 62) * 0.05 || hy > -95 + j * (hx - 62) * 0.55)) return WHITE;
               return hex("#5a1206");
             }
+          }
+          if (part === 1) {
             // the bands round the neck
-            const [, , nnx, nny] = headSpace(lx, ly, tl), nu = ((nnx - 28) * 22 + (nny + 60) * -30) / (22 * 22 + 30 * 30);
-            if (nu > 0 && nu < 1 && (Math.abs(nu - 0.25) < 0.05 || Math.abs(nu - 0.5) < 0.05)) return FC.ink;
+            const [, , nnx, nny] = headSpace(lx, ly, tl), nu = ((nnx - 30) * 20 + (nny + 60) * -18) / (20 * 20 + 18 * 18);
+            if (capsule(nnx, nny, 30, -60, 50, -78, 19, 16) && nu > 0.1 && nu < 0.9 && (Math.abs(nu - 0.3) < 0.07 || Math.abs(nu - 0.62) < 0.07)) return FC.ink;
           }
           if (part === 1 || part === 2) {
             // the seal on the shoulder: a black ring, a burning gap, a black core
-            const sd = Math.hypot(lx - 10, ly + 44);
+            const sd = Math.hypot(lx - 8, ly + 50);
             if (part === 1 && sd < 10) return sd > 7.2 ? FC.ink : sd > 4 ? FC.body : FC.ink;
             // a black stripe running down the back just inside its outline, and down the front of each leg
             if (ly < -40 && !foxPart(lx, ly - 3.2, tl, j) && foxPart(lx, ly - 1.2, tl, j)) return FC.ink;
