@@ -8,7 +8,7 @@
 // own character; the right one is the rival from _taijutsu.js.
 import { Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU, mix } from "../../core/index.js";
 import { play, bodyAt, sealRun, drawSeals, bolt, blast, impactFrame, drawChunk, MOUTH } from "./_lib.js";
-import { rival, drawRival, FLY, LAND, RECOIL } from "./_taijutsu.js";
+import { rival, drawRival, FLY, LAND, RECOIL, shots } from "./_taijutsu.js";
 
 const RAMPS = {
   fire: ["#1a0804", "#5a1406", "#b0300a", "#ff6a10", "#ffb030", "#ffe880", "#fffbe0"],
@@ -157,13 +157,34 @@ export function buildClash({ name, desc, left, right, winner = "left", seed = 90
         if (t > MEET && t < HIT + 0.05) knot(p, t, c, L, Rr, winner, smooth(BREAK, HIT, t));
         // the moment it breaks: a flash of the winner's colour; the hit: impact frames
         if (t >= BREAK && t < BREAK + 0.05) p.circle(c[0], c[1], 22, W.C[6]);
-        if (t >= HIT && t < HIT + 0.05) impactFrame(p, -52, -136, 268, 34, ...(winner === "left" ? [BX - 6, -26] : [6, -26]), false, seed);
-        else if (t >= HIT + 0.05 && t < HIT + 0.1) impactFrame(p, -52, -136, 268, 34, ...(winner === "left" ? [BX - 6, -26] : [6, -26]), true, seed + 1);
+        if (t >= HIT && t < HIT + 0.05) p.circle(...(winner === "left" ? [BX - 6, -26] : [6, -26]), 30, W.C[6]);
         ps.draw(p, "front");
       },
     };
   });
-  return { meta, act, create, contact };
+  // the camera: wide on both casters, a cut in close on the meeting point, riding the struggle back and forth (rolling a
+  // little with each shove), pulling back as it breaks, a cut to the loser being hit, then out
+  const loser = winner === "left" ? [BX - 10, -26] : [10, -26];
+  const base = shots([
+    [0, { z: 1.0, x: BX / 2, y: -34, r: 0 }],
+    [CAST, { z: 1.15, x: BX / 2, y: -32 }],
+    [MEET, { z: 2.3, x: BX / 2, y: -28, r: 0 }, "cut"],
+    [BREAK - 0.05, { z: 2.0, x: BX / 2, y: -28 }],
+    [BREAK, { z: 1.5, x: BX / 2, y: -30 }, "cut"],
+    [HIT, { z: 2.4, x: loser[0], y: loser[1], r: winner === "left" ? 3 : -3 }, "cut"],
+    [HIT + 0.25, { z: 2.2, x: loser[0], y: loser[1], r: winner === "left" ? 2 : -2 }],
+    [HIT + 0.32, { z: 1.2, x: BX / 2, y: -30, r: 0 }, "cut"],
+    [END, { z: 1.05, x: BX / 2, y: -32 }],
+  ]);
+  const camera = (t) => {
+    const c = base(t);
+    if (t >= MEET && t < BREAK) {
+      const [cx, cy] = contact(t);
+      return { ...c, x: cx, y: cy, r: 2 * Math.sin((t - MEET) * 9) };
+    }
+    return c;
+  };
+  return { meta, act, create, contact, camera };
 }
 
 function sealPose(n) {

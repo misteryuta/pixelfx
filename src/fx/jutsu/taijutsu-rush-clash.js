@@ -6,6 +6,7 @@
 // New: the second fighter (_taijutsu.js), the exchange, the sparks and smears of every blow, sound tags on the beats.
 import { READY, clamp, smooth, ease, hex, WHITE } from "../../core/index.js";
 import { play, bodyAt, impactFrame } from "./_lib.js";
+import { shots } from "./_taijutsu.js";
 import { GUARD, RUN, JAB, CROSS, KICK, BLOCK, PARRY, PARRY2, WIND, HAYMAKER, DUCK, UPPER, FLY, LAND, rival, drawRival, rivalGhosts, jointOf, smear, hitSpark, blockSpark, clashRing, speedLines } from "./_taijutsu.js";
 
 const BX = 120, DASH = 0.35, CLASH = 0.8, KICKT = 1.6, JABT = 1.88, CROSST = 2.03, HOOK = 2.28, UPT = 2.47, LANDT = 2.97, END = 4.0;
@@ -62,6 +63,29 @@ export const act = {
   dust: [{ t: DASH, x: 2, n: 8, dir: -1 }, { t: CLASH + 0.05, x: 30, n: 10, dir: -1 }, { t: UPT, x: 50, n: 6, dir: -1 }],
 };
 
+// the camera: wide on the stand-off, pushing in as they run, a cut to the fists meeting, close on the exchange, a cut
+// to the uppercut from low, then out wide as the rival flies
+export const camera = shots([
+  [0, { z: 1.05, x: 60, y: -26, r: 0 }],
+  [DASH, { z: 1.1, x: 60, y: -26 }],
+  [CLASH - 0.08, { z: 1.55, x: 60, y: -27 }],
+  [CLASH, { z: 2.5, x: 60, y: -27, r: -3 }, "cut"],
+  [CLASH + 0.3, { z: 2.3, x: 60, y: -27, r: -2 }],
+  [CLASH + 0.36, { z: 1.5, x: 58, y: -26, r: 0 }, "cut"],
+  [KICKT - 0.12, { z: 1.6, x: 54, y: -30 }],
+  [KICKT, { z: 2.1, x: 50, y: -32, r: 2 }, "cut"],
+  [KICKT + 0.22, { z: 1.8, x: 56, y: -28, r: 0 }],
+  [JABT, { z: 2.0, x: 62, y: -28 }],
+  [CROSST, { z: 2.15, x: 62, y: -28, r: -1 }],
+  [HOOK - 0.06, { z: 1.9, x: 56, y: -22, r: 0 }],
+  [HOOK + 0.05, { z: 2.2, x: 54, y: -18, r: 3 }],
+  [UPT, { z: 2.7, x: 68, y: -38, r: -4 }, "cut"],
+  [UPT + 0.22, { z: 2.4, x: 70, y: -40, r: -3 }],
+  [UPT + 0.3, { z: 1.25, x: 82, y: -28, r: 0 }, "cut"],
+  [LANDT, { z: 1.3, x: 86, y: -22 }],
+  [END, { z: 1.1, x: 76, y: -24 }],
+]);
+
 const B = rival([
   [-0.25, READY],
   [0.1, GUARD, "out"],
@@ -109,15 +133,14 @@ export const create = play([], () => ({
     if (t > UPT - 0.1 && t < UPT + 0.04) smear(p, at("handN"), t, { w: 6, n: 8 });
     // the clash: two impact frames, a ring of air
     const cx = 60, cy = -27;
-    if (t >= CLASH && t < CLASH + 0.05) impactFrame(p, -50, -112, 220, 28, cx, cy, false, 4);
-    else if (t >= CLASH + 0.05 && t < CLASH + 0.1) impactFrame(p, -50, -112, 220, 28, cx, cy, true, 5);
+    if (t >= CLASH && t < CLASH + 0.06) p.circle(cx, cy, 12, WHITE);
     clashRing(p, cx, cy, t - CLASH - 0.1);
     hitSpark(p, cx, cy, t - CLASH - 0.1, { big: true });
     // the kick on the guard, the parries, the uppercut on the jaw
     blockSpark(p, b.handN[0] + 2, b.handN[1], t - KICKT, { dir: -1 });
     if (t > JABT) blockSpark(p, ...bodyAt(act.poses, JABT).handN, t - JABT, { dir: -1, c: hex("#ffe8a0") });
     if (t > CROSST) blockSpark(p, ...bodyAt(act.poses, CROSST).handF, t - CROSST, { dir: -1, c: hex("#ffe8a0") });
-    if (t >= UPT && t < UPT + 0.05) impactFrame(p, -50, -112, 220, 28, ...bodyAt(act.poses, UPT).handN, false, 6);
+    if (t >= UPT && t < UPT + 0.05) p.circle(...bodyAt(act.poses, UPT).handN, 9, WHITE);
     if (t > UPT) hitSpark(p, ...bodyAt(act.poses, UPT).handN, t - UPT - 0.05, { big: true });
     // the rival's skid when he lands
     if (t > LANDT && t < LANDT + 0.5) {

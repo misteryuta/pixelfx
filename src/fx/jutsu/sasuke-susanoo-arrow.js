@@ -181,8 +181,7 @@ export const create = play([], (o) => {
       // the impact: two impact frames, then the explosion, and black flames left burning on the ground
       const age = t - HIT;
       blast(p, age, { x: T[0], y: 0, R: 34, C: BOOM, seed: 5 });
-      if (age >= 0 && age < 0.05) impactFrame(p, -74, -206, 330, 50, T[0], -24, false, 7);
-      else if (age >= 0.05 && age < 0.1) impactFrame(p, -74, -206, 330, 50, T[0], -24, true, 8);
+      if (age >= 0 && age < 0.05) p.circle(T[0], -24, 36, WHITE);
       if (age > 0.35 && age < 2.6) {
         const k = smooth(0.35, 0.7, age) * (1 - smooth(2, 2.6, age));
         for (let i = 0; i < 5; i++) drawBlackFlame(p, T[0] - 40 + i * 20 + (rand(i, 3) - 0.5) * 8, 0, 4 + rand(i, 4) * 3, 10 + rand(i, 5) * 12, t, i * 3, k);

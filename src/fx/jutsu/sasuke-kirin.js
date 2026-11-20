@@ -200,8 +200,8 @@ export const create = play([], (o) => {
       // the strike: the world goes white, two impact frames, then the dome of lightning and the cracked glowing ground
       const age = t - HIT;
       if (age >= 0 && age < 0.06) veil(p, -70, -238, 270, 36, WHITE, 1, 0);
-      else if (age >= 0.06 && age < 0.11) impactFrame(p, -70, -238, 270, 36, TX, -20, true, 21);
-      else if (age >= 0.11 && age < 0.16) impactFrame(p, -70, -238, 270, 36, TX, -20, false, 22);
+      else if (age >= 0.06 && age < 0.11) impactFrame(p, -70, -238, 270, 36, TX, -20, true, 21, { style: "bolts", ink: hex("#04101e"), paper: hex("#e0f6ff"), lines: 34 });
+      else if (age >= 0.11 && age < 0.16) impactFrame(p, -70, -238, 270, 36, TX, -20, false, 22, { style: "bolts", ink: hex("#04101e"), paper: hex("#e0f6ff"), lines: 34 });
       if (age >= 0.06 && age < 1.4) {
         const R0 = 62 * ease.outCubic(clamp((age - 0.06) / 0.25)), fade = 1 - smooth(0.6, 1.4, age);
         p.glow(TX, -R0 * 0.4, R0 * 2, C[3], 0.7 * fade);

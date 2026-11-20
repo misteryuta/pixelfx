@@ -3,8 +3,9 @@
 // his legs out, the rival is thrown up and turned over in the air; the hero springs up after him and drives him back
 // down into the ground with a hammer blow: impact frames, the floor cracks, dust and rock thrown out.
 // New: the sweep, the spin kick (yaw), the airborne finisher and the cratering landing (from _taijutsu.js and _lib).
-import { READY, smooth, ease, clamp, hex, rand } from "../../core/index.js";
+import { READY, smooth, ease, clamp, hex, rand, WHITE } from "../../core/index.js";
 import { play, bodyAt, impactFrame, drawChunk } from "./_lib.js";
+import { shots } from "./_taijutsu.js";
 import { GUARD, RUN, KICK, DUCK, LOWKICK, FLY, LAND, rival, drawRival, rivalGhosts, jointOf, smear, hitSpark, speedLines } from "./_taijutsu.js";
 
 const BX = 104, DASH = 0.25, SPIN = 0.62, SWEEP = 0.86, UP = 1.0, PEAK = 1.18, DROP = 1.36, LANDT = 1.62, END = 2.9;
@@ -54,6 +55,21 @@ export const act = {
 };
 
 // the rival: guard, a spinning kick (a full turn about his feet), swept off his feet and turned in the air, slammed down
+// the camera: running with him, low on the dodge and the sweep, up with the leap, and a cut to the hammer blow from
+// close as they come down, then out over the crater
+export const camera = shots([
+  [0, { z: 1.1, x: 50, y: -28, r: 0 }],
+  [DASH, { z: 1.3, x: 40, y: -26 }],
+  [SPIN - 0.05, { z: 2.0, x: 66, y: -20, r: 2 }],
+  [SWEEP, { z: 2.3, x: 70, y: -10, r: -2 }, "cut"],
+  [UP, { z: 1.6, x: 74, y: -34, r: 0 }],
+  [PEAK, { z: 1.5, x: 78, y: -50 }],
+  [DROP, { z: 2.6, x: 84, y: -18, r: 4 }, "cut"],
+  [DROP + 0.24, { z: 2.3, x: 84, y: -16, r: 3 }],
+  [DROP + 0.3, { z: 1.35, x: 84, y: -20, r: 0 }, "cut"],
+  [END, { z: 1.2, x: 76, y: -22 }],
+]);
+
 const B = rival([
   [-0.25, READY],
   [0.12, GUARD, "out"],
@@ -95,8 +111,7 @@ export const create = play([], () => ({
     if (t > SWEEP) hitSpark(p, ...bodyAt(act.poses, SWEEP).footN, t - SWEEP);
     if (t > PEAK && t < DROP + 0.03) smear(p, at("handN"), t, { w: 6, n: 8 });
     const hit = bodyAt(act.poses, DROP).handN;
-    if (t >= DROP && t < DROP + 0.05) impactFrame(p, -50, -132, 220, 28, hit[0], hit[1], false, 11);
-    else if (t >= DROP + 0.05 && t < DROP + 0.1) impactFrame(p, -50, -132, 220, 28, hit[0], hit[1], true, 12);
+    if (t >= DROP && t < DROP + 0.05) p.circle(hit[0], hit[1], 12, WHITE);
     if (t > DROP + 0.1) hitSpark(p, hit[0], hit[1], t - DROP - 0.1, { big: true });
     // rock thrown out of the crater
     const age = t - DROP - 0.1;

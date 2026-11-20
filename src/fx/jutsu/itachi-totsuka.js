@@ -231,8 +231,7 @@ export const create = play([], (o) => {
         p.line(J[0], J[1], H[0], H[1], BL[0], k);
       }
       // the hit: two impact frames, then the seal's spiral on the target
-      if (t >= HIT && t < HIT + 0.05) impactFrame(p, -90, -208, 240, 42, TX, -26, false, 3);
-      else if (t >= HIT + 0.05 && t < HIT + 0.1) impactFrame(p, -90, -208, 240, 42, TX, -26, true, 4);
+      if (t >= HIT && t < HIT + 0.06) p.circle(TX, -26, 22, WHITE);
       if (t > HIT + 0.2 && t < SEALED) {
         const u = clamp((t - HIT - 0.2) / (SEALED - HIT - 0.2));
         for (let i = 0; i < 3; i++) {

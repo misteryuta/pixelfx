@@ -4,8 +4,9 @@
 // over, the hero draws back his fist and puts it through the rival's face: two impact frames, and the rival is thrown
 // tumbling away.
 // New: the exchange, the catch, the fold, the finishing blow (from _taijutsu.js: rival, sparks, smears).
-import { READY, smooth, hex } from "../../core/index.js";
+import { READY, smooth, hex, WHITE } from "../../core/index.js";
 import { play, bodyAt, impactFrame } from "./_lib.js";
+import { shots } from "./_taijutsu.js";
 import { GUARD, JAB, CROSS, BLOCK, PARRY, PARRY2, WIND, HAYMAKER, KNEE, GUT, FLY, LAND, rival, drawRival, jointOf, smear, hitSpark, blockSpark } from "./_taijutsu.js";
 
 const BX = 112, STRIKES = [0.5, 0.66, 0.82, 0.98, 1.14], BIG = 1.42, KNEET = 1.72, PULL = 1.98, PUNCH = 2.14, LANDT = 2.85, END = 3.7;
@@ -54,6 +55,25 @@ export const act = {
   dust: [{ t: PUNCH, x: 34, n: 8, dir: -1 }],
 };
 
+// the camera: tight on the flurry, swaying with each block, a cut in close on the catch, the knee from low, and the
+// finishing punch dead on the face before it pulls out with the flying rival
+export const camera = shots([
+  [0, { z: 1.4, x: 52, y: -26, r: 0 }],
+  [STRIKES[0], { z: 1.9, x: 52, y: -28, r: 1 }],
+  [STRIKES[1], { z: 2.0, x: 50, y: -28, r: -1 }],
+  [STRIKES[2], { z: 2.05, x: 50, y: -28, r: 1 }],
+  [STRIKES[3], { z: 2.1, x: 48, y: -28, r: -1 }],
+  [STRIKES[4], { z: 2.15, x: 48, y: -28, r: 1 }],
+  [BIG, { z: 2.6, x: 44, y: -28, r: 0 }, "cut"],
+  [KNEET, { z: 2.3, x: 48, y: -18, r: 2 }, "cut"],
+  [PULL, { z: 2.0, x: 46, y: -28, r: 0 }],
+  [PUNCH, { z: 2.9, x: 58, y: -28, r: -4 }, "cut"],
+  [PUNCH + 0.24, { z: 2.6, x: 60, y: -28, r: -3 }],
+  [PUNCH + 0.3, { z: 1.3, x: 74, y: -28, r: 0 }, "cut"],
+  [LANDT, { z: 1.25, x: 74, y: -24 }],
+  [END, { z: 1.15, x: 66, y: -24 }],
+]);
+
 const B = rival([
   [-0.25, READY],
   [0.2, { ...GUARD, x: 40 }, "out"],
@@ -93,8 +113,7 @@ export const create = play([], () => ({
     if (t > KNEET) hitSpark(p, ...bodyAt(act.poses, KNEET).footN.map((v, i) => v + (i ? -2 : 3)), t - KNEET);
     if (t > PUNCH - 0.1 && t < PUNCH + 0.03) smear(p, at("handN"), t, { w: 6, n: 8 });
     const hit = bodyAt(act.poses, PUNCH).handN;
-    if (t >= PUNCH && t < PUNCH + 0.05) impactFrame(p, -50, -112, 220, 28, hit[0], hit[1], false, 9);
-    else if (t >= PUNCH + 0.05 && t < PUNCH + 0.1) impactFrame(p, -50, -112, 220, 28, hit[0], hit[1], true, 10);
+    if (t >= PUNCH && t < PUNCH + 0.05) p.circle(hit[0] + 3, hit[1], 10, WHITE);
     if (t > PUNCH + 0.1) hitSpark(p, hit[0] + 3, hit[1], t - PUNCH - 0.1, { big: true });
   },
 }));

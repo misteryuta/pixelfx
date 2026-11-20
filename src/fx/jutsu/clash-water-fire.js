@@ -11,4 +11,4 @@ const C = buildClash({
   seed: 92,
   tags: ["fire", "water"],
 });
-export const meta = C.meta, act = C.act, create = C.create;
+export const meta = C.meta, act = C.act, create = C.create, camera = C.camera;

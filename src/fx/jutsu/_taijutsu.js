@@ -6,6 +6,30 @@
 import { poseAt, skeleton, hex, clamp, smooth, ease, rand, WHITE, TAU, mix } from "../../core/index.js";
 import { drawFigure } from "./_lib.js";
 
+/**
+ * A camera over time from shots: [[t, { z, x, y, r }, "cut"?], ...]. Between shots it glides (Hermite keys); a shot
+ * marked "cut" jumps there at once, like an edit. Returns camera(t) for an effect to export.
+ */
+export function shots(list) {
+  // each shot eases into the next (in and out, like a camera operator's move); a "cut" holds the last framing until
+  // the moment of the cut, then is simply there
+  const keys = [];
+  let prev = { z: 1, x: 0, y: -24, r: 0 };
+  for (const [t, v, how] of list) keys.push({ t, v: (prev = { ...prev, ...v }), cut: how === "cut" });
+  return (t) => {
+    if (t <= keys[0].t) return { ...keys[0].v };
+    for (let i = 0; i < keys.length - 1; i++) {
+      const a = keys[i], b = keys[i + 1];
+      if (t >= b.t) continue;
+      if (b.cut) return { ...a.v };
+      const u = (t - a.t) / (b.t - a.t), e = u * u * (3 - 2 * u), o = {};
+      for (const k of ["z", "x", "y", "r"]) o[k] = a.v[k] + (b.v[k] - a.v[k]) * e;
+      return o;
+    }
+    return { ...keys[keys.length - 1].v };
+  };
+}
+
 export const GUARD = { crouch: 5, lean: 3, fx: 9, fy: -26, bx: 13, by: -24, ffx: 8, fbx: -8 };
 export const RUN = { crouch: 7, lean: 14, fx: -7, fy: -17, bx: -9, by: -19, ffx: 12, fbx: -12, ghost: true };
 export const JAB = { crouch: 4, lean: 8, fx: 23, fy: -27, bx: 9, by: -25, ffx: 11, fbx: -9 };

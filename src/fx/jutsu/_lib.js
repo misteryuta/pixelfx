@@ -401,25 +401,42 @@ function aura(p, t, run, C) {
 }
 
 /**
- * Anime impact frames over the whole picture painted so far: everything drawn turns to an ink silhouette on white paper,
- * burst lines rush in at (cx, cy); inv swaps ink and paper (the second beat). Covers the local box x0..x1, y0..y1.
+ * Anime impact frames over the whole picture painted so far: everything drawn turns to an ink silhouette on paper,
+ * with a pattern rushing in at (cx, cy); inv swaps ink and paper (the second beat). Covers the local box x0..x1, y0..y1.
+ * Kept for the biggest techniques only, and each has its own: style "burst" (straight lines), "spiral" (lines wound
+ * round the centre: gravity), "rings" (shock rings racing out), "bolts" (jagged lightning), "flames" (tongues that
+ * swell and pinch), "shards" (streaks falling on a slant, a meteor's); ink and paper colours per technique too.
  */
 const INK = hex("#08070e"), PAPER = hex("#fffdf6");
-export function impactFrame(p, x0, y0, x1, y1, cx, cy, inv = false, seed = 1, { ink = INK, paper = PAPER, lines: nl = 60 } = {}) {
+export function impactFrame(p, x0, y0, x1, y1, cx, cy, inv = false, seed = 1, { ink = INK, paper = PAPER, lines: nl = 60, style = "burst", dir = 1.15 } = {}) {
   const n = Math.max(1, nl), lines = Array.from({ length: n }, (_, i) => {
     const thick = rand(i, seed + 3) < 0.2;
     return { a: ((i + 0.2 + rand(i, seed) * 0.6) / n) * TAU - Math.PI, inner: thick ? 26 + rand(i, seed + 1) * 20 : 16 + rand(i, seed + 1) * 60, w: thick ? 4 + rand(i, seed + 2) * 3 : 1 + rand(i, seed + 2) * 2.4 };
   });
   p.each(x0, y0, x1, y1, (lx, ly, sx, sy) => {
     const i = (sy - p.oy) * p.w + (sx - p.ox), c = p.C[i];
-    const dx = lx - cx, dy = (ly - cy) * 1.3, rho = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
-    const slot = Math.floor(((ang + Math.PI) / TAU) * n);
-    let line = false;
-    for (let k = -1; k <= 1 && !line && nl > 0; k++) {
-      const l = lines[(slot + k + n) % n];
-      let d = Math.abs(ang - l.a);
-      if (d > Math.PI) d = TAU - d;
-      line = rho > l.inner && d * rho < l.w * clamp((rho - l.inner) / 40);
+    const dx = lx - cx, dy = (ly - cy) * 1.3, rho = Math.hypot(dx, dy);
+    let ang = Math.atan2(dy, dx), line = false;
+    if (style === "spiral") ang += rho * 0.028;
+    if (style === "bolts") ang += 0.12 * Math.sign(Math.sin(rho * 0.18 + seed)) * Math.min(1, rho / 30);
+    ang = (((ang + Math.PI) % TAU) + TAU) % TAU - Math.PI;
+    if (style === "rings") {
+      // rings racing out, a few spokes between them
+      const r = (rho + seed * 7) % 22;
+      line = rho > 14 && (r < 6 || (r < 9 && rand(Math.floor(rho / 22), Math.floor(((ang + Math.PI) / TAU) * 24) + seed) > 0.6));
+    } else if (style === "shards") {
+      // streaks falling on the meteor's slant, broken into dashes
+      const c = Math.cos(dir), s = Math.sin(dir), u = dx * c + dy * s, v = -dx * s + dy * c, lane = Math.floor(v / 3);
+      line = rho > 18 && rand(lane, seed) < 0.38 && (((u + rand(lane, seed + 1) * 90) % 70) + 70) % 70 < 30 + 30 * rand(lane, seed + 2);
+    } else {
+      const slot = Math.floor(((ang + Math.PI) / TAU) * n);
+      for (let k = -1; k <= 1 && !line && nl > 0; k++) {
+        const l = lines[(slot + k + n) % n];
+        let d = Math.abs(ang - l.a);
+        if (d > Math.PI) d = TAU - d;
+        const w = style === "flames" ? l.w * (0.4 + 1.3 * Math.abs(Math.sin(rho * 0.09 + l.a * 5))) : style === "bolts" ? l.w * 0.7 : l.w;
+        line = rho > l.inner && d * rho < w * clamp((rho - l.inner) / 40);
+      }
     }
     const isInk = ((c >>> 24) > 70) !== line;
     p.C[i] = isInk !== inv ? ink : paper;

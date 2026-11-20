@@ -6,7 +6,9 @@
 // head rears while light and dark chakra are pulled into the ball, then drops onto the line to the target; the shot
 // kicks the whole beast back on its legs, the ball streaks in, and the explosion: impact frames, a dark dome that
 // swells over everything, a fireball inside it, a ring racing along the ground, rubble, a column of smoke.
-// New: the whole fox (body, legs planted, nine tails, neck and head that aim; the shoulder seal), the mottled ball,
+// Kurama's avatar as a great head and chest over Naruto, the nine tails fanned behind (the shape it first had here),
+// drawn as the full chakra model: burning rim, flames licking off it.
+// New: the avatar (head that aims, chest, tails), the mottled ball,
 // the pressure rings, the dome; blast() from _lib for the fire inside.
 import { Lights, Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU, posed } from "../../core/index.js";
 import { play, bodyAt, drawFigure, drawOutline, impactFrame, blast } from "./_lib.js";
@@ -20,13 +22,15 @@ const BOOM = ["#06020a", "#1a0814", "#3a1020", "#7a2028", "#c8502a", "#ffa040", 
 const DOME = ["#08020a", "#1a0610", "#3a0c18", "#7a1a20", "#ffe0c0"].map(hex);
 // the fox's neck pivot and its open mouth (where the ball sits), in its own space before the head turns
 const NECK = [28, -70], MOUTH = [86, -100], AIMT = [TX - 10, -24];
+// the avatar as it first was: a great head over Naruto, its chest round him, the nine tails fanned behind
+const HO = [-48, 36];
 const turnAbout = (x, y, a, c = NECK) => [c[0] + (x - c[0]) * Math.cos(a) - (y - c[1]) * Math.sin(a), c[1] + (x - c[0]) * Math.sin(a) + (y - c[1]) * Math.cos(a)];
 // the tilt that drops the jaws onto the line to the target
 const AIM = (() => {
   let a = 0;
   for (let i = 0; i < 8; i++) {
     const [mx, my] = turnAbout(MOUTH[0], MOUTH[1], a);
-    a += Math.atan2(AIMT[1] - my, AIMT[0] - mx) - Math.atan2(MOUTH[1] - NECK[1], MOUTH[0] - NECK[0]) - a;
+    a += Math.atan2(AIMT[1] - HO[1] - my, AIMT[0] - HO[0] - mx) - Math.atan2(MOUTH[1] - NECK[1], MOUTH[0] - NECK[0]) - a;
   }
   return a;
 })();
@@ -38,11 +42,11 @@ const tiltAt = (t) => {
   return AIM - 0.25 * Math.exp(-r * 8) * Math.sin(Math.min(Math.PI, r * 12));
 };
 // the whole beast: grows out of him, crouches as it gathers, kicked back by the shot
-const growAt = (t) => ease.outBack(clamp((t - FOX) / (FOXED - FOX)), 1.3);
+const growAt = (t) => 1.3 * ease.outBack(clamp((t - FOX) / (FOXED - FOX)), 1.3);
 const kickAt = (t) => (t < FIRE ? 0 : -9 * Math.exp(-(t - FIRE) * 6) * Math.sin(Math.min(Math.PI, (t - FIRE) * 18)) - 3 * smooth(FIRE, FIRE + 0.1, t) * (1 - smooth(FIRE + 0.3, FIRE + 0.8, t)));
 const mouthAt = (t) => {
   const g = growAt(t), [mx, my] = turnAbout(MOUTH[0], MOUTH[1], tiltAt(t));
-  return [mx * g + kickAt(t), my * g];
+  return [(mx + HO[0]) * g + kickAt(t), (my + HO[1]) * g];
 };
 
 export const meta = {
@@ -98,7 +102,10 @@ function foxPart(x, y, tilt, j) {
   if (hx > 62 && hx < 92 && hy < -96 + (hx - 62) * 0.05 && hy > -108 + (hx - 62) * 0.12) return 3;
   const jy = -94 + j * (hx - 62) * 0.55;
   if (hx > 58 && hx < 88 && hy > jy && hy < jy + 7 - (hx - 58) * 0.1) return 3;
-  if (capsule(hx, hy, 28, -66, 54, -94, 17, 13)) return 3;
+  if (capsule(hx, hy, 30, -70, 54, -94, 16, 13)) return 3;
+  // the chest and shoulders he stands inside
+  if (y < -36 && (((x - 46) / 25) ** 2 + ((y + 60) / 30) ** 2 < 1 || capsule(x, y, 30, -76, 66, -78, 12, 9))) return 1;
+  return 0;
   // the body: chest high, sloping down to the haunch
   if (capsule(x, y, -44, -40, 22, -58, 24, 27)) return 1;
   if (((x + 48) / 24) ** 2 + ((y + 34) / 22) ** 2 < 1) return 1;
@@ -178,10 +185,9 @@ export const create = play([], (o) => {
       if (t > FOX && t < HIT + 1.1) {
         const g = growAt(t), k = smooth(FOX, FOX + 0.15, t) * (1 - smooth(HIT + 0.5, HIT + 1.1, t)), kx = kickAt(t), tl = tiltAt(t), f = Math.floor(t * 20);
         const j = smooth(GATHER, BALL - 0.3, t) * (1 - 0.5 * smooth(FIRE + 0.2, HIT + 0.4, t));
-        const L = (x, y) => [(x - kx) / g, y / g];
-        // the nine tails fanned up off its haunch
+        const L = (x, y) => [(x - kx) / g - HO[0], y / g - HO[1]];
         for (let i = 0; i < 9; i++) {
-          const a0 = -2.2 - i * 0.16, L0 = (60 + (i % 3) * 10) * g, bx = -56 * g + kx, by = -44 * g;
+          const a0 = -2.15 - i * 0.17, L0 = (56 + (i % 3) * 10) * g, bx = -22 * g + kx, by = -30 * g;
           for (const [pad, col] of [[2, FC.rim], [1, FC.rim2], [0, FC.body]]) {
             for (let s = 0; s <= 12; s++) {
               const u = s / 12, aa = a0 + (0.5 + 0.08 * Math.sin(t * 3 + i)) * u * 0.7 + Math.sin(t * 5 + i + u * 4) * 0.08 * u;
@@ -190,7 +196,7 @@ export const create = play([], (o) => {
             }
           }
         }
-        p.glow(10 * g, -70 * g, 110 * g, hex(GOLD[2]), 0.4 * k);
+        p.glow(30 * g, -60 * g, 80 * g, hex(GOLD[2]), 0.4 * k);
         p.shade(-110, -170, 130, 1, (x, y, out) => {
           const [lx, ly] = L(x, y), part = foxPart(lx, ly, tl, j);
           if (!part) {
@@ -204,6 +210,10 @@ export const create = play([], (o) => {
             }
             return;
           }
+          // the neck burns away below: chakra thinning to nothing toward its root
+          const [nx, ny] = turnAbout(lx, ly, -tl), root = clamp((Math.hypot(nx - 34, ny + 74) - 3) / 10);
+          // the root of the neck: a hot glow where the head comes out of him
+          if (root < 0.5) out.k = 0.35 * (1 - root * 2);
           out.a = k;
           const e = 1.6 / g, edge = foxPart(lx - e, ly, tl, j) !== part || foxPart(lx + e, ly, tl, j) !== part || foxPart(lx, ly - e, tl, j) !== part || foxPart(lx, ly + e, tl, j) !== part;
           if (edge) {
@@ -217,8 +227,6 @@ export const create = play([], (o) => {
             if (hx > 60 && hx < 90 && hy > -96 + (hx - 62) * 0.05 && hy < -94 + j * (hx - 62) * 0.55) return hex("#5a1206");
           }
           // the seal on its shoulder: a dark ring with a burning middle
-          const sd = Math.hypot(lx - 24, ly + 50);
-          if (sd < 7.5) return sd > 5.2 ? FC.ink : sd > 3 ? FC.rim2 : FC.body;
           if (part === 2) return FC.far;
           // lit from above: bright along its back and head, warmer underneath, chakra flickering through
           const under = part === 3 ? 0 : clamp((ly + 70) / 60) - 0.15 * noise2(lx * 0.1, ly * 0.1 - t * 3, 4);
@@ -291,9 +299,10 @@ export const create = play([], (o) => {
           p.glow(TX, -DR * 0.4, DR * 1.6, DOME[3], 0.5 * fade);
         }
         blast(p, age - 0.1, { x: TX, y: 0, R: 56, C: BOOM, seed: 11 });
-        if (age < 0.05) impactFrame(p, -104, -226, 326, 54, TX, -24, false, 12);
-        else if (age < 0.1) impactFrame(p, -104, -226, 326, 54, TX, -24, true, 13);
-        else if (age < 0.14) impactFrame(p, -104, -226, 326, 54, TX, -24, false, 14);
+        const IF = { style: "rings", ink: hex("#12020a"), paper: hex("#ffd8d0") };
+        if (age < 0.05) impactFrame(p, -104, -226, 326, 54, TX, -24, false, 12, IF);
+        else if (age < 0.1) impactFrame(p, -104, -226, 326, 54, TX, -24, true, 13, IF);
+        else if (age < 0.14) impactFrame(p, -104, -226, 326, 54, TX, -24, false, 14, IF);
       }
       ps.draw(p, "front");
       lights.draw(p);

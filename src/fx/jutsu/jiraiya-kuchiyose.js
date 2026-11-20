@@ -207,7 +207,7 @@ export const create = play([], (o) => {
       // the blast where it meets the target: oil and fire, then burning oil spattered over the ground
       const age = t - HIT;
       blast(p, age, { x: TX - 6, y: 0, R: 40, C: FIRE, seed: 3, smoke: SOOT, rock: [OIL[0], OIL[1], OIL[2], FIRE[3]] });
-      if (age >= 0 && age < 0.05) impactFrame(p, -52, -198, 348, 32, TX - 6, -26, false, 6);
+      if (age >= 0 && age < 0.05) p.circle(TX - 6, -26, 30, FIRE[6]);
       if (age > 0.2 && age < 2.8) {
         const k = smooth(0.2, 0.5, age) * (1 - smooth(2.2, 2.8, age));
         for (let i = 0; i < 9; i++) {
