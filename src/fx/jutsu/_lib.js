@@ -137,10 +137,12 @@ export function warp(p, cx, cy, R, twist, pull = 0) {
 }
 
 /** A see-through wash of color over a box (a darkening sky, a red genjutsu world, a flash): blended, never dithered. */
-export function veil(p, x0, y0, x1, y1, c, a) {
+export function veil(p, x0, y0, x1, y1, c, a, soft = 24) {
   if (a <= 0.004) return;
+  // soft edges: on a transparent canvas (sprite sheets) a hard-edged wash shows up as a box
   p.shade(x0, y0, x1, y1, (x, y) => {
-    p.blend(x, y, c, a);
+    const e = soft > 0 ? Math.min(1, (Math.min(x - x0, x1 - x, y - y0, y1 - y) + 1) / soft) : 1;
+    p.blend(x, y, c, a * e * e * (3 - 2 * e));
   });
 }
 
