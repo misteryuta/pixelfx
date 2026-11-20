@@ -116,6 +116,8 @@ export const create = play(
             for (let k = 0; k < 5; k++) pts.push([pts[k][0] - R.range(2, 4), pts[k][1] + R.range(-4, 4)]);
             cracks.push(pts);
           }
+          for (let j = 0; j < 22; j++) ps.spawn(P.FIRE, WX + WW / 2 + 2, -24 + R.range(-6, 6), R.range(10, 90), R.range(-90, 30), R.range(0.3, 0.7), 0, R.range(2.5, 5), 0, R.chance(0.5) ? PF.SMOKES | PF.BIG : 0);
+          lights.add(WX + WW / 2 + 4, -24, 70, hex("#ff8a2a"), 0.8, 0.25);
           for (let j = 0; j < 8; j++) bits.add({ kind: B.CHUNK, x: WX + WW / 2, y: -24 + R.range(-6, 6), vx: R.range(40, 160), vy: -R.range(40, 160), g: 1, drag: 0.3, bounce: 0.3, life: R.range(0.8, 1.4), a: R.range(0, TAU), va: R.range(-10, 10), s: R.range(1.4, 2.6), pts: stoneShape(R) });
         }
         if (!sunk && t >= SINK) {

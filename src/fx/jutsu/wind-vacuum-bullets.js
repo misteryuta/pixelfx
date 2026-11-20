@@ -116,10 +116,18 @@ export const create = play(
           for (let k = 1; k <= 3; k++) p.line(b.x - ca * (4 + k * 5), b.y - sa * (4 + k * 5) + (k - 2) * 1.5, b.x - ca * (k * 5), b.y - sa * (k * 5) + (k - 2) * 1.5, C[k === 1 ? 4 : 3], 1 - k * 0.25);
           // the bullet: a ring of bent air turning round a pale core, white catch-light on the leading side
           const spin = t * 30 + i;
-          p.ring(b.x, b.y, 4, 1, (v, a) => (Math.sin(a * 2 + spin) > 0.2 ? C[4] : C[2]));
+          p.ring(b.x, b.y, 5.5, 1.2, (v, a) => (Math.sin(a * 2 + spin) > 0.2 ? C[4] : C[2]));
+          p.ring(b.x, b.y, 3.5, 1, (v, a) => (Math.sin(a * 3 - spin) > 0 ? C[5] : C[3]), 0.8);
           p.circle(b.x, b.y, 2, C[3]);
           p.px(b.x + ca, b.y + sa - 1, WHITE);
           p.glow(b.x, b.y, 10, C[3], 0.35);
+        });
+        // the pressure ring each bullet throws where it lands
+        SHOTS.forEach((s, i) => {
+          const a = t - land(i);
+          if (a < 0 || a > 0.22) return;
+          const k = a / 0.22;
+          p.ring(endX(s), s.y, 3 + 12 * k, 1, C[4], 1 - k);
         });
         ps.draw(p, "front");
         lights.draw(p);
