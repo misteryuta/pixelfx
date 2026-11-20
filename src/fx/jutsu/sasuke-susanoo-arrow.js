@@ -1,26 +1,62 @@
-// Susanoo: the bow (Sasuke, Eternal Mangekyou). Narutopedia: Susanoo forms round its user in stages, ribs, skeleton,
-// armour; Sasuke's, in purple, carries a bow and looses arrows of chakra that can level a building. Here: his eternal
-// Mangekyou (his own pattern crossed with Itachi's), the ribcage rising round him, the skeletal arm, the armoured upper
-// body with its horned crest, a bow drawn with a purple flame arrow nocked, and the arrow loosed into the target, where
-// it blows up in a violet burst.
-// New: the Susanoo (_susanoo.js, growing out from the chest, both arms working the bow), the bow raised and aimed
-// along the line to the target, the string drawn back to the nock, the flame arrow and its straight flight. From the library: the dark explosion, in violet.
-import { Lights, Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
-import * as dark from "../shadow/dark-explosion.js";
-import { play, bodyAt } from "./_lib.js";
+// Susanoo: the arrow (Sasuke). Narutopedia: Sasuke's Susanoo (purple: demonic horns, a chin appendage, a malevolent
+// grin) carries its bow on the wrist of its left arm; arrows are drawn from its right hand and loosed so fast that
+// almost nothing can dodge them; in its armoured form they can be wreathed in black flame.
+// Here: his eternal Mangekyou, the Susanoo forming round him (ribs, bones, muscle, the horned armour), the bow growing
+// out of its left wrist as that whole arm comes up and points at the target; the right hand reaches forward to the
+// bow, an arrow of purple fire forms under its fingers, and the arm draws it back along the line, elbow high, the
+// torso leaning back into the pull; a beat of stillness, then the release: the drawing hand flies back, the bow arm
+// kicks up, and the arrow hits the target in a violet explosion (impact frames, a fireball with depth, a shock ring,
+// rubble, black flames left burning).
+// New: the archer's arms on the rig (_susanoo.js), the bow and string and arrow on them, blast() from _lib.
+import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
+import { play, bodyAt, impactFrame, blast, drawBlackFlame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
-import { drawSusanoo, SUSANOO } from "./_susanoo.js";
+import { drawSusanoo, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
 
-const EYE = 0.05, OPEN = 0.6, RIBS = OPEN + 0.05, BONES = RIBS + 0.35, FLESH = BONES + 0.35, BOW = FLESH + 0.55, DRAW = BOW + 0.25, LOOSE = DRAW + 0.55, FLY = 0.12, HIT = LOOSE + FLY, GONE = HIT + 0.8, TX = 230;
-const V = SUSANOO.sasuke;
+const EYE = 0.05, OPEN = 0.6, RIBS = OPEN + 0.05, BONES = RIBS + 0.32, FLESH = BONES + 0.38, ARMOUR = FLESH + 0.55, BOW = ARMOUR + 0.35;
+const GRAB = BOW + 0.4, NOCKED = GRAB + 0.12, DRAWN = NOCKED + 0.45, LOOSE = DRAWN + 0.4, FLY = 0.13, HIT = LOOSE + FLY, GONE = HIT + 1.1, END = HIT + 3.0, TX = 236;
+const V = SUSANOO.sasuke, BOOM = ["#08040e", "#1c1030", "#3c2070", "#6a3ab8", "#a070f0", "#d8c0ff", "#fff4ff"].map(hex);
+const T = [TX - 4, -28];
+
+// the body: lean, turn and head over time; raise lifts the bow arm onto the target; grab and pull work the right hand
+const pose = keyTrack([
+  [0, { lean: 0, twist: 0, head: 0, raise: 0, grab: 0, pull: 0, kick: 0 }],
+  [BOW, { raise: 0 }],
+  [GRAB, { raise: 1, lean: 0.05, twist: 0.2, head: 0.1, grab: 1 }],
+  [NOCKED, { grab: 1, pull: 0 }],
+  [DRAWN, { lean: -0.12, twist: -0.25, head: 0.16, pull: 1 }],
+  [LOOSE, { lean: -0.13, twist: -0.27, pull: 1.02, kick: 0 }],
+  [LOOSE + 0.08, { lean: -0.2, twist: -0.4, pull: 1.45, kick: 1 }],
+  [LOOSE + 0.4, { lean: -0.08, twist: -0.15, pull: 1.25, kick: 0.2 }],
+  [GONE, { lean: 0, twist: 0, raise: 0.6, grab: 0, pull: 0, kick: 0 }],
+]);
+const DRAW_LEN = 46;
+const rigAt = (t) => {
+  const q = pose(t), R0 = rigOf(q), S = R0.far.S, aim = Math.atan2(T[1] - S[1], T[0] - S[0]);
+  // the bow arm: from hanging forward to pointing straight at the target, kicked up a little by the release
+  const ang = 1.25 + (aim - 1.25) * q.raise - 0.22 * q.kick;
+  const far = [ang - R0.lean, 0.55 + 0.42 * q.raise];
+  const R1 = rigOf({ ...q, far, farBend: 0.25 }), G = R1.far.H, dx = Math.cos(ang), dy = Math.sin(ang);
+  // the right hand: at its side, forward to the bow, then back along the line to the anchor (and past it on release)
+  const rest = [R1.near.S[0] + 8, R1.near.S[1] + 30], nock = [G[0] - dx * (8 + DRAW_LEN * q.pull), G[1] - dy * (8 + DRAW_LEN * q.pull) - (q.pull > 1 ? (q.pull - 1) * 18 : 0)];
+  const nearH = [rest[0] + (nock[0] - rest[0]) * q.grab, rest[1] + (nock[1] - rest[1]) * q.grab];
+  const R = rigOf({ ...q, far, farBend: 0.25, nearH, nearBend: -1 });
+  return { R, G: R.far.H, dx, dy, q };
+};
+const stageAt = (t) => ({
+  ribs: smooth(RIBS, RIBS + 0.3, t) * (1 - smooth(GONE + 0.45, GONE + 0.7, t)),
+  bones: smooth(BONES, BONES + 0.3, t) * (1 - smooth(GONE + 0.3, GONE + 0.55, t)),
+  flesh: smooth(FLESH, FLESH + 0.5, t) * (1 - smooth(GONE + 0.05, GONE + 0.35, t)),
+  armour: smooth(ARMOUR, ARMOUR + 0.4, t) * (1 - smooth(GONE - 0.2, GONE + 0.1, t)),
+});
 
 export const meta = {
   name: "Susanoo arrow",
-  desc: "Sasuke: his eternal Mangekyou, a purple Susanoo rising round him ribs first, then bones, then horned armour, a bow drawn with an arrow of purple flame, loosed into the target, which goes up in a violet blast.",
+  desc: "Sasuke: his eternal Mangekyou, the purple Susanoo forms ribs, bones, muscle, then the horned armour; its left arm raises the bow onto the target, the right draws a flaming arrow back elbow-high and looses it into an explosion of violet fire.",
   tags: ["jutsu", "sasuke", "susanoo", "mangekyou", "projectile", "aoe", "one-shot"],
   size: [404, 256],
-  origin: [64, 206],
-  duration: HIT + 3.9,
+  origin: [74, 206],
+  duration: END,
   loop: false,
   fps: 30,
   bg: "ground",
@@ -28,99 +64,129 @@ export const meta = {
   options: { palette: ["#1a0a36", "#4a2490", "#8a5ae0", "#c8a8ff", "#f0e6ff"], seed: 35 },
 };
 
-const STAND = { ...READY, crouch: 4, fx: 12, fy: -24, bx: -4, by: -22, ffx: 9, fbx: -9 };
-const AIM = { ...READY, crouch: 5, lean: 2, fx: 16, fy: -28, bx: 2, by: -28, ffx: 10, fbx: -9 };
+const STANDP = { ...READY, crouch: 4, fx: 12, fy: -24, bx: -4, by: -22, ffx: 9, fbx: -9 };
+const AIMP = { ...READY, crouch: 5, lean: 2, fx: 16, fy: -28, bx: 2, by: -28, ffx: 10, fbx: -9 };
 export const act = {
   target: { x: TX },
   poses: [
     [-0.25, READY],
-    [OPEN, STAND, "out"],
-    [BOW, { ...STAND, crouch: 5 }],
-    [DRAW, AIM, "out"],
-    [LOOSE, { ...AIM, bx: -2 }],
-    [LOOSE + 0.05, { ...AIM, bx: -6, lean: -2 }, "snap"],
-    [GONE + 0.4, STAND],
-    [meta.duration, READY],
+    [OPEN, STANDP, "out"],
+    [GRAB, { ...STANDP, crouch: 5 }],
+    [DRAWN, AIMP, "out"],
+    [LOOSE, { ...AIMP, bx: -2 }],
+    [LOOSE + 0.05, { ...AIMP, bx: -6, lean: -2 }, "snap"],
+    [GONE + 0.4, STANDP],
+    [END, READY],
   ],
   hits: [
     { t: RIBS, stop: 0.06, shake: 0.15, amp: 1, target: false },
-    { t: FLESH, stop: 0.06, shake: 0.2, amp: 2, target: false },
-    { t: HIT, stop: 0.2, shake: 0.55, amp: 4, push: 5, straw: 40, skin: "shadow" },
-    { t: meta.duration - 0.4, flash: 0, push: 0, straw: 0, skin: null },
+    { t: FLESH + 0.5, stop: 0.06, shake: 0.2, amp: 2, target: false },
+    { t: LOOSE, stop: 0.04, shake: 0.1, amp: 1, target: false, sfx: "whoosh" },
+    { t: HIT, stop: 0.2, shake: 0.6, amp: 5, push: 5, straw: 44, skin: "char", sfx: "explosion" },
+    { t: END - 0.4, flash: 0, push: 0, straw: 0, skin: null },
   ],
-  dust: [{ t: RIBS, x: 0, n: 10 }],
+  dust: [{ t: RIBS, x: 0, n: 10 }, { t: HIT + 0.05, x: TX - 30, n: 16, dir: -1 }, { t: HIT + 0.05, x: TX + 30, n: 16, dir: 1 }],
 };
 
-// the aim: from the Susanoo's shoulder line at A to the target's chest; the bow comes up from pointing at the floor,
-// overshoots a little and settles on the line, then holds dead still while the string is drawn
-const A = [34, -74], T = [TX - 6, -28], AIMA = Math.atan2(T[1] - A[1], T[0] - A[0]);
-const aimAt = (t) => {
-  if (t < BOW) return 1.2;
-  const u = clamp((t - BOW) / (DRAW + 0.15 - BOW));
-  return 1.2 + (AIMA - 1.2) * ease.outBack(u, 1.4) + (t < LOOSE ? Math.sin(t * 9) * 0.03 * (1 - smooth(DRAW, DRAW + 0.35, t)) : 0);
-};
-// where the bow's grip (the front hand), the string's nock (the far hand) and the bow's limbs are
-const bowAt = (t, pull) => {
-  const a = aimAt(t), dx = Math.cos(a), dy = Math.sin(a), G = [A[0] + dx * 30, A[1] + dy * 30], Cb = [G[0] - dx * 34, G[1] - dy * 34];
-  const top = [Cb[0] + Math.cos(a - 0.95) * 40, Cb[1] + Math.sin(a - 0.95) * 40], bot = [Cb[0] + Math.cos(a + 0.95) * 40, Cb[1] + Math.sin(a + 0.95) * 40];
-  const N = [G[0] - dx * (11 + 18 * pull), G[1] - dy * (11 + 18 * pull)];
-  return { a, dx, dy, G, Cb, top, bot, N };
-};
-export const create = play([{ fx: dark, t: HIT, x: TX - 6, y: -10, palette: ["#08040e", "#1c1030", "#3c2070", "#5a34a0", "#8a5ae0", "#c8a8ff", "#f0e6ff", "#ffffff"], light: 0.8 }], (o) => {
+// the bow on the left wrist: two limbs swept back from the grip, recurved at the tips; s how far it has grown
+function bowOf(A, pull, s) {
+  const { G, dx, dy } = A, px = -dy, py = dx, back = 10 + 9 * Math.min(1, pull);
+  const tip = (side) => [G[0] + px * side * 40 * s - dx * back * s, G[1] + py * side * 40 * s - dy * back * s];
+  const mid = (side) => [G[0] + px * side * 22 * s + dx * 5 * s, G[1] + py * side * 22 * s + dy * 5 * s];
+  return { top: tip(-1), bot: tip(1), mt: mid(-1), mb: mid(1) };
+}
+function drawBow(p, t, A, k, s) {
+  if (k <= 0 || s <= 0) return;
+  const b = bowOf(A, A.q.pull, s), G = A.G;
+  const limb = (m, e) => {
+    let prev = G;
+    for (let i = 1; i <= 10; i++) {
+      const u = i / 10, v = 1 - u, x = v * v * G[0] + 2 * v * u * m[0] + u * u * e[0], y = v * v * G[1] + 2 * v * u * m[1] + u * u * e[1];
+      p.beam(prev[0], prev[1], x, y, 3.5 - u * 1.5, V[2], k);
+      p.line(prev[0], prev[1], x, y, V[4], k);
+      // purple fire licking off it
+      if (rand(i, Math.floor(t * 20)) > 0.6) p.line(x, y, x - A.dy * 2, y - 3 - rand(i, Math.floor(t * 24)) * 4, V[3], k * 0.8);
+      prev = [x, y];
+    }
+  };
+  limb(b.mt, b.top);
+  limb(b.mb, b.bot);
+  p.glow(G[0], G[1], 30, V[3], 0.4 * k);
+}
+
+export const create = play([], (o) => {
   const R = new Rng(o.seed), ps = new Particles({ rng: R, ground: () => 0 }), lights = new Lights();
-  let loosed = false;
-  const pull = (t) => (t < DRAW ? 0 : t < LOOSE ? ease.outCubic(clamp((t - DRAW) / 0.35)) : 0);
+  let loosed = false, hit = false;
   return {
     update(t, dt) {
-      if (t > RIBS && t < GONE && R.chance(30 * dt)) ps.spawn(P.EMBER, R.range(-30, 40), -R.range(10, 100), R.range(-10, 10), -R.range(20, 50), R.range(0.3, 0.6), V[R.int(2, 4)]);
+      if (t > RIBS && t < GONE && R.chance(26 * dt)) ps.spawn(P.EMBER, R.range(-40, 40), -R.range(20, 110), R.range(-10, 10), -R.range(20, 50), R.range(0.3, 0.6), V[R.int(2, 4)]);
       if (!loosed && t >= LOOSE) {
         loosed = true;
-        const w = bowAt(t, 0);
-        lights.add(w.G[0], w.G[1], 80, V[3], 0.9, 0.15);
+        const A = rigAt(t);
+        lights.add(A.G[0], A.G[1], 80, V[3], 0.9, 0.15);
+      }
+      if (!hit && t >= HIT) {
+        hit = true;
+        lights.add(T[0], -20, 160, BOOM[4], 1, 0.6);
+        for (let i = 0; i < 30; i++) {
+          const a = R.range(-Math.PI, 0), s = R.range(100, 300);
+          ps.spawn(P.STREAK, T[0], -20, Math.cos(a) * s, Math.sin(a) * s, R.range(0.15, 0.35), R.chance(0.5) ? BOOM[6] : BOOM[4]);
+        }
       }
       ps.update(dt);
       lights.update(dt);
     },
     drawBack(p, t) {
-      const stage = t < RIBS ? 0 : t < BONES ? 1 * smooth(RIBS, BONES, t) : t < FLESH ? 1 + smooth(BONES, FLESH, t) : 2 + smooth(FLESH, FLESH + 0.55, t);
-      const pl = pull(t), w = bowAt(t, pl), hold = smooth(BOW - 0.2, BOW + 0.1, t);
-      // the hands: at rest at its sides, then the bow raised in the front hand and the far hand on the string
-      const hand = [44 + (w.G[0] - 44) * hold, -50 + (w.G[1] + 50) * hold], hand2 = [-30 + (w.N[0] + 30) * hold, -40 + (w.N[1] + 40) * hold];
-      drawSusanoo(p, t, { kind: "sasuke", stage, arm: hand, arm2: hand2, fade: smooth(GONE, GONE + 0.6, t) });
-      ps.draw(p, "back");
-      // the bow and its string, in the Susanoo's hand, turned along the aim
-      if (t > BOW && t < GONE + 0.5) {
-        const k = smooth(BOW, BOW + 0.2, t) * (1 - smooth(GONE, GONE + 0.5, t));
-        p.arc(w.Cb[0], w.Cb[1], 40, 3, w.a - 0.95, w.a + 0.95, V[2], k);
-        p.arc(w.Cb[0], w.Cb[1], 40, 1, w.a - 0.95, w.a + 0.95, V[4], k);
-        p.line(w.top[0], w.top[1], w.N[0], w.N[1], V[4], k);
-        p.line(w.bot[0], w.bot[1], w.N[0], w.N[1], V[4], k);
-        // the arrow: a shaft of purple flame nocked and drawn back along the aim, its head a white point
-        if (t > DRAW && t < LOOSE) {
-          const len = 50, nx = -w.dy, ny = w.dx;
-          for (let i = 0; i < len; i++) {
-            const wd = i > len - 8 ? (len - i) * 0.6 : 1 + Math.sin(i * 0.8 - t * 30) * 0.6, x = w.N[0] + w.dx * i, y = w.N[1] + w.dy * i;
-            p.line(x - nx * wd, y - ny * wd, x + nx * wd, y + ny * wd, i > len - 8 ? WHITE : V[3], k);
-          }
-          p.glowLine(w.N[0], w.N[1], w.N[0] + w.dx * len, w.N[1] + w.dy * len, 14, V[3], 0.6 * k);
-          // the aim line: a faint sight running on to the target
-          p.line(w.N[0] + w.dx * len, w.N[1] + w.dy * len, T[0], T[1], V[3], 0.25 * smooth(DRAW + 0.2, LOOSE, t));
+      const A = rigAt(t), st = stageAt(t);
+      const bowK = smooth(BOW, BOW + 0.15, t) * (1 - smooth(GONE - 0.2, GONE + 0.1, t)), bowS = ease.outBack(clamp((t - BOW) / 0.3), 1.6);
+      drawSusanoo(p, t, A.R, { kind: "sasuke", st, mid: (pp) => drawBow(pp, t, A, bowK, bowS) });
+      // the string: tip to the drawing fingers to tip while nocked, straight otherwise (twanging after the release)
+      if (bowK > 0) {
+        const b = bowOf(A, A.q.pull, bowS), H = A.R.near.H, nocked = t > NOCKED && t < LOOSE;
+        if (nocked) {
+          p.line(b.top[0], b.top[1], H[0], H[1], V[4], bowK);
+          p.line(b.bot[0], b.bot[1], H[0], H[1], V[4], bowK);
+        } else {
+          const tw = t > LOOSE ? Math.sin((t - LOOSE) * 80) * 4 * Math.exp(-(t - LOOSE) * 8) : 0, mx = (b.top[0] + b.bot[0]) / 2 - A.dx * tw, my = (b.top[1] + b.bot[1]) / 2 - A.dy * tw;
+          p.line(b.top[0], b.top[1], mx, my, V[4], bowK);
+          p.line(mx, my, b.bot[0], b.bot[1], V[4], bowK);
         }
       }
+      // the blast's far side and its smoke
+      blast(p, t - HIT, { x: T[0], y: 0, R: 34, C: BOOM, seed: 5, layer: "back" });
+      ps.draw(p, "back");
     },
     draw(p, t) {
-      const b = bodyAt(act.poses, t);
+      const b = bodyAt(act.poses, t), A = rigAt(t), st = stageAt(t);
+      drawSusanoo(p, t, A.R, { kind: "sasuke", st, layer: "front" });
       drawBadge(p, t, { kind: "sasukeEMS", t0: EYE, t1: OPEN, label: "EIEN MANGEKYOU", head: b.head });
-      drawGlint(p, t, "sasukeEMS", OPEN + 0.05, meta.duration - 0.4, b.head);
-      // the arrow in flight: a streak of purple fire
-      if (t >= LOOSE && t < HIT) {
-        // straight down the aim line, from where its head was to the target
-        const w = bowAt(LOOSE, 1), sx = w.N[0] + w.dx * 50, sy = w.N[1] + w.dy * 50, u = clamp((t - LOOSE) / FLY), x = sx + (T[0] - sx) * u, y = sy + (T[1] - sy) * u;
-        p.glowLine(x - w.dx * 56, y - w.dy * 56, x, y, 16, V[3], 0.8);
-        p.beam(x - w.dx * 44, y - w.dy * 44, x, y, 3, V[3]);
-        p.line(x - w.dx * 44, y - w.dy * 44, x, y, WHITE);
+      drawGlint(p, t, "sasukeEMS", OPEN + 0.05, END - 0.4, b.head);
+      // the arrow: formed under the fingers at the bow, drawn back with the hand, loosed down the line
+      if (t > GRAB - 0.05 && t < LOOSE) {
+        const k = smooth(GRAB - 0.05, NOCKED, t), H = A.R.near.H, len = 62 * k;
+        for (let i = 0; i < len; i++) {
+          const wd = i > len - 9 ? (len - i) * 0.55 : 1.1 + Math.sin(i * 0.8 - t * 30) * 0.6, x = H[0] + A.dx * i, y = H[1] + A.dy * i;
+          p.line(x + A.dy * wd, y - A.dx * wd, x - A.dy * wd, y + A.dx * wd, i > len - 9 ? WHITE : V[3]);
+          if (rand(i, Math.floor(t * 24)) > 0.8) p.px(x - A.dx * 2, y - 3, V[4]);
+        }
+        p.glowLine(H[0], H[1], H[0] + A.dx * len, H[1] + A.dy * len, 14, V[3], 0.6 * k);
       }
-      if (t >= HIT && t < HIT + 0.06) p.circle(T[0], T[1], 34, WHITE);
+      if (t >= LOOSE && t < HIT) {
+        const A0 = rigAt(LOOSE - 0.001), H = A0.R.near.H, sx = H[0] + A0.dx * 62, sy = H[1] + A0.dy * 62, u = clamp((t - LOOSE) / FLY);
+        const x = sx + (T[0] - sx) * u, y = sy + (T[1] - sy) * u, dx = (T[0] - sx), dy = (T[1] - sy), n = Math.hypot(dx, dy);
+        p.glowLine(x - (dx / n) * 70, y - (dy / n) * 70, x, y, 18, V[3], 0.9);
+        p.beam(x - (dx / n) * 56, y - (dy / n) * 56, x, y, 3.5, V[3]);
+        p.line(x - (dx / n) * 56, y - (dy / n) * 56, x, y, WHITE);
+      }
+      // the impact: two impact frames, then the explosion, and black flames left burning on the ground
+      const age = t - HIT;
+      blast(p, age, { x: T[0], y: 0, R: 34, C: BOOM, seed: 5 });
+      if (age >= 0 && age < 0.05) impactFrame(p, -74, -206, 330, 50, T[0], -24, false, 7);
+      else if (age >= 0.05 && age < 0.1) impactFrame(p, -74, -206, 330, 50, T[0], -24, true, 8);
+      if (age > 0.35 && age < 2.6) {
+        const k = smooth(0.35, 0.7, age) * (1 - smooth(2, 2.6, age));
+        for (let i = 0; i < 5; i++) drawBlackFlame(p, T[0] - 40 + i * 20 + (rand(i, 3) - 0.5) * 8, 0, 4 + rand(i, 4) * 3, 10 + rand(i, 5) * 12, t, i * 3, k);
+      }
       ps.draw(p, "front");
       lights.draw(p);
     },

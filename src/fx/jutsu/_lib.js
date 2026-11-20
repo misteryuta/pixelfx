@@ -131,7 +131,7 @@ export function warp(p, cx, cy, R, twist, pull = 0) {
       const f = 1 - r / R, a = twist * f * f, s = 1 + pull * 3 * f, c = Math.cos(a), sn = Math.sin(a);
       const sx = cx + (dx * c - dy * sn) * s, sy = cy + (dx * sn + dy * c) * s;
       const si = Math.floor(sx - x0), sj = Math.floor(sy - y0);
-      const col = si >= 0 && sj >= 0 && si < n && sj < n && Math.hypot(sx - cx, sy - cy) <= R ? snap[sj * n + si] : 0;
+      const col = si >= 0 && sj >= 0 && si < n && sj < n ? snap[sj * n + si] : 0;
       p.px(x, y, col || CLEAR);
     }
 }
@@ -405,8 +405,8 @@ function aura(p, t, run, C) {
  * burst lines rush in at (cx, cy); inv swaps ink and paper (the second beat). Covers the local box x0..x1, y0..y1.
  */
 const INK = hex("#08070e"), PAPER = hex("#fffdf6");
-export function impactFrame(p, x0, y0, x1, y1, cx, cy, inv = false, seed = 1) {
-  const n = 60, lines = Array.from({ length: n }, (_, i) => {
+export function impactFrame(p, x0, y0, x1, y1, cx, cy, inv = false, seed = 1, { ink = INK, paper = PAPER, lines: nl = 60 } = {}) {
+  const n = Math.max(1, nl), lines = Array.from({ length: n }, (_, i) => {
     const thick = rand(i, seed + 3) < 0.2;
     return { a: ((i + 0.2 + rand(i, seed) * 0.6) / n) * TAU - Math.PI, inner: thick ? 26 + rand(i, seed + 1) * 20 : 16 + rand(i, seed + 1) * 60, w: thick ? 4 + rand(i, seed + 2) * 3 : 1 + rand(i, seed + 2) * 2.4 };
   });
@@ -415,14 +415,14 @@ export function impactFrame(p, x0, y0, x1, y1, cx, cy, inv = false, seed = 1) {
     const dx = lx - cx, dy = (ly - cy) * 1.3, rho = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
     const slot = Math.floor(((ang + Math.PI) / TAU) * n);
     let line = false;
-    for (let k = -1; k <= 1 && !line; k++) {
+    for (let k = -1; k <= 1 && !line && nl > 0; k++) {
       const l = lines[(slot + k + n) % n];
       let d = Math.abs(ang - l.a);
       if (d > Math.PI) d = TAU - d;
       line = rho > l.inner && d * rho < l.w * clamp((rho - l.inner) / 40);
     }
-    const ink = ((c >>> 24) > 70) !== line;
-    p.C[i] = ink !== inv ? INK : PAPER;
+    const isInk = ((c >>> 24) > 70) !== line;
+    p.C[i] = isInk !== inv ? ink : paper;
     p.L[i] = 0;
   });
 }
@@ -437,4 +437,74 @@ export function drawChunk(p, x, y, s, a, C, k = 1) {
   p.poly(pts, C[1], k);
   p.poly(pts.map(([px, py]) => [x + (px - x) * 0.6 - s * 0.15, y + (py - y) * 0.6 - s * 0.15]), C[2], k);
   p.px(x - s * 0.35, y - s * 0.4, C[3]);
+}
+
+/**
+ * A big explosion with depth, age seconds after it went off at (x, y) on the floor, R its size: a white flash, a
+ * fireball that swells, boils (noise-shaded as a lit sphere, hot white-yellow core cooling to the ramp's dark) and
+ * rises into a column; a shock ring racing along the ground and a pressure sphere in the air; chunks of ground thrown
+ * out on arcs; smoke rolling up after. C: the ramp, dark to bright (5+). layer "back" draws the parts behind a target
+ * (the far half of the ground ring, the smoke), "front" the rest.
+ */
+export function blast(p, age, { x = 0, y = 0, R = 40, C, seed = 1, layer = "front", rock = null, smoke = null } = {}) {
+  if (age < 0 || age > 3.2) return;
+  const n = C.length, SM = smoke ?? [hex("#2a2430"), hex("#4a4250"), hex("#6e6676")];
+  const ROCK = rock ?? ["#2a2420", "#4a3e34", "#6e5e4e", "#9a8670"].map(hex);
+  const ringR = R * 2.6 * ease.outQuad(clamp(age / 0.55)), ringA = 1 - smooth(0.25, 0.7, age);
+  if (layer === "back") {
+    // the far half of the ring on the ground, and the smoke that rolls up behind
+    if (ringA > 0) p.arc(x, y, ringR, 3, Math.PI, TAU, C[n - 2], ringA * 0.8);
+    for (let i = 0; i < 9; i++) {
+      const a0 = 0.35 + rand(i, seed) * 0.3, u = clamp((age - a0) / 2.2);
+      if (u <= 0 || u >= 1) continue;
+      const sx = x + (rand(i, seed + 1) - 0.5) * R * 1.4, sy = y - R * 0.5 - u * R * 2.2 - rand(i, seed + 2) * R * 0.5, r = R * (0.35 + 0.4 * u) * (0.7 + 0.5 * rand(i, seed + 3));
+      p.disc(sx, sy, r, (d) => (d < 0.5 ? SM[2] : d < 0.8 ? SM[1] : SM[0]), (d) => (1 - u) * 0.75 * (d < 0.85 ? 1 : 0.5));
+    }
+    return;
+  }
+  // the flash
+  if (age < 0.08) {
+    p.circle(x, y - R * 0.4, R * (0.7 + age * 6), WHITE);
+    p.glow(x, y - R * 0.4, R * 4, C[n - 1], 1);
+  }
+  // the pressure sphere: a thin bright shell expanding through the air
+  if (age < 0.4) p.ring(x, y - R * 0.45, R * 0.6 + R * 3.2 * ease.outQuad(age / 0.4), 2, C[n - 1], 1 - age / 0.4);
+  // the near half of the ground ring, and the dust it kicks
+  if (ringA > 0) {
+    p.arc(x, y, ringR, 4, 0, Math.PI, C[n - 2], ringA);
+    p.ellipse(x, y, ringR, ringR * 0.18, C[n - 3], ringA * 0.35);
+  }
+  // the fireball: swells, then lifts into a column and cools
+  const sw = ease.outCubic(clamp(age / 0.3)), lift = smooth(0.3, 1.6, age), cool = clamp(age / 0.9), fade = 1 - smooth(1.1, 1.9, age);
+  const r = R * (0.25 + 0.85 * sw) * (1 - 0.25 * lift), cy = y - r * 0.55 - lift * R * 1.4;
+  if (fade > 0) {
+    // the stem feeding it from the ground
+    if (lift > 0.05) p.shade(x - r * 0.55, cy, x + r * 0.55, y, (px, py, out) => {
+      const v = (py - cy) / (y - cy), w = r * (0.25 + 0.25 * v) * (0.8 + 0.4 * noise2(py * 0.15 - age * 4, 1, seed));
+      if (Math.abs(px - x) > w) return;
+      out.a = fade * 0.9;
+      const e = Math.abs(px - x) / w;
+      return C[Math.max(0, Math.min(n - 1, Math.round((n - 2) * (1 - cool) * (1 - e * 0.6) + (1 - v) * 0.5)))];
+    });
+    p.glow(x, cy, r * 3, C[n - 2], 0.7 * fade * (1 - cool * 0.6));
+    p.shade(x - r * 1.3, cy - r * 1.3, x + r * 1.3, cy + r * 1.1, (px, py, out) => {
+      const dx = (px - x) / r, dy = (py - cy) / r, d = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
+      const lump = 1 + 0.22 * noise2(Math.cos(ang) * 1.6 + seed, Math.sin(ang) * 1.6 - age * 3, seed + 4) + 0.1 * noise2(ang * 3, age * 5, seed);
+      if (d > lump) return;
+      const z = Math.sqrt(Math.max(0, 1 - (d / lump) ** 2)), boil = noise2(dx * 3 + seed, dy * 3 - age * 5, seed + 9);
+      // lit from the upper left and from inside: hot where it's deep, dark at the rim and underneath
+      const lit = z * 0.55 + (-dx * 0.3 - dy * 0.45) + boil * 0.35 + (1 - cool) * 0.55 - 0.42;
+      out.a = fade;
+      const i = Math.max(0, Math.min(n - 1, Math.floor(lit * (n - 1) * 0.95 + 1.2)));
+      if (i >= n - 1 && cool < 0.3) out.k = 0.4;
+      return C[i];
+    });
+  }
+  // chunks of the ground thrown out on arcs
+  for (let i = 0; i < 14; i++) {
+    const a = -Math.PI * (0.1 + 0.8 * rand(i, seed + 5)), v = R * (2.2 + 3.2 * rand(i, seed + 6)), vx = Math.cos(a) * v, vy = Math.sin(a) * v;
+    const cx = x + vx * age, cyy = y - 2 + vy * age + 0.5 * 320 * age * age;
+    if (cyy > y || age > 2) continue;
+    drawChunk(p, cx, cyy, 1.5 + 2.5 * rand(i, seed + 7), age * 9 * (rand(i, seed) - 0.5), ROCK);
+  }
 }

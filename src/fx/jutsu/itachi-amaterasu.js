@@ -1,16 +1,22 @@
 // Amaterasu (Itachi). Narutopedia: a Mangekyou Sharingan doujutsu, the highest Fire Release; black flames are born at the
 // focal point of the user's sight, no seals, no projectile, burn as hot as the sun and won't go out until the target is
 // ash, and the eye that casts it bleeds. Here: Itachi's Mangekyou turns, he just looks: the air at the target ripples
-// where his gaze settles, and black fire is simply there, blooming over it, spreading, burning on long after.
-// New: the gaze ripple, the bloom of black flame (_lib drawBlackFlame, many tongues spreading out from one point), the
-// blood from the eye.
+// where his gaze settles: one red frame, the whole world gone to ink on blood for an instant, a red pulse that dies
+// away, and black fire is simply there, catching on the target and spreading out over it and across the ground,
+// burning on long after.
+// New: the red frame (impactFrame in ink on red), the bloom of black flame (_lib drawBlackFlame, tongues catching one
+// after another outward from where he looked), the blood from the eye.
 import { Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, WHITE } from "../../core/index.js";
-import { play, bodyAt, drawBlackFlame, BLACK_FIRE } from "./_lib.js";
+import { play, bodyAt, drawBlackFlame, BLACK_FIRE, impactFrame, veil } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 
 const EYE = 0.05, OPEN = 0.65, FOCUS = OPEN + 0.25, IGNITE = FOCUS + 0.22, END = IGNITE + 2.6, TX = 140;
 // the tongues: where on the target each catches, how long after the first, how big
-const TONGUES = Array.from({ length: 9 }, (_, i) => ({ x: TX - 12 + rand(i, 1) * 24, y: -4 - rand(i, 2) * 44, d: i === 0 ? 0 : 0.03 + rand(i, 3) * 0.35, w: 5 + rand(i, 4) * 4, h: 12 + rand(i, 5) * 12 }));
+const TONGUES = [
+  ...Array.from({ length: 9 }, (_, i) => ({ x: TX - 12 + rand(i, 1) * 24, y: -4 - rand(i, 2) * 44, w: 5 + rand(i, 4) * 4, h: 12 + rand(i, 5) * 12 })),
+  // and out across the ground on both sides
+  ...Array.from({ length: 12 }, (_, i) => ({ x: TX + (i % 2 ? 1 : -1) * (16 + Math.floor(i / 2) * 9 + rand(i, 6) * 4), y: 0, w: 4 + rand(i, 7) * 3, h: 8 + rand(i, 8) * 10 })),
+].map((q) => ({ ...q, d: Math.hypot(q.x - TX, q.y + 26) * 0.012 * (0.8 + 0.4 * rand(q.x, 9)) }));
 
 export const meta = {
   name: "Amaterasu",
@@ -62,18 +68,15 @@ export const create = play([], (o) => {
       drawGlint(p, t, "itachi", OPEN + 0.05, END, b.head);
       // the eye bleeds once the flames are called
       if (t > IGNITE) p.line(b.head[0] + 2, b.head[1] + 0.5, b.head[0] + 2, b.head[1] + 0.5 + Math.min(4, (t - IGNITE) * 10), hex("#a01020"));
-      // where his gaze settles: the air at the target ripples, tighter and tighter
-      if (t > FOCUS && t < IGNITE + 0.05) {
-        const u = clamp((t - FOCUS) / (IGNITE - FOCUS));
-        for (let i = 0; i < 3; i++) p.ring(TX, -26, 26 * (1 - u) + i * 4 * (1 - u) + 1, 1, F[4], 0.35 + 0.4 * u);
-        p.glow(TX, -26, 16, F[4], 0.4 * u);
-      }
-      if (t >= IGNITE && t < IGNITE + 0.05) { p.circle(TX, -26, 16, F[4]); p.circle(TX, -26, 13, F[0]); }
+      // the red frame: for an instant everything is ink on blood, then a red pulse dies away over the scene
+      if (t >= IGNITE - 0.08 && t < IGNITE - 0.02) impactFrame(p, -50, -118, 190, 32, TX, -26, false, 5, { ink: hex("#0a0204"), paper: hex("#b0101e"), lines: 24 });
+      else if (t >= IGNITE - 0.02 && t < IGNITE + 0.4) veil(p, -50, -118, 190, 32, hex("#8a0a18"), 0.45 * (1 - smooth(IGNITE - 0.02, IGNITE + 0.4, t)));
       // the bloom: black flame catches at one point and spreads over the whole target, then burns on
       if (t >= IGNITE) {
         const out = 1 - smooth(END - 0.5, END, t);
+        p.glow(TX, -20, 60 * smooth(IGNITE, IGNITE + 0.6, t), F[4], 0.25 * out);
         for (const [i, q] of TONGUES.entries()) {
-          const k = ease.outBack(clamp((t - IGNITE - q.d) / 0.2), 2) * out;
+          const k = ease.outBack(clamp((t - IGNITE - q.d) / 0.25), 2) * out;
           drawBlackFlame(p, q.x, q.y, q.w, q.h, t + i * 0.7, i * 5, k);
         }
       }

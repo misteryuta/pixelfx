@@ -4,7 +4,7 @@
 // his temples, the Gentle Fist stance, then he spins on his heel and a dome of chakra whirls up round him, grows, slams
 // the target away, and leaves a ring gouged in the floor.
 // New: the dome (a shaded half-sphere, see-through, with bands of chakra spinning round it), the spin (yaw on the rig),
-// the gouged ring, the veins.
+// the gouged ring, the veins. The target charges in at him and is caught by the dome as it opens: it is in range.
 import { Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
@@ -16,7 +16,7 @@ export const meta = {
   name: "Revolving heaven",
   desc: "Neji: the Byakugan with veins at his temples, the Gentle Fist stance, then he spins and a whirling dome of chakra rises round him, grows, throws the target away and leaves a ring gouged in the floor.",
   tags: ["jutsu", "neji", "hyuuga", "byakugan", "defense", "aoe", "knockback", "one-shot"],
-  size: [220, 140],
+  size: [240, 140],
   origin: [90, 112],
   duration: STOP + 1.2,
   loop: false,
@@ -45,6 +45,21 @@ export const act = {
     { t: FULL + 0.2, stop: 0.03, flash: 0, push: 1, straw: 8 },
   ],
   dust: [{ t: SPIN, x: 0, n: 10 }],
+};
+
+// the target rushes him, meets the dome right as it opens, is hurled back and walks back to its spot
+export const targetState = (t) => {
+  if (t < STANCE) return null;
+  if (t < FULL) {
+    const u = ease.inQuad(smooth(STANCE, FULL, t));
+    return { dx: -34 * u, rot: -0.18 * u };
+  }
+  if (t < FULL + 0.5) {
+    const v = ease.outCubic((t - FULL) / 0.5);
+    return { dx: -34 + 78 * v, dy: -20 * Math.sin(Math.PI * v), rot: 0.7 * Math.sin(Math.PI * v) };
+  }
+  const w = smooth(STOP + 0.2, meta.duration - 0.1, t);
+  return { dx: 44 * (1 - w) };
 };
 
 export const create = play([], (o) => {

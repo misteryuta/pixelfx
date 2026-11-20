@@ -1,144 +1,375 @@
-// Susanoo, the avatar of the Mangekyou (helper, not an effect). Narutopedia: it forms in stages round its user: first a
-// ribcage, then a skeleton with arms, then muscle and armour; it is the user's chakra, in their color (Itachi red, Sasuke
-// purple, Madara blue), translucent, with burning edges. Itachi's has a long tengu nose and carries the Totsuka sword and
-// the Yata mirror; Sasuke's has a horned crest and a bow. Drawn round a user standing at (0, 0) facing right.
-import { hex, mix, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.js";
-
-const GLOW = hex("#ffe040"), GLOW2 = hex("#fff6b0");
+// Susanoo, the avatar of the Mangekyou (helper, not an effect). Narutopedia: it forms round its user in stages, each
+// layered over the last: a ribcage, a skeleton with arms, musculature, then armour (a yamabushi with a tengu face).
+// Early forms are only the upper half; all have two pairs of arms. Colors (anime): Itachi red skeleton and armour,
+// orange humanoid; Sasuke purple; Madara blue. Itachi's: a long-nosed tengu hood, magatama earrings, the Sword of
+// Totsuka in the primary right hand, its sake jar in the second right hand, the Yata Mirror in the primary left.
+// Sasuke's: demonic horns, a chin appendage, a malevolent grin of jagged teeth; a bow on the left wrist, arrows drawn
+// with the right hand.
+//
+// Here it is a rig, not a picture: a waist, a spine that leans, shoulders that turn with the torso (3/4 view facing
+// right: the right arms on the near side, screen left; the left arm on the far side, toward the target), a head, and
+// arms solved with two-bone IK from where the hands are. Effects pose it over time with keyTrack() (smooth Hermite
+// keys, so swings carry their speed through and settle), and drawSusanoo() paints whichever stages have formed:
+// ribs round the user, the bones (skull with glowing eyes and a toothy jaw), the muscle growing out from the chest
+// in striated bundles, the armour last; chakra flames lick off its outline the whole time.
+import { hex, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.js";
 
 export const SUSANOO = {
-  itachi: ["#3a0808", "#8a1418", "#d8302c", "#ff7a5a", "#ffd0c0"].map(hex),
+  itachi: ["#3a0806", "#8a1a10", "#d8461c", "#ff8a3a", "#ffd8a0"].map(hex),
   sasuke: ["#1a0a36", "#4a2490", "#8a5ae0", "#c8a8ff", "#f0e6ff"].map(hex),
   madara: ["#0a1636", "#1a3a8a", "#3a78e0", "#8ac0ff", "#e0f0ff"].map(hex),
 };
+const EYES = { itachi: [hex("#fff4c8"), WHITE], sasuke: [hex("#ffe040"), hex("#fff6b0")], madara: [hex("#ffe040"), hex("#fff6b0")] };
 
-const seg = (x, y, ax, ay, bx, by) => {
-  const dx = bx - ax, dy = by - ay, u = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1));
-  return Math.hypot(x - ax - dx * u, y - ay - dy * u);
-};
+/**
+ * Keys over time: [[t, { name: number, ... }], ...]; every key inherits what the one before set. Numbers are joined by
+ * cubic Hermite curves whose slopes carry the motion through keys that keep going the same way and come to rest on keys
+ * where it turns, so a wind-up settles, a swing keeps its speed and a follow-through eases out.
+ */
+export function keyTrack(keys) {
+  const full = [];
+  let prev = {};
+  for (const [t, v] of keys) full.push([t, (prev = { ...prev, ...v })]);
+  const names = Object.keys(prev);
+  const slope = (j, n) => {
+    if (j <= 0 || j >= full.length - 1) return 0;
+    const [ta, A] = full[j - 1], [tc, Cc] = full[j], [tb, B] = full[j + 1];
+    const s1 = (Cc[n] - A[n]) / (tc - ta || 1e-6), s2 = (B[n] - Cc[n]) / (tb - tc || 1e-6);
+    return s1 * s2 <= 0 ? 0 : (s1 + s2) / 2;
+  };
+  return (t) => {
+    if (t <= full[0][0]) return { ...full[0][1] };
+    if (t >= full[full.length - 1][0]) return { ...full[full.length - 1][1] };
+    let i = 0;
+    while (t > full[i + 1][0]) i++;
+    const [t0, a] = full[i], [t1, b] = full[i + 1], h = t1 - t0, u = (t - t0) / h, u2 = u * u, u3 = u2 * u, out = {};
+    for (const n of names) {
+      const p0 = a[n], p1 = b[n];
+      if (typeof p0 !== "number" || typeof p1 !== "number") {
+        out[n] = p1 ?? p0;
+        continue;
+      }
+      out[n] = (2 * u3 - 3 * u2 + 1) * p0 + (u3 - 2 * u2 + u) * slope(i, n) * h + (-2 * u3 + 3 * u2) * p1 + (u3 - u2) * slope(i + 1, n) * h;
+    }
+    return out;
+  };
+}
+
+// two-bone IK: shoulder S to hand H, each bone L: the elbow, bent to one side (bend +1 / -1, anything between straightens it)
+function elbow(S, H, L, bend) {
+  const dx = H[0] - S[0], dy = H[1] - S[1], d = Math.min(Math.hypot(dx, dy), 2 * L - 0.01) || 1, h = Math.sqrt(Math.max(0, L * L - (d / 2) ** 2));
+  return [S[0] + dx / 2 - (dy / d) * h * bend, S[1] + dy / 2 + (dx / d) * h * bend];
+}
+export function elbowOf(sx, sy, hx, hy, L = 26) {
+  return elbow([sx, sy], [hx, hy], L, 1);
+}
+
+/**
+ * The rig in a pose q: { lean (radians, + toward the target), twist (-1 turned away .. 1 turned in), head (tilt),
+ * x, y (the waist), near: [angle, reach] or nearH: [x, y], nearBend, far / farH, farBend, low / lowH, lowBend }.
+ * Arm angles are measured from the torso (0 straight out toward the target, + downward); reach 0..1 of the arm's length.
+ */
+export function rigOf(q) {
+  const lean = q.lean ?? 0, tw = q.twist ?? 0, up = [Math.sin(lean), -Math.cos(lean)], rt = [Math.cos(lean), Math.sin(lean)];
+  const W = [q.x ?? -4, q.y ?? -6], at = (o, a, b) => [o[0] + up[0] * a + rt[0] * b, o[1] + up[1] * a + rt[1] * b];
+  const N = at(W, 60, 0), Ch = at(W, 36, 2), hl = lean + (q.head ?? 0), hup = [Math.sin(hl), -Math.cos(hl)], hrt = [Math.cos(hl), Math.sin(hl)];
+  const Hd = [N[0] + hup[0] * 15 + hrt[0] * 3, N[1] + hup[1] * 15 + hrt[1] * 3];
+  const arm = (S, spec, abs, L, bend) => {
+    let H;
+    if (abs) H = abs;
+    else {
+      const A = spec[0] + lean, d = clamp(spec[1], 0.12, 0.985) * 2 * L;
+      H = [S[0] + Math.cos(A) * d, S[1] + Math.sin(A) * d];
+    }
+    const dx = H[0] - S[0], dy = H[1] - S[1], d = Math.hypot(dx, dy);
+    if (d > 2 * L * 0.985) H = [S[0] + (dx / d) * 2 * L * 0.985, S[1] + (dy / d) * 2 * L * 0.985];
+    return { S, E: elbow(S, H, L, bend), H, L };
+  };
+  const nearS = at(N, -5, -21 + 10 * tw), farS = at(N, -2, 18 - 6 * tw), lowS = at(Ch, -10, -15 + 7 * tw);
+  return {
+    q, lean, up, rt, W, N, Ch, Hd, hup, hrt,
+    near: arm(nearS, q.near ?? [1.2, 0.6], q.nearH, 27, q.nearBend ?? 1),
+    far: arm(farS, q.far ?? [1, 0.5], q.farH, 25, q.farBend ?? 1),
+    low: q.low || q.lowH ? arm(lowS, q.low ?? [1.4, 0.5], q.lowH, 19, q.lowBend ?? 1) : null,
+  };
+}
+
+// ---- the shapes: tapered capsules, ra at a to rb at b. sd < 0 inside; u along it, v across (-1..1, + to its right)
+function cap(a, b, ra, rb) {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1e-6, L = Math.sqrt(L2);
+  return { a, dx, dy, L2, L, ra, rb, nx: -dy / L, ny: dx / L };
+}
+function sdCap(c, x, y, o) {
+  const px = x - c.a[0], py = y - c.a[1], u = clamp((px * c.dx + py * c.dy) / c.L2), qx = px - c.dx * u, qy = py - c.dy * u, r = c.ra + (c.rb - c.ra) * u, d = Math.hypot(qx, qy);
+  if (o) {
+    o.u = u;
+    o.v = (qx * c.nx + qy * c.ny) / r;
+    o.r = r;
+    o.ox = d ? qx / d : 0;
+    o.oy = d ? qy / d : -1;
+  }
+  return d - r;
+}
 const inPoly = (x, y, P) => {
   let c = false;
   for (let i = 0, j = P.length - 1; i < P.length; j = i++) if (P[i][1] > y !== P[j][1] > y && x < ((P[j][0] - P[i][0]) * (y - P[i][1])) / (P[j][1] - P[i][1]) + P[i][0]) c = !c;
   return c;
 };
 
-// an arm from shoulder (sx, sy) to hand (hx, hy), upper arm and forearm L long each: where the elbow bends to (down)
-export function elbowOf(sx, sy, hx, hy, L = 26) {
-  const dx = hx - sx, dy = hy - sy, d = Math.min(Math.hypot(dx, dy), 2 * L - 0.01) || 1, h = Math.sqrt(Math.max(0, L * L - (d / 2) ** 2));
-  let px = -dy / d, py = dx / d;
-  if (py < 0) { px = -px; py = -py; }
-  return [sx + dx / 2 + px * h, sy + dy / 2 + py * h];
-}
-const SH = [28, -66], SH2 = [-22, -66], CORE = [2, -50];
-
 /**
- * stage: 0 nothing, 1 ribcage, 2 skeleton with arms, 3 body and armour (fractions blend in between). It builds the way
- * Narutopedia describes: ribs round the user, then the bones, then the flesh grows outward from the chest (a burning
- * front sweeping out over the skeleton until it reaches the head, the hands, the horns), and the armour plates harden
- * last. kind: itachi / sasuke / madara. arm: the front hand ([x, y]); arm2: the far hand, or none; fade 0..1 takes it away.
+ * Paint the Susanoo of rig R (rigOf). st: { ribs, bones, flesh, armour } each 0..1, how far that stage has formed;
+ * fade 0..1 takes the whole thing away. layer "back" (call from drawBack, behind its user) paints everything but the
+ * front halves of the ribs; layer "front" (call from draw) paints those over the user. mid(p) is called between the
+ * far side (far arm, torso, head) and the near arms, for things held between them (the Yata Mirror).
  */
-export function drawSusanoo(p, t, { kind = "sasuke", stage = 3, arm = [44, -60], arm2 = null, fade = 0 } = {}) {
+export function drawSusanoo(p, t, R, { kind = "itachi", st = {}, fade = 0, layer = "back", mid = null } = {}) {
   const C = SUSANOO[kind], k = 1 - fade, f = Math.floor(t * 20);
-  if (stage <= 0 || k <= 0) return;
-  const ribs = clamp(stage), bones = clamp(stage - 1), flesh = clamp(stage - 2), armour = smooth(0.55, 1, flesh);
-  const [hx, hy] = arm, [ex, ey] = elbowOf(SH[0], SH[1], hx, hy);
-  const el2 = arm2 ? elbowOf(SH2[0], SH2[1], arm2[0], arm2[1]) : null;
-  // the glow it sheds
-  p.glow(4, -50, 70 * Math.min(1, stage / 2), C[2], 0.35 * k);
-  if (flesh > 0) {
-    const inside = (x, y) => {
-      if (((x - 3) / 11) ** 2 + ((y + 86) / 13) ** 2 < 1) return true; // head
-      if (((x - 2) / 23) ** 2 + ((y + 52) / 20) ** 2 < 1) return true; // chest
-      if (((x - 1) / 15) ** 2 + ((y + 26) / 16) ** 2 < 1 && y < -10) return true; // belly, tapering to the waist
-      if (seg(x, y, 2, -76, 2, -66) < 6) return true; // neck
-      if (((x + 22) / 12) ** 2 + ((y + 64) / 7) ** 2 < 1 || ((x - 26) / 12) ** 2 + ((y + 64) / 7) ** 2 < 1) return true; // pauldrons
-      if (seg(x, y, SH[0], SH[1], ex, ey) < 6 || seg(x, y, ex, ey, hx, hy) < 5) return true; // the front arm
-      if (el2 && (seg(x, y, SH2[0], SH2[1], el2[0], el2[1]) < 5.5 || seg(x, y, el2[0], el2[1], arm2[0], arm2[1]) < 4.5)) return true; // the far arm
-      if (kind === "itachi" && inPoly(x, y, [[10, -90], [34, -84], [10, -82]])) return true; // the tengu nose
-      if (kind !== "itachi" && (inPoly(x, y, [[-4, -94], [-14, -110], [0, -97]]) || inPoly(x, y, [[7, -97], [11, -110], [11, -95]]))) return true; // horns
-      return false;
-    };
-    // how far the flesh has grown out from the chest: a ragged front sweeping outward
-    const reach = flesh * 110;
-    const grown = (x, y) => Math.hypot(x - CORE[0], y - CORE[1]) + 5 * noise2(x * 0.15, y * 0.15 + t * 2, 6) < reach;
-    const xr = Math.max(64, hx + 8, arm2 ? arm2[0] + 8 : 0), yt = Math.min(-126, hy - 8, arm2 ? arm2[1] - 8 : 0), xl = Math.min(-44, hx - 8, arm2 ? arm2[0] - 8 : 0);
-    p.shade(xl, yt, xr, Math.max(-4, hy + 8), (x, y, out) => {
-      if (!grown(x, y)) return;
-      const d = Math.hypot(x - CORE[0], y - CORE[1]);
-      if (!inside(x, y)) {
-        // the chakra burns off its outline in licking flames (both references: a flaming edge round the whole avatar)
-        const lick = 2 + 5 * noise2(x * 0.25, y * 0.15 + t * 7, 4);
-        if (inside(x, y + lick) && noise2(x * 0.4, y * 0.3 + t * 9, 8) > 0.1) {
-          out.a = k * flesh * 0.8;
+  const ribs = clamp(st.ribs ?? 0), bones = clamp(st.bones ?? 0), flesh = clamp(st.flesh ?? 0), armour = clamp(st.armour ?? 0);
+  if (k <= 0 || ribs + bones + flesh <= 0) return;
+  // the ribcage: ovals round the user's chest, each growing out from the spine at its back; the halves behind him first
+  const cage = (front) => {
+    if (ribs <= 0) return;
+    const a = k * (ribs < 0.35 ? 0.45 : 1) * (front ? 0.85 * (1 - smooth(0.2, 0.7, flesh)) : 1), col = ribs < 0.35 ? C[1] : C[3];
+    for (let i = 0; i < 5; i++) {
+      const s = 14 + i * 8.5, c = [R.W[0] + R.up[0] * s + R.rt[0] * 2, R.W[1] + R.up[1] * s + R.rt[1] * 2], rx = 24 - Math.abs(i - 1.6) * 2.2, ry = 5.5;
+      const grow = clamp(ribs * 1.6 - i * 0.12), span = Math.PI * grow;
+      if (span <= 0.05) continue;
+      // from the spine (at the back, angle -90deg) round both ways; the front half (angle 0..pi) passes in front of him
+      for (let th = -Math.PI / 2 - span; th <= -Math.PI / 2 + span; th += 0.05) {
+        const inFront = Math.sin(th) > 0;
+        if (inFront !== front) continue;
+        const x = c[0] + Math.cos(th) * rx, y = c[1] + Math.sin(th) * ry;
+        p.dot(x, y, col, a);
+        p.dot(x, y + 1, col, a);
+        p.dot(x, y + 2, C[1], a * 0.8);
+      }
+    }
+    if (!front) p.beam(R.W[0], R.W[1], R.N[0], R.N[1], 4, C[3], k * Math.min(1, ribs * 2) * (ribs < 0.35 ? 0.45 : 1));
+  };
+  if (layer === "front") return cage(true);
+  p.glow(R.Ch[0], R.Ch[1] - 6, 80 * Math.min(1, ribs + bones), C[2], 0.35 * k);
+  cage(false);
+
+  // the parts of the body, far side first: the far arm, then torso and head, then the near arms
+  const far = [cap(R.far.S, R.far.E, 7.5, 6), cap(R.far.E, R.far.H, 6, 5), cap(R.far.H, R.far.H, 5.5, 5.5)];
+  const body = [cap(R.W, R.Ch, 14, 23), cap(R.Ch, R.N, 23, 14), cap(R.N, R.near.S, 10, 9), cap(R.N, R.far.S, 9, 8), cap(R.N, R.Hd, 8, 8), cap(R.Hd, R.Hd, 12.5, 12.5)];
+  const near = [cap(R.near.S, R.near.E, 9, 7.5), cap(R.near.E, R.near.H, 7.5, 6), cap(R.near.H, R.near.H, 6.5, 6.5)];
+  if (R.low) near.push(cap(R.low.S, R.low.E, 6, 5), cap(R.low.E, R.low.H, 5, 4.5), cap(R.low.H, R.low.H, 5, 5));
+  const o = {};
+  const sdOf = (list, x, y, out) => {
+    let best = 1e9;
+    for (const c of list) {
+      const d = sdCap(c, x, y);
+      if (d < best) {
+        best = d;
+        if (out) sdCap(c, x, y, out);
+      }
+    }
+    return best;
+  };
+  // the armour's shapes (kind-specific), in the torso's frame
+  const loc = (x, y, c) => [(x - c[0]) * R.rt[0] + (y - c[1]) * R.rt[1], (x - c[0]) * R.up[0] + (y - c[1]) * R.up[1]];
+  const hoodPts = (() => {
+    const H = R.Hd, U = R.hup, T = R.hrt, P = (a, b) => [H[0] + U[0] * a + T[0] * b, H[1] + U[1] * a + T[1] * b];
+    return kind === "itachi" ? [P(-10, -15), P(4, -16), P(18, -8), P(25, -12), P(19, 2), P(13, 12), P(0, 15), P(-12, 13)] : [P(-10, -14), P(6, -16), P(16, -10), P(14, 4), P(8, 13), P(-4, 15), P(-12, 12)];
+  })();
+  const nosePts = (() => {
+    const H = R.Hd, U = R.hup, T = R.hrt, P = (a, b) => [H[0] + U[0] * a + T[0] * b, H[1] + U[1] * a + T[1] * b];
+    return kind === "itachi" ? [P(4, 6), P(-1, 36), P(-5, 7)] : [P(-6, 4), P(-16, 8), P(-8, 0)];
+  })();
+  // the mantle: broad over the shoulders, drawn in at the waist, hanging a little lower at the back
+  const mantleE = (lx, ly) => {
+    const hw = 20 + 13 * clamp((ly + 24) / 40) - (lx < 0 ? -3 : 0), vy = (ly - 5) / (ly > 5 ? 25 : 31);
+    return (lx / hw) ** 2 + vy * vy;
+  };
+  const mantle = (x, y) => {
+    const [lx, ly] = loc(x, y, R.Ch);
+    return mantleE(lx, ly) < 1;
+  };
+  const armourAt = (x, y) => {
+    if (armour <= 0) return 0;
+    if (inPoly(x, y, hoodPts)) return 1;
+    if (inPoly(x, y, nosePts)) return 2;
+    if (mantle(x, y)) return 3;
+    return 0;
+  };
+  // the flesh grows out from the chest: a ragged front; the armour hardens after it, from the chest out too
+  const reachF = flesh * 120, reachA = armour * 130;
+  const grownF = (x, y) => Math.hypot(x - R.Ch[0], y - R.Ch[1]) + 6 * noise2(x * 0.15, y * 0.15 + t * 2, 6) < reachF;
+  const grownA = (x, y) => Math.hypot(x - R.Ch[0], y - R.Ch[1]) + 6 * noise2(x * 0.12, y * 0.12 - t * 2, 9) < reachA;
+  // the box everything fits in
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const P of [R.W, R.N, R.Hd, R.near.S, R.near.E, R.near.H, R.far.S, R.far.E, R.far.H, ...(R.low ? [R.low.E, R.low.H] : []), ...hoodPts, ...nosePts]) {
+    x0 = Math.min(x0, P[0]); y0 = Math.min(y0, P[1]); x1 = Math.max(x1, P[0]); y1 = Math.max(y1, P[1]);
+  }
+  (x0 -= 44), (y0 -= 30), (x1 += 44), (y1 = Math.min(6, y1 + 16));
+
+  // one pass for a group of parts: muscle, armour, the burning outline
+  const paint = (list, withArmour) => {
+    if (flesh <= 0) return;
+    p.shade(x0, y0, x1, y1, (x, y, out) => {
+      if (y > 2) return;
+      const d = sdOf(list, x, y, o), arm = withArmour && grownA(x, y) ? armourAt(x, y) : 0;
+      if (d > 0 && !arm) {
+        // chakra flames licking up off the top of the outline
+        const lick = 2 + 6 * noise2(x * 0.22, y * 0.12 + t * 7, 4);
+        if (grownF(x, y) && sdOf(list, x, y + lick) < 0 && noise2(x * 0.4, y * 0.3 + t * 9, 8) > 0.05) {
+          out.a = k * 0.9;
           out.k = 0.25;
-          return C[3];
+          return noise2(x * 0.3, y * 0.5 + t * 11, 2) > 0.55 ? C[4] : C[3];
         }
         return;
       }
-      // the growing front: a bright burning seam where new flesh is forming
-      if (flesh < 1 && reach - d < 4 + 5 * noise2(x * 0.15, y * 0.15 + t * 2, 6)) {
-        out.a = k;
-        out.k = 0.5;
-        return C[4];
+      if (!grownF(x, y)) return;
+      out.a = k;
+      // the growing front: a bright seam where new flesh is forming
+      const dd = Math.hypot(x - R.Ch[0], y - R.Ch[1]);
+      if (flesh < 1 && reachF - dd < 4 + 4 * noise2(x * 0.15, y * 0.15 + t * 2, 6)) {
+        out.k = 0.25;
+        return C[3];
       }
-      const edge = !inside(x - 1.5, y) || !inside(x + 1.5, y) || !inside(x, y - 1.5 - rand(Math.floor(x), f) * 2) || !inside(x, y + 1.5);
-      if (edge) {
-        out.a = k;
-        out.k = 0.35;
-        return C[4];
+      if (arm) {
+        if (armour < 1 && reachA - dd < 4) {
+          out.k = 0.4;
+          return C[4];
+        }
+        return armourPx(x, y, arm);
       }
-      // the armour plates harden last: darker bands across the chest, a lighter face
-      const band = armour > 0 && (Math.floor((y + 70) / 8) & 1) && y > -68 && y < -14 && Math.abs(x - 2) < 20;
-      p.blend(x, y, band ? C[2] : y < -74 ? C[3] : C[2], k * (band ? 0.3 + 0.2 * armour : 0.3));
+      // muscle: bundles striated along each limb, lit from the upper left, a bright rim of chakra on top, dark below
+      if (d > -1.6) return o.oy < 0.3 ? C[4] : C[1];
+      const lit = -(o.ox * 0.55 + o.oy * 0.85) * (1 - (d + o.r) / o.r) + 0.15;
+      const fiber = Math.abs(Math.sin((o.v * 2.1 + o.u * (o.r > 12 ? 2.2 : 1.3)) * Math.PI)) < 0.17;
+      const base = lit > 0.45 ? 3 : lit > -0.05 ? 2 : 1;
+      return C[Math.max(0, base - (fiber ? 1 : 0))];
     });
-    // the skull's face: dark sockets lit by glowing yellow eyes, a row of teeth (as in the references), once the flesh is there
-    const face = smooth(0.35, 0.5, flesh) * k;
-    if (face > 0) {
-      for (const fx of [1, 9]) {
-        p.circle(fx, -88, 3, C[0], face);
-        p.circle(fx, -88, 2, GLOW, face);
-        p.px(fx, -88, GLOW2);
-        p.glow(fx, -88, 9, GLOW, 0.7 * face);
+  };
+  // the armour, pixel by pixel: Itachi's hood and mantle of swept cloth, Sasuke's horned helm and plates
+  const armourPx = (x, y, part) => {
+    const [lx, ly] = loc(x, y, R.Ch);
+    if (part === 2) {
+      // the tengu nose (Itachi) / the chin spike (Sasuke): lit along the top
+      return inPoly(x, y - 1.5, nosePts) ? C[3] : C[4];
+    }
+    if (part === 1) {
+      const [hx, hy] = loc(x, y, R.Hd), edge = !inPoly(x - 1.2, y, hoodPts) || !inPoly(x + 1.2, y, hoodPts) || !inPoly(x, y - 1.2, hoodPts) || !inPoly(x, y + 1.2, hoodPts);
+      if (edge) return hy > 4 ? C[4] : C[1];
+      // the face: dark under the brow, eyes burning in it, a mouth of teeth
+      const fx = hx - 6, fy = hy + 2;
+      if (fx > -9 && fx < 12 && fy > -4 && fy < 7) {
+        if (Math.abs(fy - 2.5) < 1.6 && Math.abs(Math.abs(fx - 1.5) - 5) < 2.4) return EYES[kind][Math.abs(fx - 1.5) > 5 ? 0 : 1];
+        if (fy > -3.5 && fy < 0.5 && fx > -6 && fx < 10) return (Math.floor(fx) & 1) || fy < -2.5 ? C[4] : C[0];
+        return C[0];
       }
-      p.line(-1, -81, 9, -81, C[0], face);
-      for (let tx = -1; tx <= 9; tx += 2) p.line(tx, -82, tx, -80, C[4], face);
+      // the hood's folds
+      const fold = Math.abs(Math.sin((hx * 0.25 + hy * 0.45) * 1.4)) < 0.16;
+      return fold ? C[1] : hy > 6 ? C[3] : C[2];
     }
-  }
-  // the skeleton: skull, spine to the neck, the arms' bones; still seen through the flesh until the armour closes
-  if (bones > 0 && armour < 1) {
-    const a = k * bones * (1 - armour) * (flesh > 0 ? 0.7 : 1), grow = bones;
-    const bone = (sx, sy, ax, ay, bx, by) => {
-      const mx = sx + (bx - sx) * grow, my = sy + (by - sy) * grow;
-      p.beam(ax, ay, Math.min(1, grow * 2) * (mx - ax) + ax, Math.min(1, grow * 2) * (my - ay) + ay, 3, C[3], a);
+    // the mantle: cloth swept round the body in long curving bands (Itachi), plates (Sasuke)
+    const em = mantleE(lx, ly);
+    if (em > 0.86) return ly > 4 ? C[4] : C[1];
+    if (kind === "itachi") {
+      const s = (lx * 0.5 - ly * 0.95) / 6 + 1.2 * Math.sin(lx * 0.07 + ly * 0.03);
+      const fr = s - Math.floor(s);
+      if (fr < 0.16) return C[1];
+      return fr < 0.4 ? C[3] : C[2];
+    }
+    // Sasuke: a breastplate of overlapping plates over the chest, the rest shaded round
+    if (ly > 0 && ly < 24) {
+      if (((ly + 40) % 8) < 1.3) return C[1];
+      return lx > 12 ? C[2] : C[3];
+    }
+    return lx > 10 ? C[1] : lx < -16 ? C[3] : C[2];
+  };
+
+  // the skeleton: bones until the muscle covers them, a skull with burning eyes and a jaw full of teeth
+  const skeleton = () => {
+    if (bones <= 0) return;
+    const a = k * (bones < 0.3 ? 0.55 : 1) * (1 - smooth(0.55, 1, flesh)), g = clamp(bones * 1.4), B = C[3], D = C[1];
+    const bone = (P, Q, w) => {
+      const x = P[0] + (Q[0] - P[0]) * g, y = P[1] + (Q[1] - P[1]) * g;
+      p.beam(P[0], P[1], x, y, w + 1.5, D, a);
+      p.beam(P[0], P[1], x, y, w, B, a);
     };
-    bone(SH[0], SH[1], SH[0], SH[1], ex, ey);
-    if (grow > 0.5) p.beam(ex, ey, ex + (hx - ex) * (grow - 0.5) * 2, ey + (hy - ey) * (grow - 0.5) * 2, 2.5, C[3], a);
-    p.circle(ex, ey, 2.5, C[4], a);
-    if (grow > 0.95) p.circle(hx, hy, 3.5, C[3], a);
-    if (el2) {
-      p.beam(SH2[0], SH2[1], el2[0], el2[1], 2.5, C[3], a * grow);
-      p.beam(el2[0], el2[1], arm2[0], arm2[1], 2, C[3], a * grow);
+    bone(R.W, R.N, 4);
+    for (const A of [R.far, R.near, ...(R.low ? [R.low] : [])]) {
+      bone(A.S, A.E, A === R.low ? 3 : 4);
+      if (g > 0.5) {
+        bone(A.E, A.H, A === R.low ? 2.5 : 3);
+        p.circle(A.E[0], A.E[1], 2.6, B, a);
+        // the bony hand: a knuckle and fingers
+        const dx = A.H[0] - A.E[0], dy = A.H[1] - A.E[1], n = Math.hypot(dx, dy) || 1;
+        for (let i = -1; i <= 1; i++) p.line(A.H[0], A.H[1], A.H[0] + (dx / n) * 6 - (dy / n) * i * 2.5, A.H[1] + (dy / n) * 6 + (dx / n) * i * 2.5, B, a);
+        p.circle(A.H[0], A.H[1], 2.4, B, a);
+      }
     }
-    p.beam(SH2[0], SH2[1], SH[0], SH[1], 2, C[3], a); // the collarbone
-    p.beam(2, -78, 2, -60, 2.5, C[3], a); // the neck
-    // the skull: a cranium, dark sockets with the yellow eyes, a jaw
-    p.circle(4, -88, 9 * grow, C[3], a * 0.8);
-    p.circle(1, -88, 2.4, C[0], a);
-    p.circle(9, -88, 2.4, C[0], a);
-    p.circle(1, -88, 1.4, GLOW, a);
-    p.circle(9, -88, 1.4, GLOW, a);
-    p.rect(-2, -80, 12, 3, C[3], a * grow);
+    bone(R.N, R.near.S, 3);
+    bone(R.N, R.far.S, 3);
+    // the skull
+    const H = R.Hd, U = R.hup, T = R.hrt, P = (u, v) => [H[0] + U[0] * u + T[0] * v, H[1] + U[1] * u + T[1] * v];
+    const s = 0.4 + 0.6 * g;
+    p.circle(...P(2, 0), 13 * s, D, a);
+    p.circle(...P(2.5, -0.5), 12 * s, B, a);
+    p.circle(...P(5, -3), 5 * s, C[4], a * 0.7);
+    if (g > 0.6) {
+      // the jaw hangs open in a grin of big teeth
+      const jaw = P(-9, 2);
+      p.ellipse(jaw[0], jaw[1], 10, 5, D, a);
+      p.ellipse(...P(-8, 2), 8, 3, C[0], a);
+      for (let i = -3; i <= 3; i++) {
+        const tp = P(-6.5, 2 + i * 2.4), bp = P(-10.5, 2 + i * 2.4);
+        p.rect(tp[0] - 0.8, tp[1] - 1.2, 1.6, 2.4, C[4], a);
+        p.rect(bp[0] - 0.8, bp[1] - 1, 1.6, 2, C[4], a);
+      }
+      // sockets, and the eyes burning in them
+      for (const v of [-2, 6]) {
+        const e = P(1, v);
+        p.circle(e[0], e[1], 3.2, C[0], a);
+        p.circle(e[0], e[1], 2, EYES[kind][0], a);
+        p.px(e[0], e[1], EYES[kind][1]);
+        p.glow(e[0], e[1], 9, EYES[kind][0], 0.6 * a);
+      }
+      p.tri(...P(-3, 1.5), ...P(-5, 0.2), ...P(-5, 3), C[0], a);
+    }
+    // flames licking off the skull and shoulders while it's still bone
+    for (let i = 0; i < 7; i++) {
+      const base = i < 4 ? P(8 + rand(i, 1) * 4, -10 + i * 6) : i === 4 ? R.near.S : i === 5 ? R.far.S : R.N;
+      const h = (5 + 6 * rand(i, f % 7)) * a, w = 2 + rand(i, 3) * 2;
+      p.tri(base[0] - w, base[1], base[0] + w, base[1], base[0] + (rand(i, f) - 0.5) * 3, base[1] - h, C[3], a * 0.8);
+    }
+  };
+
+  // the far arm, the torso and head (with the armour), what's held between, then the near arms on top
+  if (flesh < 1) skeleton();
+  paint(far, false);
+  paint(body, true);
+  mid?.(p);
+  paint(near, false);
+  // once fleshed out, the face: Itachi's humanoid face is framed by locks of hair; the eyes glow through
+  const face = smooth(0.35, 0.6, flesh) * (1 - smooth(0.6, 1, armour)) * k;
+  if (face > 0) {
+    const H = R.Hd, U = R.hup, T = R.hrt, P = (u, v) => [H[0] + U[0] * u + T[0] * v, H[1] + U[1] * u + T[1] * v];
+    for (const v of [-1, 7]) {
+      const e = P(2, v);
+      p.ellipse(e[0], e[1], 2.6, 1.6, C[0], face);
+      p.ellipse(e[0], e[1], 1.8, 1, EYES[kind][0], face);
+      p.glow(e[0], e[1], 7, EYES[kind][0], 0.5 * face);
+    }
+    p.line(...P(-6, 0), ...P(-6, 8), C[0], face);
   }
-  // the ribcage: a spine and curved ribs round him, drawn first and kept under the armour
-  if (ribs > 0) {
-    const a = k * (flesh > 0 ? 0.75 : 1);
-    const n = Math.ceil(6 * ribs);
-    p.beam(-6, -6, -6, -6 - 64 * ribs, 2.5, C[3], a);
-    for (let i = 0; i < n; i++) {
-      const y = -16 - i * 9;
-      p.arc(-6, y + 10, 18 - Math.abs(i - 2.5) * 1.5, 2, -1.75, -0.25, C[3], a);
-      p.arc(-6, y + 10, 18 - Math.abs(i - 2.5) * 1.5, 1, -1.75, -0.25, C[4], a);
-      p.arc(-6, y + 10, 14 - Math.abs(i - 2.5), 1, -2.9, -1.95, C[2], a);
+  // Itachi's magatama earring once the armour is on
+  if (kind === "itachi" && armour > 0.7) {
+    const H = R.Hd, U = R.hup, T = R.hrt, e = [H[0] - U[0] * 4 - T[0] * 9, H[1] - U[1] * 4 - T[1] * 9], a = smooth(0.7, 1, armour) * k;
+    p.circle(e[0], e[1] + 3, 2.4, C[4], a);
+    p.circle(e[0] + 0.6, e[1] + 2.4, 1.2, C[1], a);
+    p.line(e[0], e[1] - 2, e[0], e[1] + 1, C[3], a);
+  }
+  // Sasuke's demonic horns once the armour is on
+  if (kind === "sasuke" && armour > 0.5) {
+    const H = R.Hd, U = R.hup, T = R.hrt, P = (u, v) => [H[0] + U[0] * u + T[0] * v, H[1] + U[1] * u + T[1] * v], a = smooth(0.5, 0.9, armour) * k;
+    for (const [b, m, tip] of [[[11, -7], [26, -14], [34, -24]], [[12, 5], [28, 2], [37, -8]]]) {
+      p.poly([P(...b.map((v, i) => v + (i ? -5 : 0))), P(m[0] + 2, m[1] - 2), P(...tip), P(m[0] - 2, m[1] + 2), P(...b.map((v, i) => v + (i ? 5 : 0)))], C[3], a);
+      p.poly([P(...b.map((v, i) => v + (i ? 2 : 0))), P(m[0] - 2, m[1] + 2), P(...tip), P(...b.map((v, i) => v + (i ? 5 : 0)))], C[1], a);
+      p.line(...P(...m), ...P(...tip), C[4], a);
     }
   }
 }
