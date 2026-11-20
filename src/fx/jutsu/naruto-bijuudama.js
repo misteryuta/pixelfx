@@ -6,8 +6,9 @@
 // head rears while light and dark chakra are pulled into the ball, then drops onto the line to the target; the shot
 // kicks the whole beast back on its legs, the ball streaks in, and the explosion: impact frames, a dark dome that
 // swells over everything, a fireball inside it, a ring racing along the ground, rubble, a column of smoke.
-// Kurama's avatar as a great head and chest over Naruto, the nine tails fanned behind (the shape it first had here),
-// drawn as the full chakra model: burning rim, flames licking off it.
+// Kurama's full avatar (after the references): a lean fox on all fours round Naruto, long legs planted, nine tails up,
+// with the Nine-Tails chakra mode markings: the ring seal on the shoulder, a black line down the back and the legs,
+// bands round the neck, a long stripe back from each eye, bars across the muzzle, teeth bared as it fires.
 // New: the avatar (head that aims, chest, tails), the mottled ball,
 // the pressure rings, the dome; blast() from _lib for the fire inside.
 import { Lights, Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU, posed } from "../../core/index.js";
@@ -21,9 +22,9 @@ const BALLC = ["#0c0406", "#2a0c0c", "#5a1a14", "#a03a1c", "#ff7a3a"].map(hex);
 const BOOM = ["#06020a", "#1a0814", "#3a1020", "#7a2028", "#c8502a", "#ffa040", "#fff0c0"].map(hex);
 const DOME = ["#08020a", "#1a0610", "#3a0c18", "#7a1a20", "#ffe0c0"].map(hex);
 // the fox's neck pivot and its open mouth (where the ball sits), in its own space before the head turns
-const NECK = [28, -70], MOUTH = [86, -100], AIMT = [TX - 10, -24];
-// the avatar as it first was: a great head over Naruto, its chest round him, the nine tails fanned behind
-const HO = [-48, 36];
+const NECK = [28, -70], MOUTH = [94, -101], AIMT = [TX - 10, -24];
+// the whole avatar, standing on all fours round Naruto (he stands in its chest)
+const HO = [0, 0];
 const turnAbout = (x, y, a, c = NECK) => [c[0] + (x - c[0]) * Math.cos(a) - (y - c[1]) * Math.sin(a), c[1] + (x - c[0]) * Math.sin(a) + (y - c[1]) * Math.cos(a)];
 // the tilt that drops the jaws onto the line to the target
 const AIM = (() => {
@@ -42,7 +43,7 @@ const tiltAt = (t) => {
   return AIM - 0.25 * Math.exp(-r * 8) * Math.sin(Math.min(Math.PI, r * 12));
 };
 // the whole beast: grows out of him, crouches as it gathers, kicked back by the shot
-const growAt = (t) => 1.3 * ease.outBack(clamp((t - FOX) / (FOXED - FOX)), 1.3);
+const growAt = (t) => 1.15 * ease.outBack(clamp((t - FOX) / (FOXED - FOX)), 1.3);
 const kickAt = (t) => (t < FIRE ? 0 : -9 * Math.exp(-(t - FIRE) * 6) * Math.sin(Math.min(Math.PI, (t - FIRE) * 18)) - 3 * smooth(FIRE, FIRE + 0.1, t) * (1 - smooth(FIRE + 0.3, FIRE + 0.8, t)));
 const mouthAt = (t) => {
   const g = growAt(t), [mx, my] = turnAbout(MOUTH[0], MOUTH[1], tiltAt(t));
@@ -89,32 +90,35 @@ export const act = {
 };
 
 // ---- the fox, in its own space (feet on y = 0, facing right): part id at (x, y) or 0; far legs return 2, head 3
+// the head is drawn a fifth bigger than the body would make it, about the back of the skull
+const headSpace = (x, y, tilt) => {
+  const [hx, hy] = turnAbout(x, y, -tilt);
+  return [48 + (hx - 48) / 1.2, -96 + (hy + 96) / 1.2, hx, hy];
+};
 const capsule = (x, y, ax, ay, bx, by, ra, rb) => {
   const dx = bx - ax, dy = by - ay, u = clamp(((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)), qx = x - ax - dx * u, qy = y - ay - dy * u;
   return qx * qx + qy * qy < (ra + (rb - ra) * u) ** 2;
 };
 function foxPart(x, y, tilt, j) {
   // the head and neck turn about the base of the neck
-  const [hx, hy] = turnAbout(x, y, -tilt);
+  const [hx, hy, nx, ny] = headSpace(x, y, tilt);
   // the head: a skull, ears laid back, a long muzzle; the jaw drops open by j
   if (((hx - 60) / 17) ** 2 + ((hy + 98) / 14) ** 2 < 1) return 3;
   if (capsule(hx, hy, 46, -108, 30, -128, 6, 1) || capsule(hx, hy, 56, -110, 44, -132, 6, 1)) return 3;
   if (hx > 62 && hx < 92 && hy < -96 + (hx - 62) * 0.05 && hy > -108 + (hx - 62) * 0.12) return 3;
   const jy = -94 + j * (hx - 62) * 0.55;
   if (hx > 58 && hx < 88 && hy > jy && hy < jy + 7 - (hx - 58) * 0.1) return 3;
-  if (capsule(hx, hy, 30, -70, 54, -94, 16, 13)) return 3;
-  // the chest and shoulders he stands inside
-  if (y < -36 && (((x - 46) / 25) ** 2 + ((y + 60) / 30) ** 2 < 1 || capsule(x, y, 30, -76, 66, -78, 12, 9))) return 1;
-  return 0;
-  // the body: chest high, sloping down to the haunch
-  if (capsule(x, y, -44, -40, 22, -58, 24, 27)) return 1;
-  if (((x + 48) / 24) ** 2 + ((y + 34) / 22) ** 2 < 1) return 1;
-  // the near legs: a front leg planted straight, a hind leg folded
-  if (capsule(x, y, 26, -52, 34, -26, 10, 8) || capsule(x, y, 34, -26, 40, -4, 8, 7) || (((x - 44) / 10) ** 2 + ((y + 3) / 4) ** 2 < 1)) return 1;
-  if (capsule(x, y, -50, -30, -40, -14, 10, 8) || capsule(x, y, -40, -14, -32, -4, 7, 6) || (((x + 28) / 9) ** 2 + ((y + 3) / 4) ** 2 < 1)) return 1;
+  if (capsule(nx, ny, 28, -60, 50, -90, 15, 12)) return 3;
+  // the body: a deep chest, a waist drawn in, a strong haunch, standing low on its legs
+  if (((x - 22) / 20) ** 2 + ((y + 50) / 19) ** 2 < 1) return 1;
+  if (capsule(x, y, 20, -52, -34, -46, 16, 13)) return 1;
+  if (((x + 38) / 16) ** 2 + ((y + 36) / 16) ** 2 < 1) return 1;
+  // the near legs: a front leg planted, a hind leg folded under
+  if (capsule(x, y, 24, -42, 30, -22, 8.5, 6.5) || capsule(x, y, 30, -22, 34, -3, 6.5, 5) || (((x - 38) / 8) ** 2 + ((y + 2) / 3) ** 2 < 1)) return 1;
+  if (capsule(x, y, -40, -28, -28, -16, 9, 6) || capsule(x, y, -28, -16, -34, -3, 5.5, 4.5) || (((x + 30) / 7) ** 2 + ((y + 2) / 2.5) ** 2 < 1)) return 1;
   // the far legs, a step behind
-  if (capsule(x, y, 12, -50, 18, -24, 9, 7) || capsule(x, y, 18, -24, 22, -4, 7, 6) || (((x - 26) / 9) ** 2 + ((y + 3) / 4) ** 2 < 1)) return 2;
-  if (capsule(x, y, -60, -28, -58, -4, 8, 6)) return 2;
+  if (capsule(x, y, 12, -42, 16, -22, 7, 5) || capsule(x, y, 16, -22, 18, -3, 5, 4.5) || (((x - 21) / 6.5) ** 2 + ((y + 2) / 2.5) ** 2 < 1)) return 2;
+  if (capsule(x, y, -50, -28, -48, -3, 6.5, 4.5)) return 2;
   return 0;
 }
 
@@ -187,7 +191,7 @@ export const create = play([], (o) => {
         const j = smooth(GATHER, BALL - 0.3, t) * (1 - 0.5 * smooth(FIRE + 0.2, HIT + 0.4, t));
         const L = (x, y) => [(x - kx) / g - HO[0], y / g - HO[1]];
         for (let i = 0; i < 9; i++) {
-          const a0 = -2.15 - i * 0.17, L0 = (56 + (i % 3) * 10) * g, bx = -22 * g + kx, by = -30 * g;
+          const a0 = -2.15 - i * 0.17, L0 = (56 + (i % 3) * 10) * g, bx = -46 * g + kx, by = -40 * g;
           for (const [pad, col] of [[2, FC.rim], [1, FC.rim2], [0, FC.body]]) {
             for (let s = 0; s <= 12; s++) {
               const u = s / 12, aa = a0 + (0.5 + 0.08 * Math.sin(t * 3 + i)) * u * 0.7 + Math.sin(t * 5 + i + u * 4) * 0.08 * u;
@@ -196,7 +200,7 @@ export const create = play([], (o) => {
             }
           }
         }
-        p.glow(30 * g, -60 * g, 80 * g, hex(GOLD[2]), 0.4 * k);
+        p.glow(10 * g, -60 * g, 100 * g, hex(GOLD[2]), 0.4 * k);
         p.shade(-110, -170, 130, 1, (x, y, out) => {
           const [lx, ly] = L(x, y), part = foxPart(lx, ly, tl, j);
           if (!part) {
@@ -210,23 +214,37 @@ export const create = play([], (o) => {
             }
             return;
           }
-          // the neck burns away below: chakra thinning to nothing toward its root
-          const [nx, ny] = turnAbout(lx, ly, -tl), root = clamp((Math.hypot(nx - 34, ny + 74) - 3) / 10);
-          // the root of the neck: a hot glow where the head comes out of him
-          if (root < 0.5) out.k = 0.35 * (1 - root * 2);
           out.a = k;
           const e = 1.6 / g, edge = foxPart(lx - e, ly, tl, j) !== part || foxPart(lx + e, ly, tl, j) !== part || foxPart(lx, ly - e, tl, j) !== part || foxPart(lx, ly + e, tl, j) !== part;
           if (edge) {
             out.k = 0.3;
             return FC.rim;
           }
+          const [hx, hy] = headSpace(lx, ly, tl);
           if (part === 3) {
-            const [hx, hy] = turnAbout(lx, ly, -tl);
-            // the slit eye, the inside of the open mouth
-            if (Math.abs(hx - 64) < 5 && Math.abs(hy + 103 + (hx - 64) * 0.2) < 1.3) return FC.ink;
-            if (hx > 60 && hx < 90 && hy > -96 + (hx - 62) * 0.05 && hy < -94 + j * (hx - 62) * 0.55) return hex("#5a1206");
+            // the slit eye with its long black stripe sweeping back toward the ear
+            if (Math.abs(hx - 64) < 5 && Math.abs(hy + 103 + (hx - 64) * 0.2) < 1.3) return hex("#fff6d0");
+            if (capsule(hx, hy, 68, -103.5, 42, -112, 1.6, 1)) return FC.ink;
+            // the bars across the top of the muzzle, the whisker strokes
+            for (const bx of [72, 78, 84]) if (Math.abs(hx - bx) < 1 && hy < -104 + (hx - 62) * 0.12 + 4.5 && hy > -108 + (hx - 62) * 0.12) return FC.ink;
+            if (capsule(hx, hy, 66, -98, 74, -97, 0.7, 0.5) || capsule(hx, hy, 66, -96, 73, -94, 0.7, 0.5)) return FC.ink;
+            // the inside of the open mouth, a row of teeth along each jaw
+            if (hx > 60 && hx < 90 && hy > -96 + (hx - 62) * 0.05 && hy < -94 + j * (hx - 62) * 0.55) {
+              if (j > 0.3 && (Math.floor(hx) % 3 === 0) && (hy < -95 + (hx - 62) * 0.05 || hy > -95 + j * (hx - 62) * 0.55)) return WHITE;
+              return hex("#5a1206");
+            }
+            // the bands round the neck
+            const [, , nnx, nny] = headSpace(lx, ly, tl), nu = ((nnx - 28) * 22 + (nny + 60) * -30) / (22 * 22 + 30 * 30);
+            if (nu > 0 && nu < 1 && (Math.abs(nu - 0.25) < 0.05 || Math.abs(nu - 0.5) < 0.05)) return FC.ink;
           }
-          // the seal on its shoulder: a dark ring with a burning middle
+          if (part === 1 || part === 2) {
+            // the seal on the shoulder: a black ring, a burning gap, a black core
+            const sd = Math.hypot(lx - 10, ly + 44);
+            if (part === 1 && sd < 10) return sd > 7.2 ? FC.ink : sd > 4 ? FC.body : FC.ink;
+            // a black stripe running down the back just inside its outline, and down the front of each leg
+            if (ly < -40 && !foxPart(lx, ly - 3.2, tl, j) && foxPart(lx, ly - 1.2, tl, j)) return FC.ink;
+            if (ly > -40 && ly < -6 && !foxPart(lx + 2.6, ly, tl, j) && foxPart(lx + 1, ly, tl, j)) return FC.ink;
+          }
           if (part === 2) return FC.far;
           // lit from above: bright along its back and head, warmer underneath, chakra flickering through
           const under = part === 3 ? 0 : clamp((ly + 70) / 60) - 0.15 * noise2(lx * 0.1, ly * 0.1 - t * 3, 4);

@@ -74,7 +74,7 @@ export function rigOf(q) {
   const W = [q.x ?? -4, q.y ?? -6], at = (o, a, b) => [o[0] + up[0] * a + rt[0] * b, o[1] + up[1] * a + rt[1] * b];
   const N = at(W, 60, 0), Ch = at(W, 36, 2), hl = lean + (q.head ?? 0), hup = [Math.sin(hl), -Math.cos(hl)], hrt = [Math.cos(hl), Math.sin(hl)];
   const Hd = [N[0] + hup[0] * 15 + hrt[0] * 3, N[1] + hup[1] * 15 + hrt[1] * 3];
-  const arm = (S, spec, abs, L, bend) => {
+  const arm = (S, spec, abs, L, bend, Eov) => {
     let H;
     if (abs) H = abs;
     else {
@@ -83,12 +83,12 @@ export function rigOf(q) {
     }
     const dx = H[0] - S[0], dy = H[1] - S[1], d = Math.hypot(dx, dy);
     if (d > 2 * L * 0.985) H = [S[0] + (dx / d) * 2 * L * 0.985, S[1] + (dy / d) * 2 * L * 0.985];
-    return { S, E: elbow(S, H, L, bend), H, L };
+    return { S, E: Eov ?? elbow(S, H, L, bend), H, L };
   };
   const nearS = at(N, -5, -21 + 10 * tw), farS = at(N, -2, 18 - 6 * tw), lowS = at(Ch, -10, -15 + 7 * tw);
   return {
     q, lean, up, rt, W, N, Ch, Hd, hup, hrt,
-    near: arm(nearS, q.near ?? [1.2, 0.6], q.nearH, 27, q.nearBend ?? 1),
+    near: arm(nearS, q.near ?? [1.2, 0.6], q.nearH, 27, q.nearBend ?? 1, q.nearE),
     far: arm(farS, q.far ?? [1, 0.5], q.farH, 25, q.farBend ?? 1),
     low: q.low || q.lowH ? arm(lowS, q.low ?? [1.4, 0.5], q.lowH, 19, q.lowBend ?? 1) : null,
   };

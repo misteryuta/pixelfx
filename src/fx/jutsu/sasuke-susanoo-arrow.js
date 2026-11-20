@@ -31,16 +31,21 @@ const pose = keyTrack([
   [GONE, { lean: 0, twist: 0, raise: 0.6, grab: 0, pull: 0, kick: 0 }],
 ]);
 const DRAW_LEN = 46;
+// drawn the way an archer draws: the arrow runs from an anchor at the jaw to the target; the bow hand holds the grip
+// out on that line, the draw hand comes back along it to the jaw, and the draw elbow lies back behind the hand, in line
+// with the arrow, not cocked up. On the release the hand flies back past the jaw and the bow arm kicks.
+const lerp2 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
 const rigAt = (t) => {
-  const q = pose(t), R0 = rigOf(q), S = R0.far.S, aim = Math.atan2(T[1] - S[1], T[0] - S[0]);
-  // the bow arm: from hanging forward to pointing straight at the target, kicked up a little by the release
-  const ang = 1.25 + (aim - 1.25) * q.raise - 0.22 * q.kick;
-  const far = [ang - R0.lean, 0.55 + 0.42 * q.raise];
-  const R1 = rigOf({ ...q, far, farBend: 0.25 }), G = R1.far.H, dx = Math.cos(ang), dy = Math.sin(ang);
-  // the right hand: at its side, forward to the bow, then back along the line to the anchor (and past it on release)
-  const rest = [R1.near.S[0] + 8, R1.near.S[1] + 30], nock = [G[0] - dx * (8 + DRAW_LEN * q.pull), G[1] - dy * (8 + DRAW_LEN * q.pull) - (q.pull > 1 ? (q.pull - 1) * 18 : 0)];
-  const nearH = [rest[0] + (nock[0] - rest[0]) * q.grab, rest[1] + (nock[1] - rest[1]) * q.grab];
-  const R = rigOf({ ...q, far, farBend: 0.25, nearH, nearBend: -1 });
+  const q = pose(t), R0 = rigOf(q), N = [R0.Hd[0] + 8, R0.Hd[1] + 14], aim = Math.atan2(T[1] - N[1], T[0] - N[0]), dx = Math.cos(aim), dy = Math.sin(aim);
+  const Gaim = [N[0] + dx * (DRAW_LEN + 6), N[1] + dy * (DRAW_LEN + 6)], restF = [R0.far.S[0] + 12, R0.far.S[1] + 34];
+  const G = lerp2(restF, Gaim, q.raise).map((v, i) => v - (i ? 12 * q.kick : 0));
+  const restN = [R0.near.S[0] + 8, R0.near.S[1] + 30], p = q.pull;
+  const drawn = p <= 1 ? [Gaim[0] - dx * (6 + DRAW_LEN * p), Gaim[1] - dy * (6 + DRAW_LEN * p)] : [N[0] - dx * (p - 1) * 22, N[1] - dy * (p - 1) * 22 + (p - 1) * 4];
+  const H = lerp2(restN, drawn, q.grab);
+  // the elbow: hanging naturally while the hand reaches; drawn, it lies back along the arrow behind the hand
+  const R1 = rigOf({ ...q, farH: G, farBend: 0.3, nearH: H, nearBend: 1 }), d = clamp(p) * q.grab;
+  const E = lerp2(R1.near.E, [H[0] - dx * 25, H[1] - dy * 25 + 1], d * d * (3 - 2 * d));
+  const R = rigOf({ ...q, farH: G, farBend: 0.3, nearH: H, nearBend: 1, nearE: E });
   return { R, G: R.far.H, dx, dy, q };
 };
 const stageAt = (t) => ({

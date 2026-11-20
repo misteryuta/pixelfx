@@ -11,6 +11,7 @@ export { createFrame, clearFrame, createFx, composite, painterFor, resolveOption
 export { stockActor, drawActor, actorAlphaOf, HERO, HERO2, HERO_PAL, DUMMY_PAL } from "./actor.js";
 export { backdrop, BACKDROPS } from "./scene.js";
 export { createAct, actBounds, actSpan, actTiming, poseAt, lerpPose, Target, STAND, SKINS, posed } from "./act.js";
-export { skeleton, posedParts } from "./rig.js";
+export { skeleton, posedParts, setOutfit } from "./rig.js";
+export { OUTFITS } from "./outfits.js";
 export { READY } from "./poses.js";
 export { chain, shiftKeys, shiftHits } from "./chain.js";

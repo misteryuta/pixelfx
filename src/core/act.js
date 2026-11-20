@@ -7,7 +7,8 @@ import { Rng, clamp } from "./math.js";
 import { hex, mix } from "./color.js";
 import { createFrame, clearFrame, createFx, painterFor } from "./fx.js";
 import { stockActor, drawActor, actorAlphaOf, HERO2, DUMMY_PAL } from "./actor.js";
-import { posed, STAND } from "./rig.js";
+import { posed, STAND, setOutfit } from "./rig.js";
+import { OUTFITS } from "./outfits.js";
 
 export { STAND, posed };
 
@@ -234,6 +235,8 @@ export function actSpan(mod) {
  */
 export function createAct(mod, o = {}) {
   const a = mod.act ?? {}, meta = mod.meta ?? {}, D = meta.duration ?? 1, flip = !!o.flip, seed = o.seed ?? meta.options?.seed ?? 1;
+  // the character's outfit (outfits.js) for this act, or the stock dummy
+  setOutfit(OUTFITS[o.outfit ?? meta.options?.outfit] ?? null);
   const fx = createFx(mod, o), track = a.poses ?? [[0, { ...STAND }]], span = actSpan(mod);
   const X = o.x ?? 0, Y = o.y ?? 0;
   const targets = (a.targets ?? (a.target ? [a.target] : [])).map((g, i) => new Target(g.x ?? 66, seed + 4 + i));

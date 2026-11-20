@@ -15,7 +15,11 @@ export function shots(list) {
   // the moment of the cut, then is simply there
   const keys = [];
   let prev = { z: 1, x: 0, y: -24, r: 0 };
-  for (const [t, v, how] of list) keys.push({ t, v: (prev = { ...prev, ...v }), cut: how === "cut" });
+  // framed wider than written: half the push-in, so the whole exchange stays in the shot
+  for (const [t, v, how] of list) {
+    prev = { ...prev, ...v };
+    keys.push({ t, v: { ...prev, z: 1 + (prev.z - 1) * 0.45, r: prev.r * 0.7 }, cut: how === "cut" });
+  }
   return (t) => {
     if (t <= keys[0].t) return { ...keys[0].v };
     for (let i = 0; i < keys.length - 1; i++) {

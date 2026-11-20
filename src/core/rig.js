@@ -192,6 +192,27 @@ function ellipsoid(c, R, r, part, mat) {
       plot((OY - wy) * BW + (OX + wx), c[2] + dz, dot(n, LIGHT), part, mat, wx, wy, 0);
     }
 }
+// an outfit (outfits.js): per-part tone ramps, and a head drawn as a sprite layer on the head joint; null is the stock dummy
+let OUTFIT = null;
+export function setOutfit(o) {
+  OUTFIT = o ?? null;
+}
+export const outfitName = () => (OUTFIT ? OUTFIT.name : "");
+// the outfit's head: the view that matches where the head faces (side, mirrored for left, front, back), turned with
+// the head's roll, stamped into the depth buffer a little in front of the neck so a near arm can still pass over it
+function stampHead(S) {
+  const F = S.B.head, Rm = F.R, f = mv(Rm, [1, 0, 0]), up = mv(Rm, [0, 1, 0]);
+  let view = OUTFIT.head.side, flip = f[0] < 0;
+  if (f[2] > 0.82 && OUTFIT.head.front) (view = OUTFIT.head.front), (flip = false);
+  else if (f[2] < -0.82 && OUTFIT.head.back) (view = OUTFIT.head.back), (flip = false);
+  const c = add(F.t, mv(Rm, [0.3, 0.3, 0])), th = Math.abs(up[0]) > 0.12 ? -Math.atan2(up[0], up[1]) : 0, cs = Math.cos(th), sn = Math.sin(th);
+  for (const [dx0, dy, col] of view) {
+    const dx = flip ? -dx0 : dx0, wx = Math.round(c[0] + dx * cs - dy * sn), wy = Math.round(c[1] + dx * sn + dy * cs);
+    const idx = (OY - wy) * BW + (OX + wx);
+    if (idx < 0 || idx >= BW * BH) continue;
+    plot(idx, c[2] + 2.6, 2, PART.head, 2, wx, wy, col);
+  }
+}
 // parts: each has its own number, so edges between them can be seen
 const PART = { pelvis: 1, waist: 2, chest: 3, neck: 4, head: 5, face: 6, upperN: 7, elbowN: 8, foreN: 9, handN: 10, upperF: 11, elbowF: 12, foreF: 13, handF: 14, thighN: 15, kneeN: 16, shinN: 17, footN: 18, thighF: 19, kneeF: 20, shinF: 21, footF: 22, weapon: 23, offWeapon: 24 };
 const useFrame = (name) => { curFrameIndex = FRAME_IDS.indexOf(name); };
@@ -207,8 +228,11 @@ function drawBody(S) {
   useFrame("neck");
   sweep(F_("neck").t, add(F_("neck").t, mv(F_("head").R, [0, 1.6, 0])), 1.25, 1.15, PART.neck, 1);
   useFrame("head");
-  ellipsoid(F_("head").t, F_("head").R, [3, 3.3, 2.8], PART.head, 0);
-  ellipsoid(add(F_("head").t, mv(F_("head").R, [0.85, -0.45, 0])), F_("head").R, [2.4, 2.7, 2.35], PART.face, 0);
+  if (OUTFIT && OUTFIT.head) stampHead(S);
+  else {
+    ellipsoid(F_("head").t, F_("head").R, [3, 3.3, 2.8], PART.head, 0);
+    ellipsoid(add(F_("head").t, mv(F_("head").R, [0.85, -0.45, 0])), F_("head").R, [2.4, 2.7, 2.35], PART.face, 0);
+  }
   const arm = (far, A, sh, up, el, fo, ha, nameU, nameF) => {
     curDim = far ? 1 : 0;
     useFrame(nameU);
@@ -377,7 +401,8 @@ function finish(S, restFrames) {
   }
   for (const i of touched) {
     if (Mat[i] === 2) continue;
-    Col[i] = (Mat[i] === 1 ? CORE : SHELL)[tones.get(i)];
+    const ramp = OUTFIT && OUTFIT.parts[Part[i]];
+    Col[i] = ramp ? ramp[tones.get(i)] : (Mat[i] === 1 ? CORE : SHELL)[tones.get(i)];
   }
   // where two parts meet: a soft seam if they touch, ink if one stands in front of the other
   const marks = new Map();
@@ -395,7 +420,7 @@ function finish(S, restFrames) {
   for (const [i, c] of marks) Col[i] = c;
   // the mark on his chest, when it's facing us
   const { B } = S, chestAt = add(B.chest.t, mv(B.chest.R, [3, 1.6, -1.8]));
-  if (mv(B.chest.R, [1, 0, 0])[2] > 0.15) {
+  if (!OUTFIT && mv(B.chest.R, [1, 0, 0])[2] > 0.15) {
     const i = (OY - Math.round(chestAt[1])) * BW + (OX + Math.round(chestAt[0]));
     if (Part[i] === PART.chest) Col[i] = MARK;
   }
@@ -458,7 +483,7 @@ REST_FRAMES = solve({}).B;
 
 const CACHE = new Map();
 const keyOf = (p) => {
-  let s = (p.y ?? 0) < -0.5 ? "air," : "";
+  let s = (OUTFIT ? OUTFIT.name + "|" : "") + ((p.y ?? 0) < -0.5 ? "air," : "");
   for (const k of Object.keys(p).sort()) {
     const v = p[k];
     if (v === undefined || k === "x" || k === "y" || k === "ghost") continue;
