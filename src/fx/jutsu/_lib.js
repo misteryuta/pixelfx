@@ -23,6 +23,8 @@ export const SIGNS = {
   tori: { name: "TORI", pose: { ...S, fx: 11, fy: -25, bx: 8, by: -26, crouch: 4 } }, // bird
   inu: { name: "INU", pose: { ...S, fx: 9, fy: -21, bx: 12, by: -21, crouch: 4 } }, // dog: one flat hand on the other fist
   i: { name: "I", pose: { ...S, fx: 10, fy: -23, bx: 11, by: -25, crouch: 5, lean: 3 } }, // boar
+  // the seal of confrontation (Tairitsu no In): one hand, two fingers raised before the face; Shunshin, Kirigakure
+  tairitsu: { name: "TAIRITSU", pose: { ...READY, crouch: 3, fx: 9, fy: -30, bx: -4, by: -20, ffx: 7, fbx: -7 } },
 };
 // where the hands meet for a sign, for the chakra flash
 const handsOf = (pose) => [(pose.fx + pose.bx) / 2, (pose.fy + pose.by) / 2];
@@ -72,8 +74,9 @@ export function drawSeals(p, t, run, C) {
   }
   // the count of signs so far: little dots under the name
   const done = run.list.filter((s) => t >= s.t).length;
-  if (done && t < run.end + 0.15)
-    run.list.forEach((s, i) => p.px(6 - (run.list.length - 1) + i * 2, -38, i < done ? C[n - 2] : mix(OUT, C[1], 0.5)));
+  if (!done || t >= run.end + 0.15) return;
+  if (run.list.length > 12) p.text(`${done}/${run.list.length}`, 6, -39, C[n - 3], { font: "mini", align: "center", outline: OUT });
+  else run.list.forEach((s, i) => p.px(6 - (run.list.length - 1) + i * 2, -38, i < done ? C[n - 2] : mix(OUT, C[1], 0.5)));
 }
 
 /**
