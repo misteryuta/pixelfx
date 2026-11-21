@@ -18,11 +18,12 @@ import { drawBadge, drawGlint } from "./_badge.js";
 const MODE = 0.55, FOX = MODE + 0.3, FOXED = FOX + 0.55, GATHER = FOXED, BALL = GATHER + 1.1, FIRE = BALL + 0.15, FLY = 0.2, HIT = FIRE + FLY, TX = 214, END = HIT + 4.2;
 const GOLD = ["#5a2a06", "#c86a10", "#ff9a1c", "#ffc830", "#fff0a0"];
 const FC = { rim: hex("#e8400e"), rim2: hex("#ff7a1c"), body: hex("#ffe070"), shade: hex("#ffc040"), far: hex("#f0a030"), lite: hex("#fff8c8"), ink: hex("#2a0a04") };
-const BALLC = ["#0c0406", "#2a0c0c", "#5a1a14", "#a03a1c", "#ff7a3a"].map(hex);
-const BOOM = ["#06020a", "#1a0814", "#3a1020", "#7a2028", "#c8502a", "#ffa040", "#fff0c0"].map(hex);
-const DOME = ["#08020a", "#1a0610", "#3a0c18", "#7a1a20", "#ffe0c0"].map(hex);
+// the tailed beast bomb: near black, shot through with violet, a lilac rim; it goes off in a black-violet dome
+const BALLC = ["#030106", "#0e0418", "#24093e", "#4a1a78", "#b07aff"].map(hex);
+const BOOM = ["#030108", "#10041e", "#260a44", "#48167a", "#7a34c0", "#c890ff", "#f6ecff"].map(hex);
+const DOME = ["#040108", "#12041f", "#2a0a4a", "#5a1e9a", "#efe0ff"].map(hex);
 // the fox's neck pivot and its open mouth (where the ball sits), in its own space before the head turns
-const NECK = [34, -66], MOUTH = [99, -86], AIMT = [TX - 10, -24];
+const NECK = [34, -66], MOUTH = [95, -73], AIMT = [TX - 10, -24];
 // the whole avatar, standing on all fours round Naruto (he stands in its chest)
 const HO = [0, 0];
 const turnAbout = (x, y, a, c = NECK) => [c[0] + (x - c[0]) * Math.cos(a) - (y - c[1]) * Math.sin(a), c[1] + (x - c[0]) * Math.sin(a) + (y - c[1]) * Math.cos(a)];
@@ -83,7 +84,7 @@ export const act = {
     { t: MODE, stop: 0.08, shake: 0.2, amp: 2, target: false },
     { t: FOXED - 0.2, stop: 0.06, shake: 0.3, amp: 2, target: false },
     { t: FIRE, stop: 0.07, shake: 0.25, amp: 2, target: false, sfx: "cast" },
-    { t: HIT, stop: 0.26, shake: 0.9, amp: 7, push: 7, straw: 60, skin: "char", sfx: "explosion" },
+    { t: HIT, stop: 0.26, shake: 0.9, amp: 7, push: 7, straw: 60, skin: "shadow", sfx: "explosion" },
     { t: END - 0.5, flash: 0, push: 0, straw: 0, skin: null },
   ],
   dust: [{ t: MODE, x: 0, n: 10 }, { t: FOXED - 0.2, x: 40, n: 16 }, { t: FIRE, x: 40, n: 12, dir: -1 }, { t: HIT + 0.05, x: TX - 40, n: 20, dir: -1 }, { t: HIT + 0.05, x: TX + 40, n: 20, dir: 1 }],
@@ -234,7 +235,7 @@ export const create = play([], (o) => {
             // the inside of the open mouth, a row of teeth along each jaw
             if (hx > 60 && hx < 90 && hy > -96 + (hx - 62) * 0.05 && hy < -94 + j * (hx - 62) * 0.55) {
               if (j > 0.3 && (Math.floor(hx) % 3 === 0) && (hy < -95 + (hx - 62) * 0.05 || hy > -95 + j * (hx - 62) * 0.55)) return WHITE;
-              return hex("#5a1206");
+              return hex("#2a0618");
             }
           }
           if (part === 1) {
@@ -322,7 +323,7 @@ export const create = play([], (o) => {
           p.glow(TX, -DR * 0.4, DR * 1.6, DOME[3], 0.5 * fade);
         }
         blast(p, age - 0.1, { x: TX, y: 0, R: 56, C: BOOM, seed: 11 });
-        const IF = { style: "rings", ink: hex("#12020a"), paper: hex("#ffd8d0") };
+        const IF = { style: "rings", ink: hex("#08020e"), paper: hex("#ecdcff") };
         if (age < 0.05) impactFrame(p, -104, -226, 326, 54, TX, -24, false, 12, IF);
         else if (age < 0.1) impactFrame(p, -104, -226, 326, 54, TX, -24, true, 13, IF);
         else if (age < 0.14) impactFrame(p, -104, -226, 326, 54, TX, -24, false, 14, IF);

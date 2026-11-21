@@ -46,9 +46,42 @@ export function poseAt(track, t) {
     const u = e((t - t0) / (t1 - t0));
     out.x = lerp(a.x ?? 0, b.x ?? 0, u);
     out.y = lerp(a.y ?? 0, b.y ?? 0, u);
-    return out;
+    return gait(out, a, b, t1 - t0, u);
   }
   return track[track.length - 1][1];
+}
+
+/**
+ * Feet that carry the body: when a track moves the character across the floor between two keys, he walks or runs
+ * there instead of sliding. The step's phase comes from the distance already covered, so a planted foot stays put on
+ * the floor; the stride and lift grow with speed (a walk under ~60 px/s, a sprint above), the body leans into it and
+ * bobs, and low hanging arms swing against the legs. Off the floor (y), on a blur-fast shunshin dash (over ~900 px/s)
+ * or when a key says `gait: false` the feet are left as posed.
+ */
+function gait(out, a, b, dur, u) {
+  if (globalThis.__NOGAIT) return out;
+  const dx = (b.x ?? 0) - (a.x ?? 0), dist = Math.abs(dx), v = dist / Math.max(1e-3, dur);
+  if (dist < 10 || dur < 0.16 || v > 900 || a.gait === false || b.gait === false) return out;
+  if (Math.abs(a.y ?? 0) > 2 || Math.abs(b.y ?? 0) > 2) return out;
+  const run = clamp((v - 45) / 90, 0, 1), stride = Math.max(16 + 18 * run, v * 0.12), A = Math.min(7, stride / 4), lift = 2.5 + 3.5 * run;
+  // forward in the body's own terms (a figure turned round walks the other way on screen)
+  const dir = (out.face === -1 ? -1 : 1) * Math.sign(dx), moved = Math.abs(out.x - (a.x ?? 0));
+  const ph = (moved / stride) * Math.PI * 2, s = Math.sin(ph), c = Math.cos(ph);
+  // full strength except right at the ends of the move, where the feet settle into the key's own stance
+  const w = clamp(Math.min(moved, dist - moved) / 6, 0, 1) * clamp((dist - 4) / 10, 0, 1);
+  const mid = ((out.ffx ?? 0) + (out.fbx ?? 0)) / 2 + dir * 1.5 * run;
+  const q = { ...out };
+  q.ffx = lerp(out.ffx, mid + dir * A * s, w);
+  q.fbx = lerp(out.fbx, mid - dir * A * s, w);
+  q.ffy = Math.min(out.ffy ?? -4, lerp(out.ffy ?? -4, -4 - lift * Math.max(0, c), w));
+  q.fby = Math.min(out.fby ?? -4, lerp(out.fby ?? -4, -4 - lift * Math.max(0, -c), w));
+  q.toeF = q.toeB = undefined;
+  q.lean = (out.lean ?? 0) + dir * (2 + 3 * run) * w;
+  q.crouch = Math.max(0, (out.crouch ?? 0) - 1.5 * w) + 1.6 * w * Math.abs(c);
+  // hands hanging low swing against the legs; hands busy up front (a seal, a ball of chakra) stay where they are
+  if (!out.armsFront && !out.weapon && (out.fy ?? -15) > -22) q.fx = (out.fx ?? 0) - dir * A * 0.7 * s * w;
+  if (!out.armsFront && !out.two && (out.by ?? -15) > -22) q.bx = (out.bx ?? 0) + dir * A * 0.7 * s * w;
+  return q;
 }
 
 /** Is the body between keys that hardly differ, or past the last? */

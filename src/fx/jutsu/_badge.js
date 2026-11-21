@@ -301,6 +301,49 @@ const MARKS = {
     for (const r of [5.4, 3.6, 1.8]) p.ring(x + 0.4 * k, y - 0.3 * k, r * k, 1, H("#8a5a32"));
     p.px(x, y, H("#5a3820"));
   } },
+  // the villages: Iwa's mountain peaks, Kiri's four strokes of mist, Kumo's cloud, Suna's hourglass
+  iwa: { bg: H("#b9a585"), rim: H("#5a4630"), draw(p, x, y, R) {
+    const k = R / 10, D = H("#3a2c1c");
+    p.poly([[x - 7 * k, y + 4 * k], [x - 2.5 * k, y - 5 * k], [x + 1.5 * k, y + 4 * k]], D);
+    p.poly([[x - 1 * k, y + 4 * k], [x + 3 * k, y - 2.5 * k], [x + 7 * k, y + 4 * k]], D);
+    p.rect(x - 7 * k, y + 4 * k, 14 * k, 1.4 * k, D);
+  } },
+  kiri: { bg: H("#9fc3d8"), rim: H("#2a4a66"), draw(p, x, y, R) {
+    const k = R / 10, D = H("#1a3248");
+    for (const dy of [-4.5, -1.5, 1.5, 4.5]) p.beam(x - 6 * k, y + dy * k, x + 6 * k, y + (dy - 1) * k, 1.4 * k, D);
+  } },
+  kumo: { bg: H("#e8eef8"), rim: H("#3a5a9a"), draw(p, x, y, R) {
+    const k = R / 10, D = H("#2a3a6a");
+    for (const [a, b, r] of [[-3.5, 1.5, 3], [0, -1, 3.8], [3.6, 1.2, 3], [0.2, 2.6, 3]]) p.ring(x + a * k, y + b * k, r * k, 1, D);
+    p.rect(x - 6 * k, y + 4.6 * k, 12 * k, 1, D);
+  } },
+  suna: { bg: H("#e6c88a"), rim: H("#8a5a2a"), draw(p, x, y, R) {
+    const k = R / 10, D = H("#5a3a1a");
+    p.poly([[x - 5 * k, y - 6 * k], [x + 5 * k, y - 6 * k], [x + 0.8 * k, y], [x + 5 * k, y + 6 * k], [x - 5 * k, y + 6 * k], [x - 0.8 * k, y]], D);
+    p.poly([[x - 3 * k, y + 4.8 * k], [x + 3 * k, y + 4.8 * k], [x, y + 1.5 * k]], H("#f0d8a0"));
+  } },
+  // Sai's ink: a brush stroke and a drop
+  ink: { bg: H("#f2eee4"), rim: H("#1a1a22"), draw(p, x, y, R) {
+    const k = R / 10, D = H("#14141c");
+    for (let i = 0; i <= 10; i++) { const u = i / 10; p.circle(x - 6 * k + u * 11 * k, y + 3 * k - Math.sin(u * 3) * 5 * k, (2.2 - 1.6 * u) * k, D); }
+    p.circle(x + 3 * k, y + 5 * k, 1.4 * k, D);
+  } },
+  // Kurenai's genjutsu: a red eye in a petal of thorns
+  genjutsu: { bg: H("#2a0e18"), rim: H("#d02a4a"), draw(p, x, y, R, t) {
+    const k = R / 10;
+    for (let i = 0; i < 6; i++) { const a = (i * TAU) / 6 + t * 0.4; p.tri(x + Math.cos(a) * 3 * k, y + Math.sin(a) * 3 * k, x + Math.cos(a + 0.4) * 8 * k, y + Math.sin(a + 0.4) * 8 * k, x + Math.cos(a - 0.2) * 6 * k, y + Math.sin(a - 0.2) * 6 * k, H("#7a1a2a")); }
+    p.ellipse(x, y, 4 * k, 2.6 * k, H("#ff3a5a"));
+    p.ellipse(x, y, 1.2 * k, 2.2 * k, BLACK);
+  } },
+  // Asuma's trench knives with wind chakra on the blades
+  hien: { bg: H("#cfe8dc"), rim: H("#2a6a4a"), draw(p, x, y, R) {
+    const k = R / 10, S = H("#5a6a78");
+    for (const s of [-1, 1]) {
+      p.beam(x + s * 1.5 * k, y + 4 * k, x + s * 5 * k, y - 6 * k, 1.6 * k, S);
+      p.beam(x + s * 2.6 * k, y + 4 * k, x + s * 6.4 * k, y - 5 * k, 0.8 * k, H("#a8f0d0"));
+    }
+    p.ring(x, y + 4 * k, 2.4 * k, 1, H("#2a2a30"));
+  } },
 };
 
 export const BADGE_KINDS = [...Object.keys(EYES), ...Object.keys(MARKS)];

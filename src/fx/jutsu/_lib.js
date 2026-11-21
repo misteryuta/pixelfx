@@ -27,6 +27,31 @@ export function drawFigure(p, pose, x, y, { face = 1, tint = 0, k = 0, a = 1, so
   }
 }
 
+/**
+ * A whole figure turned about a point (a cartwheel, a flip, a body thrown head over heels): the pose's pixels with
+ * the feet at (x, y), rotated by a (radians, clockwise on screen) about (cx, cy). Sampled back from the screen so the
+ * turned figure has no holes. face, tint, k, a as drawFigure.
+ */
+export function drawFigureTurned(p, pose, x, y, cx, cy, a, { face = 1, tint = 0, k = 0, alpha = 1 } = {}) {
+  const r = posed(pose), map = new Map();
+  let R = 0;
+  for (let i = 0; i < r.n; i++) {
+    const px = Math.floor(face > 0 ? x + r.xs[i] : x - r.xs[i] - 1), py = Math.floor(y + r.ys[i]);
+    map.set(px * 4096 + py, r.color[i]);
+    R = Math.max(R, Math.hypot(px - cx, py - cy));
+  }
+  const c = Math.cos(a), s = Math.sin(a);
+  for (let Y = Math.floor(cy - R - 1); Y <= cy + R + 1; Y++)
+    for (let X = Math.floor(cx - R - 1); X <= cx + R + 1; X++) {
+      const dx = X + 0.5 - cx, dy = Y + 0.5 - cy, ux = Math.floor(cx + dx * c + dy * s), uy = Math.floor(cy - dx * s + dy * c);
+      const col = map.get(ux * 4096 + uy);
+      if (col === undefined) continue;
+      const cc = tint ? mix(col, tint, k) : col;
+      if (alpha >= 1) p.px(X, Y, cc);
+      else p.dot(X, Y, cc, alpha);
+    }
+}
+
 // Where the stock character's mouth sits, in px from the feet, facing right.
 export const MOUTH = [6, -31];
 
