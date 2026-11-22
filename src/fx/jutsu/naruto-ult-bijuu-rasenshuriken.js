@@ -12,7 +12,7 @@ import { Lights, Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, 
 import { play, bodyAt, drawFigure, drawOutline, impactFrame, blast } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, ultStreaks, frameOf } from "./_ultimate.js";
-import { drawModel } from "./_models.js";
+import { drawModel, modelPoint } from "./_models.js";
 
 const MODE = 0.75, FOX = MODE + 0.3, FOXED = FOX + 0.55, GATHER = FOXED, BALL = GATHER + 1.3, FIRE = BALL + 0.15, FLY = 0.26, HIT = FIRE + FLY, TX = 214, END = HIT + 3.6;
 const WIND = ["#1a3a5a", "#5aa0d0", "#a8e0ff", "#e8faff", "#ffffff"].map(hex);
@@ -46,9 +46,33 @@ const tiltAt = (t) => {
 // the whole beast: grows out of him, crouches as it gathers, kicked back by the shot
 const growAt = (t) => 1.15 * ease.outBack(clamp((t - FOX) / (FOXED - FOX)), 1.3);
 const kickAt = (t) => (t < FIRE ? 0 : -9 * Math.exp(-(t - FIRE) * 6) * Math.sin(Math.min(Math.PI, (t - FIRE) * 18)) - 3 * smooth(FIRE, FIRE + 0.1, t) * (1 - smooth(FIRE + 0.3, FIRE + 0.8, t)));
-// Kurama's model: feet at KX, scale KS; its jaws in model pixels from the feet (side view facing right)
-const KX = 6, KS = 1.3, JAW = [40, -62];
-const mouthAt = (t) => { const g = growAt(t); return [KX + JAW[0] * KS * g + kickAt(t), JAW[1] * KS * g]; };
+// Kurama (the user's model, side view facing right), feet at KX, scale KS, as a puppet: it grows out of him, stamps
+// its foreleg and roars (head thrown up, jaws wide); the tails stream like flame, wilder as the chakra gathers; it
+// holds the ball in its open jaws with the head lifted, then drops the head onto the target, lunges and spits it,
+// jaws snapping wide, the whole beast kicked back; the jaws close slowly after.
+const KX = 6, KS = 1.3;
+const bump = (t, a, b, c) => smooth(a, b, t) * (1 - smooth(b, c, t));
+const kuramaPose = (t) => {
+  const roar = bump(t, FOXED - 0.25, FOXED, FOXED + 0.55), gath = smooth(GATHER, BALL - 0.3, t) * (1 - smooth(FIRE, FIRE + 0.5, t));
+  const aim = smooth(BALL - 0.45, BALL, t) * (1 - smooth(HIT + 0.3, HIT + 1.0, t)), lunge = t < FIRE ? 0 : Math.exp(-(t - FIRE) * 7) * Math.min(1, (t - FIRE) * 30);
+  const wild = 1 + 1.4 * gath + 2.2 * lunge, ph = t * (5 + 3 * gath);
+  return {
+    tails: { sway: 3.5 * wild, swayK: 0.07, swayPh: ph, bend: 0.05 * Math.sin(t * 3.1) * wild - 0.12 * lunge },
+    head: { rot: -0.42 * roar - 0.14 * gath * (1 - aim) + 0.2 * aim + 0.1 * lunge + 0.03 * Math.sin(t * 7) * gath, dx: 7 * lunge, dy: 2 * lunge },
+    jaw: { rot: 0.85 * roar + 0.65 * gath * (1 - smooth(FIRE - 0.05, FIRE, t)) + 0.95 * lunge + 0.12 * (1 - smooth(HIT, HIT + 0.6, t)) * smooth(FIRE, FIRE + 0.05, t) },
+    foreleg: { rot: -0.4 * bump(t, FOXED - 0.45, FOXED - 0.2, FOXED) + 0.12 * lunge, dx: 5 * smooth(FOXED - 0.45, FOXED - 0.05, t) - 5 * smooth(HIT + 0.6, HIT + 1.0, t) },
+  };
+};
+const kuramaAt = (t) => {
+  const g = growAt(t), crouch = 1 - 0.05 * smooth(GATHER, BALL, t);
+  return { x: KX + kickAt(t), o: { scale: KS * g * crouch, sy: 1 + 0.02 * Math.sin(t * 4), pose: kuramaPose(t), rot: -0.04 * smooth(BALL - 0.3, FIRE, t) + (t > FIRE ? 0.08 * Math.exp(-(t - FIRE) * 5) : 0) } };
+};
+// the ball sits between the jaws: half way between the snout's upper lip and the lower jaw, a little out in front
+const mouthAt = (t) => {
+  const K = kuramaAt(t), up = modelPoint("kurama", "right", K.x, 0, K.o, "head", [88, 106]), lo = modelPoint("kurama", "right", K.x, 0, K.o, "jaw", [86, 111]);
+  const back = modelPoint("kurama", "right", K.x, 0, K.o, "head", [70, 104]), mx = (up[0] + lo[0]) / 2, my = (up[1] + lo[1]) / 2, dx = mx - back[0], dy = my - back[1], n = Math.hypot(dx, dy) || 1;
+  return [mx + (dx / n) * 5, my + (dy / n) * 5];
+};
 const mouthAtOld = (t) => {
   const g = growAt(t), [mx, my] = turnAbout(MOUTH[0], MOUTH[1], tiltAt(t));
   return [(mx + HO[0]) * g + kickAt(t), (my + HO[1]) * g];
@@ -85,7 +109,8 @@ export const act = {
   ],
   hits: [
     { t: MODE, stop: 0.08, shake: 0.2, amp: 2, target: false },
-    { t: FOXED - 0.2, stop: 0.06, shake: 0.3, amp: 2, target: false },
+    { t: FOXED - 0.2, stop: 0.06, shake: 0.3, amp: 2, target: false, sfx: "heavy" },
+    { t: FOXED, stop: 0.04, shake: 0.5, amp: 2, target: false, sfx: "rumble" },
     { t: FIRE, stop: 0.07, shake: 0.25, amp: 2, target: false, sfx: "cast" },
     { t: HIT, stop: 0.3, shake: 1.0, amp: 7, push: 2, straw: 30, skin: "shadow", sfx: "explosion" },
     ...[0.25, 0.45, 0.65, 0.85, 1.05, 1.25].map((d) => ({ t: HIT + d, stop: 0.02, shake: 0.4, amp: 2, flash: 0, push: 1, straw: 10, shiver: 0.8, sfx: d === 0.65 ? "whoosh" : undefined })),
@@ -224,8 +249,11 @@ export const create = play([], (o) => {
       const b = bodyAt(act.poses, t);
       // Kurama (the user's model, side view): grows out of him, crouches a little as it gathers, kicked back by the throw
       if (t > FOX && t < HIT + 1.1) {
-        const g = growAt(t), k = smooth(FOX, FOX + 0.15, t) * (1 - smooth(HIT + 0.5, HIT + 1.1, t)), kx = kickAt(t), crouch = 1 - 0.05 * smooth(GATHER, BALL, t);
-        drawModel(p, "kurama", "right", KX + kx, 0, { scale: KS * g * crouch, alpha: k, glow: FC.rim2, rot: -0.04 * smooth(BALL - 0.3, FIRE, t) + (t > FIRE ? 0.08 * Math.exp(-(t - FIRE) * 5) : 0) });
+        const k = smooth(FOX, FOX + 0.15, t) * (1 - smooth(HIT + 0.5, HIT + 1.1, t)), K = kuramaAt(t);
+        drawModel(p, "kurama", "right", K.x, 0, { ...K.o, alpha: k, glow: FC.rim2 });
+        // the roar: a ring of pressure off the open jaws
+        const r = t - FOXED + 0.1;
+        if (r > 0 && r < 0.5) { const m = mouthAt(t); for (let i = 0; i < 2; i++) p.ring(m[0] + 4, m[1], 6 + (r - i * 0.12) * 120, 1, FC.lite, Math.max(0, 0.7 - r * 1.4)); }
       }
       // the cloak's flaring edge, behind the body
       if (t > MODE) {

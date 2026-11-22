@@ -9,7 +9,7 @@
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt, blast } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
-import { drawSusanoo, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
+import { drawSusanoo, susanooPuppet, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
 
 const EYE = 0.05, OPEN = 0.5, RIBS = OPEN + 0.04, BONES = RIBS + 0.22, FLESH = BONES + 0.26, ARMOUR = FLESH + 0.4, FORM = ARMOUR + 0.35;
 const SPUN = FORM + 0.5, WIND = SPUN + 0.25, THROW = WIND + 0.12, HIT = THROW + 0.35, END = HIT + 2.2, TX = 200;
@@ -30,6 +30,12 @@ const keys = keyTrack([
   [HIT + 1.2, GUARD],
 ]);
 const rigAt = (t) => rigOf({ ...keys(t), y: -6 + Math.sin(t * 2.4) * 0.8 });
+// the model: its hand and the mirror hand come together before the chest to spin the jewels up, the arm winds back
+// across the body and whips out on the throw (the Totsuka blade stays sheathed)
+const REST0 = rigOf({ ...GUARD, y: -6 });
+const PO = { rest: REST0, gain: 0.85, pose: { blade: { a: 0 } } };
+const handsAt = (t) => { const P = susanooPuppet(t, rigAt(t), "itachi", PO); return [P.hand, P.far]; };
+const cupAt = (t) => { const [a, b] = handsAt(t); return [(a[0] + b[0]) / 2 + 4, (a[1] + b[1]) / 2]; };
 const stageAt = (t) => ({
   ribs: smooth(RIBS, RIBS + 0.2, t) * (1 - smooth(END - 0.5, END - 0.3, t)),
   bones: smooth(BONES, BONES + 0.2, t) * (1 - smooth(END - 0.6, END - 0.4, t)),
@@ -85,7 +91,7 @@ function ring(p, cx, cy, rr, spin, tilt, s) {
 
 export const create = play([], (o) => {
   const R = new Rng(o.seed), ps = new Particles({ rng: R, ground: () => 0 }), lights = new Lights();
-  const flyAt = (t) => { const Rg = rigAt(THROW), H = [(Rg.near.H[0] + Rg.far.H[0]) / 2, (Rg.near.H[1] + Rg.far.H[1]) / 2], u = ease.inQuad(clamp((t - THROW) / (HIT - THROW))); return [H[0] + (TX - H[0]) * u, H[1] + (-28 - H[1]) * u - Math.sin(u * Math.PI) * 18]; };
+  const flyAt = (t) => { const H = handsAt(THROW)[0], u = ease.inQuad(clamp((t - THROW) / (HIT - THROW))); return [H[0] + (TX - H[0]) * u, H[1] + (-28 - H[1]) * u - Math.sin(u * Math.PI) * 18]; };
   return {
     update(t, dt) {
       if (t > RIBS && t < END - 0.5 && R.chance(26 * dt)) ps.spawn(P.EMBER, R.range(-40, 40), -R.range(20, 110), R.range(-10, 10), -R.range(20, 50), R.range(0.3, 0.6), RD[R.int(2, 4)]);
@@ -94,7 +100,7 @@ export const create = play([], (o) => {
       lights.update(dt);
     },
     drawBack(p, t) {
-      drawSusanoo(p, t, rigAt(t), { kind: "itachi", st: stageAt(t) });
+      drawSusanoo(p, t, rigAt(t), { kind: "itachi", st: stageAt(t), ...PO });
       [0, 0.08, 0.16].forEach((d, i) => blast(p, t - HIT - d, { x: TX - 14 + i * 14, y: 0, R: 16, C: BOOM, seed: 3 + i, layer: "back" }));
       blast(p, t - HIT - 0.3, { x: TX, y: 0, R: 40, C: BOOM, seed: 9, layer: "back" });
       ps.draw(p, "back");
@@ -106,7 +112,7 @@ export const create = play([], (o) => {
       drawGlint(p, t, "itachi", OPEN, END - 0.3, b.head);
       // the jewels spinning up between its hands, then held, then thrown
       if (t > FORM + 0.2 && t < THROW) {
-        const H = [(Rg.near.H[0] + Rg.far.H[0]) / 2 + 4, (Rg.near.H[1] + Rg.far.H[1]) / 2], g = ease.outBack(smooth(FORM + 0.2, SPUN, t), 1.6);
+        const H = cupAt(t), g = ease.outBack(smooth(FORM + 0.2, SPUN, t), 1.6);
         ring(p, H[0], H[1], 12 * g, t * 14, 0.45, g);
       }
       if (t >= THROW && t < HIT + 0.02) { const [x, y] = flyAt(t), wob = 0.45 + 0.25 * Math.sin(t * 20); ring(p, x, y, 12, t * 30, wob, 1); for (let i = 1; i < 5; i++) { const [px, py] = flyAt(t - i * 0.02); p.ring(px, py, 10 - i, 1, MG[2], 0.4 - i * 0.08); } }

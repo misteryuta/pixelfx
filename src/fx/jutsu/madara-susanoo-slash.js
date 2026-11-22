@@ -17,7 +17,7 @@ import { play, bodyAt, blast, veil } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { keyTrack } from "./_susanoo.js";
 import { shots } from "./_taijutsu.js";
-import { drawPerfect, PERFECT } from "./_perfect.js";
+import { drawPerfect, perfectPuppet, PERFECT } from "./_perfect.js";
 
 const EYE = 0.05, RISE = 0.55, FORM0 = 0.7, FORMED = 1.6, REACH = 1.85, GRIP = 2.1, DRAWN = 2.6, HIGH = 3.1, WIND = 3.5, CUT = 3.68, HIT = 3.76;
 const FALL = HIT + 0.8, REST = HIT + 2.2, FADE = REST + 0.5, END = FADE + 0.9, TX = 270, G = 0.62;
@@ -158,7 +158,7 @@ export const create = play([], (o) => {
       if (t > WIND + 0.05 && t < HIT + 0.3) {
         const fade = 1 - smooth(HIT + 0.05, HIT + 0.3, t), pts = [];
         for (let i = 0; i <= 14; i++) {
-          const tt = t - i * 0.012, k = K(tt), H = [SX + k.nx * G, k.ny * G], c = Math.cos(k.ba), s = Math.sin(k.ba), bl = Math.min(k.bl * G, s > 0.05 ? (-2 - H[1]) / s : 1e9);
+          const tt = t - i * 0.012, k = K(tt), Pp = perfectPuppet(S(tt)), H = Pp.hand, ba = Pp.angle ?? k.ba, c = Math.cos(ba), s = Math.sin(ba), bl = Math.min(k.bl * G, s > 0.05 ? (-2 - H[1]) / s : 1e9);
           pts.push([H[0] + c * bl, H[1] + s * bl, H[0] + c * bl * 0.35, H[1] + s * bl * 0.35]);
         }
         for (let i = 1; i < pts.length; i++) p.poly([[pts[i - 1][2], pts[i - 1][3]], [pts[i - 1][0], pts[i - 1][1]], [pts[i][0], pts[i][1]], [pts[i][2], pts[i][3]]], i < 3 ? WHITE : i < 7 ? WH[1] : C[4], (1 - i / 15) * fade);

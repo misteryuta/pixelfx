@@ -14,7 +14,7 @@
 // fingered hand and whatever it holds. Arms are two-bone IK to where the hands should be, so effects animate it by
 // moving the hands (smoothly, with keyTrack) and it follows with weight.
 import { hex, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.js";
-import { drawModel } from "./_models.js";
+import { drawModel, modelPoint, reachPose, holdPose, RIGS } from "./_models.js";
 
 export const PERFECT = {
   madara: ["#040c26", "#0a1f5c", "#1a44a8", "#3a74e0", "#86bcff", "#e6f2ff"].map(hex),
@@ -238,26 +238,61 @@ function drawPerfectProc(p, o) {
   return out;
 }
 
-// the user's models (2026-11-22) for the Complete Body Susanoo; scale: model px per unit of Perfect scale s
+// the user's models (2026-11-22) for the Complete Body Susanoo; per: model px per unit of Perfect scale s; the rig's
+// sword arm, what it holds (hidden while the drawn chakra blade is out, for Madara), the far arm; rest: where the
+// procedural hands rest (the model's hands rest where the sprite has them, and move by as much as these move)
 export const PERFECT_MODEL = {
-  madara: { name: "susanooMadara", view: "right", per: 1.62 },
-  sasuke: { name: "susanooSasuke", view: "front", per: 1.55 },
+  madara: { name: "susanooMadara", view: "right", per: 1.62, arm: "arm", weapon: "katana", far: null, rest: { near: [70, -150], far: [-70, -128] }, swapBlade: true },
+  sasuke: { name: "susanooSasuke", view: "front", per: 1.55, arm: "arm", weapon: "sword", far: "armR", rest: { near: [60, -140], far: [-40, -130] }, swapBlade: false },
 };
 // a painter that draws nothing (to compute joints without painting)
 const NOOP = new Proxy({}, { get: (_, k) => (k === "cellX" || k === "cellY" ? () => 0 : () => {}) });
+// effect space -> the giant's own space (the inverse of drawPerfectProc's T)
+function invT(o, P) {
+  const s = o.s ?? 1, lean = o.lean ?? 0, cl = Math.cos(lean), sl = Math.sin(lean), rx = (P[0] - (o.x ?? 0)) / s, ry = (P[1] - (o.y ?? 0)) / s;
+  if (ry >= -110) return [rx, ry];
+  const hy = ry + 110;
+  return [rx * cl - hy * sl, rx * sl + hy * cl - 110];
+}
+const handOf = (M, part) => RIGS[M.name + "/" + M.view].parts.find((q) => q.name === part).hand;
 /**
- * Draw the Complete Body Susanoo. Kinds with a model (madara, sasuke): the back layer paints the model standing at
- * (x, y), leaning with the body (lean), materialising by form; the front layer paints only the blade, if any. Returns
- * the same joints as before. Other kinds (kakashi): the procedural giant.
+ * The model puppet of a Complete Body Susanoo (kinds with a model): its arms follow the procedural hands (by how far
+ * they move from rest), the weapon rides the hand along the blade's angle (or rigid, with no blade); o.weaponA fades
+ * the model's own weapon. Returns { M, x, y, o (for drawModel), hand, far, angle (the blade's, on screen), joints }.
+ */
+export function perfectPuppet(o) {
+  const M = PERFECT_MODEL[o.kind];
+  if (!M) return null;
+  const x = o.x ?? 0, y = o.y ?? 0, J = drawPerfectProc(NOOP, { ...o, layer: "all" }), J0 = drawPerfectProc(NOOP, { ...o, near: M.rest.near, far: M.rest.far, blade: null, layer: "all" });
+  const mo = { scale: (o.s ?? 1) * M.per, rot: (o.lean ?? 0) * 0.6, pose: {} };
+  const go = (part, H, H0) => {
+    const h = modelPoint(M.name, M.view, x, y, mo, null, handOf(M, part));
+    mo.pose[part] = reachPose(M.name, M.view, x, y, mo, part, [h[0] + H[0] - H0[0], h[1] + H[1] - H0[1]], 0.6, 1.6);
+  };
+  go(M.arm, J.near, J0.near);
+  if (M.far) go(M.far, J.far, J0.far);
+  const blade = o.blade && o.blade.len > 1, angle = blade && J.tip ? Math.atan2(J.tip[1] - J.near[1], J.tip[0] - J.near[0]) : null;
+  mo.pose[M.weapon] = { ...holdPose(M.name, M.view, mo, M.arm, M.weapon, angle), a: (M.swapBlade && blade ? 0 : 1) * (o.weaponA ?? 1) };
+  for (const [k, v] of Object.entries(o.pose ?? {})) mo.pose[k] = { ...(mo.pose[k] ?? {}), ...v };
+  const hand = modelPoint(M.name, M.view, x, y, mo, M.arm, handOf(M, M.arm));
+  return { M, x, y, o: mo, hand, far: M.far ? modelPoint(M.name, M.view, x, y, mo, M.far, handOf(M, M.far)) : null, angle, joints: J };
+}
+/**
+ * Draw the Complete Body Susanoo. Kinds with a model (madara, sasuke): the back layer paints the model puppet (see
+ * perfectPuppet), materialising by form; the front layer paints only the drawn blade, if any, from the model's hand.
+ * Returns the same joints as before (near = the model's hand), plus tip. Other kinds (kakashi): the procedural giant.
  */
 export function drawPerfect(p, o) {
   const M = PERFECT_MODEL[o.kind];
   if (!M) return drawPerfectProc(p, o);
-  const out = drawPerfectProc(NOOP, { ...o, layer: "all" });
-  if (o.layer === "front" || o.layer === "all") { const r = drawPerfectProc(p, { ...o, layer: "front", onlyBlade: true }); if (r.tip) out.tip = r.tip; }
+  const P = perfectPuppet(o), out = { ...P.joints, near: P.hand, puppet: P };
+  if ((o.layer === "front" || o.layer === "all") && o.blade && o.blade.len > 1 && M.swapBlade) {
+    const r = drawPerfectProc(p, { ...o, near: invT(o, P.hand), layer: "front", onlyBlade: true });
+    if (r.tip) out.tip = r.tip;
+  }
   if (o.layer !== "front") {
-    const sc = (o.s ?? 1) * M.per, form = clamp(o.form ?? 1);
-    if (form > 0.01) drawModel(p, M.name, M.view, o.x ?? 0, o.y ?? 0, { scale: sc, rot: (o.lean ?? 0) * 0.6, form: smooth(0, 1, form), glow: (PERFECT[o.kind] ?? PERFECT.madara)[3] });
+    const form = clamp(o.form ?? 1);
+    if (form > 0.01) drawModel(p, M.name, M.view, P.x, P.y, { ...P.o, form: smooth(0, 1, form), glow: (PERFECT[o.kind] ?? PERFECT.madara)[3] });
   }
   return out;
 }

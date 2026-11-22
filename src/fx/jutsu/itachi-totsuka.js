@@ -12,7 +12,8 @@
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt, impactFrame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
-import { drawSusanoo, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
+import { drawSusanoo, susanooPuppet, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
+import { modelPoint } from "./_models.js";
 
 const EYE = 0.05, OPEN = 0.6, RIBS = OPEN + 0.05, BONES = RIBS + 0.32, FLESH = BONES + 0.38, ARMOUR = FLESH + 0.6, READYT = ARMOUR + 0.5;
 const REACH = READYT + 0.25, DRAWN = REACH + 0.35, WIND = DRAWN + 0.45, SWING = WIND + 0.1, HIT = SWING + 0.08, FOLLOW = HIT + 0.16, SETTLE = FOLLOW + 0.25;
@@ -38,15 +39,18 @@ const keys = [
   [SEALED, { lean: 0.18, twist: 0.5, near: [0.4, 0.85], blade: 0.18 }],
   [REST, { ...GUARD }],
 ];
-// the blade at the hit runs straight through the target: solve its angle from where the hand will be
-const K0 = keyTrack(keys), H0 = rigOf(K0(HIT)), AIM = Math.atan2(-26 - H0.near.H[1], TX - H0.near.H[0]) - H0.lean;
+// the model's arm follows the rig's hand from where it rests (READYT); the blade at the hit runs straight through the
+// target: solve its angle from where the model's hand will be
+const K0 = keyTrack(keys), REST0 = rigOf({ ...K0(READYT), y: -6 });
+const handAt = (q) => susanooPuppet(0, rigOf({ ...q, y: -6 }), "itachi", { rest: REST0 }).hand;
+const H0 = handAt(K0(HIT)), AIM = Math.atan2(-26 - H0[1], TX - H0[0]) - rigOf(K0(HIT)).lean;
 keys[keys.findIndex((k) => k[0] === HIT)][1].blade = AIM;
 // after the follow-through it settles back with the point run through the target while it is sealed
 for (const T of [SETTLE, SEALED]) {
-  const Rk = rigOf(keyTrack(keys)(T));
-  keys[keys.findIndex((k) => k[0] === T)][1].blade = Math.atan2(-26 - Rk.near.H[1], TX - Rk.near.H[0]) - Rk.lean;
+  const q = keyTrack(keys)(T), H = handAt(q);
+  keys[keys.findIndex((k) => k[0] === T)][1].blade = Math.atan2(-26 - H[1], TX - H[0]) - rigOf(q).lean;
 }
-const pose = keyTrack(keys), BLADE = Math.hypot(TX - H0.near.H[0], -26 - H0.near.H[1]) + 24;
+const pose = keyTrack(keys), BLADE = Math.hypot(TX - H0[0], -26 - H0[1]) + 24;
 const rigAt = (t) => rigOf({ ...pose(t), y: -6 + Math.sin(t * 2.4) * 0.8 });
 
 const stageAt = (t) => ({
@@ -57,6 +61,11 @@ const stageAt = (t) => ({
 });
 // how much blade is out of the jar
 const bladeLen = (t) => BLADE * (t < REACH ? 0 : t < DRAWN ? ease.outCubic(smooth(REACH + 0.05, DRAWN, t)) : 1) * (1 - ease.inCubic(smooth(REST - 0.1, REST + 0.25, t)));
+// the model: its Totsuka blade only appears as it is drawn out of the jar (growing out of the hand) and points along
+// the keyed blade angle; the arms follow the rig's hands
+const MB = 82;
+const puppetOpts = (t) => { const L = bladeLen(t); return { rest: REST0, nearAngle: pose(t).blade + rigAt(t).lean, pose: { blade: { st: clamp(L / MB, 0.02, 3), a: L > 1 ? 1 : 0 } } }; };
+const puppetAt = (t) => susanooPuppet(t, rigAt(t), "itachi", puppetOpts(t));
 
 export const meta = {
   name: "Sword of Totsuka",
@@ -94,13 +103,14 @@ export const act = {
   dust: [{ t: RIBS, x: 0, n: 10 }, { t: HIT, x: 30, n: 14, dir: 1 }],
 };
 
-// the jar's mouth, in the second right hand
-const jarAt = (R) => [R.low.H[0] + 1, R.low.H[1] - 9];
+// the jar, in a second right hand at the model's front hip; its mouth
+const jarPos = (t) => { const P = puppetAt(t); return modelPoint(P.M.name, P.M.view, P.x, P.y, P.o, null, [74, 112]); };
+const jarAt = (t) => { const J = jarPos(t); return [J[0] + 1, J[1] - 9]; };
 // the target, sealed: drawn along the blade toward the jar, spun and thinned to nothing; back at the end
 export const targetState = (t) => {
   if (t < HIT + 0.3) return null;
   if (t < SEALED) {
-    const u = ease.inCubic(smooth(HIT + 0.3, SEALED, t)), J = jarAt(rigAt(t));
+    const u = ease.inCubic(smooth(HIT + 0.3, SEALED, t)), J = jarAt(t);
     return { dx: (J[0] - TX) * u, dy: (J[1] + 26) * u, rot: 9 * u * u, s: 1 - 0.85 * u, a: 1 - smooth(0.7, 1, u), tint: [RD[3], 0.6 * u] };
   }
   return { a: smooth(END - 0.9, END - 0.45, t) };
@@ -132,8 +142,8 @@ function blade(p, t, H, a, L, k = 1, ghost = 0) {
   p.circle(H[0] + ux * L, H[1] + uy * L, 1.5, BL[0]);
 }
 
-function jar(p, R, k) {
-  const [hx, hy] = R.low.H;
+function jar(p, J, k) {
+  const [hx, hy] = J;
   // a gourd: a big round belly, a waist, a small top, the stopper's mouth
   p.circle(hx + 1, hy + 4, 7.5, JAR[0], k);
   p.circle(hx + 1, hy + 4, 6.5, JAR[1], k);
@@ -145,21 +155,10 @@ function jar(p, R, k) {
   p.rect(hx - 0.5, hy - 11, 3, 2.5, JAR[0], k);
 }
 
-// the Yata Mirror: a round shield of red chakra with a spiral, its rim flickering like flame
-function mirror(p, t, R, k) {
-  const [cx, cy] = [R.far.H[0] + 4, R.far.H[1] - 2];
-  p.glow(cx, cy, 26, MIR[2], 0.45 * k);
-  p.shade(cx - 20, cy - 22, cx + 20, cy + 22, (x, y, out) => {
-    const dx = (x - cx) / 14, dy = (y - cy) / 17, d = Math.hypot(dx, dy), ang = Math.atan2(dy, dx);
-    const rim = 1 + 0.12 * noise2(ang * 2, t * 6, 7);
-    if (d > rim) return;
-    out.a = k;
-    if (d > rim - 0.12) return MIR[3];
-    // the spiral: one arm winding in
-    const sp = (ang / TAU + d * 1.6 + t * 0.2) % 1;
-    if (Math.abs(sp - 0.5) < 0.08 && d > 0.12) return MIR[3];
-    return d < 0.5 ? MIR[2] : MIR[1];
-  });
+// the Yata Mirror (on the model's far arm): its glow, flaring as it braces
+function mirror(p, t, M, k) {
+  const [cx, cy] = M;
+  p.glow(cx, cy, 30, MIR[3], 0.35 * k * (1 + 0.6 * Math.exp(-Math.pow((t - WIND) / 0.15, 2)) + 0.8 * Math.exp(-Math.pow((t - HIT) / 0.1, 2))));
 }
 
 export const create = play([], (o) => {
@@ -177,7 +176,7 @@ export const create = play([], (o) => {
       }
       // the target, sealed: streams of it pulled back along the blade into the jar
       if (t > HIT + 0.3 && t < SEALED && R.chance(70 * dt)) {
-        const J = jarAt(rigAt(t)), T = R.range(0.25, 0.4), x0 = TX + R.range(-8, 8), y0 = -28 + R.range(-16, 16);
+        const J = jarAt(t), T = R.range(0.25, 0.4), x0 = TX + R.range(-8, 8), y0 = -28 + R.range(-16, 16);
         ps.spawn(P.STREAK, x0, y0, (J[0] - x0) / T, (J[1] - y0) / T, T, R.chance(0.5) ? RD[4] : BL[1]);
       }
       if (t > RIBS && t < GONE && R.chance(26 * dt)) ps.spawn(P.EMBER, R.range(-40, 40), -R.range(20, 110), R.range(-10, 10), -R.range(20, 50), R.range(0.3, 0.6), RD[R.int(2, 4)]);
@@ -186,9 +185,10 @@ export const create = play([], (o) => {
     },
     drawBack(p, t) {
       const Rg = rigAt(t), st = stageAt(t), fadeAll = 0;
-      drawSusanoo(p, t, Rg, { kind: "itachi", st, fade: fadeAll, mid: (pp) => st.armour > 0 && mirror(pp, t, Rg, smooth(0, 0.6, st.armour)) });
+      const P = puppetAt(t);
+      drawSusanoo(p, t, Rg, { kind: "itachi", st, fade: fadeAll, ...puppetOpts(t), mid: (pp) => st.armour > 0 && mirror(pp, t, P.far, smooth(0, 0.6, st.armour)) });
       // the jar, once there's flesh to hold it
-      if (st.bones > 0.6) jar(p, Rg, Math.min(1, st.bones) * (1 - smooth(GONE, GONE + 0.3, t)));
+      if (st.bones > 0.6) jar(p, jarPos(t), Math.min(1, st.bones) * (1 - smooth(GONE, GONE + 0.3, t)));
       ps.draw(p, "back");
     },
     draw(p, t) {
@@ -202,7 +202,7 @@ export const create = play([], (o) => {
         if (t > SWING - 0.08 && t < FOLLOW + 0.06) {
           const fade = 1 - smooth(FOLLOW - 0.05, FOLLOW + 0.06, t);
           const at = (tt) => {
-            const Rp = rigAt(tt), a = pose(tt).blade + Rp.lean, H = Rp.near.H;
+            const Rp = rigAt(tt), a = pose(tt).blade + Rp.lean, H = puppetAt(tt).hand;
             return [H, [H[0] + Math.cos(a) * L, H[1] + Math.sin(a) * L], [H[0] + Math.cos(a) * L * 0.72, H[1] + Math.sin(a) * L * 0.72]];
           };
           for (let i = 5; i >= 1; i--) {
@@ -212,21 +212,19 @@ export const create = play([], (o) => {
           // the crescent of the tip's path
           const pts = [];
           for (let i = 0; i <= 10; i++) {
-            const tt = t - i * 0.01, Rp = rigAt(tt), a = pose(tt).blade + Rp.lean;
-            pts.push([Rp.near.H[0] + Math.cos(a) * L, Rp.near.H[1] + Math.sin(a) * L]);
+            const tt = t - i * 0.01, Rp = rigAt(tt), a = pose(tt).blade + Rp.lean, H = puppetAt(tt).hand;
+            pts.push([H[0] + Math.cos(a) * L, H[1] + Math.sin(a) * L]);
           }
           for (let i = 1; i < pts.length; i++) {
             p.beam(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], 4 * (1 - i / 11) * fade + 0.5, i < 3 ? WHITE : BL[1], fade);
           }
         }
-        blade(p, t, Rg.near.H, pose(t).blade + Rg.lean, L, 1);
-        // the hand closed round the grip
-        p.circle(Rg.near.H[0], Rg.near.H[1], 6, RD[2], smooth(0, 0.5, st.flesh));
-        p.circle(Rg.near.H[0] - 1, Rg.near.H[1] - 1, 3.5, RD[3], smooth(0, 0.5, st.flesh));
+        // the flaming blade over the model's own, from its hand
+        blade(p, t, puppetAt(t).hand, pose(t).blade + Rg.lean, L, 1);
       }
       // the blade pulled out of the jar: the liquid stretching from its mouth up to the hand
       if (t > REACH && t < DRAWN + 0.1) {
-        const J = jarAt(Rg), H = Rg.near.H, k = 1 - smooth(DRAWN - 0.05, DRAWN + 0.1, t);
+        const J = jarAt(t), H = puppetAt(t).hand, k = 1 - smooth(DRAWN - 0.05, DRAWN + 0.1, t);
         p.beam(J[0], J[1], H[0], H[1], 3, BL[1], k);
         p.line(J[0], J[1], H[0], H[1], BL[0], k);
       }

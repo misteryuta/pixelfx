@@ -11,7 +11,7 @@
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt, impactFrame, blast, drawBlackFlame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
-import { drawSusanoo, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
+import { drawSusanoo, susanooPuppet, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
 
 const EYE = 0.05, OPEN = 0.6, RIBS = OPEN + 0.05, BONES = RIBS + 0.32, FLESH = BONES + 0.38, ARMOUR = FLESH + 0.55, BOW = ARMOUR + 0.35;
 const GRAB = BOW + 0.4, NOCKED = GRAB + 0.12, DRAWN = NOCKED + 0.45, LOOSE = DRAWN + 0.4, FLY = 0.13, HIT = LOOSE + FLY, GONE = HIT + 1.1, END = HIT + 3.0, TX = 236;
@@ -35,6 +35,7 @@ const DRAW_LEN = 46;
 // out on that line, the draw hand comes back along it to the jaw, and the draw elbow lies back behind the hand, in line
 // with the arrow, not cocked up. On the release the hand flies back past the jaw and the bow arm kicks.
 const lerp2 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+let REST0 = null;
 const rigAt = (t) => {
   const q = pose(t), R0 = rigOf(q), N = [R0.Hd[0] + 8, R0.Hd[1] + 14], aim = Math.atan2(T[1] - N[1], T[0] - N[0]), dx = Math.cos(aim), dy = Math.sin(aim);
   const Gaim = [N[0] + dx * (DRAW_LEN + 6), N[1] + dy * (DRAW_LEN + 6)], restF = [R0.far.S[0] + 12, R0.far.S[1] + 34];
@@ -46,8 +47,14 @@ const rigAt = (t) => {
   const R1 = rigOf({ ...q, farH: G, farBend: 0.3, nearH: H, nearBend: 1 }), d = clamp(p) * q.grab;
   const E = lerp2(R1.near.E, [H[0] - dx * 25, H[1] - dy * 25 + 1], d * d * (3 - 2 * d));
   const R = rigOf({ ...q, farH: G, farBend: 0.3, nearH: H, nearBend: 1, nearE: E });
-  return { R, G: R.far.H, dx, dy, q };
+  // the model: its far arm (screen right) holds the bow out on the target, its fist draws the string; the blade it
+  // holds dissolves as the bow forms and comes back after
+  const P = susanooPuppet(t, R, "sasuke", puppetOpts(t)), Hm = P.hand, ax = T[0] - Hm[0], ay = T[1] - Hm[1], an = Math.hypot(ax, ay) || 1;
+  return { R, G: P.far, H: Hm, dx: ax / an, dy: ay / an, q, P };
 };
+const puppetOpts = (t) => ({ rest: REST0, gain: 0.9, pose: { sword: { a: 1 - smooth(BOW - 0.25, BOW, t) * (1 - smooth(GONE - 0.1, GONE + 0.2, t)) } } });
+REST0 = rigOf(pose(0));
+REST0.near.H = rigAt(0).R.near.H; REST0.far.H = rigAt(0).R.far.H;
 const stageAt = (t) => ({
   ribs: smooth(RIBS, RIBS + 0.3, t) * (1 - smooth(GONE + 0.45, GONE + 0.7, t)),
   bones: smooth(BONES, BONES + 0.3, t) * (1 - smooth(GONE + 0.3, GONE + 0.55, t)),
@@ -144,10 +151,10 @@ export const create = play([], (o) => {
     drawBack(p, t) {
       const A = rigAt(t), st = stageAt(t);
       const bowK = smooth(BOW, BOW + 0.15, t) * (1 - smooth(GONE - 0.2, GONE + 0.1, t)), bowS = ease.outBack(clamp((t - BOW) / 0.3), 1.6);
-      drawSusanoo(p, t, A.R, { kind: "sasuke", st, mid: (pp) => drawBow(pp, t, A, bowK, bowS) });
+      drawSusanoo(p, t, A.R, { kind: "sasuke", st, ...puppetOpts(t), mid: (pp) => drawBow(pp, t, A, bowK, bowS) });
       // the string: tip to the drawing fingers to tip while nocked, straight otherwise (twanging after the release)
       if (bowK > 0) {
-        const b = bowOf(A, A.q.pull, bowS), H = A.R.near.H, nocked = t > NOCKED && t < LOOSE;
+        const b = bowOf(A, A.q.pull, bowS), H = A.H, nocked = t > NOCKED && t < LOOSE;
         if (nocked) {
           p.line(b.top[0], b.top[1], H[0], H[1], V[4], bowK);
           p.line(b.bot[0], b.bot[1], H[0], H[1], V[4], bowK);
@@ -168,7 +175,7 @@ export const create = play([], (o) => {
       drawGlint(p, t, "sasukeEMS", OPEN + 0.05, END - 0.4, b.head);
       // the arrow: formed under the fingers at the bow, drawn back with the hand, loosed down the line
       if (t > GRAB - 0.05 && t < LOOSE) {
-        const k = smooth(GRAB - 0.05, NOCKED, t), H = A.R.near.H, len = 62 * k;
+        const k = smooth(GRAB - 0.05, NOCKED, t), H = A.H, len = 62 * k;
         for (let i = 0; i < len; i++) {
           const wd = i > len - 9 ? (len - i) * 0.55 : 1.1 + Math.sin(i * 0.8 - t * 30) * 0.6, x = H[0] + A.dx * i, y = H[1] + A.dy * i;
           p.line(x + A.dy * wd, y - A.dx * wd, x - A.dy * wd, y + A.dx * wd, i > len - 9 ? WHITE : V[3]);
@@ -177,7 +184,7 @@ export const create = play([], (o) => {
         p.glowLine(H[0], H[1], H[0] + A.dx * len, H[1] + A.dy * len, 14, V[3], 0.6 * k);
       }
       if (t >= LOOSE && t < HIT) {
-        const A0 = rigAt(LOOSE - 0.001), H = A0.R.near.H, sx = H[0] + A0.dx * 62, sy = H[1] + A0.dy * 62, u = clamp((t - LOOSE) / FLY);
+        const A0 = rigAt(LOOSE - 0.001), H = A0.H, sx = H[0] + A0.dx * 62, sy = H[1] + A0.dy * 62, u = clamp((t - LOOSE) / FLY);
         const x = sx + (T[0] - sx) * u, y = sy + (T[1] - sy) * u, dx = (T[0] - sx), dy = (T[1] - sy), n = Math.hypot(dx, dy);
         p.glowLine(x - (dx / n) * 70, y - (dy / n) * 70, x, y, 18, V[3], 0.9);
         p.beam(x - (dx / n) * 56, y - (dy / n) * 56, x, y, 3.5, V[3]);

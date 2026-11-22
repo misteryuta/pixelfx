@@ -13,7 +13,7 @@
 // ribs round the user, the bones (skull with glowing eyes and a toothy jaw), the muscle growing out from the chest
 // in striated bundles, the armour last; chakra flames lick off its outline the whole time.
 import { hex, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.js";
-import { drawModel } from "./_models.js";
+import { drawModel, modelPoint, reachPose, holdPose, RIGS } from "./_models.js";
 
 export const SUSANOO = {
   itachi: ["#3a0806", "#8a1a10", "#d8461c", "#ff8a3a", "#ffd8a0"].map(hex),
@@ -375,16 +375,49 @@ function drawSusanooProc(p, t, R, { kind = "itachi", st = {}, fade = 0, layer = 
   }
 }
 
-// the user's models (2026-11-22): which sprite and view each kind uses, and its scale
+// the user's models (2026-11-22): which sprite and view each kind uses, its scale, and its rig: the near (sword) arm,
+// what it holds, the far arm
 export const SUSANOO_MODEL = {
-  itachi: { name: "susanooItachi", view: "right", scale: 1 },
-  sasuke: { name: "susanooSasuke", view: "front", scale: 0.85 },
-  madara: { name: "susanooMadara", view: "right", scale: 1 },
+  itachi: { name: "susanooItachi", view: "right", scale: 1, arm: "arm", weapon: "blade", far: "mirror" },
+  sasuke: { name: "susanooSasuke", view: "front", scale: 0.85, arm: "arm", weapon: "sword", far: "armR" },
+  madara: { name: "susanooMadara", view: "right", scale: 1, arm: "arm", weapon: "katana", far: null },
 };
+const handOf = (M, part) => RIGS[M.name + "/" + M.view].parts.find((q) => q.name === part).hand;
+const REST = rigOf({});
+/**
+ * The model puppet for rig R: where it stands, its lean, and the pose of its parts. The arms follow the rig's hands:
+ * each model hand moves from where it rests by as much as the rig's hand moved from its rest (opts.rest, a rig);
+ * the weapon rides the near hand, pointing along opts.nearAngle (a screen angle) or held rigid in the hand; the head
+ * turns with the rig's head; opts.pose overrides any part (e.g. { blade: { st: 0.5 } }). Returns { M, x, y, o, hand,
+ * far, tip }: o is for drawModel, hand/far/tip are on screen.
+ */
+export function susanooPuppet(t, R, kind, opts = {}) {
+  const M = SUSANOO_MODEL[kind];
+  if (!M) return null;
+  const R0 = opts.rest ?? REST, x = (R.W?.[0] ?? 0) + 2, y = 0, flick = 1 + 0.01 * Math.sin(t * 6);
+  const o = { scale: M.scale * flick, rot: (R.lean ?? 0) * 0.5, pose: {} }, gain = opts.gain ?? 1;
+  const go = (part, H, H0) => {
+    const h = modelPoint(M.name, M.view, x, y, o, null, handOf(M, part));
+    o.pose[part] = reachPose(M.name, M.view, x, y, o, part, [h[0] + (H[0] - H0[0]) * gain, h[1] + (H[1] - H0[1]) * gain], 0.65, 1.7);
+  };
+  go(M.arm, R.near.H, R0.near.H);
+  if (M.far) go(M.far, R.far.H, R0.far.H);
+  o.pose.head = { rot: ((R.q?.head ?? 0) - (R0.q?.head ?? 0)) * 0.7 };
+  o.pose[M.weapon] = holdPose(M.name, M.view, o, M.arm, M.weapon, opts.nearAngle ?? null);
+  for (const [k, v] of Object.entries(opts.pose ?? {})) o.pose[k] = { ...(o.pose[k] ?? {}), ...v };
+  const rig = RIGS[M.name + "/" + M.view].parts, wq = rig.find((q) => q.name === M.weapon);
+  return {
+    M, x, y, o,
+    hand: modelPoint(M.name, M.view, x, y, o, M.arm, handOf(M, M.arm)),
+    far: M.far ? modelPoint(M.name, M.view, x, y, o, M.far, handOf(M, M.far)) : null,
+    tip: modelPoint(M.name, M.view, x, y, o, M.weapon, wq.tip),
+  };
+}
 /**
  * Paint the Susanoo of rig R. Kinds with a model: the procedural ribcage and bones grow first, then the model rises
- * into being from the floor up (form from the flesh/armour stages), standing round its user; mid(p) is still called
- * (between the model and the user) for things held in front of it. Other kinds: the procedural Susanoo as before.
+ * into being from the floor up (form from the flesh/armour stages), standing round its user, its arms, weapon and head
+ * following the rig (see susanooPuppet; opts.rest, opts.nearAngle, opts.pose); mid(p) is still called (between the
+ * model and the user) for things held in front of it. Other kinds: the procedural Susanoo as before.
  */
 export function drawSusanoo(p, t, R, opts = {}) {
   const { kind = "itachi", st = {}, fade = 0, layer = "back", mid = null } = opts, M = SUSANOO_MODEL[kind];
@@ -394,8 +427,8 @@ export function drawSusanoo(p, t, R, opts = {}) {
   if (early > 0.01) drawSusanooProc(p, t, R, { kind, st: { ribs: st.ribs, bones: st.bones, flesh: 0, armour: 0 }, fade: 1 - k * early, layer, mid: null });
   if (layer !== "back") return;
   if (form > 0.01 && k > 0.01) {
-    const x = (R.W?.[0] ?? 0) + 2, flick = 1 + 0.01 * Math.sin(t * 6);
-    drawModel(p, M.name, M.view, x, 0, { scale: M.scale * flick, form: smooth(0, 1, form), alpha: k, glow: SUSANOO[kind][2] });
+    const P = susanooPuppet(t, R, kind, opts);
+    drawModel(p, M.name, M.view, P.x, P.y, { ...P.o, form: smooth(0, 1, form), alpha: k, glow: SUSANOO[kind][2] });
   }
   if (mid) mid(p);
 }
