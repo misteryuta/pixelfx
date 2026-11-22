@@ -4,7 +4,7 @@
 
 # pixelfx.
 
-**<!-- count -->376<!-- /count --> pixel art effects and animations, every one a small piece of code.** Fire,
+**<!-- count -->410<!-- /count --> pixel art effects and animations, every one a small piece of code.** Fire,
 explosions, magic, weather, UI, pickups, critters and more. Play them live, recolor and mirror them, drop them into
 a browser game, or export sprite sheets for any engine. Plus a Claude Code skill that makes new ones the way a
 picky pixel artist would: draft, render, look, refine.
@@ -30,7 +30,7 @@ the idea at library scale, with a skill to keep going.
 <!-- catalog -->
 | category | effects | some of them |
 |---|---|---|
-| **jutsu** | 132 | flying swallow + burning ash, butterfly bullet bombing, human boulder, clash: katon vs fuuton, clash: raiton vs doton, clash: katon vs suiton… |
+| **jutsu** | 166 | flying swallow + burning ash, butterfly bullet bombing, human boulder, clash: katon vs fuuton, clash: raiton vs doton, clash: katon vs suiton… |
 | **moves** | 12 | arrow shot, dash strike, earth stomp, fireball throw, ground pound, holy smite… |
 | **fire** | 12 | brazier, campfire, candle, fire breath, fire ring, fire tornado… |
 | **explosions** | 12 | barrel explosion, big explosion, cartoon pow, dirt explosion, firework burst, firework rocket… |

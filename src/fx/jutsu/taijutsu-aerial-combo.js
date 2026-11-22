@@ -106,7 +106,6 @@ export const create = play([], () => ({
     }
     if (t > SPINT - 0.1 && t < AXE + 0.03) smear(p, at("footN"), t, { w: 6, n: 10 });
     if (t > AXE) hitSpark(p, ...bodyAt(act.poses, AXE).footN, t - AXE, { big: true });
-    if (t >= SLAM && t < SLAM + 0.04) impactFrame(p, -50, -170, 220, 30, BX - 22, -4, false, 41, { style: "burst", ink: hex("#140a06"), paper: hex("#fff0c0") });
     if (t > SLAM && t < SLAM + 1) for (let i = 0; i < 8; i++) { const a = t - SLAM, x = BX - 22 + (rand(i, 2) - 0.5) * 30 + (rand(i, 3) - 0.5) * a * 120, y = -2 - 60 * a + 120 * a * a * rand(i, 4); if (y < 0) drawChunk(p, x, y, 2 + rand(i, 5) * 2, a * 8 + i, ["#2a2420", "#4a3e34", "#6e5e4e", "#9a8670"].map(hex)); }
     void clamp; void WHITE; void KICK; void rJ;
   },

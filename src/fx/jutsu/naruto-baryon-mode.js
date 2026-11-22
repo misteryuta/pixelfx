@@ -107,7 +107,6 @@ export const create = play([], (o) => {
       if (t > GO - 0.02 && t < HIT + 0.1) { const kk = 1 - smooth(HIT, HIT + 0.1, t); p.glowLine(4, -24, IN, -24, 10, RED[3], 0.7 * kk); p.beam(4, -24, IN, -24, 2, RED[4], kk); }
       if (t > BACK - 0.02 && t < BACK + 0.12) { const kk = 1 - (t - BACK + 0.02) / 0.14; p.beam(IN, -24, 4, -24, 2, RED[4], kk); }
       // the silent frame of the hit, then the red shock ring
-      if (t >= HIT && t < HIT + 0.05) impactFrame(p, -56, -168, 244, 32, TX - 6, -28, true, 61, { style: "rings", ink: hex("#140204"), paper: hex("#ffe8d8"), lines: 30 });
       if (t > HIT + 0.05 && t < HIT + 0.5) { const u = (t - HIT - 0.05) / 0.45; p.ring(TX - 6, -28, 6 + 60 * ease.outCubic(u), 2, RED[3], 1 - u); p.glow(TX - 6, -28, 30, RED[3], 0.6 * (1 - u)); }
       void rand; void clamp;
       ps.draw(p, "front");

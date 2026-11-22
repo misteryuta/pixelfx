@@ -3,33 +3,35 @@
 // spreads out and the summon arrives in a great cloud of smoke. Jiraiya's is the toad boss Gamabunta: a giant red-brown
 // toad with a scarred eye, a pipe and a short blue coat, the summoner standing on his head. Here: the five seals, the
 // thumb bitten, the palm slammed down, the black lines of the formula racing out, a vast cloud of smoke, and Gamabunta
-// sitting in it with Jiraiya on his head. Then their combination (Katon: Gamayu Endan, Toad Oil Flame Bullet, after the
-// reference): the toad (red, mottled with dark teal, yellow eyes, tongue out, a necklace of blue beads with the round
-// medallion of loyalty) draws breath and spits a gob of oil in an arc that splashes down and spreads into a pool round
-// the target's feet; on his head Jiraiya makes the Tiger seal and breathes a stream of fire into the pool; it catches,
-// flame races across the oil, and the whole pool goes up in a blast of fire and black oil smoke, burning oil left
-// spattered on the ground. The toad goes in a puff and Jiraiya drops down.
-// New: the toad (drawn here from shapes, with an ink outline), the formula, the summoner riding (drawFigure), the oil
-// stream and the fire running down it, the oil-and-fire blast (blast() from _lib with sooty smoke, burning puddles).
+// sitting in it with Jiraiya on his head. Then their combination, Katon: Gamayu Endan (Toad Oil Flame Bullet): in canon
+// the summon spits a torrent of oil while Jiraiya, on its head, breathes fire into it at the same instant; the oil makes
+// the flame far bigger and hotter, one roaring jet of burning oil (they used it against Manda and Orochimaru). Here: the
+// toad (after the user's reference: red, mottled with dark teal, yellow eyes, the necklace with the round medallion)
+// and Jiraiya both draw breath, Jiraiya on the Tiger seal; then both release: a thick jet of oil from the toad's lips,
+// Jiraiya's fire pouring into it right at its root, and the two become one huge flamethrower jet that drives straight
+// into the target: a bright core, a turbulent orange body, black oil smoke rolling off its top, burning drops raining
+// from its underside; it holds, roaring, then is cut off; the ground burns where the oil fell. The toad goes in a puff.
+// New: the toad (drawn here from shapes, with an ink outline), the formula, the summoner riding (drawFigure), the joint
+// oil-and-fire jet, the burning drops and ground fires, the blast where it lands (blast() from _lib with sooty smoke).
 import { Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, mix, WHITE, TAU } from "../../core/index.js";
-import { play, sealRun, drawSeals, bodyAt, drawFigure, drawPoof, blast, impactFrame, SIGNS } from "./_lib.js";
+import { play, sealRun, drawSeals, bodyAt, drawFigure, drawPoof, blast, SIGNS } from "./_lib.js";
 import { noise2, rand } from "../../core/index.js";
 import { drawBadge } from "./_badge.js";
 
 const SEALS = sealRun(0.05, ["i", "inu", "tori", "saru", "hitsuji"], 0.1, { hold: 0.2 });
-const BITE = SEALS.end, SLAM = BITE + 0.22, SMOKE = SLAM + 0.3, TOAD = SMOKE + 0.12, INHALE = TOAD + 0.55, SPIT = INHALE + 0.5;
-const OILT = 0.42, POUR = 0.3, POOL0 = SPIT + 0.38, POOL1 = SPIT + 0.8, BREATH = SPIT + 0.95, FLY = 0.32, IGN = BREATH + FLY, BURN = 0.16, HIT = IGN + BURN;
-const STOP = HIT + 0.5, BYE = STOP + 0.5, TX = 250, X0 = 64, POOLR = 26;
+const BITE = SEALS.end, SLAM = BITE + 0.22, SMOKE = SLAM + 0.3, TOAD = SMOKE + 0.12, INHALE = TOAD + 0.5, SPIT = INHALE + 0.55;
+// SPIT: both release; the jet's head reaches the target at HIT; it roars until CUT; its tail runs out by STOP
+const BREATH = SPIT, REACH = 0.26, HIT = SPIT + REACH, CUT = HIT + 1.1, STOP = CUT + 0.25, BYE = STOP + 0.45, TX = 250, X0 = 64;
 const FIRE = ["#1a0804", "#4a1206", "#9a2a08", "#e0600c", "#ffa020", "#ffe070", "#fffbe0"].map(hex);
 const OIL = ["#140a04", "#2e1a08", "#4e3010", "#8a6a30"].map(hex), SOOT = [hex("#141016"), hex("#2a2428"), hex("#4a4246")];
 
 export const meta = {
   name: "Summoning: Gamabunta",
-  desc: "Jiraiya: the summoning seals, the toad in a cloud of smoke with Jiraiya on his head; it spits oil into a pool under the target's feet, Jiraiya breathes fire into it, and the pool goes up in a blast of fire and black smoke.",
+  desc: "Jiraiya: the summoning seals and Gamabunta in a cloud of smoke with Jiraiya on his head; the toad sprays oil as Jiraiya breathes fire into it, one roaring jet of burning oil that engulfs the target and leaves the ground burning.",
   tags: ["jutsu", "jiraiya", "summoning", "toad", "move", "aoe", "one-shot"],
   size: [400, 230],
   origin: [52, 198],
-  duration: HIT + 3.4,
+  duration: BYE + 1.6,
   loop: false,
   fps: 30,
   bg: "ground",
@@ -41,7 +43,7 @@ export const meta = {
 export const actorAlpha = (t) => (t >= TOAD && t < BYE + 0.05 ? 0 : 1);
 // he rides the toad: the Tiger seal on its head, then the breath of fire
 const RIDE = { ...READY, crouch: 1, armsFront: true, fx: 6, fy: -24, bx: 8, by: -25 };
-const ridePose = (t) => (t > INHALE + 0.1 && t < BREATH ? { ...SIGNS.tora.pose, fx: 7, fy: -29, bx: 8, by: -29 } : t >= BREATH - 0.1 && t < HIT + 0.2 ? { ...READY, crouch: 3, lean: 5, fx: 7, fy: -30, bx: 8, by: -28 } : RIDE);
+const ridePose = (t) => (t > INHALE && t < BREATH ? { ...SIGNS.tora.pose, lean: -4, fx: 7, fy: -29, bx: 8, by: -29 } : t >= BREATH && t < STOP ? { ...READY, crouch: 4, lean: 9, fx: 8, fy: -29, bx: 9, by: -28 } : RIDE);
 const MOUTH_J = [6, -31];
 
 const BITEP = { ...READY, crouch: 3, fx: 6, fy: -31, bx: 9, by: -22, ffx: 7, fbx: -7 };
@@ -61,13 +63,11 @@ export const act = {
   hits: [
     { t: SLAM, stop: 0.06, shake: 0.12, amp: 1, target: false },
     { t: SMOKE, stop: 0.1, shake: 0.4, amp: 3, target: false },
-    { t: SPIT, stop: 0.04, shake: 0.15, amp: 1, target: false, sfx: "whoosh" },
-    { t: POOL0, flash: 0, push: 0.3, straw: 2 },
-    { t: BREATH, target: false, sfx: "cast" },
-    { t: IGN, stop: 0.06, shake: 0.2, amp: 2, target: false },
-    { t: HIT, stop: 0.2, shake: 0.7, amp: 5, push: 5, straw: 40, skin: "char", sfx: "explosion" },
-    ...[0.3, 0.6, 0.9].map((d) => ({ t: HIT + d, stop: 0.02, flash: 0, push: 0.8, straw: 6, shiver: 0.4 })),
-    { t: HIT + 3.0, flash: 0, push: 0, straw: 0, skin: null },
+    { t: INHALE, target: false, sfx: "cast" },
+    { t: SPIT, stop: 0.05, shake: 0.5, amp: 2, target: false, sfx: "whoosh" },
+    { t: HIT, stop: 0.16, shake: 0.9, amp: 5, push: 5, straw: 40, skin: "char", sfx: "explosion" },
+    ...[0.25, 0.5, 0.75, 1.0].map((d) => ({ t: HIT + d, stop: 0.02, shake: 0.4, amp: 2, flash: 0, push: 1, straw: 8, shiver: 0.5, sfx: d === 0.5 ? "rumble" : undefined })),
+    { t: CUT + 1.6, flash: 0, push: 0, straw: 0, skin: null },
   ],
   dust: [{ t: SLAM, x: 14, n: 6 }, { t: BYE + 0.05, x: X0 - 4, n: 8 }],
 };
@@ -75,18 +75,20 @@ export const act = {
 // where the toad is: sits at X0, leaps in an arc and lands at X1; s: squash (1 normal)
 function toadAt(t) {
   // lands in the smoke, settles; draws breath (belly up), heaves forward as it spits
-  const land = 0.08 * Math.max(0, 1 - (t - TOAD) * 4), breath = smooth(INHALE, SPIT, t) * (1 - smooth(SPIT, SPIT + 0.15, t)), heave = smooth(SPIT, SPIT + 0.1, t) * (1 - smooth(SPIT + POUR, SPIT + POUR + 0.2, t));
-  return { x: X0 + 3 * heave, y: 0, sq: 1 + land - 0.1 * breath + 0.06 * heave, belly: breath, open: heave };
+  const land = 0.08 * Math.max(0, 1 - (t - TOAD) * 4), breath = smooth(INHALE, SPIT, t) * (1 - smooth(SPIT, SPIT + 0.15, t)), heave = smooth(SPIT, SPIT + 0.08, t) * (1 - smooth(CUT, STOP, t));
+  // a tremor while it pours (the force of the jet)
+  const shake = heave * Math.sin(t * 50) * 0.6;
+  return { x: X0 + 3 * heave + shake, y: 0, sq: 1 + land - 0.1 * breath + 0.05 * heave, belly: breath, open: heave };
 }
 // the toad's lips, where the oil leaves
 const lipsAt = (t) => {
   const T = toadAt(t), sy = T.sq < 1 ? T.sq : (1 / T.sq ** 0.5) * T.sq;
   return [T.x + 40 * (2 - sy), T.y - 29 * sy];
 };
-// the oil's path: a long sag from the lips onto the target
-const oilAt = (t, u) => {
-  const M = lipsAt(t), E = [TX - 2, -1];
-  return [M[0] + (E[0] - M[0]) * u, M[1] + (E[1] - M[1]) * u - Math.sin(Math.PI * u) * 46];
+// the jet's axis: from the toad's lips, nearly straight (a high-pressure jet sags only a little), onto the target
+const jetAt = (t, u) => {
+  const M = lipsAt(t), E = [TX + 6, -22];
+  return [M[0] + (E[0] - M[0]) * u, M[1] + (E[1] - M[1]) * u + Math.sin(Math.PI * u) * 4];
 };
 
 // Gamabunta, feet at (x, y), facing right; sq squashes him (wider and lower)
@@ -171,7 +173,7 @@ export const create = play([], (o) => {
         }
         p.ellipse(16, 0.5, 12 * k, 2, INK, fade);
       }
-      blast(p, t - HIT, { x: TX, y: 0, R: 42, C: FIRE, seed: 3, layer: "back", smoke: SOOT });
+      blast(p, t - HIT, { x: TX, y: 0, R: 30, C: FIRE, seed: 3, layer: "back", smoke: SOOT });
       ps.draw(p, "back");
     },
     draw(p, t) {
@@ -187,69 +189,72 @@ export const create = play([], (o) => {
         // the summoner on his head: arms folded, the Tiger seal, then leaning in to breathe fire
         J = [T.x, T.y - 56 * (T.sq < 1 ? T.sq : 1)];
         drawFigure(p, ridePose(t), J[0], J[1], {});
-        if (t > INHALE + 0.15 && t < BREATH) p.text("KATON: GAMAYU ENDAN", J[0] + 6, J[1] - 52, FIRE[5], { font: "mini", align: "center", outline: hex("#1a0804") });
+        if (t > INHALE + 0.05 && t < SPIT + 0.3) p.text("KATON: GAMAYU ENDAN", J[0] + 6, J[1] - 52, FIRE[5], { font: "mini", align: "center", outline: hex("#1a0804") });
       }
-      // the oil: a gob spat in an arc from the lips, landing at the target's feet; it stops pouring and the tail follows down
-      if (t > SPIT && t < POOL0 + 0.2) {
-        const head = clamp((t - SPIT) / OILT), tail = clamp((t - SPIT - POUR) / OILT), N = 50;
-        for (let i = 0; i < N; i++) {
-          const u0 = i / N, u1 = (i + 1) / N;
+      // the jet: Gamabunta's oil and Jiraiya's fire released together. Head: how far it has reached (0..1 of the way to
+      // the target), tail: where it has run out once they stop.
+      if (J && t > SPIT && t < STOP + 0.05) {
+        const head = ease.outQuad(clamp((t - SPIT) / REACH)), tail = ease.inQuad(clamp((t - CUT) / (STOP - CUT))), M = lipsAt(t);
+        const jm = [J[0] + MOUTH_J[0], J[1] + MOUTH_J[1]], MERGE = 0.16;
+        // the oil leaving the lips: a thick dark-amber rope for the first stretch, where the fire meets it
+        for (let i = 0; i < 12; i++) {
+          const u0 = (i / 12) * MERGE, u1 = ((i + 1) / 12) * MERGE;
           if (u1 > head || u0 < tail) continue;
-          const [x0, y0] = oilAt(t, u0), [x1, y1] = oilAt(t, u1), w = 4 + 3 * Math.sin(Math.PI * u0) + Math.sin(u0 * 30 - t * 25) * 0.8;
-          p.beam(x0, y0, x1, y1, w + 1.2, OIL[0]);
-          p.beam(x0, y0, x1, y1, w, OIL[1]);
-          p.line(x0, y0 - w * 0.25, x1, y1 - w * 0.25, i % 4 ? OIL[2] : OIL[3]);
+          const [x0, y0] = jetAt(t, u0), [x1, y1] = jetAt(t, u1);
+          p.beam(x0, y0, x1, y1, 5.5, OIL[1]); p.line(x0, y0 - 1.5, x1, y1 - 1.5, OIL[3]);
         }
-      }
-      // the pool spreading round the target's feet: dark, glossy, rippling; burning once it catches
-      const pool = smooth(POOL0, POOL1, t) * (1 - smooth(HIT + 2, HIT + 2.6, t)), catchK = clamp((t - IGN) / BURN);
-      if (pool > 0) {
-        const r = POOLR * ease.outCubic(pool);
-        p.ellipse(TX, 0.5, r + 1, 3.6, OIL[0]);
-        p.ellipse(TX, 0.2, r, 3, OIL[1]);
-        p.ellipse(TX - r * 0.3, -0.2, r * 0.45, 1, OIL[3], 0.8);
-        if (t < IGN) for (let i = 0; i < 3; i++) {
-          const u = ((t - POOL0) * 1.6 + i / 3) % 1;
-          p.ellipse(TX + (i - 1) * 8, 0, 3 + u * 6, 0.8 + u, OIL[2], 1 - u);
+        // Jiraiya's fire: from his lips down into the oil at the merge point
+        if (tail < MERGE) {
+          const mp = jetAt(t, MERGE), L = clamp((t - SPIT) / 0.08);
+          const ex = jm[0] + (mp[0] - jm[0]) * L, ey = jm[1] + (mp[1] - jm[1]) * L, fl = 1 + 0.25 * Math.sin(t * 40);
+          p.glowLine(jm[0], jm[1], ex, ey, 10, FIRE[4], 0.5);
+          p.beam(jm[0], jm[1], ex, ey, 5 * fl, FIRE[3]);
+          p.beam(jm[0], jm[1], ex, ey, 3.2 * fl, FIRE[5]);
+          p.beam(jm[0], jm[1], ex, ey, 1.4, FIRE[6]);
         }
-        // flame racing out over the oil from where the fire lands, then the whole pool burning
-        if (catchK > 0) {
-          const reach = r * catchK;
-          for (let i = 0; i < 14; i++) {
-            const x = TX - r + (i / 13) * 2 * r;
-            if (Math.abs(x - (TX - r * 0.8)) > reach * 2) continue;
-            const h = (6 + 10 * rand(i, 5)) * (0.7 + 0.4 * Math.sin(t * 14 + i));
-            p.tri(x - 4, 0, x + 4, 0, x + Math.sin(t * 11 + i) * 2, -h, FIRE[3]);
-            p.tri(x - 2, 0, x + 2, 0, x + Math.sin(t * 11 + i) * 1.5, -h * 0.6, FIRE[5]);
+        // the burning jet from the merge point to its head: a cone that widens as it goes, turbulent, a white core,
+        // orange body, dark red rim; black oil smoke rolling off its top edge
+        const u0 = Math.max(MERGE, tail), u1 = head;
+        if (u1 > u0) {
+          const P0 = jetAt(t, u0), P1 = jetAt(t, u1), len = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]), dx = (P1[0] - P0[0]) / len, dy = (P1[1] - P0[1]) / len;
+          const pad = 30;
+          p.shade(Math.min(P0[0], P1[0]) - pad, Math.min(P0[1], P1[1]) - pad - 8, Math.max(P0[0], P1[0]) + pad, Math.max(P0[1], P1[1]) + pad, (x, y, out) => {
+            const rx = x - M[0], ry = y - M[1], along = rx * dx + ry * dy, across = -rx * dy + ry * dx, full = TX + 6 - M[0];
+            const u = along / full;
+            if (u < u0 - 0.01 || u > u1 + 0.04) return;
+            const w = 5 + 27 * Math.pow(Math.max(0, (u - MERGE) / (1 - MERGE)), 0.8) * (u > u1 ? Math.max(0, 1 - (u - u1) * 25) : 1);
+            const n = noise2(along * 0.07 - t * 14, across * 0.12, 21) * 0.35 + noise2(along * 0.2 - t * 22, across * 0.3, 22) * 0.15;
+            const d = Math.abs(across) / w + n;
+            if (d > 1) {
+              // the smoke rolling off the top
+              if (across < 0 && d < 1.5 && u > 0.35 && noise2(along * 0.1 - t * 6, across * 0.15 + t * 3, 23) > 0.05) { out.a = 0.7; return d < 1.25 ? SOOT[1] : SOOT[0]; }
+              return;
+            }
+            return d < 0.28 ? FIRE[6] : d < 0.5 ? FIRE[5] : d < 0.72 ? FIRE[4] : d < 0.88 ? FIRE[3] : FIRE[2];
+          });
+          p.glowLine(P0[0], P0[1], P1[0], P1[1], 26, FIRE[4], 0.45);
+          // burning drops of oil raining off its underside
+          for (let i = 0; i < 10; i++) {
+            const ph = (t * 1.8 + rand(i, 3)) % 1, u = u0 + (u1 - u0) * rand(i, 4), [bx, by] = jetAt(t, u);
+            const yy = by + 6 + ph * (-by - 6), k = 1 - ph * 0.3;
+            if (yy < 0) { p.px(bx + ph * 6, yy, FIRE[ph > 0.5 ? 3 : 4], k); p.px(bx + ph * 6, yy - 1, OIL[2], k); }
           }
-          p.glow(TX, -6, 40, FIRE[4], 0.6 * catchK);
         }
       }
-      // Jiraiya's breath of fire: a roaring stream from his lips arcing down into the pool
-      if (J && t > BREATH && t < IGN + 0.25) {
-        const m = [J[0] + MOUTH_J[0], J[1] + MOUTH_J[1]], end = [TX - POOLR * 0.8, -2], L = ease.inQuad(clamp((t - BREATH) / FLY)), tail = clamp((t - IGN - 0.05) / 0.2);
-        const at = (u) => [m[0] + (end[0] - m[0]) * u, m[1] + (end[1] - m[1]) * u - Math.sin(Math.PI * u) * 26];
-        for (let i = 0; i <= 30; i++) {
-          const u = (i / 30) * L;
-          if (u < tail) continue;
-          const [x, y] = at(u), r = 2.5 + 7 * u * (0.8 + 0.4 * noise2(i * 0.3, t * 10, 5));
-          p.disc(x, y, r, (d) => (d < 0.35 ? FIRE[6] : d < 0.65 ? FIRE[5] : FIRE[4]), 1);
+      // fires left burning on the ground where the oil fell, between the toad and the target
+      if (t > HIT + 0.2 && t < CUT + 1.6) {
+        const k = smooth(HIT + 0.2, HIT + 0.6, t) * (1 - smooth(CUT + 1.0, CUT + 1.6, t));
+        for (let i = 0; i < 8; i++) {
+          const x = X0 + 70 + i * ((TX - X0 - 50) / 8) + (rand(i, 8) - 0.5) * 8, h = (4 + 7 * rand(i, 9)) * k * (0.8 + 0.3 * Math.sin(t * 12 + i));
+          p.ellipse(x, 0, 6, 1.4, OIL[0], k);
+          p.tri(x - 3.5, 0, x + 3.5, 0, x + Math.sin(t * 9 + i) * 2, -h, FIRE[3], k);
+          p.tri(x - 1.8, 0, x + 1.8, 0, x + Math.sin(t * 9 + i) * 1.5, -h * 0.6, FIRE[5], k);
         }
-        p.glowLine(...at(Math.max(tail, 0.02)), ...at(L), 22, FIRE[4], 0.6);
       }
       // the blast where it meets the target: oil and fire, then burning oil spattered over the ground
       const age = t - HIT;
-      blast(p, age, { x: TX, y: 0, R: 42, C: FIRE, seed: 3, smoke: SOOT, rock: [OIL[0], OIL[1], OIL[2], FIRE[3]] });
+      blast(p, age, { x: TX, y: 0, R: 30, C: FIRE, seed: 3, smoke: SOOT, rock: [OIL[0], OIL[1], OIL[2], FIRE[3]] });
       if (age >= 0 && age < 0.05) p.circle(TX, -20, 30, FIRE[6]);
-      if (age > 0.2 && age < 2.8) {
-        const k = smooth(0.2, 0.5, age) * (1 - smooth(2.2, 2.8, age));
-        for (let i = 0; i < 9; i++) {
-          const x = TX - 70 + i * 17 + (rand(i, 8) - 0.5) * 8, h = (5 + 7 * rand(i, 9)) * k * (0.8 + 0.3 * Math.sin(t * 12 + i));
-          p.ellipse(x, 0, 7, 1.5, OIL[0], k);
-          p.tri(x - 4, 0, x + 4, 0, x + Math.sin(t * 9 + i) * 2, -h, FIRE[3], k);
-          p.tri(x - 2, 0, x + 2, 0, x + Math.sin(t * 9 + i) * 1.5, -h * 0.6, FIRE[5], k);
-        }
-      }
       for (let i = 0; i < 5; i++) drawPoof(p, X0 - 30 + i * 15, -20 - (i % 2) * 24, t - SMOKE - i * 0.03, 3.2, i + 1);
       drawPoof(p, X0, -30, t - BYE, 3.4, 9);
       drawPoof(p, X0 + 30, -16, t - BYE - 0.04, 2.4, 10);

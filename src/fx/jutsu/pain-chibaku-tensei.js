@@ -237,7 +237,6 @@ export const create = play([{ fx: dirt, t: IMPACT, x: TX, y: 0, light: 0.6 }], (
       }
       ps.draw(p, "front");
       // impact frames: the picture goes to ink and paper for a beat, then inverted
-      if (t >= IMPACT && t < IMPACT + 0.14) impactFrame(p, -meta.origin[0], -meta.origin[1], meta.size[0] - meta.origin[0], meta.size[1] - meta.origin[1], TX, -20, t >= IMPACT + 0.07, 5, { style: "spiral", ink: hex("#0b0614"), paper: hex("#e8dcff"), lines: 40 });
     },
   };
 });

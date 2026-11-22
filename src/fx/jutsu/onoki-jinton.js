@@ -134,10 +134,9 @@ export const create = play([], (o) => {
         // the humming edges: little sparks crawling along them
         for (let i = 0; i < 6; i++) { const e = (t * 3 + i / 6) % 1; p.px(TX - HALF + e * HALF * 2, CY - HALF * 0.92 + (i % 2) * HALF * 1.84, WHITE, k); }
       }
-      if (t >= ERASE && t < ERASE + 0.05) impactFrame(p, -56, -158, 244, 32, TX, CY, false, 7, { style: "rings", ink: hex("#060a10"), paper: hex("#f4fcff") });
-      else if (t >= ERASE + 0.05 && t < ERASE + 0.1) p.rect(TX - HALF, CY - HALF, HALF * 2, HALF * 2 + 30, WHITE);
+      if (t >= ERASE + 0.05 && t < ERASE + 0.1) p.rect(TX - HALF, CY - HALF, HALF * 2, HALF * 2 + 30, WHITE);
       // the blast churning inside the walls and dying away: held to the cube, nothing gets out
-      else if (t >= ERASE + 0.1 && t < ERASE + 0.45) { const u = (t - ERASE - 0.1) / 0.35; p.shade(TX - HALF, CY - HALF, TX + HALF, CY + HALF, (x, y, out) => { const n = noise2(x * 0.15 + t * 9, y * 0.15, 3); if (n < u * 1.6 - 0.6) return; out.a = 1 - u; return n > 0.4 ? WHITE : n > 0 ? LT[3] : LT[2]; }); }
+      if (t >= ERASE + 0.1 && t < ERASE + 0.45) { const u = (t - ERASE - 0.1) / 0.35; p.shade(TX - HALF, CY - HALF, TX + HALF, CY + HALF, (x, y, out) => { const n = noise2(x * 0.15 + t * 9, y * 0.15, 3); if (n < u * 1.6 - 0.6) return; out.a = 1 - u; return n > 0.4 ? WHITE : n > 0 ? LT[3] : LT[2]; }); }
       // the empty space, a ghost of the cube's outline fading
       if (t > ERASE + 0.1 && t < ERASE + 1) { const k = 1 - smooth(ERASE + 0.1, ERASE + 1, t); cube(p, TX, CY, HALF, 0.4, LT[1], k * 0.6); }
       void rand; void TAU;

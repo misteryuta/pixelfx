@@ -69,8 +69,7 @@ export const create = play([], (o) => {
       // the eye bleeds once the flames are called
       if (t > IGNITE) p.line(b.head[0] + 2, b.head[1] + 0.5, b.head[0] + 2, b.head[1] + 0.5 + Math.min(4, (t - IGNITE) * 10), hex("#a01020"));
       // the red frame: for an instant everything is ink on blood, then a red pulse dies away over the scene
-      if (t >= IGNITE - 0.08 && t < IGNITE - 0.02) impactFrame(p, -50, -118, 190, 32, TX, -26, false, 5, { ink: hex("#0a0204"), paper: hex("#b0101e"), lines: 24 });
-      else if (t >= IGNITE - 0.02 && t < IGNITE + 0.4) veil(p, -50, -118, 190, 32, hex("#8a0a18"), 0.45 * (1 - smooth(IGNITE - 0.02, IGNITE + 0.4, t)));
+      if (t >= IGNITE - 0.02 && t < IGNITE + 0.4) veil(p, -50, -118, 190, 32, hex("#8a0a18"), 0.45 * (1 - smooth(IGNITE - 0.02, IGNITE + 0.4, t)));
       // the bloom: black flame catches at one point and spreads over the whole target, then burns on
       if (t >= IGNITE) {
         const out = 1 - smooth(END - 0.5, END, t);

@@ -18,6 +18,8 @@ import { hex, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.j
 export const PERFECT = {
   madara: ["#040c26", "#0a1f5c", "#1a44a8", "#3a74e0", "#86bcff", "#e6f2ff"].map(hex),
   sasuke: ["#0e0624", "#2a1260", "#4e24a0", "#8050e0", "#c4a0ff", "#f4ecff"].map(hex),
+  // Kakashi's (with both of Obito's Mangekyou, in the war against Kaguya): a cold blue-cyan
+  kakashi: ["#04141e", "#0c3a54", "#1a6a90", "#38a8d0", "#96e4ff", "#ecfcff"].map(hex),
 };
 
 // two-bone IK: elbow between shoulder S and hand H, bones L, bent toward side bend (+1 / -1)
@@ -179,7 +181,16 @@ export function drawPerfect(p, o) {
     P([H2(-20, 22), H2(-24, -4), H2(-12, -26), H2(12, -26), H2(22, -6), H2(18, 22)], C[1]);
     P([H2(-12, 20), H2(-12, -2), H2(15, -4), H2(15, 20)], C[2]);
     L(...H2(-24, -4), ...H2(22, -6), C[3]);
-    if (o.kind === "sasuke") {
+    if (o.kind === "kakashi") {
+      // a masked face like his own: the cloth up over the nose, a forehead plate with a scratched line, two swept fins
+      P([H2(-12, 6), H2(16, 4), H2(16, 20), H2(-12, 20)], C[1]);
+      L(...H2(-12, 6), ...H2(16, 4), C[4]);
+      L(...H2(14, 6), ...H2(18, 12), C[3]);
+      P([H2(-16, -16), H2(18, -18), H2(18, -8), H2(-16, -6)], C[3]);
+      L(...H2(-14, -12), ...H2(16, -14), C[5]);
+      L(...H2(-4, -16), ...H2(6, -9), C[0]);
+      for (const [sx, sd] of [[-22, -1], [20, 1]]) P([H2(sx, -6), H2(sx + sd * 22, -30 + Math.sin(t * 3) * 1.5), H2(sx, 2)], C[2]);
+    } else if (o.kind === "sasuke") {
       // crow beak, two spikes over each eye, the slit mouth, three gaps on the cheek, one on the chin
       P([H2(12, -3), H2(48, 12), H2(30, 10), H2(13, 9)], C[3]);
       L(...H2(12, -3), ...H2(48, 12), C[5]);

@@ -9,6 +9,7 @@ import * as jutsu_clash_water_fire from "./jutsu/clash-water-fire.js";
 import * as jutsu_darui_laser_circus from "./jutsu/darui-laser-circus.js";
 import * as jutsu_deidara_c1 from "./jutsu/deidara-c1.js";
 import * as jutsu_deidara_c2_dragon from "./jutsu/deidara-c2-dragon.js";
+import * as jutsu_deidara_c4 from "./jutsu/deidara-c4.js";
 import * as jutsu_earth_doryuudan from "./jutsu/earth-doryuudan.js";
 import * as jutsu_earth_rock_spears from "./jutsu/earth-rock-spears.js";
 import * as jutsu_earth_swamp from "./jutsu/earth-swamp.js";
@@ -20,35 +21,49 @@ import * as jutsu_fire_phoenix_flower from "./jutsu/fire-phoenix-flower.js";
 import * as jutsu_gaara_sabaku_sousou from "./jutsu/gaara-sabaku-sousou.js";
 import * as jutsu_gaara_sabaku_taisou from "./jutsu/gaara-sabaku-taisou.js";
 import * as jutsu_gaara_suna_no_tate from "./jutsu/gaara-suna-no-tate.js";
+import * as jutsu_gaara_ult_shukaku from "./jutsu/gaara-ult-shukaku.js";
 import * as jutsu_guy_asa_kujaku from "./jutsu/guy-asa-kujaku.js";
 import * as jutsu_guy_hirudora from "./jutsu/guy-hirudora.js";
 import * as jutsu_guy_sekizou from "./jutsu/guy-sekizou.js";
 import * as jutsu_guy_yagai from "./jutsu/guy-yagai.js";
 import * as jutsu_haku_makyou_hyoushou from "./jutsu/haku-makyou-hyoushou.js";
+import * as jutsu_haku_sensatsu_suishou from "./jutsu/haku-sensatsu-suishou.js";
 import * as jutsu_hashirama_jukai_kotan from "./jutsu/hashirama-jukai-kotan.js";
 import * as jutsu_hashirama_shinsuusenju from "./jutsu/hashirama-shinsuusenju.js";
+import * as jutsu_hashirama_ult_mokujin from "./jutsu/hashirama-ult-mokujin.js";
 import * as jutsu_hidan_jashin from "./jutsu/hidan-jashin.js";
+import * as jutsu_hinata_shugo_hakke from "./jutsu/hinata-shugo-hakke.js";
 import * as jutsu_hinata_twin_lions from "./jutsu/hinata-twin-lions.js";
+import * as jutsu_hiruzen_enma from "./jutsu/hiruzen-enma.js";
 import * as jutsu_hiruzen_shiki_fuujin from "./jutsu/hiruzen-shiki-fuujin.js";
+import * as jutsu_ino_shinranshin from "./jutsu/ino-shinranshin.js";
 import * as jutsu_ino_shintenshin from "./jutsu/ino-shintenshin.js";
 import * as jutsu_itachi_amaterasu from "./jutsu/itachi-amaterasu.js";
 import * as jutsu_itachi_crow_clone from "./jutsu/itachi-crow-clone.js";
 import * as jutsu_itachi_totsuka from "./jutsu/itachi-totsuka.js";
 import * as jutsu_itachi_tsukuyomi from "./jutsu/itachi-tsukuyomi.js";
+import * as jutsu_itachi_ult_izanami from "./jutsu/itachi-ult-izanami.js";
 import * as jutsu_itachi_yasaka_magatama from "./jutsu/itachi-yasaka-magatama.js";
 import * as jutsu_jiraiya_goemon from "./jutsu/jiraiya-goemon.js";
 import * as jutsu_jiraiya_kebari_senbon from "./jutsu/jiraiya-kebari-senbon.js";
 import * as jutsu_jiraiya_kuchiyose from "./jutsu/jiraiya-kuchiyose.js";
+import * as jutsu_jiraiya_ult_gamarinshou from "./jutsu/jiraiya-ult-gamarinshou.js";
 import * as jutsu_kaguya_ash_bones from "./jutsu/kaguya-ash-bones.js";
+import * as jutsu_kaguya_ult_kyuudou from "./jutsu/kaguya-ult-kyuudou.js";
+import * as jutsu_kaguya_yomotsu from "./jutsu/kaguya-yomotsu.js";
 import * as jutsu_kakashi_kamui from "./jutsu/kakashi-kamui.js";
 import * as jutsu_kakashi_kamui_raikiri from "./jutsu/kakashi-kamui-raikiri.js";
+import * as jutsu_kakashi_raijuu_tsuiga from "./jutsu/kakashi-raijuu-tsuiga.js";
 import * as jutsu_kakashi_raikiri from "./jutsu/kakashi-raikiri.js";
+import * as jutsu_kakashi_ult_kamui_shuriken from "./jutsu/kakashi-ult-kamui-shuriken.js";
 import * as jutsu_kakuzu_zukokku from "./jutsu/kakuzu-zukokku.js";
 import * as jutsu_kankuro_kuroari from "./jutsu/kankuro-kuroari.js";
 import * as jutsu_kiba_garouga from "./jutsu/kiba-garouga.js";
 import * as jutsu_kiba_gatsuuga from "./jutsu/kiba-gatsuuga.js";
+import * as jutsu_killerbee_lariat from "./jutsu/killerbee-lariat.js";
 import * as jutsu_killerbee_nanatou from "./jutsu/killerbee-nanatou.js";
 import * as jutsu_kimimaro_sawarabi from "./jutsu/kimimaro-sawarabi.js";
+import * as jutsu_kimimaro_tessenka from "./jutsu/kimimaro-tessenka.js";
 import * as jutsu_kisame_daikoudan from "./jutsu/kisame-daikoudan.js";
 import * as jutsu_kisame_shark_dance from "./jutsu/kisame-shark-dance.js";
 import * as jutsu_konan_kami_no_shisha from "./jutsu/konan-kami-no-shisha.js";
@@ -65,10 +80,13 @@ import * as jutsu_madara_gouka_mekkyaku from "./jutsu/madara-gouka-mekkyaku.js";
 import * as jutsu_madara_limbo from "./jutsu/madara-limbo.js";
 import * as jutsu_madara_susanoo_slash from "./jutsu/madara-susanoo-slash.js";
 import * as jutsu_madara_tengai_shinsei from "./jutsu/madara-tengai-shinsei.js";
+import * as jutsu_madara_ult_mugen_tsukuyomi from "./jutsu/madara-ult-mugen-tsukuyomi.js";
 import * as jutsu_madara_wood_dragon from "./jutsu/madara-wood-dragon.js";
+import * as jutsu_mei_futton from "./jutsu/mei-futton.js";
 import * as jutsu_mei_yoton from "./jutsu/mei-yoton.js";
 import * as jutsu_minato_hiraishin from "./jutsu/minato-hiraishin.js";
 import * as jutsu_minato_hiraishin_rasengan from "./jutsu/minato-hiraishin-rasengan.js";
+import * as jutsu_minato_ult_kcm_hiraishin from "./jutsu/minato-ult-kcm-hiraishin.js";
 import * as jutsu_nagato_gedo_mazo from "./jutsu/nagato-gedo-mazo.js";
 import * as jutsu_naruto_baryon_mode from "./jutsu/naruto-baryon-mode.js";
 import * as jutsu_naruto_bijuudama from "./jutsu/naruto-bijuudama.js";
@@ -78,6 +96,7 @@ import * as jutsu_naruto_oodama_rasengan from "./jutsu/naruto-oodama-rasengan.js
 import * as jutsu_naruto_planetary_rasengan from "./jutsu/naruto-planetary-rasengan.js";
 import * as jutsu_naruto_rasengan from "./jutsu/naruto-rasengan.js";
 import * as jutsu_naruto_rasenshuriken from "./jutsu/naruto-rasenshuriken.js";
+import * as jutsu_naruto_ult_bijuu_rasenshuriken from "./jutsu/naruto-ult-bijuu-rasenshuriken.js";
 import * as jutsu_naruto_uzumaki_rendan from "./jutsu/naruto-uzumaki-rendan.js";
 import * as jutsu_neji_64_palms from "./jutsu/neji-64-palms.js";
 import * as jutsu_neji_kaiten from "./jutsu/neji-kaiten.js";
@@ -85,18 +104,24 @@ import * as jutsu_neji_kuushou from "./jutsu/neji-kuushou.js";
 import * as jutsu_obito_gudodama from "./jutsu/obito-gudodama.js";
 import * as jutsu_obito_kamui from "./jutsu/obito-kamui.js";
 import * as jutsu_obito_kamui_surinuke from "./jutsu/obito-kamui-surinuke.js";
+import * as jutsu_obito_ult_kamui_dimension from "./jutsu/obito-ult-kamui-dimension.js";
 import * as jutsu_onoki_jinton from "./jutsu/onoki-jinton.js";
+import * as jutsu_onoki_kajuugan from "./jutsu/onoki-kajuugan.js";
 import * as jutsu_orochimaru_kusanagi from "./jutsu/orochimaru-kusanagi.js";
 import * as jutsu_orochimaru_senei_jashu from "./jutsu/orochimaru-senei-jashu.js";
+import * as jutsu_orochimaru_ult_manda from "./jutsu/orochimaru-ult-manda.js";
 import * as jutsu_orochimaru_yamata from "./jutsu/orochimaru-yamata.js";
 import * as jutsu_pain_asura_path from "./jutsu/pain-asura-path.js";
 import * as jutsu_pain_banshou_tenin from "./jutsu/pain-banshou-tenin.js";
 import * as jutsu_pain_chibaku_tensei from "./jutsu/pain-chibaku-tensei.js";
 import * as jutsu_pain_shinra_tensei from "./jutsu/pain-shinra-tensei.js";
+import * as jutsu_pain_ult_shinra_tensei_full from "./jutsu/pain-ult-shinra-tensei-full.js";
+import * as jutsu_raikage_guillotine from "./jutsu/raikage-guillotine.js";
 import * as jutsu_raikage_liger_bomb from "./jutsu/raikage-liger-bomb.js";
 import * as jutsu_sai_chouju_giga from "./jutsu/sai-chouju-giga.js";
 import * as jutsu_sakura_cherry_impact from "./jutsu/sakura-cherry-impact.js";
 import * as jutsu_sakura_ouka_shouraiken from "./jutsu/sakura-ouka-shouraiken.js";
+import * as jutsu_sasori_hyakki from "./jutsu/sasori-hyakki.js";
 import * as jutsu_sasori_satetsu from "./jutsu/sasori-satetsu.js";
 import * as jutsu_sasuke_amenotejikara from "./jutsu/sasuke-amenotejikara.js";
 import * as jutsu_sasuke_chidori_eisou from "./jutsu/sasuke-chidori-eisou.js";
@@ -105,9 +130,12 @@ import * as jutsu_sasuke_indra_arrow from "./jutsu/sasuke-indra-arrow.js";
 import * as jutsu_sasuke_kagutsuchi from "./jutsu/sasuke-kagutsuchi.js";
 import * as jutsu_sasuke_kirin from "./jutsu/sasuke-kirin.js";
 import * as jutsu_sasuke_susanoo_arrow from "./jutsu/sasuke-susanoo-arrow.js";
+import * as jutsu_sasuke_ult_kagutsuchi_blade from "./jutsu/sasuke-ult-kagutsuchi-blade.js";
 import * as jutsu_shikamaru_kagemane from "./jutsu/shikamaru-kagemane.js";
 import * as jutsu_shikamaru_kubi_shibari from "./jutsu/shikamaru-kubi-shibari.js";
 import * as jutsu_shino_kikaichuu from "./jutsu/shino-kikaichuu.js";
+import * as jutsu_shino_mushidama from "./jutsu/shino-mushidama.js";
+import * as jutsu_shisui_kotoamatsukami from "./jutsu/shisui-kotoamatsukami.js";
 import * as jutsu_shisui_shunshin from "./jutsu/shisui-shunshin.js";
 import * as jutsu_taijutsu_aerial_combo from "./jutsu/taijutsu-aerial-combo.js";
 import * as jutsu_taijutsu_counter from "./jutsu/taijutsu-counter.js";
@@ -119,9 +147,13 @@ import * as jutsu_taijutsu_shoulder_throw from "./jutsu/taijutsu-shoulder-throw.
 import * as jutsu_taijutsu_sweep_drop from "./jutsu/taijutsu-sweep-drop.js";
 import * as jutsu_temari_kamaitachi from "./jutsu/temari-kamaitachi.js";
 import * as jutsu_temari_kamatari from "./jutsu/temari-kamatari.js";
+import * as jutsu_tenten_bashosen from "./jutsu/tenten-bashosen.js";
 import * as jutsu_tenten_soushouryuu from "./jutsu/tenten-soushouryuu.js";
 import * as jutsu_tobirama_hiraishin_giri from "./jutsu/tobirama-hiraishin-giri.js";
+import * as jutsu_tobirama_suiryuudan from "./jutsu/tobirama-suiryuudan.js";
+import * as jutsu_tsunade_ranshinshou from "./jutsu/tsunade-ranshinshou.js";
 import * as jutsu_tsunade_tsuutenkyaku from "./jutsu/tsunade-tsuutenkyaku.js";
+import * as jutsu_tsunade_ult_katsuyu_byakugou from "./jutsu/tsunade-ult-katsuyu-byakugou.js";
 import * as jutsu_water_bakusui_shouha from "./jutsu/water-bakusui-shouha.js";
 import * as jutsu_water_dragon from "./jutsu/water-dragon.js";
 import * as jutsu_water_hidden_mist from "./jutsu/water-hidden-mist.js";
@@ -130,8 +162,10 @@ import * as jutsu_wind_great_breakthrough from "./jutsu/wind-great-breakthrough.
 import * as jutsu_wind_tatsumaki from "./jutsu/wind-tatsumaki.js";
 import * as jutsu_wind_vacuum_blades from "./jutsu/wind-vacuum-blades.js";
 import * as jutsu_wind_vacuum_bullets from "./jutsu/wind-vacuum-bullets.js";
+import * as jutsu_yamato_daijurin from "./jutsu/yamato-daijurin.js";
 import * as jutsu_yamato_shichuukaku from "./jutsu/yamato-shichuukaku.js";
 import * as jutsu_zabuza_silent_kill from "./jutsu/zabuza-silent-kill.js";
+import * as jutsu_zabuza_suirou from "./jutsu/zabuza-suirou.js";
 import * as moves_arrow_shot from "./moves/arrow-shot.js";
 import * as moves_dash_strike from "./moves/dash-strike.js";
 import * as moves_earth_stomp from "./moves/earth-stomp.js";
@@ -389,6 +423,7 @@ export const effects = {
   "jutsu/darui-laser-circus": jutsu_darui_laser_circus,
   "jutsu/deidara-c1": jutsu_deidara_c1,
   "jutsu/deidara-c2-dragon": jutsu_deidara_c2_dragon,
+  "jutsu/deidara-c4": jutsu_deidara_c4,
   "jutsu/earth-doryuudan": jutsu_earth_doryuudan,
   "jutsu/earth-rock-spears": jutsu_earth_rock_spears,
   "jutsu/earth-swamp": jutsu_earth_swamp,
@@ -400,35 +435,49 @@ export const effects = {
   "jutsu/gaara-sabaku-sousou": jutsu_gaara_sabaku_sousou,
   "jutsu/gaara-sabaku-taisou": jutsu_gaara_sabaku_taisou,
   "jutsu/gaara-suna-no-tate": jutsu_gaara_suna_no_tate,
+  "jutsu/gaara-ult-shukaku": jutsu_gaara_ult_shukaku,
   "jutsu/guy-asa-kujaku": jutsu_guy_asa_kujaku,
   "jutsu/guy-hirudora": jutsu_guy_hirudora,
   "jutsu/guy-sekizou": jutsu_guy_sekizou,
   "jutsu/guy-yagai": jutsu_guy_yagai,
   "jutsu/haku-makyou-hyoushou": jutsu_haku_makyou_hyoushou,
+  "jutsu/haku-sensatsu-suishou": jutsu_haku_sensatsu_suishou,
   "jutsu/hashirama-jukai-kotan": jutsu_hashirama_jukai_kotan,
   "jutsu/hashirama-shinsuusenju": jutsu_hashirama_shinsuusenju,
+  "jutsu/hashirama-ult-mokujin": jutsu_hashirama_ult_mokujin,
   "jutsu/hidan-jashin": jutsu_hidan_jashin,
+  "jutsu/hinata-shugo-hakke": jutsu_hinata_shugo_hakke,
   "jutsu/hinata-twin-lions": jutsu_hinata_twin_lions,
+  "jutsu/hiruzen-enma": jutsu_hiruzen_enma,
   "jutsu/hiruzen-shiki-fuujin": jutsu_hiruzen_shiki_fuujin,
+  "jutsu/ino-shinranshin": jutsu_ino_shinranshin,
   "jutsu/ino-shintenshin": jutsu_ino_shintenshin,
   "jutsu/itachi-amaterasu": jutsu_itachi_amaterasu,
   "jutsu/itachi-crow-clone": jutsu_itachi_crow_clone,
   "jutsu/itachi-totsuka": jutsu_itachi_totsuka,
   "jutsu/itachi-tsukuyomi": jutsu_itachi_tsukuyomi,
+  "jutsu/itachi-ult-izanami": jutsu_itachi_ult_izanami,
   "jutsu/itachi-yasaka-magatama": jutsu_itachi_yasaka_magatama,
   "jutsu/jiraiya-goemon": jutsu_jiraiya_goemon,
   "jutsu/jiraiya-kebari-senbon": jutsu_jiraiya_kebari_senbon,
   "jutsu/jiraiya-kuchiyose": jutsu_jiraiya_kuchiyose,
+  "jutsu/jiraiya-ult-gamarinshou": jutsu_jiraiya_ult_gamarinshou,
   "jutsu/kaguya-ash-bones": jutsu_kaguya_ash_bones,
+  "jutsu/kaguya-ult-kyuudou": jutsu_kaguya_ult_kyuudou,
+  "jutsu/kaguya-yomotsu": jutsu_kaguya_yomotsu,
   "jutsu/kakashi-kamui": jutsu_kakashi_kamui,
   "jutsu/kakashi-kamui-raikiri": jutsu_kakashi_kamui_raikiri,
+  "jutsu/kakashi-raijuu-tsuiga": jutsu_kakashi_raijuu_tsuiga,
   "jutsu/kakashi-raikiri": jutsu_kakashi_raikiri,
+  "jutsu/kakashi-ult-kamui-shuriken": jutsu_kakashi_ult_kamui_shuriken,
   "jutsu/kakuzu-zukokku": jutsu_kakuzu_zukokku,
   "jutsu/kankuro-kuroari": jutsu_kankuro_kuroari,
   "jutsu/kiba-garouga": jutsu_kiba_garouga,
   "jutsu/kiba-gatsuuga": jutsu_kiba_gatsuuga,
+  "jutsu/killerbee-lariat": jutsu_killerbee_lariat,
   "jutsu/killerbee-nanatou": jutsu_killerbee_nanatou,
   "jutsu/kimimaro-sawarabi": jutsu_kimimaro_sawarabi,
+  "jutsu/kimimaro-tessenka": jutsu_kimimaro_tessenka,
   "jutsu/kisame-daikoudan": jutsu_kisame_daikoudan,
   "jutsu/kisame-shark-dance": jutsu_kisame_shark_dance,
   "jutsu/konan-kami-no-shisha": jutsu_konan_kami_no_shisha,
@@ -445,10 +494,13 @@ export const effects = {
   "jutsu/madara-limbo": jutsu_madara_limbo,
   "jutsu/madara-susanoo-slash": jutsu_madara_susanoo_slash,
   "jutsu/madara-tengai-shinsei": jutsu_madara_tengai_shinsei,
+  "jutsu/madara-ult-mugen-tsukuyomi": jutsu_madara_ult_mugen_tsukuyomi,
   "jutsu/madara-wood-dragon": jutsu_madara_wood_dragon,
+  "jutsu/mei-futton": jutsu_mei_futton,
   "jutsu/mei-yoton": jutsu_mei_yoton,
   "jutsu/minato-hiraishin": jutsu_minato_hiraishin,
   "jutsu/minato-hiraishin-rasengan": jutsu_minato_hiraishin_rasengan,
+  "jutsu/minato-ult-kcm-hiraishin": jutsu_minato_ult_kcm_hiraishin,
   "jutsu/nagato-gedo-mazo": jutsu_nagato_gedo_mazo,
   "jutsu/naruto-baryon-mode": jutsu_naruto_baryon_mode,
   "jutsu/naruto-bijuudama": jutsu_naruto_bijuudama,
@@ -458,6 +510,7 @@ export const effects = {
   "jutsu/naruto-planetary-rasengan": jutsu_naruto_planetary_rasengan,
   "jutsu/naruto-rasengan": jutsu_naruto_rasengan,
   "jutsu/naruto-rasenshuriken": jutsu_naruto_rasenshuriken,
+  "jutsu/naruto-ult-bijuu-rasenshuriken": jutsu_naruto_ult_bijuu_rasenshuriken,
   "jutsu/naruto-uzumaki-rendan": jutsu_naruto_uzumaki_rendan,
   "jutsu/neji-64-palms": jutsu_neji_64_palms,
   "jutsu/neji-kaiten": jutsu_neji_kaiten,
@@ -465,18 +518,24 @@ export const effects = {
   "jutsu/obito-gudodama": jutsu_obito_gudodama,
   "jutsu/obito-kamui": jutsu_obito_kamui,
   "jutsu/obito-kamui-surinuke": jutsu_obito_kamui_surinuke,
+  "jutsu/obito-ult-kamui-dimension": jutsu_obito_ult_kamui_dimension,
   "jutsu/onoki-jinton": jutsu_onoki_jinton,
+  "jutsu/onoki-kajuugan": jutsu_onoki_kajuugan,
   "jutsu/orochimaru-kusanagi": jutsu_orochimaru_kusanagi,
   "jutsu/orochimaru-senei-jashu": jutsu_orochimaru_senei_jashu,
+  "jutsu/orochimaru-ult-manda": jutsu_orochimaru_ult_manda,
   "jutsu/orochimaru-yamata": jutsu_orochimaru_yamata,
   "jutsu/pain-asura-path": jutsu_pain_asura_path,
   "jutsu/pain-banshou-tenin": jutsu_pain_banshou_tenin,
   "jutsu/pain-chibaku-tensei": jutsu_pain_chibaku_tensei,
   "jutsu/pain-shinra-tensei": jutsu_pain_shinra_tensei,
+  "jutsu/pain-ult-shinra-tensei-full": jutsu_pain_ult_shinra_tensei_full,
+  "jutsu/raikage-guillotine": jutsu_raikage_guillotine,
   "jutsu/raikage-liger-bomb": jutsu_raikage_liger_bomb,
   "jutsu/sai-chouju-giga": jutsu_sai_chouju_giga,
   "jutsu/sakura-cherry-impact": jutsu_sakura_cherry_impact,
   "jutsu/sakura-ouka-shouraiken": jutsu_sakura_ouka_shouraiken,
+  "jutsu/sasori-hyakki": jutsu_sasori_hyakki,
   "jutsu/sasori-satetsu": jutsu_sasori_satetsu,
   "jutsu/sasuke-amenotejikara": jutsu_sasuke_amenotejikara,
   "jutsu/sasuke-chidori-eisou": jutsu_sasuke_chidori_eisou,
@@ -485,9 +544,12 @@ export const effects = {
   "jutsu/sasuke-kagutsuchi": jutsu_sasuke_kagutsuchi,
   "jutsu/sasuke-kirin": jutsu_sasuke_kirin,
   "jutsu/sasuke-susanoo-arrow": jutsu_sasuke_susanoo_arrow,
+  "jutsu/sasuke-ult-kagutsuchi-blade": jutsu_sasuke_ult_kagutsuchi_blade,
   "jutsu/shikamaru-kagemane": jutsu_shikamaru_kagemane,
   "jutsu/shikamaru-kubi-shibari": jutsu_shikamaru_kubi_shibari,
   "jutsu/shino-kikaichuu": jutsu_shino_kikaichuu,
+  "jutsu/shino-mushidama": jutsu_shino_mushidama,
+  "jutsu/shisui-kotoamatsukami": jutsu_shisui_kotoamatsukami,
   "jutsu/shisui-shunshin": jutsu_shisui_shunshin,
   "jutsu/taijutsu-aerial-combo": jutsu_taijutsu_aerial_combo,
   "jutsu/taijutsu-counter": jutsu_taijutsu_counter,
@@ -499,9 +561,13 @@ export const effects = {
   "jutsu/taijutsu-sweep-drop": jutsu_taijutsu_sweep_drop,
   "jutsu/temari-kamaitachi": jutsu_temari_kamaitachi,
   "jutsu/temari-kamatari": jutsu_temari_kamatari,
+  "jutsu/tenten-bashosen": jutsu_tenten_bashosen,
   "jutsu/tenten-soushouryuu": jutsu_tenten_soushouryuu,
   "jutsu/tobirama-hiraishin-giri": jutsu_tobirama_hiraishin_giri,
+  "jutsu/tobirama-suiryuudan": jutsu_tobirama_suiryuudan,
+  "jutsu/tsunade-ranshinshou": jutsu_tsunade_ranshinshou,
   "jutsu/tsunade-tsuutenkyaku": jutsu_tsunade_tsuutenkyaku,
+  "jutsu/tsunade-ult-katsuyu-byakugou": jutsu_tsunade_ult_katsuyu_byakugou,
   "jutsu/water-bakusui-shouha": jutsu_water_bakusui_shouha,
   "jutsu/water-dragon": jutsu_water_dragon,
   "jutsu/water-hidden-mist": jutsu_water_hidden_mist,
@@ -510,8 +576,10 @@ export const effects = {
   "jutsu/wind-tatsumaki": jutsu_wind_tatsumaki,
   "jutsu/wind-vacuum-blades": jutsu_wind_vacuum_blades,
   "jutsu/wind-vacuum-bullets": jutsu_wind_vacuum_bullets,
+  "jutsu/yamato-daijurin": jutsu_yamato_daijurin,
   "jutsu/yamato-shichuukaku": jutsu_yamato_shichuukaku,
   "jutsu/zabuza-silent-kill": jutsu_zabuza_silent_kill,
+  "jutsu/zabuza-suirou": jutsu_zabuza_suirou,
   "moves/arrow-shot": moves_arrow_shot,
   "moves/dash-strike": moves_dash_strike,
   "moves/earth-stomp": moves_earth_stomp,

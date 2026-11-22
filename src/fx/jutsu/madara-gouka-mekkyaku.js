@@ -178,7 +178,6 @@ export const create = play([{ fx: boom, t: BOOM, x: BLAST[0], y: 0, light: 0.8 }
       ps.draw(p, "front");
       lights.draw(p);
       // impact frames as it all goes off
-      if (t >= BOOM && t < BOOM + 0.14) impactFrame(p, -meta.origin[0], -meta.origin[1], meta.size[0] - meta.origin[0], meta.size[1] - meta.origin[1], BLAST[0], BLAST[1] + 20, t >= BOOM + 0.07, 9, { style: "flames", ink: hex("#1a0602"), paper: hex("#fff0b0"), lines: 46 });
     },
   };
 });

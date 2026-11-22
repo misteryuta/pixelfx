@@ -103,7 +103,6 @@ export const create = play([], () => ({
       for (let i = 0; i < 10; i++) { const tt = t - i * 0.015, s = B(tt), a = turnOf(tt); pts.push([s.x + Math.sin(a) * 22, s.y - 18 - Math.cos(a) * 22 + 0]); }
       for (let i = 1; i < pts.length; i++) p.beam(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], 4 * (1 - i / 10), i < 3 ? WHITE : hex("#ffe8a0"), 1 - i / 10);
     }
-    if (t >= SLAM && t < SLAM + 0.04) impactFrame(p, -50, -160, 220, 30, BX - 74, -4, false, 51, { style: "burst", ink: hex("#140a06"), paper: hex("#fff0c0") });
     if (t > KNEE) hitSpark(p, ...bodyAt(act.poses, KNEE).footN, t - KNEE, {});
     if (t > FIST - 0.08 && t < FIST + 0.03) smear(p, at("handN"), t, { w: 6, n: 8 });
     if (t > FIST) hitSpark(p, ...bodyAt(act.poses, FIST).handN, t - FIST, { big: true });

@@ -115,8 +115,6 @@ export const create = play([{ fx: slam, t: HIT, x: TX, reach: 140, palette: ["#2
         p.px(fx, fy, WHITE);
         p.glow(fx, fy, 10, WHITE, 0.6);
       }
-      if (t >= HIT && t < HIT + 0.05) impactFrame(p, -56, -228, 244, 32, TX, -6, false, 9, { style: "shards", ink: hex("#100818"), paper: hex("#f2e4ff") });
-      else if (t >= HIT + 0.05 && t < HIT + 0.1) impactFrame(p, -56, -228, 244, 32, TX, -6, true, 10, { style: "shards", ink: hex("#100818"), paper: hex("#f2e4ff") });
       for (const r of rocks) drawChunk(p, r.x, r.y, r.s, r.a, ROCK, 1 - smooth(1.2, 1.8, r.age));
       ps.draw(p, "front");
       lights.draw(p);

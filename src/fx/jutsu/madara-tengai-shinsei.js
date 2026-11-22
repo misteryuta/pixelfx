@@ -112,7 +112,6 @@ export const create = play(
             return v > 0.6 ? ROCK[4] : v > 0.35 ? ROCK[3] : v > 0.1 ? ROCK[2] : v > -0.2 ? ROCK[1] : ROCK[0];
           });
         }
-        if (t >= IMPACT && t < IMPACT + 0.14) impactFrame(p, -OX, -OY, W - OX - 1, H - OY - 1, TX, -20, t >= IMPACT + 0.07, 17, { style: "shards", ink: hex("#140804"), paper: hex("#ffe6c8"), dir: Math.atan2(14, -16) });
         ps.draw(p, "front");
         lights.draw(p);
       },

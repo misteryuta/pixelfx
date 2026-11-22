@@ -99,8 +99,6 @@ export const create = play([], (o) => {
       void rand; void noise2;
       ps.draw(p, "front");
       lights.draw(p);
-      if (t >= H4 && t < H4 + 0.05) impactFrame(p, -56, -168, 234, 32, TX - 10, -28, false, 163, { style: "burst", ink: hex("#04201c"), paper: hex("#e0fff8"), lines: 18 });
-      else if (t >= H4 + 0.05 && t < H4 + 0.1) impactFrame(p, -56, -168, 234, 32, TX - 10, -28, true, 164, { style: "burst", ink: hex("#04201c"), paper: hex("#e0fff8"), lines: 18 });
     },
   };
 });

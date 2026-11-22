@@ -114,7 +114,6 @@ export const create = play([], (o) => {
       ps.draw(p, "front");
       lights.draw(p);
       // the impact frame: one held instant of black-and-white shards on the punch
-      if (t > PUNCH && t < PUNCH + 0.09) impactFrame(p, -56, -168, 214, 32, TX - 4, -24, Math.floor((t - PUNCH) / 0.045) % 2 === 1, 160, { style: "spiral", ink: hex("#1a0820"), paper: hex("#ffe4f2"), lines: 40 });
     },
   };
 });

@@ -139,8 +139,6 @@ export const create = play([{ fx: slam, t: SLAM, x: GX + 12, reach: 120, palette
         p.glow(GX + 12, -30, 70, LT[3], 0.8 * k);
         for (let i = 0; i < 5; i++) bolt(p, GX + 12 + (rand(f, i) - 0.5) * 30, 0, GX + 12 + (rand(f, i + 9) - 0.5) * 40, -120 - rand(f, i + 3) * 60, f + i, LT, { jag: 0.22, seed: i, glow: 0.4 * k });
       }
-      if (t >= SLAM && t < SLAM + 0.05) impactFrame(p, -56, -188, 244, 32, GX + 12, -10, false, 5, { style: "bolts", ink: hex("#04081a"), paper: hex("#e8f8ff") });
-      else if (t >= SLAM + 0.05 && t < SLAM + 0.1) impactFrame(p, -56, -188, 244, 32, GX + 12, -10, true, 6, { style: "bolts", ink: hex("#04081a"), paper: hex("#e8f8ff") });
       for (const r of rocks) drawChunk(p, r.x, r.y, r.s, r.a, ROCK, 1 - smooth(1.0, 1.6, r.age));
       ps.draw(p, "front");
       lights.draw(p);
