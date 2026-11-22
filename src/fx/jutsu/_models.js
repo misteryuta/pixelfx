@@ -29,6 +29,15 @@ export const RIGS = {
     { name: "head", poly: [[70, 70], [112, 68], [118, 96], [114, 126], [96, 130], [74, 126], [68, 100]], pivot: [93, 128], len: 50 },
     { name: "jaw", parent: "head", poly: [[78, 105], [106, 105], [108, 124], [78, 124]], pivot: [92, 106], fill: "#120c10", len: 16 },
   ] },
+
+  // Kurama from the front (for close shots): its jaw under the muzzle
+  "kurama/front": { parts: [
+    { name: "jaw", poly: [[47, 120], [63, 120], [63, 127], [47, 127]], pivot: [55, 120], fill: "#2a0604", len: 8 },
+  ] },
+  // Kurama from behind: the nine tails fanned over its back
+  "kurama/back": { parts: [
+    { name: "tails", poly: [[0, 0], [119, 0], [119, 104], [0, 104]], pivot: [60, 104], fill: null, len: 100 },
+  ] },
   // Itachi's Susanoo, side view facing right: the Yata Mirror on the far arm (left), the hooded head, the near arm's
   // hand low at the front, the Totsuka blade standing up out of it
   "susanooItachi/right": { parts: [
@@ -136,18 +145,21 @@ const moving = (q, pose) => { for (let a = q; a; a = a.par) if (!still(pose[a.na
 // the frame of a placed model: screen <-> the view's own pixels
 function frame(d, x, y, o) {
   const s = o.scale ?? 1, sy = s * (o.sy ?? 1), flip = o.flip ? -1 : 1, rot = o.rot ?? 0, c = Math.cos(rot), n = Math.sin(rot);
+  // persp: seen from below, the model narrows toward its top (its width at the top is 1 - persp of that at the feet)
+  const ps = o.persp ?? 0, HH = d.h * sy, kAt = (hgt) => 1 - ps * clamp(hgt / HH);
   return {
     s, sy, flip, c, n,
     // screen -> model; also the local height above the feet (for the materialising wipe)
-    toModel(px, py) { const dx = px - x, dy = py - y, lx = (dx * c + dy * n) * flip, ly = -dx * n + dy * c; return [lx / s + d.w / 2, ly / sy + d.h, -ly]; },
-    toScreen(u, v) { const lx = (u - d.w / 2) * s * flip, ly = (v - d.h) * sy; return [x + lx * c - ly * n, y + lx * n + ly * c]; },
+    toModel(px, py) { const dx = px - x, dy = py - y, lx = (dx * c + dy * n) * flip, ly = -dx * n + dy * c; return [lx / (s * kAt(-ly)) + d.w / 2, ly / sy + d.h, -ly]; },
+    toScreen(u, v) { const ly = (v - d.h) * sy, lx = (u - d.w / 2) * s * flip * kAt(-ly); return [x + lx * c - ly * n, y + lx * n + ly * c]; },
   };
 }
 
 /**
  * Draw a model view with its feet (bottom centre) at (x, y). o: { scale = 1, sy = 1 (squash), flip = false, rot = 0
  * (radians, about the feet), alpha = 1, tint, tintK, form = 1 (0..1: how much has materialised, from the bottom up, the
- * top edge shimmering), glow: colour of a soft outline glow, clipFloor: true to drop everything below y = 0, pose }.
+ * top edge shimmering), glow: colour of a soft outline glow, clipFloor: true to drop everything below y = 0, pose,
+ * persp (0..1: seen from below, narrowing toward the top) }.
  */
 export function drawModel(p, name, view, x, y, o = {}) {
   const d = modelPixels(name, view), a = o.alpha ?? 1, form = o.form ?? 1, s = o.scale ?? 1;

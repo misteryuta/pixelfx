@@ -424,3 +424,6 @@ export function drawGlint(p, t, kind, from, until, head) {
   p.px(hx + 2, hy - 0.5, flick ? WHITE : c);
   p.glow(hx + 2, hy - 0.5, flick ? 9 : 5, c, (flick ? 0.9 : 0.5) * k);
 }
+
+/** An eye kind's iris: fn(u, v, r, a, rot) -> colour, with (u, v) in the iris (-1..1); null for marks. */
+export const irisOf = (kind) => (EYES[kind] ? EYES[kind][0] : null);

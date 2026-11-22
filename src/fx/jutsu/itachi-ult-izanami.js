@@ -13,6 +13,8 @@ import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise
 import { play, bodyAt, impactFrame, drawFigure } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, frameOf } from "./_ultimate.js";
+import { drawModel } from "./_models.js";
+import { cineCam, inserts, insertKeys, backdrop, eyeShot, speedLines, cutFlash } from "./_cinema.js";
 
 // one beat of the loop: step in, strike, crows burst
 const BEAT = 0.9, L0 = 0.6, LOOPS = 3, SEAL = L0 + BEAT * LOOPS + 0.2, DRAW = SEAL + 0.3, STAB = SEAL + 0.75, GONE = STAB + 0.7, END = GONE + 0.9, TX = 170;
@@ -29,6 +31,62 @@ const loopT = (t) => {
 };
 const passOf = (t) => Math.min(LOOPS - 1, Math.floor(Math.max(0, t - L0) / BEAT));
 const rewinding = (t) => { const k = Math.floor((t - L0) / BEAT), u = (t - L0 - k * BEAT) / BEAT; return t > L0 && k < LOOPS - 1 && u > 0.8; };
+
+// ---- the cutscene: his Mangekyou opening, crows streaking past; then the same moment seen three times from three
+// angles (wide; close from across; tight and tilted), the camera rewinding with the loop; his eye going grey and
+// closing (the light Izanami costs); his Susanoo seen from below, the Totsuka sword in its hand; the stab, close; out.
+const BOX = [-56, -200, 264, 30];
+const lines = (u, v) => v > 0.95 && v < 2.0 && ((Math.abs(u + 0.15 - (v - 0.95) * 0.25) < 0.03) || (Math.abs(u + 0.45 - (v - 0.95) * 0.25) < 0.03));
+const crows = (p, t, box, k = 1) => {
+  for (let i = 0; i < 9; i++) {
+    const ph = (t * (0.9 + rand(i, 2)) + rand(i, 3)) % 1, x = box[0] - 30 + ph * (box[2] - box[0] + 60), y = box[1] + 20 + rand(i, 4) * (box[3] - box[1] - 40), s = 4 + rand(i, 5) * 6, f = Math.sin(t * 30 + i) * s * 0.6;
+    p.poly([[x - s * 1.4, y - f], [x, y], [x + s * 1.4, y - f], [x + s * 0.3, y + s * 0.3], [x - s * 0.3, y + s * 0.3]], CROW[0], k);
+  }
+};
+const INS = [
+  [0.08, 0.56, (p, u, t, box) => {
+    backdrop(p, box, t, { c0: "#1a0204", c1: "#6a0810", style: "flow", seed: 5 });
+    eyeShot(p, box, t, { kind: "itachi", cx: 104, cy: -88, R: 30 + 5 * u, open: ease.outCubic(smooth(0.1, 0.6, u)), rot: t * 2, skin: "#efd0b8", shadow: "#c4a08c", mark: lines });
+    crows(p, t, box, smooth(0.3, 0.6, u));
+  }],
+  [SEAL - 0.2, SEAL + 0.14, (p, u, t, box) => {
+    // the loop ends: the eye's light goes out, grey, and it closes
+    backdrop(p, box, t, { c0: "#100a0c", c1: "#2a1418", style: "plain" });
+    eyeShot(p, box, t, { kind: "itachi", cx: 104, cy: -88, R: 36, open: 1 - smooth(0.55, 1, u), rot: 0.4, grey: smooth(0.05, 0.5, u), skin: "#efd0b8", shadow: "#c4a08c", mark: lines });
+  }],
+  [DRAW - 0.04, STAB - 0.04, (p, u, t, box) => {
+    // his Susanoo, from below: towering, the Totsuka sword burning in its hand, the mirror on its arm
+    backdrop(p, box, t, { c0: "#1a0204", c1: "#c01a24", style: "rays", cx: 104, cy: -200 });
+    drawModel(p, "susanooItachi", "front", 110, 60, { scale: 2.0 + 0.15 * u, persp: 0.3, glow: RED[3] });
+    p.glowLine(30, -200, 60, 20, 26, hex("#ffd060"), 0.35 + 0.2 * Math.sin(t * 20));
+    speedLines(p, box, t, 104, -80, 0.4, RED[4]);
+  }],
+];
+const strikeAt = (k) => L0 + k * BEAT + 0.43;
+export const camera = cineCam([
+  [0, { z: 1.6, x: 10, y: -36 }],
+  ...insertKeys(INS),
+  // pass one, wide
+  [0.56, { z: 1.1, x: 96, y: -60, r: 0 }, "cut"],
+  [strikeAt(0), { z: 1.2, x: 120, y: -54, r: 1, shake: 0.4 }],
+  [L0 + BEAT * 0.8, { z: 1.2, x: 120, y: -54, r: 1 }],
+  // the rewind pulls back, then pass two: close, from across, tilted the other way
+  [L0 + BEAT, { z: 1.0, x: 100, y: -70, r: -2 }],
+  [L0 + BEAT + 0.01, { z: 1.9, x: TX - 24, y: -38, r: 8 }, "cut"],
+  [strikeAt(1), { z: 2.0, x: TX - 20, y: -38, r: 8, shake: 0.5 }],
+  [L0 + BEAT * 1.8, { z: 2.0, x: TX - 20, y: -38, r: 8 }],
+  [L0 + BEAT * 2, { z: 1.4, x: TX - 40, y: -50, r: 2 }],
+  // pass three: tight, tilted hard
+  [L0 + BEAT * 2 + 0.01, { z: 2.6, x: TX - 18, y: -34, r: -10 }, "cut"],
+  [strikeAt(2), { z: 2.8, x: TX - 16, y: -34, r: -11, shake: 0.7 }],
+  [SEAL - 0.21, { z: 2.4, x: TX - 20, y: -36, r: -6 }],
+  [SEAL + 0.14, { z: 1.2, x: TX - 40, y: -70, r: 0 }, "cut"],
+  [DRAW - 0.05, { z: 1.25, x: TX - 40, y: -74, r: 0 }],
+  [STAB - 0.04, { z: 1.8, x: TX - 4, y: -40, r: 5, shake: 0.9 }, "cut"],
+  [STAB + 0.4, { z: 1.6, x: TX - 10, y: -46, r: 3, shake: 0.2 }],
+  [GONE, { z: 1.1, x: 110, y: -70, r: 0 }],
+  [END, { z: 1.0, x: 104, y: -85 }],
+]);
 
 export const meta = {
   name: "Izanami",
@@ -123,6 +181,8 @@ export const create = play([], (o) => {
       ps.draw(p, "front");
       lights.draw(p);
       if (t >= STAB && t < STAB + 0.06) impactFrame(p, box[0], box[1], box[2], box[3], TX, -30, false, 178, { style: "shards", ink: hex("#1a0204"), paper: hex("#ffe4dc"), lines: 26 });
+      inserts(p, t, BOX, INS);
+      cutFlash(p, BOX, t, [0.56, L0 + BEAT + 0.01, L0 + BEAT * 2 + 0.01, STAB - 0.04], 0.04, hex("#ffe4dc"));
       void drawFigure; void noise2; void clamp;
     },
   };

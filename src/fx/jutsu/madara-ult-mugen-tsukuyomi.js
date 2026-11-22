@@ -12,6 +12,7 @@ import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise
 import { play, bodyAt, impactFrame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, frameOf } from "./_ultimate.js";
+import { cineCam, inserts, insertKeys, backdrop, eyeShot, splitShot, speedLines, cutFlash } from "./_cinema.js";
 
 const RISE = 0.4, NIGHT = 0.6, RAISE = 1.4, OPEN = 2.0, LIGHT = 2.35, ROOTS = 2.9, WRAPPED = 3.7, LIFT = 4.6, END = 5.4, TX = 200;
 const MOON = [120, -170], MR = 30;
@@ -53,6 +54,65 @@ export const act = {
     { t: LIFT, flash: 0, push: 0, straw: 0, skin: null },
   ],
 };
+// ---- the cutscene: his Rinnegan and the forehead's Rinne Sharingan opening, split by a slash; the night falling over
+// the field, wide and low; close on him as his hand goes up; the moon, filling the frame, clouding red and opening
+// into the eye, its rings turning; the pillar of light seen low; from the ground, the roots shooting up past us toward
+// the red moon; the cocoon, close; then out, wide, the moon staring on.
+const BOX = [-60, -232, 300, 28];
+// the Rinne Sharingan: red, rings, three tomoe on each of three rings, turning by rot
+const rinneIris = (u, v, r, a, rot) => {
+  if (r > 0.94) return RED[0];
+  if (r < 0.1) return RED[0];
+  for (let k = 1; k <= 3; k++) for (let i = 0; i < 3; i++) { const ang = rot * (k % 2 ? 1 : -1) + i * (TAU / 3) + k, rr = k * 0.25; if (Math.hypot(u - Math.cos(ang) * rr, v - Math.sin(ang) * rr) < 0.07) return RED[0]; }
+  if (Math.abs(Math.sin(r * 4 * Math.PI)) < 0.12) return RED[0];
+  return u < -0.25 && v < -0.25 && r > 0.4 && r < 0.6 ? RED[4] : RED[2];
+};
+const INS = [
+  [0.05, 0.42, (p, u, t, box) => {
+    const op = ease.outCubic(smooth(0.1, 0.75, u));
+    splitShot(p, box, t,
+      (pp, d) => { backdrop(pp, box, t, { c0: "#0c0a14", c1: "#3a3050", style: "flow", seed: 3 }); eyeShot(pp, box, t, { kind: "rinnegan", cx: -6 + d, cy: -96, R: 27, open: op, skin: "#ecd2bc", shadow: "#bfa090", brow: "#e8e4ee" }); },
+      (pp, d) => { backdrop(pp, box, t, { c0: "#1a0204", c1: "#6a0810", style: "flow", seed: 8 }); eyeShot(pp, box, t, { iris: rinneIris, rot: t * 2, cx: 246 + d, cy: -96, R: 30, open: op, skin: "#ecd2bc", shadow: "#bfa090", brow: "#e8e4ee", flip: true }); },
+      { slant: 0.4, u: u * 2.5, seam: "#ff8a80" });
+  }],
+  [1.9, 2.32, (p, u, t, box) => {
+    // the moon, huge: pale, clouding red, opening into the eye
+    backdrop(p, box, t, { c0: "#04020a", c1: "#1a0610", style: "plain" });
+    const mx = 120, my = -102, MR2 = 96 + 10 * u, eye = smooth(0.15, 0.75, u);
+    p.glow(mx, my, MR2 * 1.5, eye > 0.3 ? RED[3] : PALE, 0.4);
+    p.shade(mx - MR2, my - MR2, mx + MR2, my + MR2, (x, y) => {
+      const dx = (x - mx) / MR2, dy = (y - my) / MR2, d = Math.hypot(dx, dy);
+      if (d > 1) return;
+      const moon = noise2(dx * 4, dy * 4, 71) > 0.25 ? hex("#c8c4cc") : PALE, ey = rinneIris(dx, dy, d, Math.atan2(dy, dx), t * 1.2);
+      // the red spreads in from the rim like clouds
+      return noise2(dx * 3 + t, dy * 3, 72) + (1 - d) * 0.5 < eye * 1.6 - 0.2 ? ey : moon;
+    });
+  }],
+  [3.0, 3.3, (p, u, t, box) => {
+    // from the ground: the roots shoot up past us toward the red moon, high and small at the top
+    backdrop(p, box, t, { c0: "#120406", c1: "#4a0a10", style: "rays", cx: 120, cy: -200 });
+    p.circle(120, -200, 14, RED[2]); p.ring(120, -200, 14, 2, RED[0]); p.ring(120, -200, 8, 1, RED[0]);
+    for (let i = 0; i < 7; i++) {
+      const bx = -60 + i * 60 + (rand(i, 4) - 0.5) * 30, g = ease.outCubic(clamp(u * 1.6 - i * 0.06)), top = 28 - (230 + rand(i, 5) * 40) * g;
+      for (let y = 28; y > top; y -= 2) { const k = (28 - y) / 260, x = bx + (120 - bx) * k * 0.8 + Math.sin(y * 0.05 + i) * 6, w = 18 * (1 - k * 0.8); p.line(x - w, y, x + w, y, ROOT[(y >> 2) % 3 === 0 ? 1 : 2]); p.px(x - w, y, ROOT[0]); p.px(x + w, y, ROOT[0]); }
+    }
+  }],
+];
+export const camera = cineCam([
+  [0, { z: 1.6, x: 10, y: -52 }],
+  ...insertKeys(INS),
+  [0.42, { z: 1.0, x: 120, y: -118, r: 4 }, "cut"],
+  [RAISE - 0.1, { z: 1.05, x: 110, y: -120, r: 3 }],
+  [RAISE, { z: 2.0, x: 14, y: -56, r: -5 }, "cut"],
+  [1.88, { z: 2.2, x: 14, y: -60, r: -6 }],
+  [2.32, { z: 1.25, x: TX - 20, y: -112, r: 5, shake: 0.4 }, "cut"],
+  [ROOTS, { z: 1.6, x: TX, y: -42, r: 2, shake: 0.6 }],
+  [3.3, { z: 1.9, x: TX, y: -42, r: -4, shake: 0.3 }, "cut"],
+  [WRAPPED, { z: 1.7, x: TX, y: -46, r: -2 }],
+  [LIFT, { z: 1.05, x: 140, y: -110, r: 0 }],
+  [END, { z: 1.0, x: 120, y: -102 }],
+]);
+
 // the dreamer: hangs limp in the light, then is lifted a little inside the cocoon
 export const targetState = (t) => (t > LIGHT && t < END ? { dy: -10 * smooth(ROOTS, WRAPPED, t), rot: -0.1 * smooth(LIGHT, ROOTS, t), a: t > WRAPPED + 0.15 ? 0 : 1 } : null);
 
@@ -130,6 +190,8 @@ export const create = play([], (o) => {
       ps.draw(p, "front");
       lights.draw(p);
       if (t >= OPEN && t < OPEN + 0.06) impactFrame(p, box[0], box[1], box[2], box[3], MOON[0], MOON[1], false, 168, { style: "rings", ink: hex("#1a0204"), paper: hex("#ffe4e0"), lines: 20 });
+      inserts(p, t, BOX, INS);
+      cutFlash(p, BOX, t, [0.42, 2.32, 3.3], 0.04, hex("#ffe4e0"));
       void clamp;
     },
   };

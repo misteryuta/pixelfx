@@ -13,6 +13,7 @@ import { play, bodyAt, drawFigure, drawOutline, impactFrame, blast } from "./_li
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, ultStreaks, frameOf } from "./_ultimate.js";
 import { drawModel, modelPoint } from "./_models.js";
+import { cineCam, inserts, insertKeys, backdrop, eyeShot, splitShot, speedLines, cutFlash } from "./_cinema.js";
 
 const MODE = 0.75, FOX = MODE + 0.3, FOXED = FOX + 0.55, GATHER = FOXED, BALL = GATHER + 1.3, FIRE = BALL + 0.15, FLY = 0.26, HIT = FIRE + FLY, TX = 214, END = HIT + 3.6;
 const WIND = ["#1a3a5a", "#5aa0d0", "#a8e0ff", "#e8faff", "#ffffff"].map(hex);
@@ -91,6 +92,52 @@ export const meta = {
   actor: 2,
   options: { palette: GOLD, seed: 27 },
 };
+
+// ---- the cutscene: the shots between the world shots. Two eyes split by a slash (Naruto's, Kurama's) as the cloak
+// flares; Kurama from the front, from below, roaring; the ball in its jaws, close; from behind its back over the tails
+// toward the target far off; the throw followed in a whip pan; the burst, wide.
+const BOX = [-104, -226, 326, 54];
+const whiskers = (u, v) => v > 0.75 && v < 1.6 && u > -0.9 && u < 0.4 && Math.abs(((v - 0.75) * 6) % 1.4 - 0.2) < 0.18 && Math.abs(u + 0.3 - (v - 0.75) * 0.2) < 0.55;
+const INS = [
+  [0.6, 1.02, (p, u, t, box) => {
+    splitShot(p, box, t,
+      (pp, d) => { backdrop(pp, box, t, { c0: "#2a1408", c1: "#ff9a1c", style: "flow", seed: 4 }); eyeShot(pp, box, t, { kind: "kurama", cx: 0 + d - 10, cy: -96, R: 24 + 4 * u, open: smooth(0, 0.35, u), mark: whiskers }); },
+      (pp, d) => { backdrop(pp, box, t, { c0: "#3a0c04", c1: "#ff5a10", style: "flow", seed: 7 }); eyeShot(pp, box, t, { kind: "kurama", cx: 230 + d, cy: -96, R: 30 + 5 * u, open: smooth(0.15, 0.5, u), skin: "#f0a030", shadow: "#c0581a", brow: "#7a1a06", flip: true }); },
+      { slant: 0.45, u: u * 3 });
+  }],
+  [1.62, 2.04, (p, u, t, box) => {
+    // Kurama from the front, from below, roaring: towering, narrowing to its ears, the jaw dropped wide
+    backdrop(p, box, t, { c0: "#3a1006", c1: "#ffb040", style: "burst", cx: 112, cy: -150 });
+    const jaw = smooth(0, 0.25, u) * (1 - smooth(0.85, 1, u)), sh = Math.sin(t * 70) * 2 * jaw;
+    drawModel(p, "kurama", "front", 112 + sh, 64, { scale: 2.3 + 0.2 * u, persp: 0.3, pose: { jaw: { dy: 4 * jaw, sy: 1 + 0.9 * jaw } } });
+    speedLines(p, box, t, 112, -40, 0.6 * jaw, hex("#fff0c0"));
+  }],
+  [2.74, 2.98, (p, u, t, box) => {
+    // over its back: the tails streaming above, the target small far across the field, the ball's light at its head
+    backdrop(p, box, t, { c0: "#140a10", c1: "#2a1418", style: "plain" });
+    p.rect(-104, -40, 430, 94, hex("#1c1420"));
+    p.line(-104, -40, 326, -40, hex("#3a2a40"));
+    p.rect(258, -62, 6, 22, hex("#c8a050")); p.rect(254, -56, 14, 4, hex("#c8a050"));
+    drawModel(p, "kurama", "back", -10 - 20 * u, 150, { scale: 2.3, pose: { tails: { sway: 6, swayK: 0.05, swayPh: t * 6 } } });
+    p.glow(40 - 20 * u, -118, 40, BALLC[4], 0.8); p.circle(40 - 20 * u, -118, 9, BALLC[1]); p.ring(40 - 20 * u, -118, 12 + Math.sin(t * 40) * 2, 1, WIND[3]);
+  }],
+];
+export const camera = cineCam([
+  [0, { z: 1.7, x: 6, y: -34 }],
+  [0.55, { z: 1.9, x: 6, y: -36 }],
+  ...insertKeys(INS),
+  [1.02, { z: 1.0, x: 70, y: -110, r: -4, shake: 0.6 }, "cut"],
+  [1.55, { z: 1.05, x: 72, y: -112, r: -2, shake: 0.2 }],
+  [2.04, { z: 2.2, x: 66, y: -70, r: 3 }, "cut"],
+  [2.7, { z: 2.6, x: 70, y: -68, r: 4 }],
+  [2.98, { z: 1.6, x: 70, y: -66, r: -6, shake: 0.5 }, "cut"],
+  [FIRE, { z: 1.6, x: 72, y: -64, r: -6 }],
+  [HIT - 0.02, { z: 1.4, x: TX - 30, y: -40, r: 2 }, "whip"],
+  [HIT, { z: 0.95, x: 150, y: -90, r: 0, shake: 1.2 }, "cut"],
+  [HIT + 0.8, { z: 1.0, x: 170, y: -84, shake: 0.3 }],
+  [HIT + 2.2, { z: 1.12, x: 200, y: -70, shake: 0 }],
+  [END, { z: 1.0, x: 110, y: -100 }],
+]);
 
 const BRACE = { ...READY, crouch: 6, lean: -2, fx: 12, fy: -18, bx: -4, by: -20, ffx: 9, fbx: -9 };
 const ROAR = { ...READY, crouch: 8, lean: 8, fx: 14, fy: -26, bx: 13, by: -28, armsFront: true, ffx: 11, fbx: -10 };
@@ -330,6 +377,9 @@ export const create = play([], (o) => {
       blast(p, age - 1.4, { x: TX, y: 0, R: 50, C: BOOM, seed: 11 });
       ps.draw(p, "front");
       lights.draw(p);
+      // the cutscene's inserts over everything, and a flash on the hard cuts
+      inserts(p, t, BOX, INS);
+      cutFlash(p, BOX, t, [1.02, 2.98], 0.04);
     },
   };
 });

@@ -36,17 +36,23 @@ const K = keyTrack([
   [GRIP, { nx: -40, ny: -132, ba: 0.55, bl: 0, lean: 0.06 }],
   // the long pull: the hand sweeps out and up, the blade sliding out of the sheath behind it
   [DRAWN, { nx: 60, ny: -220, ba: -0.35, bl: 230, lean: -0.02, fx: -60, fy: -150 }],
-  // lifted high over the head, the point to the sky
-  [HIGH, { nx: 40, ny: -300, ba: -1.45, bl: 240, lean: -0.08 }],
-  // wound back over the shoulder, the body turning away
-  [WIND, { nx: -10, ny: -296, ba: -2.55, bl: 240, lean: -0.16, fx: -40, fy: -170 }],
-  // the cut: through, level and down, out past the target, the blade lengthening as it sweeps
-  [CUT, { nx: 60, ny: -250, ba: -0.9, bl: 420, lean: 0.06 }],
-  [HIT, { nx: 120, ny: -190, ba: 0.24, bl: 520, lean: 0.2, fx: -80, fy: -140 }],
-  [HIT + 0.35, { nx: 130, ny: -172, ba: 0.42, bl: 500, lean: 0.22 }],
-  [REST, { nx: 120, ny: -176, ba: 0.38, bl: 300, lean: 0.12 }],
-  [FADE, { nx: 100, ny: -170, ba: 0.4, bl: 240, lean: 0.06 }],
+  // chambered: the hand pulled back level with the rear shoulder, the blade laid back flat behind it (ph: its heading
+  // round the body, pi = straight back, 0 = straight at the target), the body turning away
+  [HIGH, { nx: -20, ny: -232, ba: -2.72, bl: 240, ph: Math.PI, lean: -0.08 }],
+  [WIND, { nx: -46, ny: -226, ba: -2.72, bl: 240, ph: Math.PI + 0.2, lean: -0.16, fx: -40, fy: -170 }],
+  // the side cut: the arm sweeps round level in front of the body, the blade coming round toward us (short as it
+  // points out of the screen), then out flat across the field, lengthening through the target and the far hills
+  [CUT, { nx: 30, ny: -214, bl: 420, ph: Math.PI / 2 + 0.25, lean: 0.04 }],
+  [HIT, { nx: 120, ny: -196, bl: 520, ph: 0, lean: 0.2, fx: -80, fy: -140 }],
+  [HIT + 0.35, { nx: 136, ny: -190, bl: 500, ph: -0.45, lean: 0.22 }],
+  [REST, { nx: 120, ny: -186, bl: 300, ph: -0.55, lean: 0.12 }],
+  [FADE, { nx: 100, ny: -176, bl: 240, ph: -0.6, lean: 0.06 }],
 ]);
+// the plane of the side cut: level round the body, dipping toward the front so that it runs through the target at
+// chest height (TILT: its slope seen from the side); the blade's angle and visible length at heading ph
+const TILT = 0.45;
+const flatBlade = (k) => { const c = Math.cos(k.ph); return { a: Math.atan2(TILT * c, c), len: k.bl * Math.hypot(c, TILT * c) }; };
+const bladeOf = (t) => { const k = K(t); if (t < HIGH) return { a: k.ba, len: k.bl }; const f = flatBlade(k), u = smooth(HIGH, HIGH + 0.25, t); return u >= 1 ? f : { a: k.ba + (f.a - k.ba) * u, len: k.bl + (f.len - k.bl) * u }; };
 const form = (t) => smooth(FORM0, FORMED, t) * (1 - smooth(FADE, END - 0.15, t));
 
 export const meta = {
@@ -113,7 +119,7 @@ export const create = play([], (o) => {
   const slide = (t, i) => { const u = clamp((t - FALL - i * 0.12) / 1.0); return { u, dx: 19 * ease.inQuad(u), dy: 56 * ease.inCubic(u), rot: 0.28 * ease.inQuad(u) }; };
   const S = (t) => {
     const k = K(t);
-    return { kind: "madara", x: SX, y: 0, s: G, t, form: form(t), near: [k.nx, k.ny], far: [k.fx, k.fy], farBend: -1, nearBend: 1, lean: k.lean, wings: smooth(FORMED - 0.4, FORMED + 0.4, t), sheath: true, blade: t > GRIP ? { a: k.ba, len: k.bl } : null };
+    return { kind: "madara", x: SX, y: 0, s: G, t, form: form(t), near: [k.nx, k.ny], far: [k.fx, k.fy], farBend: -1, nearBend: 1, lean: k.lean, wings: smooth(FORMED - 0.4, FORMED + 0.4, t), sheath: true, blade: t > GRIP ? bladeOf(t) : null };
   };
   return {
     update(t, dt) {
@@ -158,10 +164,18 @@ export const create = play([], (o) => {
       if (t > WIND + 0.05 && t < HIT + 0.3) {
         const fade = 1 - smooth(HIT + 0.05, HIT + 0.3, t), pts = [];
         for (let i = 0; i <= 14; i++) {
-          const tt = t - i * 0.012, k = K(tt), Pp = perfectPuppet(S(tt)), H = Pp.hand, ba = Pp.angle ?? k.ba, c = Math.cos(ba), s = Math.sin(ba), bl = Math.min(k.bl * G, s > 0.05 ? (-2 - H[1]) / s : 1e9);
+          const tt = t - i * 0.012, Bd = bladeOf(tt), Pp = perfectPuppet(S(tt)), H = Pp.hand, ba = Pp.angle ?? Bd.a, c = Math.cos(ba), s = Math.sin(ba), bl = Math.min(Bd.len * G, s > 0.05 ? (-2 - H[1]) / s : 1e9);
           pts.push([H[0] + c * bl, H[1] + s * bl, H[0] + c * bl * 0.35, H[1] + s * bl * 0.35]);
         }
         for (let i = 1; i < pts.length; i++) p.poly([[pts[i - 1][2], pts[i - 1][3]], [pts[i - 1][0], pts[i - 1][1]], [pts[i][0], pts[i][1]], [pts[i][2], pts[i][3]]], i < 3 ? WHITE : i < 7 ? WH[1] : C[4], (1 - i / 15) * fade);
+      }
+      // the cut's level ring: a flat ellipse in the plane of the side cut, round the hand, the swept part glowing
+      if (t > WIND + 0.02 && t < HIT + 0.35) {
+        const fade = 1 - smooth(HIT + 0.1, HIT + 0.35, t), P0 = perfectPuppet(S(t)), H = P0.hand, L = K(t).bl * G * 0.55, ca = Math.cos(Math.atan(TILT)), sa = Math.sin(Math.atan(TILT)), ph0 = K(t).ph;
+        for (let q = Math.PI; q > ph0 - 0.01 && q > -0.6; q -= 0.04) {
+          const ex = Math.cos(q) * L, ey = Math.sin(q) * L * 0.16, x = H[0] + ex * ca - ey * sa, y = H[1] + ex * sa + ey * ca, near = (q - ph0) < 0.5;
+          p.dot(x, y, near ? WHITE : WH[1], fade * (near ? 1 : 0.55));
+        }
       }
       // whiteout as the stroke lands: white, then a cyan wash, then the world back
       if (t >= HIT - 0.02 && t < HIT + 0.5) {

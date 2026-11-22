@@ -116,32 +116,21 @@ export const targetState = (t) => {
   return { a: smooth(END - 0.9, END - 0.45, t) };
 };
 
-// the Totsuka blade: a long tongue of pale flame from the grip along angle a, L long, its edges licking, k its strength
-function blade(p, t, H, a, L, k = 1, ghost = 0) {
+// the Totsuka blade's fire: the model's own blade (pale, in its hand) burns: a glow along it and flames licking off
+// both edges; w its half width on screen
+function aura(p, t, H, a, L, k = 1, w = 4.5) {
   if (L < 2) return;
   const ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux;
-  if (!ghost) p.glowLine(H[0], H[1], H[0] + ux * L, H[1] + uy * L, 16, BL[2], 0.7 * k);
-  for (let i = 0; i < L; i += 0.7) {
-    const s = i / L, w = (ghost ? 2.6 : 4.4) * (1 - s * 0.55) * (0.85 + 0.3 * noise2(i * 0.12, t * 6, 3));
-    const wob = Math.sin(i * 0.18 - t * 12) * 1.2 * s, x = H[0] + ux * i + nx * wob, y = H[1] + uy * i + ny * wob;
-    if (ghost) {
-      p.dot(x, y, BL[1], ghost);
-      continue;
-    }
-    for (let v = -w; v <= w; v += 0.7) {
-      const e = Math.abs(v) / w;
-      p.px(x + nx * v, y + ny * v, e > 0.8 ? BL[3] : e > 0.5 ? BL[2] : e > 0.2 ? BL[1] : BL[0]);
-    }
-    // flames licking off its edges
-    if (noise2(i * 0.3, t * 9, 5) > 0.35) {
-      const side = noise2(i * 0.2, t * 7, 9) > 0 ? 1 : -1, h = 2 + 4 * noise2(i * 0.5, t * 11, 4);
-      p.line(x + nx * w * side, y + ny * w * side, x + nx * (w + h) * side - ux * 2, y + ny * (w + h) * side - uy * 2, BL[3]);
+  p.glowLine(H[0], H[1], H[0] + ux * L, H[1] + uy * L, 18, BL[2], 0.6 * k);
+  for (let i = 4; i < L; i += 1.2) {
+    const x = H[0] + ux * i, y = H[1] + uy * i, ww = w * (1 - (i / L) * 0.4);
+    if (noise2(i * 0.3, t * 9, 5) > 0.2) {
+      const side = noise2(i * 0.2, t * 7, 9) > 0 ? 1 : -1, h = 2 + 5 * Math.abs(noise2(i * 0.5, t * 11, 4));
+      p.line(x + nx * ww * side, y + ny * ww * side, x + nx * (ww + h) * side - ux * 3, y + ny * (ww + h) * side - uy * 3, noise2(i, t * 5, 2) > 0 ? BL[3] : BL[2], 0.9 * k);
     }
   }
-  // the point
-  p.circle(H[0] + ux * L, H[1] + uy * L, 1.5, BL[0]);
+  p.circle(H[0] + ux * L, H[1] + uy * L, 2.5, BL[1], 0.7 * k);
 }
-
 function jar(p, J, k) {
   const [hx, hy] = J;
   // a gourd: a big round belly, a waist, a small top, the stopper's mouth
@@ -219,8 +208,8 @@ export const create = play([], (o) => {
             p.beam(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], 4 * (1 - i / 11) * fade + 0.5, i < 3 ? WHITE : BL[1], fade);
           }
         }
-        // the flaming blade over the model's own, from its hand
-        blade(p, t, puppetAt(t).hand, pose(t).blade + Rg.lean, L, 1);
+        // the model's own blade, burning
+        aura(p, t, puppetAt(t).hand, pose(t).blade + Rg.lean, L, 1);
       }
       // the blade pulled out of the jar: the liquid stretching from its mouth up to the hand
       if (t > REACH && t < DRAWN + 0.1) {

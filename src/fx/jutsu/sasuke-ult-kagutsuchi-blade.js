@@ -16,6 +16,8 @@ import { drawBadge, drawGlint } from "./_badge.js";
 import { keyTrack } from "./_susanoo.js";
 import { drawPerfect, perfectPuppet, PERFECT } from "./_perfect.js";
 import { ultSky, ultBanner, ultStreaks, frameOf } from "./_ultimate.js";
+import { drawModel, modelPoint } from "./_models.js";
+import { cineCam, inserts, insertKeys, backdrop, eyeShot, splitShot, speedLines, cutFlash } from "./_cinema.js";
 
 const EYE = 0.05, RISE = 0.55, FORM0 = 0.65, FORMED = 1.45, FLAME = 1.6, SWORD = 2.25, RAISE = 2.55, SWAP = 2.85, CUT = 2.98, HIT = 3.06;
 const PIN = HIT + 0.7, REST = HIT + 1.6, FADE = REST + 0.4, END = FADE + 0.8, TX = 300, G = 0.6;
@@ -81,6 +83,56 @@ export const act = {
   dust: [{ t: RISE, x: HOME, n: 14, dir: -1 }, { t: SWAP, x: NEAR, n: 18, dir: 1 }, { t: HIT, x: TX - 30, n: 20, dir: -1 }, { t: HIT, x: TX + 30, n: 20, dir: 1 }],
 };
 // the target pinned and burning
+// ---- the cutscene: his two eyes split by a slash, opening (the Eternal Mangekyou, the Rinnegan); the giant forming,
+// seen low and wide; from below, close, the black flames swallowing the blade in its fist; the Rinnegan glaring as
+// Amenotejikara swaps him beside the target; the cut, followed in a whip pan; the burst wide; the pinning, close.
+const BOX = [-110, -262, 360, 28];
+const INS = [
+  [0.08, 0.55, (p, u, t, box) => {
+    const op = ease.outCubic(smooth(0.15, 0.7, u));
+    splitShot(p, box, t,
+      (pp, d) => { backdrop(pp, box, t, { c0: "#1a0608", c1: "#6a1018", style: "flow", seed: 2 }); eyeShot(pp, box, t, { kind: "sasukeEMS", cx: -10 + d, cy: -110, R: 28 + 3 * u, open: op, rot: t * 1.5, skin: "#f2d4bc", shadow: "#c8a090" }); },
+      (pp, d) => { backdrop(pp, box, t, { c0: "#100a1e", c1: "#5a3a9a", style: "flow", seed: 6 }); eyeShot(pp, box, t, { kind: "rinnegan", cx: 250 + d, cy: -110, R: 30 + 3 * u, open: op, skin: "#f2d4bc", shadow: "#c8a090", flip: true }); },
+      { slant: -0.4, u: u * 2.5, seam: "#c4a0ff" });
+  }],
+  [1.6, 2.02, (p, u, t, box) => {
+    // from below, close: the giant's fist and its blade, the black flames running up the blade and swallowing it
+    backdrop(p, box, t, { c0: "#0c0618", c1: "#5a2aa0", style: "rays", cx: 60, cy: -200 });
+    const o = { scale: 2.2, persp: 0.28, rot: -0.12, pose: { sword: { a: 1 - smooth(0.2, 0.9, u) } } }, X = 150, Y = 150;
+    drawModel(p, "susanooSasuke", "front", X, Y, o);
+    const g = modelPoint("susanooSasuke", "front", X, Y, o, "sword", [47, 72]), tp = modelPoint("susanooSasuke", "front", X, Y, o, "sword", [104, 3]), up = smooth(0, 0.85, u);
+    for (let i = 0; i <= 40 * up; i++) {
+      const k = i / 40, x = g[0] + (tp[0] - g[0]) * k, y = g[1] + (tp[1] - g[1]) * k, w = 7 + 4 * noise2(k * 9, t * 8, 4);
+      p.circle(x, y, w, BF[0]); p.circle(x + noise2(k * 7, t * 9, 6) * 3, y - 2, w * 0.55, BF[1]);
+      if (rand(i, Math.floor(t * 20)) > 0.6) p.line(x, y - w, x - 3, y - w - 8, BF[3]);
+    }
+    p.glow(g[0], g[1], 40, BF[4], 0.5);
+  }],
+  [2.56, 2.84, (p, u, t, box) => {
+    // the Rinnegan, alone, glaring: space ripples out of it (Amenotejikara)
+    backdrop(p, box, t, { c0: "#0a0614", c1: "#3a2a6a", style: "rays", cx: 125, cy: -118 });
+    eyeShot(p, box, t, { kind: "rinnegan", cx: 125, cy: -112, R: 40 + 8 * u, open: 1, skin: "#f2d4bc", shadow: "#c8a090", flip: true });
+    for (let i = 0; i < 3; i++) { const r = ((u * 1.6 + i / 3) % 1) * 160; p.ring(125, -116, r, 1, hex("#c9b3ff"), 1 - r / 160); }
+  }],
+];
+export const camera = cineCam([
+  ...insertKeys(INS),
+  [0.55, { z: 1.0, x: 60, y: -118, r: 3, shake: 0.3 }, "cut"],
+  [FORMED, { z: 1.15, x: 50, y: -126, r: 1, shake: 0.6 }],
+  [FORMED + 0.15, { z: 1.12, x: 50, y: -126, r: 0 }],
+  [2.02, { z: 1.9, x: -8, y: -128, r: -4 }, "cut"],
+  [SWORD, { z: 1.7, x: 0, y: -140, r: -6 }],
+  [RAISE, { z: 1.25, x: 20, y: -158, r: -9 }],
+  [SWAP, { z: 1.1, x: NEAR + 50, y: -118, r: 7, shake: 0.4 }, "cut"],
+  [CUT, { z: 1.15, x: NEAR + 60, y: -110, r: 6 }],
+  [HIT - 0.01, { z: 1.6, x: TX - 10, y: -44, r: -3 }, "whip"],
+  [HIT, { z: 0.95, x: TX - 70, y: -96, r: 0, shake: 1.2 }, "cut"],
+  [HIT + 0.5, { z: 1.0, x: TX - 60, y: -90, shake: 0.2 }],
+  [PIN, { z: 1.55, x: TX - 6, y: -40, r: 3, shake: 0.7 }, "cut"],
+  [REST, { z: 1.25, x: TX - 40, y: -70, r: 0 }],
+  [END, { z: 1.0, x: 190, y: -110 }],
+]);
+
 export const targetState = (t) => (t > HIT && t < FADE ? { tint: [BF[1], 0.4 * smooth(HIT, HIT + 0.3, t)], dy: 0 } : null);
 
 export const create = play([], (o) => {
@@ -171,6 +223,8 @@ export const create = play([], (o) => {
       lights.draw(p);
       // the one impact frame: the instant the blade goes through
       if (t >= HIT && t < HIT + 0.06) impactFrame(p, box[0], box[1], box[2], box[3], TX, -30, false, 166, { style: "flames", ink: hex("#08020c"), paper: hex("#f0e4ff"), lines: 30 });
+      inserts(p, t, BOX, INS);
+      cutFlash(p, BOX, t, [0.55, 2.02, SWAP], 0.04, hex("#e8dcff"));
       void TAU; void clamp; void WHITE;
     },
   };

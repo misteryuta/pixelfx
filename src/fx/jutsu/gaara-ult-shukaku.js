@@ -12,6 +12,7 @@ import { play, bodyAt, blast, impactFrame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, frameOf } from "./_ultimate.js";
 import { drawModel, modelPoint } from "./_models.js";
+import { cineCam, inserts, insertKeys, backdrop, eyeShot, splitShot, speedLines, cutFlash } from "./_cinema.js";
 
 const SWIRL = 0.3, GROW = 0.6, GROWN = 1.6, SLEEP = 1.8, LAUGH = 2.1, DRUM = 2.6, SHOTS = [2.85, 3.2, 3.6], FLY = 0.25, CRUMBLE = 4.7, END = 5.6, TX = 290;
 const SAND = ["#4a3418", "#7a5a2a", "#a8844a", "#d0ac6a", "#f0d8a0"].map(hex), MARK = ["#1a2a5a", "#2a4a8a"].map(hex), AIR = ["#a8c8d8", "#e8f4ff", "#ffffff"].map(hex);
@@ -64,6 +65,58 @@ export const act = {
     { t: CRUMBLE, shake: 0.6, amp: 2, target: false, sfx: "rumble" },
   ],
 };
+// ---- the cutscene: Gaara's eye, ringed dark, sand streaming past; the tanuki rising seen low and wide; his eye
+// closing as Shukaku's opens (the switch: he falls asleep and it wakes); its grinning head close, cackling; the
+// belly drum; its mouth, from the front, huge, spitting the air bullet at us; the bullets followed to the target.
+const BOX = [-56, -250, 364, 30];
+// Shukaku's eye: gold, a black four-pointed star for a pupil, four dots round it
+const shukakuIris = (u, v, r) => {
+  if (r > 0.92) return hex("#3a2a10");
+  const star = Math.abs(u) * Math.abs(v) < 0.012 && Math.hypot(u, v) < 0.55 || Math.hypot(u, v) < 0.12;
+  if (star) return hex("#0c0806");
+  for (const [a, b] of [[0.42, 0.42], [-0.42, 0.42], [0.42, -0.42], [-0.42, -0.42]]) if (Math.hypot(u - a, v - b) < 0.07) return hex("#0c0806");
+  return r > 0.75 ? hex("#c8901a") : u < -0.2 && v < -0.2 ? hex("#fff0a0") : hex("#f0c040");
+};
+const INS = [
+  [0.24, 0.6, (p, u, t, box) => {
+    backdrop(p, box, t, { c0: "#3a2a16", c1: "#a8844a", style: "flow", seed: 9 });
+    eyeShot(p, box, t, { kind: "gaara", cx: 154, cy: -112, R: 32 + 5 * u, open: smooth(0, 0.4, u), skin: "#f0d0b0", shadow: "#c8a088", brow: "#f0d0b0", rim: "#1a1214" });
+  }],
+  [1.74, 2.1, (p, u, t, box) => {
+    splitShot(p, box, t,
+      (pp, d) => { backdrop(pp, box, t, { c0: "#2a1e10", c1: "#7a5a2a", style: "plain" }); eyeShot(pp, box, t, { kind: "gaara", cx: 30 + d, cy: -112, R: 28, open: 1 - smooth(0.1, 0.6, u), skin: "#f0d0b0", shadow: "#c8a088", brow: "#f0d0b0", rim: "#1a1214" }); },
+      (pp, d) => { backdrop(pp, box, t, { c0: "#4a3418", c1: "#d0ac6a", style: "rays", cx: 260, cy: -112 }); eyeShot(pp, box, t, { iris: shukakuIris, cx: 270 + d, cy: -112, R: 34, open: smooth(0.35, 0.9, u), skin: "#d8b888", shadow: "#a8844a", brow: "#1a2a5a", flip: true }); },
+      { slant: 0.5, u: u * 3, seam: "#f0d8a0" });
+  }],
+  [2.86, 3.12, (p, u, t, box) => {
+    // its mouth from the front, huge: the jaw drops and the air bullet comes straight at us
+    backdrop(p, box, t, { c0: "#2a1c0c", c1: "#f0d8a0", style: "burst", cx: 154, cy: -60 });
+    const o = { scale: 2.6, rot: 0, pose: { jaw: { dy: 10 * smooth(0, 0.3, u), sy: 1.2 }, head: { dy: 4 * smooth(0, 0.3, u) } } };
+    drawModel(p, "shukaku", "front", 154 + Math.sin(t * 60) * 2, 150, o);
+    const m = modelPoint("shukaku", "front", 154, 150, o, "jaw", [92, 112]), r = 6 + 120 * ease.inCubic(u);
+    p.glow(m[0], m[1], r * 1.6, AIR[0], 0.6); p.ring(m[0], m[1], r, 3, AIR[1]); p.ring(m[0], m[1], r * 0.6, 2, AIR[2], 0.8);
+    speedLines(p, box, t, m[0], m[1], 0.8 * u, AIR[1]);
+  }],
+];
+export const camera = cineCam([
+  [0, { z: 1.8, x: 34, y: -36 }],
+  ...insertKeys(INS),
+  [0.6, { z: 1.0, x: 80, y: -112, r: -3, shake: 0.7 }, "cut"],
+  [GROWN, { z: 1.05, x: 80, y: -118, r: -1, shake: 1.0 }],
+  [GROWN + 0.14, { z: 1.05, x: 80, y: -118, r: 0, shake: 0.1 }],
+  [2.1, { z: 2.1, x: 70, y: -108, r: 6, shake: 0.3 }, "cut"],
+  [2.32, { z: 2.3, x: 72, y: -112, r: 7, shake: 0.3 }],
+  [2.34, { z: 1.6, x: 100, y: -62, r: -3 }, "cut"],
+  [DRUM, { z: 1.7, x: 104, y: -60, r: -4, shake: 0.8 }],
+  [2.84, { z: 1.6, x: 104, y: -60, r: -3, shake: 0 }],
+  [3.12, { z: 1.1, x: 190, y: -80, r: 2, shake: 0.4 }, "cut"],
+  [SHOTS[2], { z: 1.15, x: 200, y: -80, r: 0 }],
+  [SHOTS[2] + FLY - 0.01, { z: 1.6, x: TX - 10, y: -40, r: -2 }, "whip"],
+  [SHOTS[2] + FLY, { z: 1.0, x: 200, y: -100, r: 0, shake: 1.2 }, "cut"],
+  [CRUMBLE, { z: 1.05, x: 150, y: -110, shake: 0.4 }],
+  [END, { z: 1.0, x: 150, y: -110 }],
+]);
+
 // Gaara is inside the tanuki from the growth until it crumbles (asleep on its brow)
 export const actorAlpha = (t) => (t > GROW + 0.2 && t < CRUMBLE + 0.3 ? 0 : 1);
 
@@ -126,6 +179,8 @@ export const create = play([], (o) => {
       ps.draw(p, "front");
       lights.draw(p);
       if (t >= SHOTS[2] + FLY && t < SHOTS[2] + FLY + 0.06) impactFrame(p, box[0], box[1], box[2], box[3], TX, -30, true, 172, { style: "burst", ink: hex("#1a1008"), paper: hex("#fff0d0"), lines: 36 });
+      inserts(p, t, BOX, INS);
+      cutFlash(p, BOX, t, [0.6, 2.1, 3.12], 0.04, hex("#fff0d0"));
       void rand; void clamp;
     },
   };
