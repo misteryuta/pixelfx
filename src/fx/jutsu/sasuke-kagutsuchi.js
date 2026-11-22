@@ -45,6 +45,7 @@ export const act = {
   hits: [
     { t: CUT, stop: 0.14, shake: 0.3, amp: 2, push: 2.5, straw: 20, skin: "char" },
     ...[0.4, 0.8, 1.2].map((d) => ({ t: CUT + d, stop: 0.02, flash: 0, push: 0.3, straw: 4, shiver: 0.3 })),
+    { t: meta.duration - 0.25, flash: 0, push: 0, straw: 0, skin: null }, // RESET SKIN: the target back to its own colours
   ],
   dust: [{ t: DASH, x: 8, n: 8, dir: -1 }, { t: PAST, x: TX + 36, n: 6 }],
 };

@@ -88,7 +88,8 @@ export const create = play([], (o) => {
   const fired = new Set(), once = (k, fn) => { if (!fired.has(k)) { fired.add(k); fn(); } };
   const S = (t) => { const k = K(t); return { kind: "sasuke", x: sx(t), y: 0, s: G, t, form: form(t), near: [k.nx, k.ny], far: [k.fx, k.fy], farBend: 1, nearBend: 1, lean: k.lean, wings: smooth(FORMED - 0.4, FORMED + 0.4, t) }; };
   // the sword in effect space: from the hand along the blade angle
-  const blade = (t) => { const k = K(t), H = [sx(t) + k.nx * G, k.ny * G], ux = Math.cos(k.ba), uy = Math.sin(k.ba), L = uy > 0.05 ? Math.min(k.bl * G, (-2 - H[1]) / uy) : k.bl * G; return { H, ux, uy, L }; };
+  // the model holds its sword up in its right hand: the black flames take that sword, then swing with the keys
+  const blade = (t) => { const k = K(t), sw = smooth(CUT - 0.12, CUT, t), H = [sx(t) - 50 + (k.nx * G - 20) * sw, -111 + (k.ny * G + 111) * sw * 0.6], ba = -0.85 + (k.ba + 0.85) * sw, ux = Math.cos(ba), uy = Math.sin(ba), L = uy > 0.05 ? Math.min(k.bl * G, (-2 - H[1]) / uy) : k.bl * G; return { H, ux, uy, L }; };
   // a sword of black flame: a crawling black core, crimson licks along its edges, tongues streaming back off it
   function drawBlade(p, t, k) {
     const { H, ux, uy, L } = blade(t);

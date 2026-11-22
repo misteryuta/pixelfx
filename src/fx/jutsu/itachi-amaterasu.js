@@ -46,6 +46,7 @@ export const act = {
   hits: [
     { t: IGNITE, stop: 0.12, shake: 0.25, amp: 2, push: 1.8, straw: 14, skin: "char", flash: 0 },
     ...[0.5, 1.0, 1.5, 2.0].map((d) => ({ t: IGNITE + d, stop: 0.02, flash: 0, push: 0.4, straw: 5, shiver: 0.4 })),
+    { t: meta.duration - 0.25, flash: 0, push: 0, straw: 0, skin: null }, // RESET SKIN: the target back to its own colours
   ],
 };
 

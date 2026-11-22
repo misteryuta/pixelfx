@@ -12,6 +12,7 @@ import { Lights, Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, 
 import { play, bodyAt, drawFigure, drawOutline, impactFrame, blast } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, ultStreaks, frameOf } from "./_ultimate.js";
+import { drawModel } from "./_models.js";
 
 const MODE = 0.75, FOX = MODE + 0.3, FOXED = FOX + 0.55, GATHER = FOXED, BALL = GATHER + 1.3, FIRE = BALL + 0.15, FLY = 0.26, HIT = FIRE + FLY, TX = 214, END = HIT + 3.6;
 const WIND = ["#1a3a5a", "#5aa0d0", "#a8e0ff", "#e8faff", "#ffffff"].map(hex);
@@ -45,7 +46,10 @@ const tiltAt = (t) => {
 // the whole beast: grows out of him, crouches as it gathers, kicked back by the shot
 const growAt = (t) => 1.15 * ease.outBack(clamp((t - FOX) / (FOXED - FOX)), 1.3);
 const kickAt = (t) => (t < FIRE ? 0 : -9 * Math.exp(-(t - FIRE) * 6) * Math.sin(Math.min(Math.PI, (t - FIRE) * 18)) - 3 * smooth(FIRE, FIRE + 0.1, t) * (1 - smooth(FIRE + 0.3, FIRE + 0.8, t)));
-const mouthAt = (t) => {
+// Kurama's model: feet at KX, scale KS; its jaws in model pixels from the feet (side view facing right)
+const KX = 6, KS = 1.3, JAW = [40, -62];
+const mouthAt = (t) => { const g = growAt(t); return [KX + JAW[0] * KS * g + kickAt(t), JAW[1] * KS * g]; };
+const mouthAtOld = (t) => {
   const g = growAt(t), [mx, my] = turnAbout(MOUTH[0], MOUTH[1], tiltAt(t));
   return [(mx + HO[0]) * g + kickAt(t), (my + HO[1]) * g];
 };
@@ -218,75 +222,10 @@ export const create = play([], (o) => {
     drawBack(p, t) {
       ultSky(p, t, box, { t0: MODE - 0.2, t1: END - 0.3, tone: "#0c0608", glow: "#3a1c0c" });
       const b = bodyAt(act.poses, t);
-      // the fox: grows out of him, translucent for its first instant, then solid chakra with a burning rim
+      // Kurama (the user's model, side view): grows out of him, crouches a little as it gathers, kicked back by the throw
       if (t > FOX && t < HIT + 1.1) {
-        const g = growAt(t), k = smooth(FOX, FOX + 0.15, t) * (1 - smooth(HIT + 0.5, HIT + 1.1, t)), kx = kickAt(t), tl = tiltAt(t), f = Math.floor(t * 20);
-        const j = smooth(GATHER, BALL - 0.3, t) * (1 - 0.5 * smooth(FIRE + 0.2, HIT + 0.4, t));
-        const L = (x, y) => [(x - kx) / g - HO[0], y / g - HO[1]];
-        for (let i = 0; i < 9; i++) {
-          const a0 = -2.15 - i * 0.17, L0 = (56 + (i % 3) * 10) * g, bx = -46 * g + kx, by = -40 * g;
-          for (const [pad, col] of [[2, FC.rim], [1, FC.rim2], [0, FC.body]]) {
-            for (let s = 0; s <= 12; s++) {
-              const u = s / 12, aa = a0 + (0.5 + 0.08 * Math.sin(t * 3 + i)) * u * 0.7 + Math.sin(t * 5 + i + u * 4) * 0.08 * u;
-              const x = bx + Math.cos(aa) * L0 * u, y = by + Math.sin(aa) * L0 * u, w = (3 + 6 * Math.sin(Math.PI * Math.min(1, u * 1.15))) * (1 - 0.35 * u) * g;
-              p.circle(x, y, w + pad, col, k);
-            }
-          }
-        }
-        p.glow(10 * g, -60 * g, 100 * g, hex(GOLD[2]), 0.4 * k);
-        p.shade(-110, -170, 130, 1, (x, y, out) => {
-          const [lx, ly] = L(x, y), part = foxPart(lx, ly, tl, j);
-          if (!part) {
-            // flames licking up off its outline
-            const lick = 2 + 6 * noise2(x * 0.2, y * 0.1 + t * 8, 3);
-            const [ux, uy] = L(x, y + lick);
-            if (y < -1 && foxPart(ux, uy, tl, j) && noise2(x * 0.35, y * 0.25 + t * 10, 7) > 0.05) {
-              out.a = k * 0.9;
-              out.k = 0.3;
-              return noise2(x * 0.3, y * 0.5 + t * 12, 2) > 0.5 ? FC.rim2 : FC.rim;
-            }
-            return;
-          }
-          out.a = k;
-          const e = 1.6 / g, edge = foxPart(lx - e, ly, tl, j) !== part || foxPart(lx + e, ly, tl, j) !== part || foxPart(lx, ly - e, tl, j) !== part || foxPart(lx, ly + e, tl, j) !== part;
-          if (edge) {
-            out.k = 0.3;
-            return FC.rim;
-          }
-          const [hx, hy] = headSpace(lx, ly, tl);
-          if (part === 3) {
-            // the slit eye with its long black stripe sweeping back toward the ear
-            if (Math.abs(hx - 64) < 5 && Math.abs(hy + 103 + (hx - 64) * 0.2) < 1.3) return hex("#fff6d0");
-            if (capsule(hx, hy, 68, -103.5, 42, -112, 1.6, 1)) return FC.ink;
-            // the bars across the top of the muzzle, the whisker strokes
-            for (const bx of [72, 78, 84]) if (Math.abs(hx - bx) < 1 && hy < -104 + (hx - 62) * 0.12 + 4.5 && hy > -108 + (hx - 62) * 0.12) return FC.ink;
-            if (capsule(hx, hy, 66, -98, 74, -97, 0.7, 0.5) || capsule(hx, hy, 66, -96, 73, -94, 0.7, 0.5)) return FC.ink;
-            // the inside of the open mouth, a row of teeth along each jaw
-            if (hx > 60 && hx < 90 && hy > -96 + (hx - 62) * 0.05 && hy < -94 + j * (hx - 62) * 0.55) {
-              if (j > 0.3 && (Math.floor(hx) % 3 === 0) && (hy < -95 + (hx - 62) * 0.05 || hy > -95 + j * (hx - 62) * 0.55)) return WHITE;
-              return hex("#2a0618");
-            }
-          }
-          if (part === 1) {
-            // the bands round the neck
-            const [, , nnx, nny] = headSpace(lx, ly, tl), nu = ((nnx - 30) * 20 + (nny + 60) * -18) / (20 * 20 + 18 * 18);
-            if (capsule(nnx, nny, 30, -60, 50, -78, 19, 16) && nu > 0.1 && nu < 0.9 && (Math.abs(nu - 0.3) < 0.07 || Math.abs(nu - 0.62) < 0.07)) return FC.ink;
-          }
-          if (part === 1 || part === 2) {
-            // the seal on the shoulder: a black ring, a burning gap, a black core
-            const sd = Math.hypot(lx - 8, ly + 50);
-            if (part === 1 && sd < 10) return sd > 7.2 ? FC.ink : sd > 4 ? FC.body : FC.ink;
-            // a black stripe running down the back just inside its outline, and down the front of each leg
-            if (ly < -40 && !foxPart(lx, ly - 3.2, tl, j) && foxPart(lx, ly - 1.2, tl, j)) return FC.ink;
-            if (ly > -40 && ly < -6 && !foxPart(lx + 2.6, ly, tl, j) && foxPart(lx + 1, ly, tl, j)) return FC.ink;
-          }
-          if (part === 2) return FC.far;
-          // lit from above: bright along its back and head, warmer underneath, chakra flickering through
-          const under = part === 3 ? 0 : clamp((ly + 70) / 60) - 0.15 * noise2(lx * 0.1, ly * 0.1 - t * 3, 4);
-          if (rand(Math.floor(lx / 2), Math.floor((ly + t * 30) / 3)) > 0.94) return FC.lite;
-          return under > 0.72 ? FC.shade : FC.body;
-        });
-        if (f < 0) p.px(0, 0, 0);
+        const g = growAt(t), k = smooth(FOX, FOX + 0.15, t) * (1 - smooth(HIT + 0.5, HIT + 1.1, t)), kx = kickAt(t), crouch = 1 - 0.05 * smooth(GATHER, BALL, t);
+        drawModel(p, "kurama", "right", KX + kx, 0, { scale: KS * g * crouch, alpha: k, glow: FC.rim2, rot: -0.04 * smooth(BALL - 0.3, FIRE, t) + (t > FIRE ? 0.08 * Math.exp(-(t - FIRE) * 5) : 0) });
       }
       // the cloak's flaring edge, behind the body
       if (t > MODE) {

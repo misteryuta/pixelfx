@@ -50,7 +50,8 @@ export const act = {
 export const targetState = (t) => {
   if (t < SCRAMBLE) return null;
   if (t < TOPPLE) { const k = Math.floor(t * 8); return { rot: (rand(k, 1) - 0.5) * 0.5, dy: -Math.abs(rand(k, 2) - 0.5) * 6 }; }
-  return { rot: -1.4 * ease.outQuad(smooth(TOPPLE, TOPPLE + 0.3, t)), dy: 2 * smooth(TOPPLE, TOPPLE + 0.3, t) };
+  const up = 1 - ease.inOutQuad(smooth(END - 0.6, END - 0.1, t));
+  return { rot: -1.4 * ease.outQuad(smooth(TOPPLE, TOPPLE + 0.3, t)) * up, dy: 2 * smooth(TOPPLE, TOPPLE + 0.3, t) * up };
 };
 
 export const create = play([], (o) => {

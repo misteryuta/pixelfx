@@ -54,7 +54,7 @@ export const targetState = (t) => {
   if (t < HIT) return null;
   if (t < LIFT) return { dy: 0, rot: -0.2 };
   if (t < TOSS) { const u = smooth(LIFT, TOSS, t); return { dy: -70 * u, rot: -0.2 - u, dx: -10 * u }; }
-  const u = clamp((t - TOSS) / 0.6); return { dy: -70 + 70 * u * u, dx: -10 + 90 * u, rot: -1.2 - u * 6 };
+  const u = clamp((t - TOSS) / 0.6); return { dy: -70 + 70 * u * u, dx: -10 + 90 * u, rot: -1.2 - u * (2 * Math.PI - 1.2) };
 };
 
 export const create = play([], (o) => {

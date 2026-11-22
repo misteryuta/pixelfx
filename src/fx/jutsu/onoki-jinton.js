@@ -51,6 +51,7 @@ export const act = {
     { t: FIRE, stop: 0.05, shake: 0.2, amp: 1, target: false, sfx: "whoosh" },
     { t: BOX, stop: 0.08, push: 0, straw: 0, flash: 0, skin: "holy" },
     { t: ERASE, stop: 0.2, shake: 0.6, amp: 4, push: 0, straw: 0, target: false, sfx: "explosion" },
+    { t: meta.duration - 0.25, flash: 0, push: 0, straw: 0, skin: null }, // RESET SKIN: the target back to its own colours
   ],
 };
 // the target inside the cube: still, lit by it, then simply not there; back at the end

@@ -14,6 +14,7 @@
 // fingered hand and whatever it holds. Arms are two-bone IK to where the hands should be, so effects animate it by
 // moving the hands (smoothly, with keyTrack) and it follows with weight.
 import { hex, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.js";
+import { drawModel } from "./_models.js";
 
 export const PERFECT = {
   madara: ["#040c26", "#0a1f5c", "#1a44a8", "#3a74e0", "#86bcff", "#e6f2ff"].map(hex),
@@ -36,7 +37,7 @@ function elbowOf(S, H, L, bend) {
  * lightning: (0..1) lightning off its back, layer: "back" | "front" (front = the near arm and what it holds) }.
  * Returns the joints in effect space, for effects to attach things: { near, far, nearE, farE, head, chest, blade tip }.
  */
-export function drawPerfect(p, o) {
+function drawPerfectProc(p, o) {
   const C = PERFECT[o.kind] ?? PERFECT.madara, s = o.s ?? 1, t = o.t ?? 0, form = clamp(o.form ?? 1), lean = o.lean ?? 0;
   const ox = o.x ?? 0, oy = o.y ?? 0, cl = Math.cos(lean), sl = Math.sin(lean);
   // its own space -> effect space: lean about the hips (y = -110), then scale and place
@@ -217,7 +218,7 @@ export function drawPerfect(p, o) {
 
   if (o.layer === "front" || o.layer === "all") {
     // ---- the near arm and what it holds
-    arm(nearS, nearE, near, true);
+    if (!o.onlyBlade) arm(nearS, nearE, near, true);
     if (o.blade && o.blade.len > 1) {
       const ba = o.blade.a, H = near, ux = Math.cos(ba), uy = Math.sin(ba), nx = -uy, ny = ux;
       // never into the floor: a blade pointing down stops at the ground
@@ -233,6 +234,30 @@ export function drawPerfect(p, o) {
       P([[tip[0] - ux * 8 + nx * 4.5, tip[1] - uy * 8 + ny * 4.5], [tip[0], tip[1]], [tip[0] - ux * 8 - nx * 4.5, tip[1] - uy * 8 - ny * 4.5]], C[4]);
       out.tip = Tp;
     }
+  }
+  return out;
+}
+
+// the user's models (2026-11-22) for the Complete Body Susanoo; scale: model px per unit of Perfect scale s
+export const PERFECT_MODEL = {
+  madara: { name: "susanooMadara", view: "right", per: 1.62 },
+  sasuke: { name: "susanooSasuke", view: "front", per: 1.55 },
+};
+// a painter that draws nothing (to compute joints without painting)
+const NOOP = new Proxy({}, { get: (_, k) => (k === "cellX" || k === "cellY" ? () => 0 : () => {}) });
+/**
+ * Draw the Complete Body Susanoo. Kinds with a model (madara, sasuke): the back layer paints the model standing at
+ * (x, y), leaning with the body (lean), materialising by form; the front layer paints only the blade, if any. Returns
+ * the same joints as before. Other kinds (kakashi): the procedural giant.
+ */
+export function drawPerfect(p, o) {
+  const M = PERFECT_MODEL[o.kind];
+  if (!M) return drawPerfectProc(p, o);
+  const out = drawPerfectProc(NOOP, { ...o, layer: "all" });
+  if (o.layer === "front" || o.layer === "all") { const r = drawPerfectProc(p, { ...o, layer: "front", onlyBlade: true }); if (r.tip) out.tip = r.tip; }
+  if (o.layer !== "front") {
+    const sc = (o.s ?? 1) * M.per, form = clamp(o.form ?? 1);
+    if (form > 0.01) drawModel(p, M.name, M.view, o.x ?? 0, o.y ?? 0, { scale: sc, rot: (o.lean ?? 0) * 0.6, form: smooth(0, 1, form), glow: (PERFECT[o.kind] ?? PERFECT.madara)[3] });
   }
   return out;
 }

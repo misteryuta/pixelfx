@@ -11,10 +11,11 @@ import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise
 import { play, bodyAt, blast, impactFrame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { ultSky, ultBanner, frameOf } from "./_ultimate.js";
+import { drawModel } from "./_models.js";
 
 const SWIRL = 0.3, GROW = 0.6, GROWN = 1.6, SLEEP = 1.8, LAUGH = 2.1, DRUM = 2.6, SHOTS = [2.85, 3.2, 3.6], FLY = 0.25, CRUMBLE = 4.7, END = 5.6, TX = 290;
 const SAND = ["#4a3418", "#7a5a2a", "#a8844a", "#d0ac6a", "#f0d8a0"].map(hex), MARK = ["#1a2a5a", "#2a4a8a"].map(hex), AIR = ["#a8c8d8", "#e8f4ff", "#ffffff"].map(hex);
-const SX = 60, SC = 1.25;
+const SX = 70, SC = 1.0;
 
 export const meta = {
   name: "Shukaku: drilling air bullets",
@@ -82,35 +83,20 @@ export const create = play([], (o) => {
       drawBadge(p, t, { kind: "gaara", t0: 0.1, t1: SWIRL, label: "ICHIBI", head: b.head });
       if (t < GROW + 0.3) drawGlint(p, t, "gaara", SWIRL, GROW + 0.3, b.head);
       if (g > 0.02) {
-        const s = g * SC, ln = lean(t), c = Math.cos(ln), sn = Math.sin(ln), L = (x, y) => { const lx = (x - SX) / s, ly = y / s; return [lx * c + ly * sn, -lx * sn + ly * c]; };
-        p.shade(SX - 110 * s, -200 * s, SX + 90 * s, 1, (x, y, out) => {
-          const [lx, ly] = L(x, y), pt = part(lx, ly, t);
-          if (!pt) return;
-          const e = 1.5, edge = !part(lx - e, ly, t) || !part(lx + e, ly, t) || !part(lx, ly - e, t) || !part(lx, ly + e, t);
-          if (edge) return SAND[0];
-          // the markings: dark blue bands and rings over body and head
-          const mk = Math.abs(Math.sin(lx * 0.12 + ly * 0.05 + Math.sin(ly * 0.08) * 1.2)) < 0.12 || Math.abs(Math.hypot(lx - 6, ly + 60) - 24) < 1.4;
-          if (mk && pt !== 3) return pt === 2 ? MARK[1] : MARK[0];
-          if (pt === 2) {
-            // the eyes: yellow-black with the four dots, the wide grin with its teeth
-            for (const ex of [16, 38]) { const d = Math.hypot(lx - ex, ly + 132); if (d < 6) return d < 1.5 ? hex("#1a1010") : (Math.abs(lx - ex) < 0.7 || Math.abs(ly + 132) < 0.7) && d > 3 ? hex("#1a1010") : hex("#f0d040"); }
-            const grin = Math.abs(ly + 114 - 0.004 * (lx - 30) ** 2) < 2.2 && lx > 8 && lx < 54;
-            if (grin) return Math.floor(lx) % 3 === 0 ? WHITE : hex("#3a0a10");
-          }
-          const tex = noise2(lx * 0.2 + t * 0.5, ly * 0.2, 81);
-          return pt === 3 ? (tex > 0 ? SAND[3] : SAND[2]) : tex > 0.35 ? SAND[4] : tex > -0.25 ? SAND[3] : SAND[2];
-        });
+        // Shukaku (the user's model), rising out of the sand, leaning back to cackle, swelling with each drum
+        const s = g * SC, ln = lean(t), swell = 1 + 0.06 * smooth(DRUM - 0.2, DRUM, t) * (1 - smooth(SHOTS[2], SHOTS[2] + 0.4, t));
+        drawModel(p, "shukaku", "front", SX, 0, { scale: s * swell, rot: ln, clipFloor: true, glow: SAND[3] });
         // Gaara asleep on its brow, only his upper body, eyes shut
-        const bx = SX + 14 * s, by = -158 * s;
+        const bx = SX + 14 * s, by = -126 * s;
         p.rect(bx - 2, by - 8, 5, 8, hex("#8a1a1a")); p.circle(bx, by - 11, 3, hex("#f0d0b0")); p.rect(bx - 3, by - 15, 7, 3, hex("#a8241a")); p.line(bx, by - 11, bx + 2, by - 11, hex("#1a1010"));
         if (t > SLEEP && t < CRUMBLE) p.text("Z", bx + 6, by - 20 - ((t * 10) % 6), hex("#f0d8a0"), { font: "mini", a: 0.8 });
-        if (t > LAUGH && t < DRUM) p.text("HYAHAHA!", SX + 50 * s, -190 * s, hex("#f0d8a0"), { font: "mini", align: "center", outline: hex("#1a1008") });
+        if (t > LAUGH && t < DRUM) p.text("HYAHAHA!", SX + 30 * s, -200 * s, hex("#f0d8a0"), { font: "mini", align: "center", outline: hex("#1a1008") });
       }
       // the air bullets: huge balls of compressed air spat from the grin, rippling, a pressure cone behind each
       SHOTS.forEach((s0, i) => {
         const age = t - s0;
         if (age < 0 || age > FLY) return;
-        const u = ease.inQuad(age / FLY), mx = SX + 50 * SC, my = -116 * SC, x = mx + (TX - mx) * u, y = my + (-30 - my) * u, r = 10 + i * 5;
+        const u = ease.inQuad(age / FLY), mx = SX + 4 * SC, my = -88 * SC, x = mx + (TX - mx) * u, y = my + (-30 - my) * u, r = 10 + i * 5;
         p.glow(x, y, r * 2, AIR[0], 0.5);
         p.ring(x, y, r, 2, AIR[1]); p.ring(x, y, r * 0.6, 1, AIR[2], 0.8);
         for (let j = 0; j < 4; j++) p.line(x - r - 6 - j * 8, y - r * 0.5 + j * r * 0.3, x - r - 16 - j * 8, y - r * 0.5 + j * r * 0.3, AIR[1], 0.6);

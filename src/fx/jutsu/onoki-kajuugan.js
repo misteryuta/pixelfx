@@ -46,7 +46,8 @@ export const act = {
     { t: SINK, shake: 0.6, amp: 2, target: false, sfx: "rumble" },
   ],
 };
-export const targetState = (t) => (t > HEAVY ? { dy: 12 * ease.inCubic(smooth(HEAVY, CRUSH, t)) + 4 * smooth(CRUSH, SINK, t), s: 1 - 0.1 * smooth(HEAVY, CRUSH, t), tint: [ROCK[1], 0.55 * smooth(HEAVY, HEAVY + 0.3, t)] } : null);
+const lift = (t) => 1 - smooth(LEAVE, END - 0.1, t);
+export const targetState = (t) => (t > HEAVY ? { dy: (12 * ease.inCubic(smooth(HEAVY, CRUSH, t)) + 4 * smooth(CRUSH, SINK, t)) * lift(t), s: 1 - 0.1 * smooth(HEAVY, CRUSH, t) * lift(t), tint: [ROCK[1], 0.55 * smooth(HEAVY, HEAVY + 0.3, t) * lift(t)] } : null);
 
 export const create = play([], (o) => {
   const R = new Rng(o.seed), ps = new Particles({ rng: R, ground: () => 0 }), lights = new Lights(), rocks = [];

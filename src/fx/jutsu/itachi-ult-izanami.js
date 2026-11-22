@@ -64,6 +64,7 @@ export const act = {
     ...Array.from({ length: LOOPS - 1 }, (_, k) => ({ t: L0 + BEAT * k + BEAT * 0.8, stop: 0.05, shake: 0.6, amp: 1, target: false, sfx: "clash" })),
     { t: DRAW, target: false, sfx: "cast" },
     { t: STAB, stop: 0.3, shake: 0.8, amp: 5, push: 0, straw: 50, flash: 0.08, skin: "red", sfx: "heavy" },
+    { t: meta.duration - 0.25, flash: 0, push: 0, straw: 0, skin: null }, // RESET SKIN: the target back to its own colours
   ],
 };
 export const targetState = (t) => (t > STAB && t < END ? { s: 1 - 0.9 * ease.inCubic(smooth(STAB + 0.1, GONE, t)), dy: -40 * ease.inCubic(smooth(STAB + 0.1, GONE, t)), rot: 4 * smooth(STAB, GONE, t), a: t > GONE ? 0 : 1 } : null);

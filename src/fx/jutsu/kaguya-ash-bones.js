@@ -43,6 +43,7 @@ export const act = {
     { t: EYE + 0.2, target: false, sfx: "cast" },
     { t: PIERCE, stop: 0.12, shake: 0.2, amp: 2, push: 1.5, straw: 6, skin: "holy", sfx: "heavy" },
     { t: ASH, stop: 0.05, shake: 0.4, amp: 1, push: 0, straw: 0, target: false, sfx: "rumble" },
+    { t: meta.duration - 0.25, flash: 0, push: 0, straw: 0, skin: null }, // RESET SKIN: the target back to its own colours
   ],
 };
 // the target: pinned, cracked, paling, then gone in ash; back at the end

@@ -13,6 +13,7 @@
 // ribs round the user, the bones (skull with glowing eyes and a toothy jaw), the muscle growing out from the chest
 // in striated bundles, the armour last; chakra flames lick off its outline the whole time.
 import { hex, clamp, smooth, rand, noise2, TAU, WHITE } from "../../core/index.js";
+import { drawModel } from "./_models.js";
 
 export const SUSANOO = {
   itachi: ["#3a0806", "#8a1a10", "#d8461c", "#ff8a3a", "#ffd8a0"].map(hex),
@@ -122,7 +123,7 @@ const inPoly = (x, y, P) => {
  * front halves of the ribs; layer "front" (call from draw) paints those over the user. mid(p) is called between the
  * far side (far arm, torso, head) and the near arms, for things held between them (the Yata Mirror).
  */
-export function drawSusanoo(p, t, R, { kind = "itachi", st = {}, fade = 0, layer = "back", mid = null } = {}) {
+function drawSusanooProc(p, t, R, { kind = "itachi", st = {}, fade = 0, layer = "back", mid = null } = {}) {
   const C = SUSANOO[kind], k = 1 - fade, f = Math.floor(t * 20);
   const ribs = clamp(st.ribs ?? 0), bones = clamp(st.bones ?? 0), flesh = clamp(st.flesh ?? 0), armour = clamp(st.armour ?? 0);
   if (k <= 0 || ribs + bones + flesh <= 0) return;
@@ -372,4 +373,29 @@ export function drawSusanoo(p, t, R, { kind = "itachi", st = {}, fade = 0, layer
       p.line(...P(...m), ...P(...tip), C[4], a);
     }
   }
+}
+
+// the user's models (2026-11-22): which sprite and view each kind uses, and its scale
+export const SUSANOO_MODEL = {
+  itachi: { name: "susanooItachi", view: "right", scale: 1 },
+  sasuke: { name: "susanooSasuke", view: "front", scale: 0.85 },
+  madara: { name: "susanooMadara", view: "right", scale: 1 },
+};
+/**
+ * Paint the Susanoo of rig R. Kinds with a model: the procedural ribcage and bones grow first, then the model rises
+ * into being from the floor up (form from the flesh/armour stages), standing round its user; mid(p) is still called
+ * (between the model and the user) for things held in front of it. Other kinds: the procedural Susanoo as before.
+ */
+export function drawSusanoo(p, t, R, opts = {}) {
+  const { kind = "itachi", st = {}, fade = 0, layer = "back", mid = null } = opts, M = SUSANOO_MODEL[kind];
+  if (!M) return drawSusanooProc(p, t, R, opts);
+  const k = 1 - fade, form = clamp(Math.max(st.flesh ?? 0, st.armour ?? 0) * 1.15), early = 1 - smooth(0.3, 0.9, form);
+  // the skeleton stages, fading away as the model takes over
+  if (early > 0.01) drawSusanooProc(p, t, R, { kind, st: { ribs: st.ribs, bones: st.bones, flesh: 0, armour: 0 }, fade: 1 - k * early, layer, mid: null });
+  if (layer !== "back") return;
+  if (form > 0.01 && k > 0.01) {
+    const x = (R.W?.[0] ?? 0) + 2, flick = 1 + 0.01 * Math.sin(t * 6);
+    drawModel(p, M.name, M.view, x, 0, { scale: M.scale * flick, form: smooth(0, 1, form), alpha: k, glow: SUSANOO[kind][2] });
+  }
+  if (mid) mid(p);
 }

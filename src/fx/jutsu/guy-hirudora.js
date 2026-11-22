@@ -87,7 +87,7 @@ export const create = play([], (o) => {
   let hit = false;
   const head = (t) => {
     const u = ease.inQuad(clamp((t - LAUNCH) / FLY));
-    return [22 + (TX - 30 - 22) * u, -30 + 2 * u, 12 + 26 * u];
+    const s = 16 + 46 * u; return [22 + (TX - 40 - 22) * u, -Math.max(30, s * 0.8), s];
   };
   return {
     update(t, dt) {
@@ -127,7 +127,7 @@ export const create = play([], (o) => {
       // the blast: the head bursts into a dome of air round the target
       if (t >= HIT && t < HIT + 0.7) {
         const u = clamp((t - HIT) / 0.7), r = 30 + 60 * ease.outCubic(u);
-        if (u < 0.15) tiger(p, TX - 20, -28, 38 + 20 * u, t, 1 - u / 0.15);
+        if (u < 0.15) tiger(p, TX - 30, -52, 62 + 20 * u, t, 1 - u / 0.15);
         p.ring(TX - 10, -24, r, 2, AIR[3], 1 - u);
         p.ring(TX - 10, -24, r * 0.7, 1, WHITE, 1 - u);
         p.ellipse(TX - 10, 0, r * 1.2, 3, AIR[2], 0.6 * (1 - u));
