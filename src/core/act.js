@@ -31,8 +31,8 @@ export function lerpPose(a, b, u) {
 const eases = { out: (u) => 1 - (1 - u) * (1 - u), in: (u) => u * u, line: (u) => u };
 /**
  * The pose at time t on a track of keys [t, pose, how]: `how` says how the pose arrives: smoothly by default, "out"
- * fast then settling, "in" slowly then fast, "snap" holding the last pose and jumping on the key. Limbs move in whole
- * 12 fps steps counted from each key, so they read as held drawings; the feet's position over the floor (x, y) stays smooth.
+ * fast then settling, "in" slowly then fast, "snap" holding the last pose and jumping on the key. Everything moves
+ * continuously; a key with `held: true` steps its limbs in whole 12 fps drawings instead.
  */
 export function poseAt(track, t) {
   if (t <= track[0][0]) return track[0][1];
@@ -41,8 +41,9 @@ export function poseAt(track, t) {
     if (t >= t1) continue;
     if (how === "snap") return a;
     const e = eases[how] ?? ((u) => u * u * (3 - 2 * u));
-    const stepped = t0 + Math.floor((t - t0) * 12 + 1e-6) / 12;
-    const out = lerpPose(a, b, e((stepped - t0) / (t1 - t0)));
+    // limbs move continuously (fluid animation); a track can still ask for held 12 fps drawings with `held: true`
+    const tt = b.held ? t0 + Math.floor((t - t0) * 12 + 1e-6) / 12 : t;
+    const out = lerpPose(a, b, e((tt - t0) / (t1 - t0)));
     const u = e((t - t0) / (t1 - t0));
     out.x = lerp(a.x ?? 0, b.x ?? 0, u);
     out.y = lerp(a.y ?? 0, b.y ?? 0, u);

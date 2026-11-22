@@ -2,7 +2,7 @@
 // made a puppet, still uses his Magnet Release: iron sand, shaped into countless spikes and rained on the foe. Here:
 // chakra threads from Sasori's fingertips to the puppet hanging beside him, a tall figure in a dark coat; its mouth
 // drops open and black sand pours out, climbing into a cloud over the target; the cloud hardens into hundreds of iron
-// spikes, all turning to point down; they fall like rain, pinning the target, ringing off the floor; the last of them
+// needles, all swinging round onto the target; they are fired like gunshots, too fast to see, pinning the target; the last of them
 // branch into a thicket of black thorns round it (Iron Sand World), then crumble back to sand and drain into the mouth.
 // New: the puppet on its threads, the sand cloud, the spike rain, the branching thorns.
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU } from "../../core/index.js";
@@ -11,11 +11,11 @@ import { drawBadge } from "./_badge.js";
 
 const TX = 180, THREADS = 0.3, POUR = 0.75, CLOUD = 1.35, HARDEN = 1.6, RAIN = 1.85, WORLD = 2.5, CRUMBLE = 3.4, END = 4.3;
 const IRON = ["#06060a", "#141420", "#262636", "#3e3e54", "#7a7a96"].map(hex), CHAKRA = hex("#6ad0ff");
-const PX = 36, CLOUDY = -96;
+const PX = 36, CLOUDY = -86, CX = TX - 84;
 
 export const meta = {
   name: "Iron sand: drizzle",
-  desc: "Sasori works the Third Kazekage puppet on chakra threads; black iron sand pours from its mouth into a cloud over the target, hardens into hundreds of spikes and rains down, the last branching into a thicket of black thorns.",
+  desc: "Sasori works the Third Kazekage puppet on chakra threads; black iron sand pours from its mouth into a cloud, hardens into hundreds of needles fired like gunshots into the target, the last branching into a thicket of black thorns.",
   tags: ["jutsu", "sasori", "akatsuki", "puppet", "iron-sand", "magnet", "aoe", "one-shot"],
   size: [320, 230],
   origin: [56, 198],
@@ -68,11 +68,12 @@ function puppet(p, x, y, t, jaw) {
 
 export const create = play([], (o) => {
   const R = new Rng(o.seed), ps = new Particles({ rng: R, ground: () => 0 }), lights = new Lights();
-  // the spikes: each hangs in the cloud, turns point-down, falls at its own moment, and sticks in the floor
-  const SPK = Array.from({ length: 70 }, (_, i) => ({ x: TX - 50 + rand(i, 1) * 110, y: CLOUDY - 14 + rand(i, 2) * 28, L: 10 + rand(i, 3) * 9, t0: RAIN + rand(i, 4) * 0.6, a0: rand(i, 5) * TAU }));
+  // the needles (Narutopedia: a gunshot-like attack, the sand hardened into needles and driven by magnetic repulsion):
+  // each hardens in the cloud, swings to point at the target, and is fired at its own instant, too fast to see
+  const SPK = Array.from({ length: 70 }, (_, i) => { const x = CX - 50 + rand(i, 1) * 100, y = CLOUDY - 14 + rand(i, 2) * 28, tx = TX + (rand(i, 6) - 0.4) * 40, ty = -2 - rand(i, 7) * 50; return { x, y, tx, ty, L: 10 + rand(i, 3) * 8, t0: RAIN + rand(i, 4) * 0.6, a0: rand(i, 5) * TAU, a1: Math.atan2(ty - y, tx - x) }; });
   return {
     update(t, dt) {
-      for (const s of SPK) if (t >= s.t0 + 0.12 && !s.hit) { s.hit = true; ps.spawn(P.SPARK, s.x, -1, R.range(-40, 40), -R.range(20, 80), R.range(0.08, 0.16), R.chance(0.5) ? WHITE : IRON[4]); }
+      for (const s of SPK) if (t >= s.t0 + 0.06 && !s.hit) { s.hit = true; ps.spawn(P.SPARK, s.tx, s.ty, R.range(-40, 40), -R.range(20, 80), R.range(0.08, 0.16), R.chance(0.5) ? WHITE : IRON[4]); }
       if (t >= WORLD && !this.w) { this.w = 1; lights.add(TX, -30, 120, IRON[4], 0.6, 0.3); }
       ps.update(dt);
       lights.update(dt);
@@ -92,25 +93,29 @@ export const create = play([], (o) => {
       const mouth = [PX + 4, py - 37];
       // the sand pouring out of its mouth and climbing to the cloud
       if (t > POUR && t < HARDEN + 0.1) for (let i = 0; i < 40; i++) {
-        const u = ((t * 1.6 + i / 40) % 1), x = mouth[0] + (TX - mouth[0]) * u + Math.sin(u * 9 + i) * 6, y = mouth[1] + (CLOUDY - mouth[1]) * Math.sin(u * Math.PI / 2) - Math.sin(u * Math.PI) * 20;
+        const u = ((t * 1.6 + i / 40) % 1), x = mouth[0] + (CX - mouth[0]) * u + Math.sin(u * 9 + i) * 6, y = mouth[1] + (CLOUDY - mouth[1]) * Math.sin(u * Math.PI / 2) - Math.sin(u * Math.PI) * 20;
         p.px(x, y, IRON[1 + (i % 3)], 1 - smooth(HARDEN - 0.1, HARDEN + 0.1, t));
       }
       // the cloud: a churning mass of black grains over the target
       const cloud = smooth(POUR + 0.2, CLOUD, t) * (1 - smooth(HARDEN, RAIN + 0.3, t));
-      if (cloud > 0) p.shade(TX - 70, CLOUDY - 30, TX + 70, CLOUDY + 30, (x, y, out) => {
-        const dx = (x - TX) / 60, dy = (y - CLOUDY) / 20, n = noise2(x * 0.08 + t, y * 0.12, 3);
+      if (cloud > 0) p.shade(CX - 70, CLOUDY - 30, CX + 70, CLOUDY + 30, (x, y, out) => {
+        const dx = (x - CX) / 60, dy = (y - CLOUDY) / 20, n = noise2(x * 0.08 + t, y * 0.12, 3);
         if (dx * dx + dy * dy > cloud * (0.9 + 0.5 * n)) return;
         out.a = 1;
         return rand(x | 0, (y | 0) + Math.floor(t * 20)) > 0.7 ? IRON[3] : n > 0.2 ? IRON[2] : IRON[1];
       });
-      // the spikes: harden in the cloud, turn point-down, fall, stick
-      if (t > HARDEN) for (const s of SPK) {
-        const turn = smooth(HARDEN, RAIN, t), a = s.a0 * (1 - turn) + (Math.PI / 2) * turn, fall = clamp((t - s.t0) / 0.12), y = s.y + (-s.L * 0.5 - s.y) * ease.inQuad(fall);
-        const k = 1 - smooth(WORLD + 0.4, CRUMBLE + 0.3, t), c = Math.cos(a), sn = Math.sin(a);
-        p.beam(s.x - c * s.L * 0.5, y - sn * s.L * 0.5, s.x + c * s.L * 0.5, y + sn * s.L * 0.5, 2.6, IRON[1], k);
-        p.line(s.x - c * s.L * 0.5, y - sn * s.L * 0.5, s.x + c * s.L * 0.5, y + sn * s.L * 0.5, IRON[3], k);
-        p.px(s.x + c * s.L * 0.5, y + sn * s.L * 0.5, IRON[4], k);
-        if (fall > 0 && fall < 1) p.line(s.x, y - 10, s.x, y - 3, IRON[3], 0.5);
+      // the needles: harden in the cloud, swing round onto the target, fired: a streak, then stuck quivering
+      if (t > HARDEN) for (const s2 of SPK) {
+        const turn = smooth(HARDEN, RAIN, t), a = s2.a0 * (1 - turn) + s2.a1 * turn, fly = clamp((t - s2.t0) / 0.06);
+        const x = s2.x + (s2.tx - s2.x) * fly, y = s2.y + (s2.ty - s2.y) * fly;
+        const k = 1 - smooth(WORLD + 0.4, CRUMBLE + 0.3, t), c = Math.cos(a), sn = Math.sin(a), q = fly >= 1 ? Math.sin((t - s2.t0) * 70) * Math.exp(-(t - s2.t0) * 12) * 0.15 : 0;
+        const cc = Math.cos(a + q), ss = Math.sin(a + q);
+        p.beam(x - cc * s2.L, y - ss * s2.L, x, y, 2.2, IRON[1], k);
+        p.line(x - cc * s2.L, y - ss * s2.L, x, y, IRON[3], k);
+        p.px(x, y, IRON[4], k);
+        // the streak of a needle in flight
+        if (fly > 0 && fly < 1) p.line(s2.x, s2.y, x, y, IRON[3], 0.6);
+        void c; void sn;
       }
       // the world: black thorns branching up and out round the target
       if (t > WORLD - 0.05 && t < CRUMBLE + 0.6) {

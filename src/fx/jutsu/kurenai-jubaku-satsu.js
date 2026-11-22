@@ -7,7 +7,7 @@
 // the world comes back, the target reeling.
 // New: the genjutsu filter, the binding tree, her emerging from the trunk, the shattering. From _lib: veil.
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU } from "../../core/index.js";
-import { play, sealRun, drawSeals, bodyAt, veil, drawFigure } from "./_lib.js";
+import { play, sealRun, drawSeals, bodyAt, veil, drawFigure, drawFigureTurned } from "./_lib.js";
 import { drawBadge } from "./_badge.js";
 
 const SEALS = sealRun(0.05, ["mi"], 0.12, { hold: 0.2 });
@@ -16,7 +16,7 @@ const BARK = ["#1a0c10", "#3a1a22", "#5a2a34", "#7a4048"].map(hex), RED = hex("#
 
 export const meta = {
   name: "Demonic illusion: tree binding death",
-  desc: "Kurenai: Snake, her red eyes flare and the world bleeds red; a tree grows up under the target and its branches wrap it tight; she leans out of the bark behind it, kunai raised, stabs, and the illusion shatters like glass.",
+  desc: "Kurenai: Snake, her red eyes flare and the world bleeds red; a tree grows up under the target and its branches wrap it tight; she grows head-first out of the crown above it and draws her kunai across its throat, and the illusion shatters like glass.",
   tags: ["jutsu", "kurenai", "genjutsu", "bind", "one-shot"],
   size: [290, 200],
   origin: [56, 168],
@@ -99,14 +99,18 @@ export const create = play([], (o) => {
         // leaves on the crown
         for (let i = 0; i < 10; i++) { const a = rand(i, 3) * TAU, d = 16 * g * rand(i, 4); p.circle(TX + 9 + Math.cos(a) * d, top + Math.sin(a) * d * 0.6, 4 * g, i % 2 ? hex("#4a1a2a") : hex("#6a2a3a")); }
       }
-      // Kurenai leaning out of the bark behind the target: a figure tinted like the wood, kunai raised, then the stab
+      // Kurenai coming out of the tree above the target (Narutopedia): she grows head-first out of the crown, hanging
+      // down over it, kunai in hand, and draws it across the target's throat
       if (t > EMERGE && t < SHATTER) {
-        const e = smooth(EMERGE, EMERGE + 0.3, t), stab = smooth(STAB - 0.06, STAB, t);
-        const q = { ...READY, face: -1, crouch: 2, lean: 6 + 6 * stab, fx: 8 + 10 * stab, fy: -36 + 12 * stab, bx: -4, by: -22, ffx: 6, fbx: -6 };
-        drawFigure(p, q, TX + 26 - 8 * e, 0, { tint: BARK[2], k: 0.6 * (1 - e) + 0.15, a: e });
-        const hx = TX + 26 - 8 * e - 8 - 10 * stab, hy = -36 + 12 * stab;
-        p.beam(hx, hy, hx - 6, hy + 3, 1.4, hex("#c8d0e0"), e);
-        if (t > STAB && t < STAB + 0.12) p.circle(TX + 6, -28, 7, WHITE, 1 - (t - STAB) / 0.12);
+        const e = smooth(EMERGE, EMERGE + 0.35, t), stab = smooth(STAB - 0.08, STAB, t), top = -70 * smooth(GROW, BOUND, t);
+        const q = { ...READY, crouch: 0, lean: 4, fx: 10 + 8 * stab, fy: -30 + 6 * stab, bx: -6, by: -26, ffx: 4, fbx: -4 };
+        // upside down: feet still in the crown, head and arms reaching down toward the target's head
+        const fy = -54 - 24 * (1 - e) + 0 * top, cy = fy - 20;
+        drawFigureTurned(p, q, TX + 4, fy, TX + 4, cy, Math.PI, { face: -1, tint: BARK[2], k: 0.65 * (1 - e) + 0.12 });
+        // the kunai at the throat
+        const hx = TX - 8 + 10 * stab, hy = -44 + 6 * stab;
+        p.beam(hx, hy, hx + 7, hy + 2, 1.5, hex("#c8d0e0"), e);
+        if (t > STAB && t < STAB + 0.15) { const u = (t - STAB) / 0.15; p.beam(TX - 8, -38, TX + 14, -36, 2 * (1 - u) + 0.5, WHITE, 1 - u); p.circle(TX + 3, -37, 6, WHITE, 1 - u); }
       }
       // the shattering: the red world breaking into falling panes, the real one behind
       for (const s of shards) {

@@ -3,21 +3,21 @@
 // ("Crow") then drives its blades into the closed cage from every side. Here: he flicks his fingers and two puppets drop
 // from the scroll on his back: Kuroari, squat and many-armed, a single horn; Karasu, gaunt, three eyes, a grin of
 // teeth; Kuroari scuttles over the floor and throws its chest open, the halves swinging wide, and closes round the
-// target with a bang; Karasu's arms come off at the joints and fly up, splitting into blades; one by one they ram into
+// target with a bang; Karasu comes apart, its head and six limbs each baring a hidden blade, and all seven ram into
 // the cage through its slots; a beat; the cage opens again and the target falls out, the puppets drawn home.
 // New: both puppets, the threads, the cage opening and closing, the blades.
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt, drawPoof } from "./_lib.js";
 import { drawBadge } from "./_badge.js";
 
-const TX = 170, DROP = 0.35, GO = 0.8, OPEN = 1.15, SHUT = 1.35, BLADES = [1.7, 1.82, 1.94, 2.06, 2.18], FREE = 2.9, HOME = 3.3, END = 4.0;
+const TX = 170, DROP = 0.35, GO = 0.8, OPEN = 1.15, SHUT = 1.35, STAB = 1.95, BLADES = [0, 1, 2, 3, 4, 5, 6].map(() => STAB), FREE = 2.9, HOME = 3.3, END = 4.0;
 const PUP = ["#141018", "#2a2230", "#463a52", "#6a5a78"].map(hex), WOOD = ["#3a2412", "#5e3c1e", "#8a5a2e"].map(hex), CHK = hex("#6ad0ff");
 const STEEL = ["#4a5468", "#a4afc6", "#e8edf6"].map(hex), PURP = hex("#8a2a8a");
 const KX = 34, CX = -18;
 
 export const meta = {
   name: "Black secret machine: one shot",
-  desc: "Kankuro: two puppets drop from his scroll on chakra threads; Kuroari scuttles over and swallows the target in its cage of a body; Karasu's arms come off as blades and ram into the cage one after another through its slots.",
+  desc: "Kankuro: two puppets drop from his scroll on chakra threads; Kuroari scuttles over and swallows the target in its cage of a body; Karasu comes apart into seven pieces, each with a hidden blade, and all seven ram into the cage's slots at once.",
   tags: ["jutsu", "kankuro", "suna", "puppet", "trap", "one-shot"],
   size: [300, 190],
   origin: [56, 160],
@@ -45,7 +45,7 @@ export const act = {
   hits: [
     { t: DROP, target: false, sfx: "step" },
     { t: SHUT, stop: 0.12, shake: 0.3, amp: 2, push: 0, straw: 0, flash: 0, sfx: "clash" },
-    ...BLADES.map((t, i) => ({ t, stop: 0.04, shake: 0.2, amp: 2, push: 0, straw: 0, flash: 0, target: false, sfx: i === 4 ? "heavy" : "punch" })),
+    { t: STAB, stop: 0.2, shake: 0.5, amp: 4, push: 0, straw: 0, flash: 0, target: false, sfx: "heavy" },
     { t: FREE, stop: 0.1, shake: 0.3, amp: 2, push: 3, straw: 40, skin: "poison", sfx: "land" },
     { t: FREE + 0.5, flash: 0, push: 0, straw: 0, skin: null },
   ],
@@ -115,21 +115,22 @@ export const create = play([], (o) => {
       karasu(p, CX, cyy, t > BLADES[0] - 0.1 && t < FREE + 0.2, t);
       kuroari(p, kxx, open, t);
       if (t > SHUT && t < SHUT + 0.1) p.ring(TX, -26, 16 + (t - SHUT) * 200, 1, WHITE, 1 - (t - SHUT) / 0.1);
-      // Karasu's blades: arms off, splitting into long blades, flying up and ramming into the cage one by one
+      if (t > STAB && t < STAB + 0.25) { const u = (t - STAB) / 0.25; p.ring(TX, -26, 20 + 50 * u, 2, WHITE, 1 - u); }
+      // Karasu's seven pieces: head and six limbs, each a blade, launched one after another to arrive all at once
       BLADES.forEach((bt, i) => {
-        const a = t - (bt - 0.25);
+        const fl = 0.22 + i * 0.05, a = t - (bt - fl);
         if (a < 0 || t > FREE) return;
-        const u = clamp(a / 0.25), ang = -Math.PI / 2 + (i - 2) * 0.5, sx = CX + (i % 2 ? 8 : -8), sy = -16;
+        const u = clamp(a / fl), ang = -Math.PI / 2 + (i - 3) * 0.62, sx = CX + (i % 2 ? 8 : -8), sy = -16;
         const ex = TX + Math.cos(ang + Math.PI) * 12, ey = -26 + Math.sin(ang + Math.PI) * 14;
         const x = sx + (ex - sx) * ease.inQuad(u), y = sy + (ey - sy) * ease.inQuad(u) - Math.sin(u * Math.PI) * 40, dir = u < 1 ? Math.atan2(ey - y, ex - x) : Math.atan2(ey + 26, ex - TX) + Math.PI;
         const c = Math.cos(dir), s = Math.sin(dir);
         p.beam(x - c * 10, y - s * 10, x + c * 6, y + s * 6, 2, STEEL[1]);
         p.line(x - c * 10, y - s * 10, x + c * 8, y + s * 8, STEEL[2]);
         p.beam(x - c * 14, y - s * 14, x - c * 10, y - s * 10, 2.5, WOOD[0]);
-        if (u >= 1 && a < 0.35) p.circle(ex, ey, 4, WHITE, 1 - (a - 0.25) / 0.1);
+        if (u >= 1 && a < fl + 0.1) p.circle(ex, ey, 4, WHITE, 1 - (a - fl) / 0.1);
       });
       // poison dripping from the cage seams after the blades went in
-      if (t > BLADES[4] && t < FREE) for (let i = 0; i < 3; i++) { const ph = (t * 2 + i * 0.33) % 1; p.px(TX - 6 + i * 6, -4 + ph * 4, hex("#58c43a"), 1 - ph); }
+      if (t > STAB && t < FREE) for (let i = 0; i < 3; i++) { const ph = (t * 2 + i * 0.33) % 1; p.px(TX - 6 + i * 6, -4 + ph * 4, hex("#58c43a"), 1 - ph); }
       void rand; void TAU;
       ps.draw(p, "front");
       lights.draw(p);

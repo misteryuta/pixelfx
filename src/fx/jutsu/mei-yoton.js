@@ -1,5 +1,6 @@
-// Youton: Youkai no Jutsu (Lava Release: Melting Apparition, Mei Terumi, the Fifth Mizukage). Narutopedia: she spews
-// a mass of lava from her mouth that melts whatever it touches; her lava ignores defences that stop fire or water.
+// Youton: Youkai no Jutsu (Lava Release: Melting Apparition, Mei Terumi, the Fifth Mizukage). Narutopedia: she turns
+// chakra into a strong acidic fluid and spits it: a viscous, corrosive mud flow that melts anything it touches (even a
+// Susanoo) and throws up a great deal of smoke, cover for a follow-up.
 // Here: Tiger, Ox; she draws a deep breath, chest swelling, and spits a heavy stream of molten rock in an arc: thick
 // glowing globs with dark crusts that splatter where they land; it pools round the target, smoking and bubbling, the
 // target sinking and blackening as it melts into the pool; the stream stops; the pool cools from orange to a dark
@@ -11,12 +12,13 @@ import { drawBadge } from "./_badge.js";
 
 const SEALS = sealRun(0.05, ["tora", "ushi"], 0.12, { hold: 0.15, kind: "fire", last: { fx: 9, fy: -28, bx: 10, by: -28 } });
 const BREATH = SEALS.end, SPIT = BREATH + 0.4, STOP = SPIT + 1.0, COOL = STOP + 0.5, END = COOL + 2.0, TX = 170;
-const LAVA = ["#1a0604", "#4a0e06", "#a8260a", "#f05a10", "#ffa030", "#ffe890"].map(hex), CRUST = ["#140c0c", "#2a1a18", "#3e2a24"].map(hex);
+// the acid: a viscous yellow-orange mud, corrosive, smoking; where it has eaten in, a pitted dark scar
+const LAVA = ["#1a0e04", "#4a2a08", "#8a5a10", "#c8901c", "#ecc040", "#fff0a0"].map(hex), CRUST = ["#120e0a", "#241c14", "#3a2e20"].map(hex), FUME = ["#3a3e30", "#5a604a", "#8a9070"].map(hex);
 const POOL = 38;
 
 export const meta = {
   name: "Lava release: melting apparition",
-  desc: "Mei Terumi: Tiger, Ox, a deep breath, and she spits a heavy arc of molten rock that pools round the target, bubbling and smoking as it melts into it; the pool cools to a black crust webbed with glowing cracks.",
+  desc: "Mei Terumi: Tiger, Ox, a deep breath, and she spits a heavy arc of acidic mud that pools round the target, bubbling and throwing up thick smoke as it melts into it; it eats a dark scar into the floor.",
   tags: ["jutsu", "mei", "mizukage", "lava", "youton", "kekkei-genkai", "one-shot"],
   size: [300, 170],
   origin: [56, 140],
@@ -78,7 +80,7 @@ export const create = play([], (o) => {
       for (const s of splats) s.age += dt;
       if (t > SPIT + 0.25) poolR = Math.min(POOL, poolR + dt * 60);
       // smoke and steam off the pool
-      if (t > SPIT + 0.3 && t < END - 0.3 && R.chance((t < COOL ? 30 : 18) * dt)) ps.spawn(P.SMOKE ?? P.STREAK, TX + R.range(-poolR, poolR), -2, R.range(-6, 6), -R.range(20, 40), R.range(0.8, 1.4), t < COOL ? hex("#3a3036") : hex("#c8c4cc"));
+      if (t > SPIT + 0.3 && t < END - 0.3 && R.chance((t < COOL ? 70 : 30) * dt)) ps.spawn(P.SMOKE, TX + R.range(-poolR, poolR), -2 - R.range(0, 20), R.range(-12, 12), -R.range(16, 36), R.range(1.0, 1.8), FUME[R.int(0, 2)], R.range(2, 4));
       if (t > SPIT && t < STOP && R.chance(10 * dt)) lights.add(TX, -6, 80, LAVA[4], 0.5, 0.2);
       ps.update(dt);
       lights.update(dt);

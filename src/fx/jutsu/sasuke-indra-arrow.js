@@ -1,218 +1,184 @@
-// Indra no Ya (Indra's Arrow, Sasuke, with the Rinnegan). Narutopedia: his strongest technique: the complete Susanoo's
-// bow drawn with the chakra of all nine tailed beasts and his own Chidori, an arrow of lightning so vast it clashed
-// even with Six Paths Naruto's Rasengan. Here: his Rinnegan and Sharingan, the purple Susanoo surging up round him in
-// one go; the bow; he nocks, and as he draws, lightning comes to the arrow from everywhere, bolts crawling in from the
-// edges of the frame, the arrow swelling, black at its core and screaming, the whole frame strobing; he looses: a
-// river of violet lightning straight down the floor through the target, the ground split along it, a dome of white
-// and purple, two frames of ink, and black flames left burning in the furrow.
-// New over the Susanoo arrow: the storm drawn into the arrow, the beam and its furrow, the giant dome. From _lib: bolts,
-// blast, the impact frame.
-import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
-import { play, bodyAt, impactFrame, blast, drawBlackFlame, bolt } from "./_lib.js";
+// Indra no Ya (Indra's Arrow, Sasuke, with the Rinnegan). Narutopedia: after absorbing the chakra of all nine tailed
+// beasts and using his Complete Body Susanoo as the vessel, Sasuke creates a longbow and an arrow infused with
+// lightning chakra, strong enough to meet Six Paths Naruto's greatest Rasenshuriken. His Complete Body Susanoo is purple:
+// a crow-billed helmet, two spikes over each eye, a slit across its mouth, three gaps on each cheek; the bow is on its
+// left wrist and the arrows are drawn from an orb in its right hand; with the tailed beasts' chakra (the Indra Susanoo)
+// lightning pours from its back. After the anime (the reference clip): the purple giant wreathed in cyan-white
+// lightning, the frame flooded with it, then the colossal arrow, its head a wide barbed triangle, tearing down through
+// the clouds trailing lightning.
+// Here: his Rinnegan and Sharingan; Sasuke rises and the purple Complete Body Susanoo forms round him; the tailed beasts'
+// chakra floods into it and lightning bursts off its back; the bow unfolds on its left wrist; the right hand closes on
+// an orb of lightning and draws: the arrow grows out of the orb along the string, and as the draw deepens lightning
+// is pulled in from every edge of the frame, the arrow swelling, its head a wide barbed blade; the release: the string
+// snaps, the arrow is already there, a river of cyan lightning through the target, a pillar of lightning standing up
+// out of it, two frames of ink; the ground torn along its path.
+// New over the old version: the Complete Body Susanoo (from _perfect.js) drawing a real bow, the barbed arrowhead, the
+// lightning pillar. Smooth: arm, draw and lean follow Hermite keys; a camera (shots).
+import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU } from "../../core/index.js";
+import { play, bodyAt, bolt, impactFrame, veil } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
-import { drawSusanoo, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
+import { keyTrack } from "./_susanoo.js";
+import { shots } from "./_taijutsu.js";
+import { drawPerfect, PERFECT } from "./_perfect.js";
 
-const EYE = 0.05, OPEN = 0.5, RIBS = OPEN + 0.04, BONES = RIBS + 0.16, FLESH = BONES + 0.18, ARMOUR = FLESH + 0.3, BOW = ARMOUR + 0.25;
-const GRAB = BOW + 0.35, NOCKED = GRAB + 0.12, DRAWN = NOCKED + 0.6, LOOSE = DRAWN + 0.9, FLY = 0.1, HIT = LOOSE + FLY, GONE = HIT + 1.4, END = HIT + 3.4, TX = 236;
-const V = SUSANOO.sasuke, BOOM = ["#08040e", "#1c1030", "#3c2070", "#6a3ab8", "#a070f0", "#d8c0ff", "#fff4ff"].map(hex);
-const T = [TX - 4, -28];
-
-// the body: lean, turn and head over time; raise lifts the bow arm onto the target; grab and pull work the right hand
-const pose = keyTrack([
-  [0, { lean: 0, twist: 0, head: 0, raise: 0, grab: 0, pull: 0, kick: 0 }],
-  [BOW, { raise: 0 }],
-  [GRAB, { raise: 1, lean: 0.05, twist: 0.2, head: 0.1, grab: 1 }],
-  [NOCKED, { grab: 1, pull: 0 }],
-  [DRAWN, { lean: -0.12, twist: -0.25, head: 0.16, pull: 1 }],
-  [LOOSE, { lean: -0.13, twist: -0.27, pull: 1.02, kick: 0 }],
-  [LOOSE + 0.08, { lean: -0.2, twist: -0.4, pull: 1.45, kick: 1 }],
-  [LOOSE + 0.4, { lean: -0.08, twist: -0.15, pull: 1.25, kick: 0.2 }],
-  [GONE, { lean: 0, twist: 0, raise: 0.6, grab: 0, pull: 0, kick: 0 }],
+const EYE = 0.05, RISE = 0.55, FORM0 = 0.65, FORMED = 1.45, INDRA = 1.55, BOW = 1.85, GRAB = 2.25, DRAWN = 3.15, LOOSE = 3.55, FLY = 0.12, HIT = LOOSE + FLY;
+const REST = HIT + 1.6, FADE = REST + 0.4, END = FADE + 0.9, TX = 292, G = 0.62;
+const C = PERFECT.sasuke, LT = ["#061430", "#0c3a80", "#1a8ae0", "#6ad8ff", "#c8f6ff", "#ffffff"].map(hex);
+const SX = 6;
+// the bow hand out toward the target; the draw hand from the bow back to the jaw
+const GRIP = [118, -196], ANCHOR = [6, -214];
+const K = keyTrack([
+  [0, { nx: 60, ny: -140, fx: -40, fy: -130, lean: 0, pull: 0, bow: 0 }],
+  [FORMED, { nx: 60, ny: -140, fx: -40, fy: -130, lean: 0, pull: 0, bow: 0 }],
+  // the left arm comes up and out onto the target, the bow unfolding on its wrist
+  [BOW + 0.3, { fx: GRIP[0], fy: GRIP[1], bow: 1, lean: 0.04 }],
+  // the right hand to the string at the bow
+  [GRAB, { nx: GRIP[0] - 22, ny: GRIP[1] - 4, pull: 0 }],
+  // the draw: back along the arrow to the jaw, the body leaning back into it
+  [DRAWN, { nx: ANCHOR[0], ny: ANCHOR[1], pull: 1, lean: -0.08 }],
+  [LOOSE, { nx: ANCHOR[0] - 2, ny: ANCHOR[1], pull: 1.03, lean: -0.09 }],
+  // the release: the hand flies back past the jaw, the bow arm kicks
+  [LOOSE + 0.1, { nx: ANCHOR[0] - 46, ny: ANCHOR[1] + 10, pull: 0, fx: GRIP[0] - 6, fy: GRIP[1] - 14, lean: -0.16 }],
+  [LOOSE + 0.5, { nx: ANCHOR[0] - 30, ny: ANCHOR[1] + 14, fx: GRIP[0] - 2, fy: GRIP[1] - 6, lean: -0.06 }],
+  [REST, { nx: 50, ny: -150, fx: GRIP[0] - 20, fy: GRIP[1] + 20, bow: 1, lean: 0 }],
+  [FADE, { bow: 0 }],
 ]);
-const DRAW_LEN = 46;
-// drawn the way an archer draws: the arrow runs from an anchor at the jaw to the target; the bow hand holds the grip
-// out on that line, the draw hand comes back along it to the jaw, and the draw elbow lies back behind the hand, in line
-// with the arrow, not cocked up. On the release the hand flies back past the jaw and the bow arm kicks.
-const lerp2 = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
-const rigAt = (t) => {
-  const q = pose(t), R0 = rigOf(q), N = [R0.Hd[0] + 8, R0.Hd[1] + 14], aim = Math.atan2(T[1] - N[1], T[0] - N[0]), dx = Math.cos(aim), dy = Math.sin(aim);
-  const Gaim = [N[0] + dx * (DRAW_LEN + 6), N[1] + dy * (DRAW_LEN + 6)], restF = [R0.far.S[0] + 12, R0.far.S[1] + 34];
-  const G = lerp2(restF, Gaim, q.raise).map((v, i) => v - (i ? 12 * q.kick : 0));
-  const restN = [R0.near.S[0] + 8, R0.near.S[1] + 30], p = q.pull;
-  const drawn = p <= 1 ? [Gaim[0] - dx * (6 + DRAW_LEN * p), Gaim[1] - dy * (6 + DRAW_LEN * p)] : [N[0] - dx * (p - 1) * 22, N[1] - dy * (p - 1) * 22 + (p - 1) * 4];
-  const H = lerp2(restN, drawn, q.grab);
-  // the elbow: hanging naturally while the hand reaches; drawn, it lies back along the arrow behind the hand
-  const R1 = rigOf({ ...q, farH: G, farBend: 0.3, nearH: H, nearBend: 1 }), d = clamp(p) * q.grab;
-  const E = lerp2(R1.near.E, [H[0] - dx * 25, H[1] - dy * 25 + 1], d * d * (3 - 2 * d));
-  const R = rigOf({ ...q, farH: G, farBend: 0.3, nearH: H, nearBend: 1, nearE: E });
-  return { R, G: R.far.H, dx, dy, q };
-};
-const stageAt = (t) => ({
-  ribs: smooth(RIBS, RIBS + 0.3, t) * (1 - smooth(GONE + 0.45, GONE + 0.7, t)),
-  bones: smooth(BONES, BONES + 0.3, t) * (1 - smooth(GONE + 0.3, GONE + 0.55, t)),
-  flesh: smooth(FLESH, FLESH + 0.5, t) * (1 - smooth(GONE + 0.05, GONE + 0.35, t)),
-  armour: smooth(ARMOUR, ARMOUR + 0.4, t) * (1 - smooth(GONE - 0.2, GONE + 0.1, t)),
-});
+const form = (t) => smooth(FORM0, FORMED, t) * (1 - smooth(FADE, END - 0.15, t));
 
 export const meta = {
   name: "Indra's arrow",
-  desc: "Sasuke with the Rinnegan: the purple Susanoo surges up, draws its bow, and lightning pours into the arrow from every side until it screams; loosed, a river of violet lightning splits the floor through the target into a dome of white and purple.",
-  tags: ["jutsu", "sasuke", "susanoo", "rinnegan", "lightning", "projectile", "aoe", "ultimate", "one-shot"],
-  size: [404, 256],
-  origin: [74, 206],
+  desc: "Sasuke with the Rinnegan: his purple Complete Body Susanoo forms, the tailed beasts' lightning bursting off its back; the bow unfolds on its left wrist, the right hand draws an arrow of lightning out of an orb while lightning floods in from everywhere; loosed, a river of cyan lightning through the target and a pillar of lightning out of it.",
+  tags: ["jutsu", "sasuke", "susanoo", "complete-body", "rinnegan", "lightning", "projectile", "aoe", "ultimate", "one-shot"],
+  size: [460, 270],
+  origin: [110, 244],
   duration: END,
   loop: false,
   fps: 30,
   bg: "ground",
   actor: 2,
-  options: { palette: ["#1a0a36", "#4a2490", "#8a5ae0", "#c8a8ff", "#f0e6ff"], seed: 135 },
+  options: { palette: ["#0e0624", "#2a1260", "#4e24a0", "#8050e0", "#c4a0ff", "#f4ecff"], seed: 135 },
 };
 
-const STANDP = { ...READY, crouch: 4, fx: 12, fy: -24, bx: -4, by: -22, ffx: 9, fbx: -9 };
-const AIMP = { ...READY, crouch: 5, lean: 2, fx: 16, fy: -28, bx: 2, by: -28, ffx: 10, fbx: -9 };
+const CALM = { ...READY, crouch: 0, lean: -1, fx: 4, fy: -17, bx: -2, by: -17, ffx: 5, fbx: -5 };
+const FLOAT = { ...CALM, x: SX - 3, y: -93, fx: 10, fy: -24, bx: 6, by: -24, ffx: 4, ffy: -6, fbx: -4, fby: -6, gait: false };
 export const act = {
   target: { x: TX },
   poses: [
     [-0.25, READY],
-    [OPEN, STANDP, "out"],
-    [GRAB, { ...STANDP, crouch: 5 }],
-    [DRAWN, AIMP, "out"],
-    [LOOSE, { ...AIMP, bx: -2 }],
-    [LOOSE + 0.05, { ...AIMP, bx: -6, lean: -2 }, "snap"],
-    [GONE + 0.4, STANDP],
-    [END, READY],
+    [RISE, CALM, "out"],
+    [FORM0 + 0.5, FLOAT, "out"],
+    [DRAWN, { ...FLOAT, lean: -4, fx: 2, fy: -28, bx: 12, by: -26 }],
+    [LOOSE + 0.1, { ...FLOAT, lean: -6, fx: -6, fy: -26 }, "snap"],
+    [FADE, FLOAT],
+    [END, { ...CALM, x: SX - 3, gait: false }, "in"],
   ],
   hits: [
-    { t: RIBS, stop: 0.06, shake: 0.15, amp: 1, target: false },
-    { t: FLESH + 0.5, stop: 0.06, shake: 0.2, amp: 2, target: false },
-    { t: LOOSE, stop: 0.04, shake: 0.1, amp: 1, target: false, sfx: "whoosh" },
-    { t: NOCKED + 0.1, shake: 1.2, amp: 1, target: false, sfx: "thunder" },
-    { t: HIT, stop: 0.3, shake: 1.4, amp: 9, push: 9, straw: 80, skin: "char", shiver: 0.8, sfx: "explosion" },
-    { t: HIT + 0.5, shake: 0.8, amp: 3, target: false, sfx: "rumble" },
-    { t: END - 0.4, flash: 0, push: 0, straw: 0, skin: null },
+    { t: RISE, stop: 0.06, shake: 0.3, amp: 2, target: false, sfx: "cast" },
+    { t: INDRA, stop: 0.08, shake: 0.8, amp: 3, target: false, sfx: "thunder" },
+    { t: GRAB + 0.2, shake: 1.2, amp: 1, target: false, sfx: "thunder" },
+    { t: LOOSE, stop: 0.06, shake: 0.4, amp: 2, target: false, sfx: "whoosh" },
+    { t: HIT, stop: 0.3, shake: 1.4, amp: 10, push: 10, straw: 90, skin: "shock", shiver: 1, sfx: "explosion" },
+    { t: HIT + 0.4, shake: 0.9, amp: 4, target: false, sfx: "thunder" },
+    { t: HIT + 1.0, flash: 0, push: 0, straw: 0, skin: null },
   ],
-  dust: [{ t: RIBS, x: 0, n: 10 }, { t: HIT + 0.05, x: TX - 30, n: 16, dir: -1 }, { t: HIT + 0.05, x: TX + 30, n: 16, dir: 1 }],
+  dust: [{ t: RISE, x: SX, n: 16, dir: -1 }, { t: RISE, x: SX, n: 16, dir: 1 }, { t: HIT, x: TX - 40, n: 24, dir: -1 }, { t: HIT, x: TX + 40, n: 24, dir: 1 }],
 };
 
-// the bow on the left wrist: two limbs swept back from the grip, recurved at the tips; s how far it has grown
-function bowOf(A, pull, s) {
-  const { G, dx, dy } = A, px = -dy, py = dx, back = 10 + 9 * Math.min(1, pull);
-  const tip = (side) => [G[0] + px * side * 40 * s - dx * back * s, G[1] + py * side * 40 * s - dy * back * s];
-  const mid = (side) => [G[0] + px * side * 22 * s + dx * 5 * s, G[1] + py * side * 22 * s + dy * 5 * s];
-  return { top: tip(-1), bot: tip(1), mt: mid(-1), mb: mid(1) };
-}
-function drawBow(p, t, A, k, s) {
-  if (k <= 0 || s <= 0) return;
-  const b = bowOf(A, A.q.pull, s), G = A.G;
-  const limb = (m, e) => {
-    let prev = G;
-    for (let i = 1; i <= 10; i++) {
-      const u = i / 10, v = 1 - u, x = v * v * G[0] + 2 * v * u * m[0] + u * u * e[0], y = v * v * G[1] + 2 * v * u * m[1] + u * u * e[1];
-      p.beam(prev[0], prev[1], x, y, 3.5 - u * 1.5, V[2], k);
-      p.line(prev[0], prev[1], x, y, V[4], k);
-      // purple fire licking off it
-      if (rand(i, Math.floor(t * 20)) > 0.6) p.line(x, y, x - A.dy * 2, y - 3 - rand(i, Math.floor(t * 24)) * 4, V[3], k * 0.8);
-      prev = [x, y];
-    }
-  };
-  limb(b.mt, b.top);
-  limb(b.mb, b.bot);
-  p.glow(G[0], G[1], 30, V[3], 0.4 * k);
-}
+export const camera = shots([
+  [0, { z: 2.4, x: SX + 6, y: -26 }],
+  [FORMED, { z: 1.1, x: SX + 70, y: -106 }],
+  [BOW + 0.3, { z: 1.3, x: SX + 75, y: -124, r: 1 }],
+  [GRAB, { z: 1.7, x: SX + 44, y: -127, r: -1 }, "cut"],
+  [DRAWN, { z: 1.9, x: SX + 31, y: -130, r: -3 }],
+  [LOOSE, { z: 2.0, x: SX + 37, y: -130, r: -3 }],
+  [LOOSE + 0.02, { z: 1.0, x: 180, y: -100, r: 0 }, "cut"],
+  [HIT + 0.2, { z: 1.3, x: TX - 12, y: -75, r: 2 }, "cut"],
+  [REST, { z: 1.1, x: 198, y: -93 }],
+  [END, { z: 1.0, x: 186, y: -93 }],
+]);
 
 export const create = play([], (o) => {
   const R = new Rng(o.seed), ps = new Particles({ rng: R, ground: () => 0 }), lights = new Lights();
-  let loosed = false, hit = false;
+  const fired = new Set(), once = (k, fn) => { if (!fired.has(k)) { fired.add(k); fn(); } };
+  const S = (t) => {
+    const k = K(t);
+    return { kind: "sasuke", x: SX, y: 0, s: G, t, form: form(t), near: [k.nx, k.ny], far: [k.fx, k.fy], farBend: 1, nearBend: 1, lean: k.lean, wings: smooth(FORMED - 0.4, FORMED + 0.4, t), bow: k.bow * smooth(BOW, BOW + 0.3, t), pull: clamp(k.pull), lightning: smooth(INDRA, INDRA + 0.2, t) * (1 - smooth(FADE - 0.3, FADE, t)) };
+  };
+  // the arrow's line: from the draw hand through the bow toward the target, in effect space
+  const arrowLine = (t) => { const k = K(t), H = [SX + k.nx * G, k.ny * G], Gp = [SX + GRIP[0] * G, GRIP[1] * G], a = Math.atan2(-24 - Gp[1], TX - Gp[0]); return { H, G: Gp, a }; };
+  // the arrow: a shaft of white-cyan lightning, a wide barbed head; f: flicker frame
+  function arrow(p, x, y, a, L, f, k = 1, sc = 1) {
+    const c = Math.cos(a), s = Math.sin(a), at = (u, v) => [x + c * u * sc - s * v * sc, y + s * u * sc + c * v * sc];
+    p.glowLine(...at(-L / sc, 0), ...at(10, 0), 26 * sc, LT[3], 0.7 * k);
+    p.beam(...at(-L / sc, 0), ...at(0, 0), 5 * sc, LT[3], k);
+    p.beam(...at(-L / sc, 0), ...at(0, 0), 2 * sc, WHITE, k);
+    // the head: a wide barbed triangle, white core
+    p.poly([at(30, 0), at(-4, -16), at(4, -5), at(4, 5), at(-4, 16)], LT[4], k);
+    p.poly([at(24, 0), at(2, -8), at(2, 8)], WHITE, k);
+    // fletching of lightning at the back
+    for (let i = 0; i < 3; i++) bolt(p, ...at(-L / sc + 4, 0), ...at(-L / sc - 14 - rand(f, i) * 10, (rand(f, i + 3) - 0.5) * 30), f + i, LT, { jag: 0.4, seed: i, glow: 0 });
+  }
   return {
     update(t, dt) {
-      if (t > RIBS && t < GONE && R.chance(26 * dt)) ps.spawn(P.EMBER, R.range(-40, 40), -R.range(20, 110), R.range(-10, 10), -R.range(20, 50), R.range(0.3, 0.6), V[R.int(2, 4)]);
-      if (!loosed && t >= LOOSE) {
-        loosed = true;
-        const A = rigAt(t);
-        lights.add(A.G[0], A.G[1], 80, V[3], 0.9, 0.15);
-      }
-      if (!hit && t >= HIT) {
-        hit = true;
-        lights.add(T[0], -20, 160, BOOM[4], 1, 0.6);
-        for (let i = 0; i < 30; i++) {
-          const a = R.range(-Math.PI, 0), s = R.range(100, 300);
-          ps.spawn(P.STREAK, T[0], -20, Math.cos(a) * s, Math.sin(a) * s, R.range(0.15, 0.35), R.chance(0.5) ? BOOM[6] : BOOM[4]);
-        }
-      }
+      if (t > INDRA && t < FADE && R.chance(50 * dt)) ps.spawn(P.SPARK, SX + R.range(-50, 38), -R.range(38, 186), R.range(-120, 120), R.range(-80, 40), R.range(0.08, 0.2), R.chance(0.5) ? WHITE : LT[3]);
+      if (t >= HIT) once("hit", () => { lights.add(TX, -38, 200, LT[4], 1, 0.6); for (let i = 0; i < 40; i++) { const a = R.range(-Math.PI, 0), s = R.range(80, 260); ps.spawn(P.STREAK, TX, -20, Math.cos(a) * s, Math.sin(a) * s, R.range(0.15, 0.4), R.chance(0.5) ? WHITE : LT[3]); } });
       ps.update(dt);
       lights.update(dt);
     },
     drawBack(p, t) {
-      const A = rigAt(t), st = stageAt(t);
-      const bowK = smooth(BOW, BOW + 0.15, t) * (1 - smooth(GONE - 0.2, GONE + 0.1, t)), bowS = ease.outBack(clamp((t - BOW) / 0.3), 1.6);
-      drawSusanoo(p, t, A.R, { kind: "sasuke", st, mid: (pp) => drawBow(pp, t, A, bowK, bowS) });
-      // the string: tip to the drawing fingers to tip while nocked, straight otherwise (twanging after the release)
-      if (bowK > 0) {
-        const b = bowOf(A, A.q.pull, bowS), H = A.R.near.H, nocked = t > NOCKED && t < LOOSE;
-        if (nocked) {
-          p.line(b.top[0], b.top[1], H[0], H[1], V[4], bowK);
-          p.line(b.bot[0], b.bot[1], H[0], H[1], V[4], bowK);
-        } else {
-          const tw = t > LOOSE ? Math.sin((t - LOOSE) * 80) * 4 * Math.exp(-(t - LOOSE) * 8) : 0, mx = (b.top[0] + b.bot[0]) / 2 - A.dx * tw, my = (b.top[1] + b.bot[1]) / 2 - A.dy * tw;
-          p.line(b.top[0], b.top[1], mx, my, V[4], bowK);
-          p.line(mx, my, b.bot[0], b.bot[1], V[4], bowK);
-        }
+      if (t > RISE && t < FORMED + 0.2) {
+        const k = smooth(RISE, RISE + 0.15, t) * (1 - smooth(FORMED - 0.2, FORMED + 0.2, t)), w = 15 + 37 * smooth(RISE, FORMED, t);
+        p.shade(SX - w - 10, -205, SX + w + 10, 2, (x, y, out) => { const d = Math.abs(x - SX) / (w * (0.8 + 0.25 * noise2(y * 0.03 - t * 4, 1, 4))); if (d > 1) return; out.a = k; out.k = 0.3; return d > 0.8 ? C[4] : d > 0.4 ? C[3] : C[5]; });
       }
-      // the blast's far side and its smoke
-      blast(p, t - HIT, { x: T[0], y: 0, R: 60, C: BOOM, seed: 5, layer: "back" });
+      const st = S(t), J = drawPerfect(p, { ...st, layer: "back" });
+      // the string: from both tips of the bow to the drawing fingers while drawn; straight (twanging) otherwise
+      if (st.bow > 0.3 && J.bowTips) {
+        const H = J.near, nocked = t > GRAB && t < LOOSE, [A, B] = J.bowTips;
+        if (nocked) { p.line(A[0], A[1], H[0], H[1], LT[4]); p.line(B[0], B[1], H[0], H[1], LT[4]); }
+        else { const tw = t > LOOSE ? Math.sin((t - LOOSE) * 80) * 6 * Math.exp(-(t - LOOSE) * 7) : 0, mx = (A[0] + B[0]) / 2 - tw, my = (A[1] + B[1]) / 2; p.line(A[0], A[1], mx, my, LT[4]); p.line(mx, my, B[0], B[1], LT[4]); }
+      }
+      // the ground torn along the arrow's path
+      if (t > HIT) { const k = 1 - smooth(END - 0.8, END, t); p.line(SX + 90, 0, TX + 40, 0, hex("#06020a"), k); p.line(SX + 90, -1, TX + 40, -1, LT[3], k * (1 - smooth(HIT, HIT + 1.2, t))); }
       ps.draw(p, "back");
     },
     draw(p, t) {
-      const b = bodyAt(act.poses, t), A = rigAt(t), st = stageAt(t);
-      drawSusanoo(p, t, A.R, { kind: "sasuke", st, layer: "front" });
-      drawBadge(p, t, { kind: "rinnegan", t0: EYE, t1: OPEN, label: "INDRA", head: b.head, dx: -12 });
-      drawBadge(p, t, { kind: "sasukeEMS", t0: EYE + 0.08, t1: OPEN, label: "", head: b.head, dx: 10 });
-      drawGlint(p, t, "sasukeEMS", OPEN + 0.05, END - 0.4, b.head);
-      // the arrow: formed under the fingers at the bow, drawn back with the hand, loosed down the line
-      if (t > GRAB - 0.05 && t < LOOSE) {
-        const k = smooth(GRAB - 0.05, NOCKED, t), H = A.R.near.H, len = 62 * k;
-        for (let i = 0; i < len; i++) {
-          const wd = i > len - 9 ? (len - i) * 0.55 : 1.1 + Math.sin(i * 0.8 - t * 30) * 0.6, x = H[0] + A.dx * i, y = H[1] + A.dy * i;
-          p.line(x + A.dy * wd, y - A.dx * wd, x - A.dy * wd, y + A.dx * wd, i > len - 9 ? WHITE : V[3]);
-          if (rand(i, Math.floor(t * 24)) > 0.8) p.px(x - A.dx * 2, y - 3, V[4]);
-        }
-        p.glowLine(H[0], H[1], H[0] + A.dx * len, H[1] + A.dy * len, 14, V[3], 0.6 * k);
-        // the storm drawn into it: bolts from every edge of the frame, more and more as he draws; the arrow's black core
-        const g = smooth(NOCKED, LOOSE, t), f = Math.floor(t * 24), mid = [H[0] + A.dx * len * 0.6, H[1] + A.dy * len * 0.6];
-        for (let i = 0; i < 2 + Math.floor(g * 6); i++) {
-          const a = rand(f, i) * TAU, d = 160 + rand(f, i + 9) * 60;
-          bolt(p, mid[0] + Math.cos(a) * d, mid[1] + Math.sin(a) * d * 0.7, mid[0], mid[1], f + i, V, { jag: 0.2, seed: i, glow: 0.25 * g, core: WHITE });
-        }
-        p.glowLine(H[0], H[1], H[0] + A.dx * len, H[1] + A.dy * len, 30 * g + 10, V[3], 0.5 * g);
-        for (let i = 0; i < len; i += 2) p.px(H[0] + A.dx * i, H[1] + A.dy * i, hex("#0a0414"));
-        if (g > 0.5 && f % 4 === 0) p.glow(mid[0], mid[1], 220, V[3], 0.3 * g);
+      const b = bodyAt(act.poses, t), f = Math.floor(t * 24);
+      drawBadge(p, t, { kind: "rinnegan", t0: EYE, t1: RISE, label: "INDRA", head: b.head, dx: -12 });
+      drawBadge(p, t, { kind: "sasukeEMS", t0: EYE + 0.08, t1: RISE, label: "", head: b.head, dx: 10 });
+      drawGlint(p, t, "sasukeEMS", RISE, END - 0.4, b.head);
+      drawPerfect(p, { ...S(t), layer: "front" });
+      // the orb of lightning in the right hand, and the arrow growing out of it along the string
+      if (t > GRAB - 0.2 && t < LOOSE) {
+        const { H, a } = arrowLine(t), g = smooth(GRAB, DRAWN, t), L = 25 + 105 * g;
+        p.glow(H[0], H[1], 18 + 20 * g, LT[3], 0.8);
+        p.circle(H[0], H[1], 6 + 4 * g, LT[4]);
+        p.circle(H[0], H[1], 3 + 2 * g, WHITE);
+        if (t > GRAB) arrow(p, H[0] + Math.cos(a) * L, H[1] + Math.sin(a) * L, a, L, f, smooth(GRAB, GRAB + 0.15, t));
+        // lightning pulled in from every edge of the frame, more as the draw deepens; the frame strobing
+        const mid = [H[0] + Math.cos(a) * L * 0.6, H[1] + Math.sin(a) * L * 0.6];
+        for (let i = 0; i < 2 + Math.floor(g * 7); i++) { const ang = rand(f, i) * TAU, d = 140 + rand(f, i + 9) * 80; bolt(p, mid[0] + Math.cos(ang) * d, mid[1] + Math.sin(ang) * d * 0.7, mid[0], mid[1], f + i, LT, { jag: 0.2, seed: i, glow: 0.25 * g }); }
+        if (g > 0.6 && f % 3 === 0) p.glow(mid[0], mid[1], 190, LT[3], 0.35 * g);
       }
-      if (t >= LOOSE && t < HIT + 0.5) {
-        const A0 = rigAt(LOOSE - 0.001), H0 = A0.R.near.H, sx0 = H0[0] + A0.dx * 62, sy0 = H0[1] + A0.dy * 62, u0 = clamp((t - LOOSE) / FLY), k0 = 1 - smooth(HIT + 0.1, HIT + 0.5, t);
-        const ex = sx0 + (T[0] + 60 - sx0) * u0, ey = sy0 + (T[1] - sy0) * u0, f0 = Math.floor(t * 24);
-        p.glowLine(sx0, sy0, ex, ey, 40, V[3], 0.8 * k0);
-        p.beam(sx0, sy0, ex, ey, 12 * k0 + 2, V[2], k0);
-        p.beam(sx0, sy0, ex, ey, 6 * k0 + 1, WHITE, k0);
-        for (let i = 0; i < 4; i++) bolt(p, sx0, sy0 + (rand(f0, i) - 0.5) * 20, ex, ey + (rand(f0, i + 4) - 0.5) * 30, f0 + i, V, { jag: 0.15, seed: i + 20, glow: 0, core: WHITE });
+      // the flight: a few frames, the arrow tearing down the line to the target, lightning in its wake
+      if (t >= LOOSE && t < HIT + 0.45) {
+        const { a } = arrowLine(LOOSE - 0.001), A0 = arrowLine(LOOSE - 0.001), sx = A0.H[0] + Math.cos(a) * 130, sy = A0.H[1] + Math.sin(a) * 130, u = clamp((t - LOOSE) / FLY), k = 1 - smooth(HIT + 0.1, HIT + 0.45, t);
+        const x = sx + (TX - sx) * u, y = sy + (-24 - sy) * u;
+        p.glowLine(sx, sy, x, y, 40, LT[3], 0.8 * k);
+        p.beam(sx, sy, x, y, 14 * k + 2, LT[2], k);
+        p.beam(sx, sy, x, y, 6 * k + 1, WHITE, k);
+        for (let i = 0; i < 5; i++) bolt(p, sx, sy + (rand(f, i) - 0.5) * 40, x, y + (rand(f, i + 4) - 0.5) * 50, f + i, LT, { jag: 0.18, seed: i + 20, glow: 0, core: WHITE });
+        if (u < 1) arrow(p, x, y, a, 100, f, 1, 1.6);
       }
-      if (false) {
-        const A0 = rigAt(LOOSE - 0.001), H = A0.R.near.H, sx = H[0] + A0.dx * 62, sy = H[1] + A0.dy * 62, u = clamp((t - LOOSE) / FLY);
-        const x = sx + (T[0] - sx) * u, y = sy + (T[1] - sy) * u, dx = (T[0] - sx), dy = (T[1] - sy), n = Math.hypot(dx, dy);
-        p.glowLine(x - (dx / n) * 70, y - (dy / n) * 70, x, y, 18, V[3], 0.9);
-        p.beam(x - (dx / n) * 56, y - (dy / n) * 56, x, y, 3.5, V[3]);
-        p.line(x - (dx / n) * 56, y - (dy / n) * 56, x, y, WHITE);
+      // the pillar of lightning standing up out of the target, two frames of ink, then the flood of light fading
+      if (t > HIT && t < HIT + 1.3) {
+        const u = (t - HIT) / 1.3, k = 1 - smooth(0.5, 1, u), w = 19 + 25 * ease.outCubic(Math.min(1, u * 3));
+        p.glow(TX, -93, 160, LT[3], 0.8 * k);
+        p.shade(TX - w - 20, -260, TX + w + 20, 2, (x, y, out) => { const d = Math.abs(x - TX) / (w * (0.7 + 0.3 * noise2(y * 0.04 - t * 9, 2, 5))); if (d > 1) return; out.a = k; out.k = 0.35; return d < 0.35 ? WHITE : d < 0.7 ? LT[4] : LT[3]; });
+        for (let i = 0; i < 6; i++) bolt(p, TX + (rand(f, i) - 0.5) * 38, 0, TX + (rand(f, i + 7) - 0.5) * 124, -236 + rand(f, i + 3) * 50, f + i, LT, { jag: 0.22, seed: i, glow: 0.3 * k });
       }
-      // the impact: two impact frames, then the explosion, and black flames left burning on the ground
-      const age = t - HIT;
-      blast(p, age, { x: T[0], y: 0, R: 60, C: BOOM, seed: 5 });
-      if (age >= 0 && age < 0.05) impactFrame(p, -74, -206, 330, 50, T[0], -24, false, 21, { style: "bolts", ink: hex("#0a0414"), paper: hex("#f4e8ff") });
-      else if (age >= 0.05 && age < 0.1) impactFrame(p, -74, -206, 330, 50, T[0], -24, true, 22, { style: "bolts", ink: hex("#0a0414"), paper: hex("#f4e8ff") });
-      // the floor split along the beam's path
-      if (age > 0) { const kf = 1 - smooth(2.4, 3.2, age); p.line(40, 0, T[0] + 50, 0, hex("#06020a"), kf); p.line(40, -1, T[0] + 50, -1, V[3], kf * (1 - smooth(0, 1, age))); }
-      if (age > 0.35 && age < 2.6) {
-        const k = smooth(0.35, 0.7, age) * (1 - smooth(2, 2.6, age));
-        for (let i = 0; i < 5; i++) drawBlackFlame(p, T[0] - 40 + i * 20 + (rand(i, 3) - 0.5) * 8, 0, 4 + rand(i, 4) * 3, 10 + rand(i, 5) * 12, t, i * 3, k);
-      }
+      if (t >= HIT && t < HIT + 0.05) impactFrame(p, -110, -244, 350, 26, TX, -26, false, 21, { style: "bolts", ink: hex("#04081a"), paper: hex("#e8faff") });
+      else if (t >= HIT + 0.05 && t < HIT + 0.1) impactFrame(p, -110, -244, 350, 26, TX, -26, true, 22, { style: "bolts", ink: hex("#04081a"), paper: hex("#e8faff") });
+      else if (t >= HIT + 0.1 && t < HIT + 0.5) veil(p, -110, -244, 350, 26, LT[3], 0.5 * (1 - (t - HIT - 0.1) / 0.4));
       ps.draw(p, "front");
       lights.draw(p);
     },

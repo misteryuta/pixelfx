@@ -2,12 +2,12 @@
 // Narutopedia: a blend of earth, wind and fire; between his hands he forms a small cube of light inside a larger one
 // and fires it as a widening cone; whatever the cone's cube closes round is broken down to the molecule and simply
 // isn't there any more. Here: he floats up off the ground (his weightless rock technique), knees drawn up, an old man's
-// stoop; his hands part and a cube of white light is born between them, a second, smaller one turning inside it; he
+// stoop; his hands part and a cube of white light is born between them with a bright sphere turning at its centre; he
 // aims; a cone of light widens from his hands to the target and a great translucent cube unfolds round it; it hangs
-// for a breath, edges humming; then a flash, and the cube is empty: the target and a cube of the floor under it are
+// for a breath, edges humming; then the sphere inside bursts, the blast held in by the cube's walls, and the cube is empty: the target and a cube of the floor under it are
 // gone, a clean square hole in the ground; dust slides into the hole. The target comes back at the end.
 // New: the float, the nested cubes, the cone, the erasing cube and the hole it leaves.
-import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
+import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt, impactFrame } from "./_lib.js";
 import { drawBadge } from "./_badge.js";
 
@@ -109,7 +109,9 @@ export const create = play([], (o) => {
         const g = ease.outBack(smooth(FORM, FORMED, t), 1.5), k = 1 - smooth(FIRE, FIRE + 0.1, t);
         p.glow(mid[0], mid[1], 16 * g, LT[2], 0.6 * k);
         cube(p, mid[0], mid[1], 5 * g, t * 1.5, LT[2], k, 0.25);
-        cube(p, mid[0], mid[1], 2.4 * g, -t * 3.2, WHITE, k);
+        // the sphere at its centre (Narutopedia): the heart of the technique
+        p.circle(mid[0], mid[1], 2.4 * g, WHITE, k);
+        p.ring(mid[0], mid[1], 3.4 * g, 1, LT[2], k);
       }
       // the cone: from his hands out to the target, widening to the cube's face, humming
       if (t > FIRE && t < ERASE + 0.05) {
@@ -124,12 +126,18 @@ export const create = play([], (o) => {
         const g = ease.outBack(smooth(BOX - 0.1, BOX + 0.15, t), 1.2), k = 1 - smooth(ERASE, ERASE + 0.1, t), a = 0.4 + 0.08 * Math.sin(t * 2);
         p.glow(TX, CY, HALF * 2, LT[2], 0.35 * k);
         cube(p, TX, CY, HALF * g, a, LT[3], k, 0.18);
-        cube(p, TX, CY, 5 * g, -t * 3, WHITE, k);
+        // the sphere inside, swelling and pulsing toward the moment it bursts
+        const sp = 4 + 6 * smooth(BOX, ERASE, t) + Math.sin(t * 40) * 0.8;
+        p.glow(TX, CY, sp * 3, WHITE, 0.6 * k);
+        p.circle(TX, CY, sp, WHITE, k);
+        p.ring(TX, CY, sp + 2, 1, LT[2], k);
         // the humming edges: little sparks crawling along them
         for (let i = 0; i < 6; i++) { const e = (t * 3 + i / 6) % 1; p.px(TX - HALF + e * HALF * 2, CY - HALF * 0.92 + (i % 2) * HALF * 1.84, WHITE, k); }
       }
       if (t >= ERASE && t < ERASE + 0.05) impactFrame(p, -56, -158, 244, 32, TX, CY, false, 7, { style: "rings", ink: hex("#060a10"), paper: hex("#f4fcff") });
       else if (t >= ERASE + 0.05 && t < ERASE + 0.1) p.rect(TX - HALF, CY - HALF, HALF * 2, HALF * 2 + 30, WHITE);
+      // the blast churning inside the walls and dying away: held to the cube, nothing gets out
+      else if (t >= ERASE + 0.1 && t < ERASE + 0.45) { const u = (t - ERASE - 0.1) / 0.35; p.shade(TX - HALF, CY - HALF, TX + HALF, CY + HALF, (x, y, out) => { const n = noise2(x * 0.15 + t * 9, y * 0.15, 3); if (n < u * 1.6 - 0.6) return; out.a = 1 - u; return n > 0.4 ? WHITE : n > 0 ? LT[3] : LT[2]; }); }
       // the empty space, a ghost of the cube's outline fading
       if (t > ERASE + 0.1 && t < ERASE + 1) { const k = 1 - smooth(ERASE + 0.1, ERASE + 1, t); cube(p, TX, CY, HALF, 0.4, LT[1], k * 0.6); }
       void rand; void TAU;

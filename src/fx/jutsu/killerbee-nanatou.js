@@ -1,7 +1,8 @@
 // Nanatou: Acrobat (Killer B, the Eight-Tails' jinchuuriki). Narutopedia: his Seven Swords Dance: he carries seven
 // swords at once (in his hands, under his arms, in the crook of his elbows, in his mouth) and fights with them all in an
 // unpredictable, acrobatic style. Here: he rolls his shoulders, and the swords come out one after another with a ring
-// of steel each, flipping up to land in his hands, his armpits, his elbows, one clamped in his teeth; then the Acrobat:
+// of steel each, flipping up into the crook of each elbow, between shoulder blade and neck, under his left armpit,
+// behind his raised right leg, one clamped in his teeth, the last in his hand; then the Acrobat:
 // he throws himself into a cartwheel and comes at the target spinning, a wheel of seven blades; slash after slash as
 // the wheel passes through, sparks and straw; he lands past it in a crouch, swords out, and the target's cuts flash.
 // New: the seven swords (each tied to a joint), the cartwheel (the whole figure turned, from _lib), the wheel of blades.
@@ -28,7 +29,7 @@ export const meta = {
   options: { palette: ["#4a5468", "#a4afc6", "#e8edf6", "#ffffff"], seed: 88 },
 };
 
-const STANCE = { ...READY, crouch: 6, lean: 4, fx: 14, fy: -24, bx: -10, by: -22, ffx: 11, fbx: -11 };
+const STANCE = { ...READY, crouch: 6, lean: 4, fx: 14, fy: -24, bx: -10, by: -22, ffx: 9, ffy: -12, fbx: -11 };
 const SPREAD = { ...READY, crouch: 3, lean: 0, fx: 16, fy: -32, bx: -14, by: -30, ffx: 14, fbx: -14, gait: false };
 export const act = {
   target: { x: TX },
@@ -58,7 +59,9 @@ export const actorAlpha = (t) => (t > ROLL && t < PASS ? 0 : 1);
 const spin = (t) => smooth(ROLL, PASS, t) * TAU * 2.5;
 
 // where the seven swords sit: [joint, angle of the blade relative to the facing, length]
-const SWORDS = [["handN", -0.5, 18], ["handF", 3.6, 18], ["shoulderN", 2.6, 14], ["shoulderF", 0.6, 14], ["elbowN", -1.6, 14], ["elbowF", 1.9, 14], ["head", 0.1, 12]];
+// Narutopedia: in the hinge of each elbow, between shoulder blade and neck, in his mouth, under his left armpit,
+// behind the hip joint of his raised right leg; the seventh in his hand
+const SWORDS = [["elbowN", -0.7, 15], ["elbowF", 3.8, 15], ["neck", 2.6, 14], ["head", 0.15, 13], ["shoulderF", 1.2, 13], ["kneeN", 0.4, 15], ["handN", -0.5, 18]];
 function sword(p, x, y, a, L, k = 1) {
   const c = Math.cos(a), s = Math.sin(a);
   p.beam(x - c * 3, y - s * 3, x, y, 2, HILT, k);

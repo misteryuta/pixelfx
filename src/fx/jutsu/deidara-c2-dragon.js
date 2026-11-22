@@ -2,7 +2,7 @@
 // great clay dragon that spits smaller clay bombs from its mouth, which fly at the foe and explode when he says "Katsu!".
 // Here: his hand opens, the mouth on the palm chews; he tosses a lump of clay up and it swells with a poof into a white
 // dragon, long-necked and winged, hanging in the air over him; it rears and spits three clay missiles one after another,
-// each a little dragon-headed shell trailing a thin line, curving down onto the target; he makes the seal: "KATSU!",
+// each a smaller copy of the dragon made from clay taken out of its tail, curving down onto the target; he makes the seal: "KATSU!",
 // and they go off in a chain, the last biggest; bits of white clay and smoke; the big dragon bursts into smoke too.
 // New: the palm mouth, the dragon (segmented neck, wings that beat), the homing missiles, the chain blast.
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
@@ -52,7 +52,7 @@ export const act = {
 };
 
 // the clay dragon: a coiled body, a long neck of segments to a horned head, wings that beat; s how swelled (0..1)
-function dragon(p, x, y, s, t, rear) {
+function dragon(p, x, y, s, t, rear, tailN = 6) {
   if (s <= 0) return;
   const beat = Math.sin(t * 9) * 8;
   // wings
@@ -64,7 +64,7 @@ function dragon(p, x, y, s, t, rear) {
   // body and tail
   p.ellipse(x, y, 16 * s, 9 * s, CLAY[0]);
   p.ellipse(x, y - 1, 15 * s, 8 * s, CLAY[2]);
-  for (let i = 0; i < 6; i++) p.circle(x - 16 * s - i * 4 * s, y + 3 * s + Math.sin(t * 4 + i) * 2, (4 - i * 0.5) * s, CLAY[1]);
+  for (let i = 0; i < tailN; i++) p.circle(x - 16 * s - i * 4 * s, y + 3 * s + Math.sin(t * 4 + i) * 2, (4 - i * 0.5) * s, CLAY[1]);
   // the neck: segments curving up and forward to the head
   let hx = x + 10 * s, hy = y - 4 * s;
   for (let i = 0; i < 6; i++) { hx += 3.5 * s; hy -= (3 - i * 0.3 + rear * 1.2) * s; p.circle(hx, hy, (4.5 - i * 0.3) * s, CLAY[i % 2 ? 1 : 2]); }
@@ -98,7 +98,8 @@ export const create = play([], (o) => {
       drawPoof(p, DX, DY, t - SWELL, 2.2, 6);
       const s = ease.outBack(smooth(SWELL, FORMED, t), 1.4) * (1 - smooth(KATSU + 0.3, KATSU + 0.4, t));
       const rear = SPITS.reduce((m, st) => Math.max(m, Math.exp(-Math.max(0, t - st) * 8) * (t > st - 0.1 ? 1 : 0)), 0);
-      dragon(p, DX, DY + Math.sin(t * 3) * 2, s, t, rear);
+      // each missile is taken from the tail: it shortens with every spit
+      dragon(p, DX, DY + Math.sin(t * 3) * 2, s, t, rear, 6 - 2 * SPITS.filter((st) => t > st).length);
       if (t > KATSU + 0.3) drawPoof(p, DX, DY, t - KATSU - 0.3, 2.4, 9);
       // the missiles: little shells curving down onto the target, trailing a thin line
       const H = head(t);
@@ -106,10 +107,17 @@ export const create = play([], (o) => {
         if (t < st || t > KATSU + 0.06 + [0, 0.1, 0.22][i]) return;
         const u = clamp((t - st) / (LANDS[i] - st)), tx = TX - 14 + i * 12, ty = -10;
         const x = H[0] + (tx - H[0]) * u, y = H[1] + (ty - H[1]) * u * u - Math.sin(u * Math.PI) * 24, ang = Math.atan2(ty - H[1] + 48 * (u - 0.5), tx - H[0]);
-        p.line(H[0], H[1], x, y, CLAY[1], 0.25);
-        p.ellipse(x, y, 4, 2.5, CLAY[2]);
-        p.px(x + Math.cos(ang) * 4, y + Math.sin(ang) * 4, CLAY[3]);
-        p.px(x + 1, y - 1, hex("#1a1420"));
+        // a small copy of the big dragon: a body, beating wings, a head on a short neck, a tail
+        const c = Math.cos(ang), sn = Math.sin(ang), at = (u, v) => [x + (c * u - sn * v) * 1.8, y + (sn * u + c * v) * 1.8], fl = Math.sin(t * 30 + i * 2) * 3;
+        p.line(H[0], H[1], x, y, CLAY[1], 0.2);
+        p.poly([at(-1, 0), at(-6, -6 - fl), at(2, -1)], CLAY[1]);
+        p.ellipse(...at(0, 0), 8, 4.6, CLAY[0]);
+        p.ellipse(...at(0, 0), 7, 3.8, CLAY[2]);
+        p.beam(...at(3, -1), ...at(7, -2), 2.8, CLAY[2]);
+        p.circle(...at(8, -2), 3.2, CLAY[3]);
+        p.px(...at(8, -3), hex("#1a1420"));
+        p.line(...at(-4, 1), ...at(-9, 2 + fl * 0.3), CLAY[1]);
+        p.poly([at(-1, 0), at(-5, 5 + fl), at(2, 1)], CLAY[2]);
         if (u >= 1) p.glow(x, y, 6, FIRE[3], 0.3 + 0.3 * (f % 2));
       });
       // KATSU!: the word over him, and the chain of blasts

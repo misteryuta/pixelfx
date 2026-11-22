@@ -113,6 +113,13 @@ export const create = play([{ fx: crit, t: OPEN, x: TX - 2, height: 26, aim: 0, 
         if (t > APEX) p.glow(q.x, q.y, 12, C[3], 0.6 + 0.3 * Math.sin(t * 40));
       }
       if (t > F1 + 0.04 && t < OPEN) kunai(p, b.handN[0], b.handN[1], t < CUT2 ? 1.0 : Math.PI - 0.4);
+      // the plain kunai thrown with it (the marked one hides among them, Narutopedia): a volley that thuds into the
+      // target and the floor round it while the marked one sails on over
+      for (let i = 0; i < 4; i++) {
+        if (t < THROW || t > OPEN + 0.4) continue;
+        const u = clamp((t - THROW) / (0.2 + i * 0.03)), ex = TX - 8 + i * 6, ey = i === 3 ? -1 : -16 - i * 9, x = 14 + (ex - 14) * u, y = -38 + (ey + 38) * u - Math.sin(u * Math.PI) * 6;
+        kunai(p, x, y, u < 1 ? Math.atan2(ey + 38, ex - 14) : i === 3 ? 1.3 : 0.1, 1 - smooth(OPEN, OPEN + 0.4, t));
+      }
       // the flashes: blue-white, a vertical slit of light and a ring
       const flash = (x, y, age) => {
         if (age < 0 || age > 0.3) return;

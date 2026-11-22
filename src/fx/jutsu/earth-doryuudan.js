@@ -59,6 +59,8 @@ export const create = play([], (o) => {
       lights.update(dt);
     },
     drawBack(p, t) {
+      // the mud source first (Narutopedia): the floor under his palms turns to mud and spreads, and the head rises out of it
+      if (t > SLAP - 0.05) { const g = ease.outCubic(smooth(SLAP - 0.05, RISE + 0.2, t)) * (1 - smooth(CRUMBLE + 0.4, END - 0.2, t)); p.ellipse(HX + 10, 0, 40 * g, 3.5 * g, MUD[1]); p.ellipse(HX + 6, -0.5, 28 * g, 2 * g, MUD[2]); for (let i = 0; i < 3; i++) { const ph = (t * 1.5 + i * 0.33) % 1; p.ring(HX - 10 + i * 14, -1, 1 + ph * 2, 1, MUD[2], g * (1 - ph)); } }
       for (const s of splats) p.ellipse(s.x, 0, s.big ? 26 : 12, 2, MUD[1], 1 - smooth(1.2, 2, t - s.at));
       ps.draw(p, "back");
     },

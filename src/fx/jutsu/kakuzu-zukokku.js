@@ -18,7 +18,7 @@ const MON = [{ dx: -22, dy: -34, s: 1.0, el: "wind" }, { dx: 10, dy: -42, s: 1.1
 
 export const meta = {
   name: "Fire release: zukokku + wind release: atsugai",
-  desc: "Kakuzu: black threads pour out of his back and knot into two masked monsters; the wind mask breathes a wall of pressure, the fire mask a great fireball into it, and the two swell into a rolling firestorm over the target.",
+  desc: "Kakuzu: black threads pour out of his back and knot into two masked monsters; the wind mask breathes a compressed blast of pressure, the fire mask a small fireball into it, and where it lands it erupts into a firestorm racing along the ground.",
   tags: ["jutsu", "kakuzu", "akatsuki", "fire", "wind", "combo", "aoe", "one-shot"],
   size: [340, 200],
   origin: [70, 168],
@@ -103,7 +103,7 @@ export const create = play([], (o) => {
       });
       // the scorched floor
       if (t > HIT) p.ellipse(TX - 10, 0, 70, 2.5, hex("#0e0808"), 1 - smooth(END - 0.6, END, t));
-      blast(p, t - HIT, { x: TX, y: 0, R: 46, C: FIRE, seed: 13, layer: "back" });
+      blast(p, t - HIT, { x: TX, y: 0, R: 30, C: FIRE, seed: 13, layer: "back" });
       ps.draw(p, "back");
     },
     draw(p, t) {
@@ -118,7 +118,8 @@ export const create = play([], (o) => {
       // the fireball from the fire mask, swelling as the wind feeds it, rolling onto the target
       if (t > BREATH + 0.05 && t < HIT + 0.05) {
         const [fx0, fy0] = mouth(1), u = ease.inQuad(clamp((t - BREATH - 0.05) / (HIT - BREATH - 0.05))), x = fx0 + (TX - fx0) * u, y = fy0 + (-24 - fy0) * u;
-        const r = 6 + 10 * u + (t > MEET ? 10 * smooth(MEET, HIT, t) : 0);
+        // a SMALL fireball (Narutopedia): it only erupts into the firestorm when it touches down
+        const r = 4 + 2 * u + (t > MEET ? 2 * smooth(MEET, HIT, t) : 0);
         p.glow(x, y, r * 2.4, FIRE[3], 0.6);
         p.shade(x - r * 1.3, y - r * 1.3, x + r * 1.3, y + r * 1.3, (px, py, out) => {
           const dx = (px - x) / r, dy = (py - y) / r, d = Math.hypot(dx, dy), n = noise2(dx * 3 - t * 8, dy * 3, 4);
@@ -130,7 +131,21 @@ export const create = play([], (o) => {
       }
       // the meeting: wind wraps the fire, a spiral of flame
       if (t > MEET && t < HIT) { const k = smooth(MEET, HIT, t); for (let i = 0; i < 3; i++) { const a = t * 14 + i * 2; p.arc(TX - 30 + (1 - k) * -40, -24, 18 + i * 4, 2, a, a + 1.6, FIRE[4], 0.8); } }
-      blast(p, t - HIT, { x: TX, y: 0, R: 46, C: FIRE, seed: 13 });
+      blast(p, t - HIT, { x: TX, y: 0, R: 30, C: FIRE, seed: 13 });
+      // the firestorm: on contact it erupts and races out along the ground both ways, a wall of flame tongues, fed by
+      // the wind's compressed pressure
+      if (t > HIT && t < HIT + 2.2) {
+        const a = t - HIT, reach = 30 + 150 * ease.outCubic(Math.min(1, a / 0.7)), k = 1 - smooth(1.4, 2.2, a);
+        p.shade(TX - reach - 10, -70, TX + reach * 0.6 + 10, 1, (x, y, out) => {
+          const dx = x < TX ? (TX - x) / reach : (x - TX) / (reach * 0.6);
+          if (dx > 1) return;
+          const h = (50 * (1 - dx * 0.7)) * (0.6 + 0.5 * noise2(x * 0.08, t * 3, 5)) * k;
+          if (-y > h) return;
+          out.k = 0.3;
+          const v = -y / Math.max(1, h), n = noise2(x * 0.12, y * 0.1 + t * 8, 9);
+          return v > 0.8 ? FIRE[2] : v > 0.5 + n * 0.2 ? FIRE[3] : v > 0.2 ? FIRE[4] : FIRE[5];
+        });
+      }
       void WHITE;
       ps.draw(p, "front");
       lights.draw(p);
