@@ -9,12 +9,13 @@
 // rubble, black flames left burning).
 // New: the archer's arms on the rig (_susanoo.js), the bow and string and arrow on them, blast() from _lib.
 import { Lights, Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
-import { play, bodyAt, impactFrame, blast, drawBlackFlame } from "./_lib.js";
+import { play, bodyAt, impactFrame, blast } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { drawSusanoo, susanooPuppet, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
 
 const EYE = 0.05, OPEN = 0.6, RIBS = OPEN + 0.05, BONES = RIBS + 0.32, FLESH = BONES + 0.38, ARMOUR = FLESH + 0.55, BOW = ARMOUR + 0.35;
-const GRAB = BOW + 0.4, NOCKED = GRAB + 0.12, DRAWN = NOCKED + 0.45, LOOSE = DRAWN + 0.4, FLY = 0.13, HIT = LOOSE + FLY, GONE = HIT + 1.1, END = HIT + 3.0, TX = 236;
+const GRAB = BOW + 0.4, NOCKED = GRAB + 0.12, DRAWN = NOCKED + 0.45, LOOSE = DRAWN + 0.4, FLY = 0.13, HIT = LOOSE + FLY, GONE = HIT + 1.1, END = HIT + 1.9, TX = 236;
+// balanced as a base move (2026-11-23): the arrow hits hard but locally: a smaller blast, no black flames left behind
 const V = SUSANOO.sasuke, BOOM = ["#08040e", "#1c1030", "#3c2070", "#6a3ab8", "#a070f0", "#d8c0ff", "#fff4ff"].map(hex);
 const T = [TX - 4, -28];
 
@@ -64,7 +65,7 @@ const stageAt = (t) => ({
 
 export const meta = {
   name: "Susanoo arrow",
-  desc: "Sasuke: his eternal Mangekyou, the purple Susanoo forms ribs, bones, muscle, then the horned armour; its left arm raises the bow onto the target, the right draws a flaming arrow back elbow-high and looses it into an explosion of violet fire.",
+  desc: "Sasuke: his eternal Mangekyou, the purple Susanoo forms ribs, bones, muscle, then the horned armour; its left arm raises the bow onto the target, the right draws a flaming arrow back elbow-high and looses it into a burst of violet fire.",
   tags: ["jutsu", "sasuke", "susanoo", "mangekyou", "projectile", "aoe", "one-shot"],
   size: [404, 256],
   origin: [74, 206],
@@ -94,7 +95,7 @@ export const act = {
     { t: RIBS, stop: 0.06, shake: 0.15, amp: 1, target: false },
     { t: FLESH + 0.5, stop: 0.06, shake: 0.2, amp: 2, target: false },
     { t: LOOSE, stop: 0.04, shake: 0.1, amp: 1, target: false, sfx: "whoosh" },
-    { t: HIT, stop: 0.2, shake: 0.6, amp: 5, push: 5, straw: 44, skin: "char", sfx: "explosion" },
+    { t: HIT, stop: 0.14, shake: 0.4, amp: 3, push: 3, straw: 30, skin: "char", sfx: "explosion" },
     { t: END - 0.4, flash: 0, push: 0, straw: 0, skin: null },
   ],
   dust: [{ t: RIBS, x: 0, n: 10 }, { t: HIT + 0.05, x: TX - 30, n: 16, dir: -1 }, { t: HIT + 0.05, x: TX + 30, n: 16, dir: 1 }],
@@ -139,8 +140,8 @@ export const create = play([], (o) => {
       }
       if (!hit && t >= HIT) {
         hit = true;
-        lights.add(T[0], -20, 160, BOOM[4], 1, 0.6);
-        for (let i = 0; i < 30; i++) {
+        lights.add(T[0], -20, 90, BOOM[4], 0.8, 0.4);
+        for (let i = 0; i < 14; i++) {
           const a = R.range(-Math.PI, 0), s = R.range(100, 300);
           ps.spawn(P.STREAK, T[0], -20, Math.cos(a) * s, Math.sin(a) * s, R.range(0.15, 0.35), R.chance(0.5) ? BOOM[6] : BOOM[4]);
         }
@@ -165,7 +166,7 @@ export const create = play([], (o) => {
         }
       }
       // the blast's far side and its smoke
-      blast(p, t - HIT, { x: T[0], y: 0, R: 34, C: BOOM, seed: 5, layer: "back" });
+      blast(p, t - HIT, { x: T[0], y: 0, R: 20, C: BOOM, seed: 5, layer: "back" });
       ps.draw(p, "back");
     },
     draw(p, t) {
@@ -192,12 +193,8 @@ export const create = play([], (o) => {
       }
       // the impact: two impact frames, then the explosion, and black flames left burning on the ground
       const age = t - HIT;
-      blast(p, age, { x: T[0], y: 0, R: 34, C: BOOM, seed: 5 });
-      if (age >= 0 && age < 0.05) p.circle(T[0], -24, 36, WHITE);
-      if (age > 0.35 && age < 2.6) {
-        const k = smooth(0.35, 0.7, age) * (1 - smooth(2, 2.6, age));
-        for (let i = 0; i < 5; i++) drawBlackFlame(p, T[0] - 40 + i * 20 + (rand(i, 3) - 0.5) * 8, 0, 4 + rand(i, 4) * 3, 10 + rand(i, 5) * 12, t, i * 3, k);
-      }
+      blast(p, age, { x: T[0], y: 0, R: 20, C: BOOM, seed: 5 });
+      if (age >= 0 && age < 0.05) p.circle(T[0], -24, 20, WHITE);
       ps.draw(p, "front");
       lights.draw(p);
     },

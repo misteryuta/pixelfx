@@ -20,7 +20,8 @@ import { shots } from "./_taijutsu.js";
 import { drawPerfect, perfectPuppet, PERFECT } from "./_perfect.js";
 
 const EYE = 0.05, RISE = 0.55, FORM0 = 0.7, FORMED = 1.6, REACH = 1.85, GRIP = 2.1, DRAWN = 2.6, HIGH = 3.1, WIND = 3.5, CUT = 3.68, HIT = 3.76;
-const FALL = HIT + 0.8, REST = HIT + 2.2, FADE = REST + 0.5, END = FADE + 0.9, TX = 270, G = 0.62;
+// balanced as a base move (2026-11-23): the stroke cuts the target only (no mountains, no whiteout), shorter after
+const FALL = HIT + 0.8, REST = HIT + 1.1, FADE = REST + 0.35, END = FADE + 0.7, TX = 270, G = 0.62;
 const C = PERFECT.madara, MTN = ["#0c0a16", "#16122a", "#221c3c", "#302852", "#463c70"].map(hex), WH = ["#dff6ff", "#9fe6ff", "#4ac8f0"].map(hex);
 const SX = 6;
 // the far mountains: [x, peak height, half width]; the cut runs across them at CUTY(x)
@@ -42,10 +43,10 @@ const K = keyTrack([
   [WIND, { nx: -46, ny: -226, ba: -2.72, bl: 240, ph: Math.PI + 0.2, lean: -0.16, fx: -40, fy: -170 }],
   // the side cut: the arm sweeps round level in front of the body, the blade coming round toward us (short as it
   // points out of the screen), then out flat across the field, lengthening through the target and the far hills
-  [CUT, { nx: 30, ny: -214, bl: 420, ph: Math.PI / 2 + 0.25, lean: 0.04 }],
-  [HIT, { nx: 120, ny: -196, bl: 520, ph: 0, lean: 0.2, fx: -80, fy: -140 }],
-  [HIT + 0.35, { nx: 136, ny: -190, bl: 500, ph: -0.45, lean: 0.22 }],
-  [REST, { nx: 120, ny: -186, bl: 300, ph: -0.55, lean: 0.12 }],
+  [CUT, { nx: 30, ny: -214, bl: 300, ph: Math.PI / 2 + 0.25, lean: 0.04 }],
+  [HIT, { nx: 120, ny: -196, bl: 330, ph: 0, lean: 0.2, fx: -80, fy: -140 }],
+  [HIT + 0.35, { nx: 136, ny: -190, bl: 320, ph: -0.45, lean: 0.22 }],
+  [REST, { nx: 120, ny: -186, bl: 280, ph: -0.55, lean: 0.12 }],
   [FADE, { nx: 100, ny: -176, bl: 240, ph: -0.6, lean: 0.06 }],
 ]);
 // the plane of the side cut: level round the body, dipping toward the front so that it runs through the target at
@@ -57,7 +58,7 @@ const form = (t) => smooth(FORM0, FORMED, t) * (1 - smooth(FADE, END - 0.15, t))
 
 export const meta = {
   name: "Complete body Susanoo: the mountain-cutting stroke",
-  desc: "Madara rises into his blue Complete Body Susanoo, its flame wings unfurling; it draws the long katana from the sheath at its hip, lifts it high, winds back and cuts across the landscape: whiteout, the cut glowing through the target and the far mountains, whose tops slide off and burst.",
+  desc: "Madara rises into his blue Complete Body Susanoo; it draws the long katana from the sheath at its hip, chambers it flat behind its shoulder and cuts level round its body through the target: a white flash, a line of light, a ring of dust.",
   tags: ["jutsu", "madara", "susanoo", "complete-body", "mangekyou", "sword", "aoe", "ultimate", "one-shot"],
   size: [450, 270],
   origin: [110, 244],
@@ -87,9 +88,8 @@ export const act = {
     { t: FORMED - 0.1, stop: 0.05, shake: 0.6, amp: 3, target: false, sfx: "rumble" },
     { t: DRAWN, target: false, sfx: "parry" },
     { t: CUT - 0.05, target: false, sfx: "whoosh" },
-    { t: HIT, stop: 0.24, shake: 1.0, amp: 7, push: 7, straw: 60, skin: "shock", shiver: 0.8, sfx: "heavy" },
-    { t: FALL, shake: 1.4, amp: 4, target: false, sfx: "rumble" },
-    { t: FALL + 0.5, stop: 0.05, shake: 1.0, amp: 4, target: false, sfx: "explosion" },
+    { t: HIT, stop: 0.16, shake: 0.6, amp: 4, push: 4, straw: 40, skin: "shock", shiver: 0.6, sfx: "heavy" },
+
     { t: HIT + 0.8, flash: 0, push: 0, straw: 0, skin: null },
   ],
   dust: [{ t: RISE, x: SX, n: 16, dir: -1 }, { t: RISE, x: SX, n: 16, dir: 1 }, { t: HIT, x: TX - 30, n: 18, dir: 1 }],
@@ -107,8 +107,8 @@ export const camera = shots([
   [WIND, { z: 1.15, x: SX + 50, y: -142, r: -2 }],
   [CUT, { z: 1.0, x: 174, y: -106, r: 2 }, "cut"],
   [HIT + 0.3, { z: 1.0, x: 186, y: -100, r: 0 }],
-  [FALL - 0.1, { z: 1.4, x: 292, y: -62 }, "cut"],
-  [REST, { z: 1.2, x: 292, y: -68 }],
+  [HIT + 0.4, { z: 1.4, x: TX - 20, y: -50 }, "cut"],
+  [REST, { z: 1.3, x: TX - 40, y: -60 }],
   [END, { z: 1.0, x: 186, y: -93 }],
 ]);
 
@@ -125,28 +125,11 @@ export const create = play([], (o) => {
     update(t, dt) {
       if (t > RISE && t < FADE && R.chance(40 * dt)) ps.spawn(P.EMBER, SX + R.range(-38, 38), -R.range(12, 160), R.range(-14, 14), -R.range(20, 60), R.range(0.4, 0.8), C[R.int(3, 5)]);
       if (t >= HIT) once("hit", () => { lights.add(TX, -26, 180, WH[0], 1, 0.5); for (let i = 0; i < 30; i++) { const a = R.range(-0.8, 0.6), s = R.range(80, 240); ps.spawn(P.STREAK, TX, -26, Math.cos(a) * s, Math.sin(a) * s, R.range(0.15, 0.35), R.chance(0.5) ? WHITE : WH[1]); } });
-      PEAKS.forEach((_, i) => { if (t >= FALL + i * 0.12 + 0.85) once("land" + i, () => lights.add(PEAKS[i][0], BASE - 12, 130, WH[0], 1, 0.4)); });
       ps.update(dt);
       lights.update(dt);
     },
     drawBack(p, t) {
       // the far mountains, the cut across them, the tops sliding off
-      PEAKS.forEach(([px, h, w], i) => {
-        const top = BASE - h, cy = CUTY(px), hc = w * clamp((cy - top) / (BASE - top));
-        p.poly([[px - w, BASE], [px - hc, cy], [px + hc, cy], [px + w, BASE]], MTN[1 + (i % 2)]);
-        p.poly([[px - w, BASE], [px - hc, cy], [px - hc * 0.2, cy], [px - w * 0.3, BASE]], MTN[3], 1);
-        const sl = t > FALL ? slide(t, i) : { u: 0, dx: 0, dy: 0, rot: 0 }, cs = Math.cos(sl.rot), sn = Math.sin(sl.rot);
-        const tri = [[px - hc, cy], [px, top], [px + hc, cy]].map(([x, y]) => [px + (x - px) * cs - (y - cy) * sn + sl.dx, cy + (x - px) * sn + (y - cy) * cs + sl.dy]);
-        if (sl.u < 0.92) {
-          p.poly(tri, MTN[2 + (i % 2)]);
-          p.poly([tri[0], tri[1], [(tri[0][0] + tri[2][0]) / 2, tri[0][1]]], MTN[4]);
-          p.tri(tri[1][0], tri[1][1], tri[1][0] - 5, tri[1][1] + 7, tri[1][0] + 5, tri[1][1] + 7, hex("#8a84a8"));
-        }
-        // the cut line glowing, from the stroke until the tops fall
-        if (t > HIT && t < FALL + 0.6) { const k = 1 - smooth(FALL, FALL + 0.6, t); p.line(px - hc - 4, cy, px + hc + 4, cy, WH[0], k); p.glowLine(px - hc, cy, px + hc, cy, 8, WH[2], 0.6 * k); }
-        // white blasts where each top lands
-        blast(p, t - FALL - i * 0.12 - 0.85, { x: px + 16, y: BASE, R: 22, C: [hex("#0a1a30"), hex("#1a4a7a"), hex("#4a8ac0"), WH[2], WH[1], WH[0], WHITE], seed: 30 + i, layer: "back", smoke: [hex("#5a6a80"), hex("#8a9ab0"), hex("#c8d4e4")] });
-      });
       // the pillar of chakra it forms out of
       if (t > RISE && t < FORMED + 0.2) {
         const k = smooth(RISE, RISE + 0.15, t) * (1 - smooth(FORMED - 0.2, FORMED + 0.2, t)), w = 15 + 37 * smooth(RISE, FORMED, t);
@@ -177,14 +160,11 @@ export const create = play([], (o) => {
           p.dot(x, y, near ? WHITE : WH[1], fade * (near ? 1 : 0.55));
         }
       }
-      // whiteout as the stroke lands: white, then a cyan wash, then the world back
-      if (t >= HIT - 0.02 && t < HIT + 0.5) {
-        const u = (t - HIT + 0.02) / 0.52;
-        if (u < 0.18) p.rect(-120, -260, 600, 300, WHITE);
-        else veil(p, -120, -260, 460, 30, WH[2], 0.7 * (1 - smooth(0.18, 1, u)));
-      }
-      // the ring cut through the valley: a flat ellipse of light racing out from the target along the ground
-      if (t > HIT && t < HIT + 0.9) { const u = ease.outCubic((t - HIT) / 0.9); p.ellipse(TX, -2, 14 + 170 * u, 4 + 9 * u, (d) => (d > 0.86 ? WH[0] : d > 0.7 ? WH[2] : 0), 1 - u); }
+      // the stroke lands: a white flash for an instant, a cut of light across the target
+      if (t >= HIT - 0.02 && t < HIT + 0.05) p.rect(-120, -260, 600, 300, WHITE, 0.85);
+      if (t > HIT && t < HIT + 0.5) { const k = 1 - smooth(HIT, HIT + 0.5, t); p.line(TX - 30, -40, TX + 30, -20, WHITE, k); p.glowLine(TX - 30, -40, TX + 30, -20, 8, WH[2], 0.6 * k); }
+      // a ring of dust racing out from under the target
+      if (t > HIT && t < HIT + 0.6) { const u = ease.outCubic((t - HIT) / 0.6); p.ellipse(TX, -2, 10 + 50 * u, 3 + 3 * u, (d) => (d > 0.86 ? WH[0] : d > 0.7 ? WH[2] : 0), 1 - u); }
       void rand; void TAU;
       ps.draw(p, "front");
       lights.draw(p);
