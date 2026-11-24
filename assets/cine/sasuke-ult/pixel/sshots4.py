@@ -86,6 +86,13 @@ def load_target():
         return img, m, pal, (470 - tw // 2, 450 - th)
     k, pal = v3.base("p03")
     m = np.load(os.path.join(HERE, "cache", "kaguya_mask.npy"))
+    yy, xx = np.mgrid[0:473, 0:840]
+    L = lum(k)
+    tend = m & (L < 70) & (((xx > 550) & (yy > 285)) | ((xx < 330) & (yy > 350)))  # the spike tongues on her robe
+    tend = dil(tend, 1) & m
+    robe = tones(k, m & (L > 150) & (yy > 250) & (old.sat(k) < 0.25), 3, 309)
+    k = k.copy()
+    fill_by_tones(k, tend, xx.astype(float), yy.astype(float), robe, 60, 30, 310, angle=0.9)
     ys, xs = np.nonzero(m)
     y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
     return k[y0:y1, x0:x1], m[y0:y1, x0:x1], pal, (x0, y0)
@@ -113,16 +120,36 @@ def spike_poly(x, y, a, L, w, jag, seed):
     return left + [(x + ca * L, y + sa * L)] + right[::-1]
 
 
+SP = [hexc("#3f1162"), hexc("#170e2f"), hexc("#0f091b")]  # the panel's own spike colours: purple rim, navy, deep
+
+
 def draw_spike(img, pts):
     m = poly_mask(W, H, pts)
     sh = np.zeros_like(m)
-    sh[1:, 1:] = m[:-1, :-1]
-    img[m] = FL[0]           # a thin dark red rim on the upper-left (lit) side
-    img[m & sh] = FL[2]      # black body
+    sh[2:, 2:] = m[:-2, :-2]
+    img[m] = SP[0]           # a purple rim on the upper-left (lit) side
+    img[m & sh] = SP[1]      # navy body
+    core = np.zeros_like(m)
+    core[4:, 4:] = m[:-4, :-4]
+    img[m & core & sh] = SP[2]
+
+
+def spear(x, y_tip, y_base, half):
+    """The great spike: a tall wedge from below the frame up to its tip (slightly jagged flanks)."""
+    pts = [(x - half, y_base)]
+    for k in range(1, 6):
+        f = k / 6
+        pts.append((x - half * (1 - f) + (3 if k % 2 else -2), y_base + (y_tip - y_base) * f))
+    pts.append((x, y_tip))
+    for k in range(5, 0, -1):
+        f = k / 6
+        pts.append((x + half * (1 - f) + (-2 if k % 2 else 3), y_base + (y_tip - y_base) * f))
+    pts.append((x + half, y_base))
+    return pts
 
 
 class S3(Shot):
-    pal_extra = FL + SMOKE + [hexc("#140810")]
+    pal_extra = FL + SMOKE + [hexc("#140810"), hexc("#3f1162"), hexc("#170e2f"), hexc("#0f091b")]
     IGN, BURST = 6, 9
 
     def __init__(s):
@@ -130,10 +157,11 @@ class S3(Shot):
         a = s.art
         yy, xx = np.mgrid[0:473, 0:840]
         km = np.load(os.path.join(HERE, "cache", "kaguya_mask.npy"))
+        tri = poly_mask(840, 473, [(432, 168), (612, 410), (600, 473), (290, 473), (318, 390)]) & (lum(a) < 75) & ~km
         sky = tones(a, ~dil(km, 8) & (yy < 300) & (xx > 300), 4, 301)
-        low = tones(a, ~dil(km, 8) & (yy > 330), 3, 302)
+        low = tones(a, ~dil(km | tri, 8) & (yy > 330), 3, 302)
         plate = a.copy()
-        hole = dil(km, 3)
+        hole = dil(km, 3) | dil(tri, 2)
         fill_by_tones(plate, hole & (yy < 330), xx.astype(float), yy.astype(float), sky, 150, 26, 303, angle=-0.25)
         fill_by_tones(plate, hole & (yy >= 330), xx.astype(float), yy.astype(float), low, 70, 22, 304)
         s.Lp = Layer(snap(plate, s.pal), None, s.pal)
@@ -143,6 +171,10 @@ class S3(Shot):
         th, tw = tm.shape
         ys, xs = np.nonzero(tm)
         s.chest = (tx + float(xs.mean()), ty + float(ys.min() + (ys.max() - ys.min()) * 0.32))
+        if TARGET is None:
+            s.chest = (432.0, 172.0)  # the great spike's tip in the panel
+        s.half = (xs.max() - xs.min()) * 0.3 if TARGET else 150.0
+        s.foot = ty + float(ys.max())
         s.size = float(ys.max() - ys.min())
         s.burnN = noise_at(np.mgrid[0:th, 0:tw][1].astype(float), np.mgrid[0:th, 0:tw][0].astype(float), 12, 12, 305, 2)
         s.dchest = np.hypot(np.mgrid[0:th, 0:tw][1] + tx - s.chest[0], np.mgrid[0:th, 0:tw][0] + ty - s.chest[1])
@@ -157,7 +189,7 @@ class S3(Shot):
     def target_frame(s, i):
         """The target with the burn eaten into it, and its offset (it shudders, then sinks)."""
         t = s.T.copy()
-        if i >= s.BURST:
+        if False:
             g = ease((i - s.BURST) / 40)
             reach = 20 + s.size * 0.7 * g
             burn = (s.dchest < reach) & (s.burnN > 0.74 - 0.18 * g)
@@ -179,30 +211,49 @@ class S3(Shot):
         draw(img, cam, s.Lp)
         back = img.copy()
         cx, cy = cam.P(*s.chest)
-        grown = []
-        for sp in s.spikes:  # spikes shoot out through the target: fast, then they hold and writhe
-            if i < s.BURST + sp["delay"]:
+        behind, hem = [], []
+        for k, (dx, ang, L, w) in enumerate(((-0.55, -1.9, 1.0, 0.05), (0.6, -1.25, 1.05, 0.05), (-0.2, -1.62, 1.25, 0.04),
+                                             (0.95, -1.05, 0.7, 0.04), (-0.95, -2.2, 0.7, 0.04))):
+            t0 = s.BURST + 1 + k * 0.7
+            if i < t0:
                 continue
-            u = ease_out((i - s.BURST - sp["delay"]) / 4)
-            L = sp["L"] * u * (1 + 0.06 * math.sin(i * 0.7 + sp["seed"])) * cam.r
-            a = sp["a"] + 0.03 * math.sin(i * 0.5 + sp["seed"])
-            pts = spike_poly(cx, cy, a, L, sp["w"] * cam.r * (0.6 + 0.4 * u), 1.0, sp["seed"] + i // 2)
-            grown.append((sp["front"], pts))
-        for front, pts in grown:
-            if not front:
-                draw_spike(img, pts)
+            u = ease_out((i - t0) / 4)
+            bx, by = cam.P(s.chest[0] + dx * s.half, s.foot)
+            behind.append(spike_poly(bx, by, ang + 0.02 * math.sin(i * 0.4 + k), s.size * L * u * cam.r,
+                                     s.size * w * cam.r, 0.8, 3200 + k))
+        great = None
+        if i >= s.BURST - 3:  # the great spike thrusts up from below the frame through the target
+            u = ease_out((i - (s.BURST - 3)) / 4)
+            tip_y = s.foot + 140 - (s.foot + 140 - s.chest[1]) * u * (1 + 0.04 * math.sin((i - s.BURST) * 0.9))
+            gx, gy = cam.P(s.chest[0], tip_y)
+            _, by = cam.P(0, 520)
+            great = spear(gx, gy, by, s.half * cam.r)
+        if i >= s.BURST + 2:  # tongues of the same flame lick up the hem
+            g = ease_out((i - s.BURST - 2) / 14)
+            r = np.random.default_rng(3300)
+            for k in range(9):
+                fx = s.chest[0] + r.uniform(-1.6, 1.6) * s.half
+                bx, by = cam.P(fx, s.foot - r.uniform(0, 40))
+                a = -math.pi / 2 + r.uniform(-0.5, 0.5) + 0.08 * math.sin(i * 0.6 + k)
+                hem.append(spike_poly(bx, by, a, s.size * r.uniform(0.12, 0.25) * g * cam.r, s.size * 0.03 * cam.r,
+                                      1.4, 3400 + k + i // 3))
+        for pts in behind:
+            draw_spike(img, pts)
+        grown = [(True, q) for q in behind + ([great] if great else []) + hem]
         T, ox, oy = s.target_frame(i)
         tl = Layer(T, s.Tm, None, levels=(1.0,))
         tlay = np.zeros((H, W, 3), np.int32)
         tok = draw(tlay, cam, tl, ox=s.tx + ox, oy=s.ty + oy)
         img[tok] = tlay[tok]
         before_front = img.copy()
-        for front, pts in grown:
-            if front:
-                draw_spike(img, pts)
+        if great:
+            draw_spike(img, great)
+        for pts in hem:
+            draw_spike(img, pts)
         if s.IGN <= i < s.BURST + 2:  # it ignites in the chest
             g = (i - s.IGN + 1) / (s.BURST + 2 - s.IGN)
-            starburst(img, cx, cy, (10 + 40 * g) * cam.r, [FL[0], FL[2]], 3100 + i, 14, 1.0)
+            fx, fy = cam.P(s.chest[0], s.foot)
+            starburst(img, fx, fy, (16 + 60 * g) * cam.r, [SP[0], SP[2]], 3100 + i, 14, 0.5)
         if i >= n - 16:  # smoke rises and fills the frame
             X, Y = cam.grid()
             u = ease_in((i - (n - 16)) / 15)
