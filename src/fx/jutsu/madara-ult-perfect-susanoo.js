@@ -2,12 +2,10 @@
 // tengu nose, horns, wings and armour, and wields a katana that cut through several mountains with one stroke; he
 // called up the Wood Dragon (Mokuton: Mokuryuu) and opened the Rinnegan before it took shape.
 // A 20 s cutscene built from the user's ten storyboard panels, in the storyboard's order (top-left, top-right, next
-// row left, right, ...), each panel animated as its own shot on one 1-pixel grid (blender/madara_px/shots.py):
-//   1 Madara's face in the fog, the Rinnegan glows        6 from below the Susanoo towers over the enemy
-//   2 the wood dragon tears out of the ground              7 its hand closes on the grip, the blade slides out
-//   3 the Rinnegan close up, its light fills the frame     8 the blade sweeps down and hits the land
-//   4 the Perfect Susanoo forms out of that light          9 the land explodes, rocks fly
-//   5 chakra bursts at its chest                           10 the valley afterwards, shock rings, Madara alone
+// row left, right, ...). Each panel is split into layers that move (blender/madara_px/shots2.py + engine.py): the eye
+// opens and the hair sways, the wood dragon rises out of the dust, the Rinnegan's light swells, the Susanoo forms and
+// rises, the arm draws the blade, the blade sweeps down, rocks fly, the cut mountain top slides away; the camera
+// pushes, pulls and whips through each shot and carries its motion over the cut into the next. One 1-pixel grid.
 // The frames (480x270, 24 fps) are played here 1:1; the viewer shows them as they are.
 import { READY, hex } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
@@ -19,7 +17,7 @@ const at = (f) => (f - 1) / FPS3D;
 
 export const meta = {
   name: "Perfect Susanoo",
-  desc: "ULTIMATE. Madara's Rinnegan glows in the fog and the wood dragon tears out of the ground; the light of his eye swells and the blue Perfect Susanoo forms out of it, its eyes ignite and chakra bursts at its chest; towering over the enemy it closes its hand on the grip, draws the blade and sweeps it down over the mountains: the land explodes, and in the valley afterwards the shock rings roll out round Madara's Susanoo.",
+  desc: "ULTIMATE. Madara opens his Rinnegan in the fog and the wood dragon tears up out of the dust; the light of his eye swells and the blue Perfect Susanoo forms out of it, its eyes ignite and chakra bursts at its chest; it rises over the enemy, draws its blade and sweeps it down over the mountains: the land explodes, rocks fly, and in the valley the cut mountain top slides away while shock rings roll out round Madara's Susanoo.",
   tags: ["jutsu", "ultimate", "madara", "susanoo", "complete-body", "rinnegan", "wood", "cutscene", "one-shot"],
   size: [480, 270],
   origin: [240, 236],
@@ -35,25 +33,26 @@ export const act = {
   target: { x: 120 },
   poses: [[-0.25, READY], [DUR, READY]],
   hits: [
-    { t: at(28), target: false, sfx: "rumble" },
-    { t: at(37), stop: 0, target: false, sfx: "explosion" },
-    { t: at(52), target: false, sfx: "heavy" },
-    { t: at(103), target: false, sfx: "cast" },
-    { t: at(121), target: false, sfx: "rumble" },
-    { t: at(151), target: false, sfx: "heavy" },
-    { t: at(173), target: false, sfx: "thunder" },
-    { t: at(193), target: false, sfx: "explosion" },
-    { t: at(223), target: false, sfx: "rumble" },
-    { t: at(243), target: false, sfx: "thunder" },
-    { t: at(282), target: false, sfx: "whoosh" },
-    { t: at(293), target: false, sfx: "parry" },
-    { t: at(319), target: false, sfx: "whoosh" },
-    { t: at(329), target: false, sfx: "explosion" },
-    { t: at(340), target: false, sfx: "rumble" },
-    { t: at(367), target: false, sfx: "explosion" },
-    { t: at(397), target: false, sfx: "rumble" },
-    { t: at(420), target: false, sfx: "land" },
+    { t: at(27), target: false, sfx: "rumble" },
+    { t: at(41), stop: 0, target: false, sfx: "explosion" },
+    { t: at(60), target: false, sfx: "heavy" },
+    { t: at(107), target: false, sfx: "cast" },
+    { t: at(129), target: false, sfx: "rumble" },
+    { t: at(160), target: false, sfx: "heavy" },
+    { t: at(179), target: false, sfx: "thunder" },
+    { t: at(201), target: false, sfx: "explosion" },
+    { t: at(229), target: false, sfx: "rumble" },
+    { t: at(249), target: false, sfx: "thunder" },
+    { t: at(289), target: false, sfx: "whoosh" },
+    { t: at(300), target: false, sfx: "parry" },
+    { t: at(321), target: false, sfx: "whoosh" },
+    { t: at(337), target: false, sfx: "explosion" },
+    { t: at(348), target: false, sfx: "rumble" },
+    { t: at(375), target: false, sfx: "explosion" },
+    { t: at(405), target: false, sfx: "rumble" },
+    { t: at(417), target: false, sfx: "heavy" },
     { t: at(440), target: false, sfx: "land" },
+    { t: at(460), target: false, sfx: "land" },
   ],
 };
 // the cutscene draws everyone itself: the rig figure and the dummy stay hidden
