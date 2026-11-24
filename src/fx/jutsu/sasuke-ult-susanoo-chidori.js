@@ -2,7 +2,7 @@
 // eyes, the seal and black flames, Kaguya above the field, the Chidori in his hand, the winged Susanoo carrying it into
 // the sphere, the hand driving through its wall, light bursting out, the sphere blowing apart.
 // A 20 s cutscene from the user's ten storyboard panels (assets/cine/sasuke-ult/ref) on one 1-pixel grid, built
-// after the reference's beats (blender/sasuke_px/sshots3.py: no figure is cut out, the panels' own effects are animated in place): his still eyes and a glint, the seal with a white flash
+// after the reference's beats (blender/sasuke_px/sshots4.py on sshots3.py: the panels shown whole, their own effects animated in place; the Amaterasu shot is layered so its target can be any character sprite): his still eyes and a glint, the seal with a white flash
 // and black flame spikes bursting out, black spears striking into Kaguya and Amaterasu tearing out of her as she
 // tumbles into dark smoke, the Chidori forming in his hand and a violet flash, the Susanoo and a climb to its burning
 // eyes, the winged Susanoo shooting at the sphere, a black flame core folding into the Chidori, the scream as the frame
