@@ -2,10 +2,10 @@
 // tengu nose, horns, wings and armour, and wields a katana that cut through several mountains with one stroke; he
 // called up the Wood Dragon (Mokuton: Mokuryuu) and opened the Rinnegan before it took shape.
 // A 20 s cutscene built from the user's ten storyboard panels (and the user's orb image), in the storyboard's order,
-// each split into layers that move (blender/madara_px/shots5.py on shots4/shots3/shots2/engine.py), cut together with the
+// each split into layers that move (blender/madara_px/shots6.py on shots5/4/3/2 and engine.py; the wood dragon is a rig of five body segments, head and jaw), cut together with the
 // reference video's transitions redrawn in pixels: fade in on the face as the eye opens, dissolve to the dragon rising
 // out of the dust, rearing back, snapping up the enemy and flying into the lens, cut to the Rinnegan, its glow dissolving into the orb on
-// falling streaks, the orb into the forming Susanoo, the Susanoo's red eye gleaming in the dark and a dive into the blue, the low angle, the arm
+// falling streaks, the orb into the forming Susanoo, the chest with Madara in the crystal, a red glint and the flare erupting from it, the low angle, the arm
 // whipping the blade out of frame, the pointed blade's slow descent with chakra wisps, a second of grinding along the ground, the big blue blast and a fall into it, the
 // blast flooding cyan, the valley from above (slash, ring, crater, the cut mountain tops springing up in smoke), and a
 // close blast of rock and smoke into white. One 1-pixel grid, 480x270, 24 fps.
@@ -48,9 +48,8 @@ export const act = {
     { t: at(155), target: false, sfx: "heavy" },
     { t: at(189), target: false, sfx: "thunder" },
     { t: at(201), target: false, sfx: "rumble" },
-    { t: at(207), target: false, sfx: "cast" },
-    { t: at(215), target: false, sfx: "explosion" },
-    { t: at(221), target: false, sfx: "whoosh" },
+    { t: at(204), target: false, sfx: "cast" },
+    { t: at(210), target: false, sfx: "explosion" },
     { t: at(227), target: false, sfx: "rumble" },
     { t: at(245), target: false, sfx: "thunder" },
     { t: at(267), target: false, sfx: "heavy" },
