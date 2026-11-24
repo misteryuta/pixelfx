@@ -1,10 +1,13 @@
 // ULTIMATE: Susanoo Chidori (Sasuke Uchiha, Rinnegan and Eternal Mangekyou). Against Kaguya and her sphere: his
 // eyes, the seal and black flames, Kaguya above the field, the Chidori in his hand, the winged Susanoo carrying it into
 // the sphere, the hand driving through its wall, light bursting out, the sphere blowing apart.
-// A 20 s cutscene from the user's ten storyboard panels (assets/cine/sasuke-ult/ref), each animated on one 1-pixel
-// grid (blender/sasuke_px/sshots.py on the Madara engine): the Sharingan turning, Amaterasu licking up and swallowing
-// the frame, Kaguya's hair streaming, the Chidori crackling, the Susanoo shooting at the churning sphere, the scream,
-// the wall's dark flames flowing round the hand, the beams breaking out, the sphere throbbing and bursting into white.
+// A 20 s cutscene from the user's ten storyboard panels (assets/cine/sasuke-ult/ref) on one 1-pixel grid, built
+// after the reference's beats (blender/sasuke_px/sshots2.py): his still eyes and a glint, the seal with a white flash
+// and black flame spikes bursting out, black spears striking into Kaguya and Amaterasu tearing out of her as she
+// tumbles into dark smoke, the Chidori forming in his hand and a violet flash, the Susanoo and a climb to its burning
+// eyes, the winged Susanoo shooting at the sphere, a black flame core folding into the Chidori, the scream as the frame
+// flushes red, the wall cracking and the light breaking through, Kaguya in the dark as white floods in, a cross of
+// light at the sphere's heart and its beams breaking out as it glows, and the burst into white.
 // The frames (480x270, 24 fps) are played here 1:1. Replaces Chidori Planet Splitter as Sasuke's ultimate.
 import { READY, hex } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
@@ -32,38 +35,32 @@ export const act = {
   target: { x: 120 },
   poses: [[-0.25, READY], [DUR, READY]],
   hits: [
-    { t: at(1), target: false, sfx: "cast" },
-    { t: at(22), target: false, sfx: "cast" },
-    { t: at(31), stop: 0, target: false, sfx: "clash" },
-    { t: at(33), target: false, sfx: "rumble" },
-    { t: at(60), target: false, sfx: "whoosh" },
-    { t: at(67), target: false, sfx: "rumble" },
-    { t: at(111), target: false, sfx: "thunder" },
-    { t: at(130), target: false, sfx: "thunder" },
-    { t: at(143), target: false, sfx: "explosion" },
-    { t: at(151), target: false, sfx: "thunder" },
-    { t: at(175), target: false, sfx: "thunder" },
+    { t: at(18), target: false, sfx: "cast" },
+    { t: at(26), stop: 0, target: false, sfx: "clash" },
+    { t: at(27), target: false, sfx: "rumble" },
+    { t: at(53), target: false, sfx: "whoosh" },
+    { t: at(59), target: false, sfx: "heavy" },
+    { t: at(79), target: false, sfx: "rumble" },
+    { t: at(105), target: false, sfx: "thunder" },
+    { t: at(125), target: false, sfx: "thunder" },
+    { t: at(141), target: false, sfx: "explosion" },
+    { t: at(151), target: false, sfx: "whoosh" },
+    { t: at(175), target: false, sfx: "cast" },
     { t: at(192), target: false, sfx: "whoosh" },
-    { t: at(199), target: false, sfx: "whoosh" },
-    { t: at(205), target: false, sfx: "thunder" },
-    { t: at(229), target: false, sfx: "thunder" },
-    { t: at(245), target: false, sfx: "thunder" },
-    { t: at(262), target: false, sfx: "thunder" },
-    { t: at(279), target: false, sfx: "explosion" },
+    { t: at(197), target: false, sfx: "whoosh" },
+    { t: at(231), target: false, sfx: "thunder" },
+    { t: at(249), target: false, sfx: "rumble" },
+    { t: at(280), target: false, sfx: "explosion" },
     { t: at(283), target: false, sfx: "heavy" },
-    { t: at(300), target: false, sfx: "rumble" },
-    { t: at(313), target: false, sfx: "clash" },
-    { t: at(315), target: false, sfx: "thunder" },
-    { t: at(340), target: false, sfx: "rumble" },
-    { t: at(362), target: false, sfx: "explosion" },
-    { t: at(367), target: false, sfx: "rumble" },
-    { t: at(371), target: false, sfx: "thunder" },
-    { t: at(395), target: false, sfx: "thunder" },
-    { t: at(410), target: false, sfx: "cast" },
-    { t: at(421), target: false, sfx: "rumble" },
-    { t: at(437), target: false, sfx: "explosion" },
-    { t: at(445), target: false, sfx: "rumble" },
-    { t: at(470), target: false, sfx: "rumble" },
+    { t: at(315), target: false, sfx: "clash" },
+    { t: at(330), target: false, sfx: "rumble" },
+    { t: at(351), target: false, sfx: "explosion" },
+    { t: at(359), target: false, sfx: "rumble" },
+    { t: at(375), target: false, sfx: "cast" },
+    { t: at(389), target: false, sfx: "thunder" },
+    { t: at(409), target: false, sfx: "rumble" },
+    { t: at(427), target: false, sfx: "explosion" },
+    { t: at(440), target: false, sfx: "rumble" },
   ],
 };
 export const actorAlpha = () => 0;
