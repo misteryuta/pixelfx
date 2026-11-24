@@ -2,11 +2,11 @@
 // tengu nose, horns, wings and armour, and wields a katana that cut through several mountains with one stroke; he
 // called up the Wood Dragon (Mokuton: Mokuryuu) and opened the Rinnegan before it took shape.
 // A 20 s cutscene built from the user's ten storyboard panels (and the user's orb image), in the storyboard's order,
-// each split into layers that move (blender/madara_px/shots4.py on shots3/shots2/engine.py), cut together with the
+// each split into layers that move (blender/madara_px/shots5.py on shots4/shots3/shots2/engine.py), cut together with the
 // reference video's transitions redrawn in pixels: fade in on the face as the eye opens, dissolve to the dragon rising
-// out of the dust, rearing back and snapping up the enemy, cut to the Rinnegan, its glow dissolving into the orb on
-// falling streaks, the orb into the forming Susanoo, the chest flare and a dive into the blue, the low angle, the arm
-// whipping the blade out of frame, the pointed blade's slow descent with chakra wisps and a fall into the burst, the
+// out of the dust, rearing back, snapping up the enemy and flying into the lens, cut to the Rinnegan, its glow dissolving into the orb on
+// falling streaks, the orb into the forming Susanoo, the Susanoo's red eye gleaming in the dark and a dive into the blue, the low angle, the arm
+// whipping the blade out of frame, the pointed blade's slow descent with chakra wisps, a second of grinding along the ground, the big blue blast and a fall into it, the
 // blast flooding cyan, the valley from above (slash, ring, crater, the cut mountain tops springing up in smoke), and a
 // close blast of rock and smoke into white. One 1-pixel grid, 480x270, 24 fps.
 import { READY, hex } from "../../core/index.js";
@@ -41,28 +41,35 @@ export const act = {
     { t: at(67), target: false, sfx: "rumble" },
     { t: at(77), target: false, sfx: "whoosh" },
     { t: at(84), target: false, sfx: "explosion" },
+    { t: at(91), target: false, sfx: "whoosh" },
     { t: at(109), target: false, sfx: "heavy" },
     { t: at(117), target: false, sfx: "cast" },
     { t: at(133), target: false, sfx: "rumble" },
     { t: at(155), target: false, sfx: "heavy" },
     { t: at(189), target: false, sfx: "thunder" },
-    { t: at(205), target: false, sfx: "explosion" },
-    { t: at(224), target: false, sfx: "whoosh" },
-    { t: at(231), target: false, sfx: "rumble" },
-    { t: at(249), target: false, sfx: "thunder" },
-    { t: at(281), target: false, sfx: "whoosh" },
-    { t: at(292), target: false, sfx: "parry" },
-    { t: at(311), target: false, sfx: "whoosh" },
-    { t: at(335), target: false, sfx: "explosion" },
-    { t: at(353), target: false, sfx: "rumble" },
-    { t: at(363), target: false, sfx: "explosion" },
-    { t: at(387), target: false, sfx: "heavy" },
-    { t: at(391), target: false, sfx: "rumble" },
-    { t: at(413), target: false, sfx: "heavy" },
-    { t: at(417), target: false, sfx: "heavy" },
+    { t: at(201), target: false, sfx: "rumble" },
+    { t: at(207), target: false, sfx: "cast" },
+    { t: at(215), target: false, sfx: "explosion" },
+    { t: at(221), target: false, sfx: "whoosh" },
+    { t: at(227), target: false, sfx: "rumble" },
+    { t: at(245), target: false, sfx: "thunder" },
+    { t: at(267), target: false, sfx: "heavy" },
+    { t: at(271), target: false, sfx: "whoosh" },
+    { t: at(282), target: false, sfx: "parry" },
+    { t: at(301), target: false, sfx: "whoosh" },
+    { t: at(307), target: false, sfx: "whoosh" },
+    { t: at(323), target: false, sfx: "clash" },
+    { t: at(330), target: false, sfx: "rumble" },
+    { t: at(347), target: false, sfx: "explosion" },
+    { t: at(363), target: false, sfx: "rumble" },
+    { t: at(371), target: false, sfx: "explosion" },
+    { t: at(395), target: false, sfx: "heavy" },
+    { t: at(399), target: false, sfx: "rumble" },
     { t: at(421), target: false, sfx: "heavy" },
-    { t: at(443), target: false, sfx: "explosion" },
-    { t: at(457), target: false, sfx: "rumble" },
+    { t: at(425), target: false, sfx: "heavy" },
+    { t: at(429), target: false, sfx: "heavy" },
+    { t: at(445), target: false, sfx: "explosion" },
+    { t: at(459), target: false, sfx: "rumble" },
   ],
 };
 // the cutscene draws everyone itself: the rig figure and the dummy stay hidden
