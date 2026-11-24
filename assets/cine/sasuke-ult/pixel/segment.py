@@ -62,7 +62,7 @@ L = lambda a: lum(a)
 S = lambda a: old.sat(a)
 if __name__ == "__main__":
     # p02 seal: red/orange/black flames and rock behind him
-    seg("p02", lambda a: ((a[..., 0] > a[..., 2] + 25) & (S(a) > 0.35)) | (L(a) < 28), ("t", "l", "r"), smooth=1)
+    seg("p02", lambda a: (((a[..., 0] > a[..., 2] + 25) & (S(a) > 0.35) & (a[..., 1] < 125)) | (L(a) < 28)), ("t", "l", "r"), smooth=1)
     # p04 from above: brown ground
     seg("p04", lambda a: (a[..., 0] > a[..., 2] + 20) & (S(a) > 0.3) & (L(a) < 200), ("t", "l", "r", "b"), smooth=1)
     # p06 wide: reddish sky round the winged Susanoo (the sphere joins the background via the right edge)

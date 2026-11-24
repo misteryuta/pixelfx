@@ -8,7 +8,7 @@
 // Susanoo small before the vast sphere with its charged hand the brightest point, his face and the shout, the open
 // hand hitting the sphere side on - the first shake - the crackle cutting off and only the palm glowing, then violet
 // light out of the sphere, the shockwave over the ground and debris against the white final flash.
-// The frames (480x270, 24 fps) are played here 1:1. Replaces Chidori Planet Splitter as Sasuke's ultimate.
+// The frames (800x450, 24 fps, one panel pixel per screen pixel) are played here 1:1. Replaces Chidori Planet Splitter as Sasuke's ultimate.
 import { READY, hex } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
 import { ultBanner, frameOf } from "./_ultimate.js";
@@ -21,8 +21,8 @@ export const meta = {
   name: "Susanoo Chidori",
   desc: "ULTIMATE. Sasuke's Sharingan turns and black flames swallow the field; Kaguya looms above; the Chidori crackles in his hand and his winged Susanoo carries it into her sphere, drives its hand through the wall, and the sphere throbs, splits with light and blows apart.",
   tags: ["jutsu", "ultimate", "sasuke", "susanoo", "chidori", "rinnegan", "amaterasu", "cutscene", "one-shot"],
-  size: [480, 270],
-  origin: [240, 236],
+  size: [800, 450],
+  origin: [400, 393],
   duration: DUR,
   loop: false,
   fps: 24,

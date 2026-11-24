@@ -271,7 +271,7 @@ class S10(v3.S11):  # the shockwave races over the ground, debris rises against 
         F = 16
         if i >= F:  # the white final flash: a violet-white burst swallowing the frame
             k = ease_in((i - F) / 18)
-            starburst(img, cx, cy, 40 + 700 * k, [VIOLET[2], VIOLET[3], hexc("#e8d8ff"), WHITE], 1050 + (i - F) // 2, 28, 0.8)
+            starburst(img, cx, cy, 40 + 1.5 * W * k, [VIOLET[2], VIOLET[3], hexc("#e8d8ff"), WHITE], 1050 + (i - F) // 2, 28, 0.8)
         if i >= F + 6:  # debris lifts against the white as dark silhouettes, drifting up and out
             for x0, vy, rad, ph, sd in s.debris:
                 t = i - F - 6 - ph

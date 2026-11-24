@@ -8,7 +8,8 @@ import math
 import numpy as np
 from pxlib import *
 
-W, H = 480, 270
+import os as _os
+W, H = (int(v) for v in _os.environ.get("PX_RES", "480x270").split("x"))
 
 
 def ease(u):

@@ -77,7 +77,7 @@ class S1(v5.S1):
     def __init__(s):
         super().__init__()
         a = s.art
-        s.hair = (lum(a) < 80) & (a[..., 2] > a[..., 0]) & (np.mgrid[0:473, 0:840][0] < 260)
+        s.hair = (lum(a) < 80) & (a[..., 2] > a[..., 0]) & (np.mgrid[0:473, 0:840][0] < 190)
 
     def frame(s, i, n):
         cam = cam_of([(0, (420, 244, 800), "s"), (n - 1, (420, 248, 740), "s")], i)
@@ -101,7 +101,9 @@ class S2(v5.S2):
         s.Lb = Layer(s.plate, None, s.pal, levels=(1.0,))
         a = s.art
         yy, xx = np.mgrid[0:473, 0:840]
-        s.hair = s.fg & (lum(a) < 90) & (a[..., 2] > a[..., 0]) & (yy < 250)
+        s.hair = np.zeros_like(s.fg)  # no sway here: the hair meets the flames, moving it frays the edge
+        bgl = (a[..., 0] > a[..., 2] + 25) & (old.sat(a) > 0.35) & (a[..., 1] < 125)
+        s.fg = s.fg & ~(bgl & dil(~s.fg, 2))
 
     def frame(s, i, n):
         cam = cam_of([(0, (420, 232, 720), "s"), (n - 1, (420, 230, 700), "s")], i)

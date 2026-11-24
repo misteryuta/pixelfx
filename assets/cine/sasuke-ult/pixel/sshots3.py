@@ -29,7 +29,13 @@ SMOKE = [hexc("#24122e"), hexc("#3a1e4a")]
 
 
 def cam_of(keys, i):
+    """The camera: at native size (PX_RES >= 800 wide) one art pixel is one screen pixel, it only pans in whole
+    pixels; otherwise it may zoom down to 480 wide."""
     cx, cy, vis = track(i, keys)
+    if W >= 800:
+        cam = clampcam(round(cx), round(cy), W, 840, 473)
+        cam.cx, cam.cy = round(cam.cx - W / 2) + W / 2, round(cam.cy - H / 2) + H / 2
+        return cam
     return clampcam(cx, cy, max(vis, 480), 840, 473)
 
 

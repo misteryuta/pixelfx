@@ -22,7 +22,8 @@ from pxlib import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "frames")
-W, H = 480, 270
+import os as _os
+W, H = (int(v) for v in _os.environ.get("PX_RES", "480x270").split("x"))
 
 
 def ease(u):

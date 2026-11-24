@@ -115,7 +115,9 @@ class S4(v6.S4):
         halo = ((a[..., 2] > a[..., 0] + 10) & (lum(a) > 90)) | (lum(a) > 200)
         notbrown = ~((a[..., 0] > a[..., 2] + 20) & (old.sat(a) > 0.28))
         xx0 = np.mgrid[0:473, 0:840][1]
-        halo = (dil(halo, 6) | dil(notbrown & ~s.fg, 2) | (notbrown & (s.d < 150) & (xx0 > 575))) & (s.d < 190)
+        skin = (a[..., 0] > 190) & (a[..., 1] > 140) & (a[..., 0] > a[..., 2] + 20)
+        dark = lum(a) < 70
+        halo = (dil(halo, 6) | dil(notbrown & ~s.fg, 2) | (notbrown & (s.d < 150) & (xx0 > 575))) & (s.d < 190) & ~skin & ~dark
         s.fg = fill_holes(s.fg & ~halo, 3) & ~halo
         art = s.plate2.copy()
         yy, xx = np.mgrid[0:473, 0:840]
