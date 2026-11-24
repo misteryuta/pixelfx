@@ -178,6 +178,8 @@ class S2(v5.S2):
             u = ease((i - FLY) / (n - 1 - FLY) * 1.4)
             p["gx"] += (cam.cx - hx) * u
             p["gy"] += (cam.cy + 20 - hy) * u
+        if hasattr(s, "post_pose"):
+            p = s.post_pose(p, i, n)
         img = np.zeros((H, W, 3), np.int32)
         draw(img, cam, s.L_plate)
         ex, ey = s.EN
@@ -251,7 +253,8 @@ class S5(v6.S5):
 
     def frame(s, i, n):
         G0, F0, F1 = 3, 9, 17  # red glint, flare erupts, flare at full
-        cx, cy, vis = track(i, [(0, (430, 260, 820), "s"), (n - 1, (440, 250, 640), "s")])
+        keys = s.cam_keys(n) if hasattr(s, "cam_keys") else [(0, (430, 260, 820), "s"), (n - 1, (440, 250, 640), "s")]
+        cx, cy, vis = track(i, keys)
         cam = clampcam(cx, cy, vis, *s.art.shape[1::-1], margin=0.02)
         img = np.zeros((H, W, 3), np.int32)
         draw(img, cam, s.L_plate)
@@ -289,6 +292,8 @@ class S5(v6.S5):
             half = (80 + 420 * u)
             draw_line(img, bx - half, ly, bx + half, ly, WHITE, 2 if u > 0.5 else 1)
             draw_line(img, bx - half * 1.2, ly + 2, bx + half * 1.2, ly + 2, CYAN2, 1)
+        if hasattr(s, "extra"):
+            s.extra(img, cam, i, n)
         return shift(img, *old.shake(i, 2 if F0 <= i < F0 + 4 else 0, 5))
 
 

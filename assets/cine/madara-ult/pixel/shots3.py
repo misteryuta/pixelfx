@@ -183,6 +183,8 @@ class S4(v3.S4):
             for ex in (530, 616):
                 gx, gy = cam.P(ex, 296)
                 glint(img, int(gx), int(gy), max(1, int((7 - (i - 34)) * cam.r * 1.4)), "#ffffff")
+        if hasattr(s, "extra"):
+            s.extra(img, cam, i, n)
         amp = 3 if 34 <= i < 38 else (1 if 38 <= i < 44 else 0)
         return shift(img, *old.shake(i, amp, 4))
 

@@ -337,7 +337,8 @@ class S10(v3.S10):
                                         hexc("#c8cbdc"), hexc("#3a4058")]])
 
     def frame(s, i, n):
-        cx, cy, vis = track(i, [(0, (420, 290, 800), "s"), (n - 1, (420, 260, 700), "s")])
+        keys = s.cam_keys(n) if hasattr(s, "cam_keys") else [(0, (420, 290, 800), "s"), (n - 1, (420, 260, 700), "s")]
+        cx, cy, vis = track(i, keys)
         cam = clampcam(cx, cy, vis, *s.art.shape[1::-1])
         img = np.zeros((H, W, 3), np.int32)
         draw(img, cam, s.L_plate)
@@ -399,6 +400,8 @@ class S10(v3.S10):
                 if 0 <= qx < W - 2 and 0 <= qy < H - 2:
                     img[int(qy):int(qy) + 1 + j % 2, int(qx):int(qx) + 1 + j % 2] = hexc("#3a4058")
         s.fog.apply(img, cx * cam.r * 1.3 + i // 2)
+        if hasattr(s, "extra"):
+            s.extra(img, cam, i, n)
         amp = 1 if i < 20 else (2 if any(0 <= i - p < 6 for p in s.POP) else 0)
         return shift(img, *old.shake(i, amp, 10, 2))
 
