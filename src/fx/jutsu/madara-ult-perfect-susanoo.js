@@ -2,7 +2,7 @@
 // tengu nose, horns, wings and armour, and wields a katana that cut through several mountains with one stroke; he
 // called up the Wood Dragon (Mokuton: Mokuryuu) and opened the Rinnegan before it took shape.
 // A 20 s cutscene built from the user's ten storyboard panels (and the user's orb image), in the storyboard's order,
-// each split into layers that move (blender/madara_px/shots8.py on shots7/6/5/4/3/2 and engine.py; the wood dragon is a rig of five body segments, head and jaw), cut together with the
+// each split into layers that move (blender/madara_px/shots9.py on shots8/7/6/5/4/3/2 and engine.py; the dragon is a 3D tube body with a built head, redrawn every frame; the wood dragon is a rig of five body segments, head and jaw), cut together with the
 // reference video's transitions redrawn in pixels: fade in on the face as the eye opens, dissolve to the dragon bursting up
 // out of the dust and flying straight into the lens, cut to the Rinnegan, its glow dissolving into the orb on
 // falling streaks, the orb into the forming Susanoo, the chest with Madara in the crystal, a red glint and the flare erupting from it, the low angle, the arm
