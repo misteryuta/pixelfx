@@ -264,7 +264,7 @@ class S3(Shot):
             layers["back"] = back
             layers["target"] = (tlay, tok)
             layers["front"] = (img, img != before_front)
-        if i == s.BURST:  # one impact frame: the target and the spikes black on red-white
+        if i == s.BURST and getattr(s, "impact", True):  # one impact frame: the target and the spikes black on red-white
             out = np.full((H, W, 3), WHITE)
             out[tok] = FL[2]
             for _, pts in grown:

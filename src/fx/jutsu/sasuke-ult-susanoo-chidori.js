@@ -1,13 +1,13 @@
 // ULTIMATE: Susanoo Chidori (Sasuke Uchiha, Rinnegan and Eternal Mangekyou). Against Kaguya and her sphere: his
 // eyes, the seal and black flames, Kaguya above the field, the Chidori in his hand, the winged Susanoo carrying it into
 // the sphere, the hand driving through its wall, light bursting out, the sphere blowing apart.
-// A 20 s cutscene from the user's ten storyboard panels (assets/cine/sasuke-ult/ref) on one 1-pixel grid, built
-// after the reference's beats (blender/sasuke_px/sshots4.py on sshots3.py: the panels shown whole, their own effects animated in place; the Amaterasu shot is layered so its target can be any character sprite): his still eyes and a glint, the seal with a white flash
-// and black flame spikes bursting out, black spears striking into Kaguya and Amaterasu tearing out of her as she
-// tumbles into dark smoke, the Chidori forming in his hand and a violet flash, the Susanoo and a climb to its burning
-// eyes, the winged Susanoo shooting at the sphere, a black flame core folding into the Chidori, the scream as the frame
-// flushes red, the wall cracking and the light breaking through, Kaguya in the dark as white floods in, a cross of
-// light at the sphere's heart and its beams breaking out as it glows, and the burst into white.
+// A 20 s cutscene after the user's shot script, on the user's storyboard panels (blender/sasuke_px/sshots5.py): his
+// eyes held calm for a breath (Mangekyou right, Rinnegan left), the seal closing on a still camera, dark chakra spikes
+// rising through the opponent (a swappable target), Sasuke in the air with the rope belt swinging and the Chidori
+// igniting in his left hand, violet chakra closing round him and parting on the winged Susanoo, the wide shot of the
+// Susanoo small before the vast sphere with its charged hand the brightest point, his face and the shout, the open
+// hand hitting the sphere side on - the first shake - the crackle cutting off and only the palm glowing, then violet
+// light out of the sphere, the shockwave over the ground and debris against the white final flash.
 // The frames (480x270, 24 fps) are played here 1:1. Replaces Chidori Planet Splitter as Sasuke's ultimate.
 import { READY, hex } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
@@ -35,34 +35,20 @@ export const act = {
   target: { x: 120 },
   poses: [[-0.25, READY], [DUR, READY]],
   hits: [
-    { t: at(22), target: false, sfx: "cast" },
-    { t: at(31), stop: 0, target: false, sfx: "clash" },
-    { t: at(33), target: false, sfx: "rumble" },
-    { t: at(66), target: false, sfx: "whoosh" },
-    { t: at(73), target: false, sfx: "heavy" },
-    { t: at(90), target: false, sfx: "rumble" },
-    { t: at(119), target: false, sfx: "thunder" },
-    { t: at(138), target: false, sfx: "thunder" },
-    { t: at(155), target: false, sfx: "explosion" },
-    { t: at(159), target: false, sfx: "whoosh" },
-    { t: at(185), target: false, sfx: "cast" },
-    { t: at(199), target: false, sfx: "whoosh" },
-    { t: at(205), target: false, sfx: "whoosh" },
-    { t: at(233), target: false, sfx: "explosion" },
-    { t: at(237), target: false, sfx: "thunder" },
-    { t: at(253), target: false, sfx: "rumble" },
-    { t: at(280), target: false, sfx: "whoosh" },
-    { t: at(285), target: false, sfx: "heavy" },
-    { t: at(309), target: false, sfx: "explosion" },
-    { t: at(313), target: false, sfx: "clash" },
-    { t: at(330), target: false, sfx: "rumble" },
-    { t: at(350), target: false, sfx: "explosion" },
-    { t: at(357), target: false, sfx: "rumble" },
-    { t: at(373), target: false, sfx: "cast" },
-    { t: at(387), target: false, sfx: "thunder" },
-    { t: at(410), target: false, sfx: "rumble" },
-    { t: at(427), target: false, sfx: "explosion" },
-    { t: at(440), target: false, sfx: "rumble" },
+    { t: at(60), target: false, sfx: "cast" },
+    { t: at(66), target: false, sfx: "rumble" },
+    { t: at(74), stop: 0, target: false, sfx: "heavy" },
+    { t: at(123), target: false, sfx: "thunder" },
+    { t: at(141), target: false, sfx: "thunder" },
+    { t: at(161), target: false, sfx: "rumble" },
+    { t: at(196), target: false, sfx: "thunder" },
+    { t: at(255), target: false, sfx: "whoosh" },
+    { t: at(279), target: false, sfx: "explosion" },
+    { t: at(293), target: false, sfx: "explosion" },
+    { t: at(337), target: false, sfx: "rumble" },
+    { t: at(409), target: false, sfx: "explosion" },
+    { t: at(430), target: false, sfx: "rumble" },
+    { t: at(455), target: false, sfx: "rumble" },
   ],
 };
 export const actorAlpha = () => 0;
