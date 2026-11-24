@@ -1,12 +1,13 @@
 // ULTIMATE: Perfect Susanoo (Madara Uchiha). Narutopedia: Madara's Complete Body Susanoo is dark blue, with a long
 // tengu nose, horns, wings and armour, and wields a katana that cut through several mountains with one stroke; he
 // called up the Wood Dragon (Mokuton: Mokuryuu) and opened the Rinnegan before it took shape.
-// A 20 s cutscene built from the user's ten storyboard panels, in the storyboard's order (top-left, top-right, next
-// row left, right, ...). Each panel is split into layers that move (blender/madara_px/shots2.py + engine.py): the eye
-// opens and the hair sways, the wood dragon rises out of the dust, the Rinnegan's light swells, the Susanoo forms and
-// rises, the arm draws the blade, the blade sweeps down, rocks fly, the cut mountain top slides away; the camera
-// pushes, pulls and whips through each shot and carries its motion over the cut into the next. One 1-pixel grid.
-// The frames (480x270, 24 fps) are played here 1:1; the viewer shows them as they are.
+// A 20 s cutscene built from the user's ten storyboard panels, in the storyboard's order, each split into layers
+// that move (blender/madara_px/shots3.py, shots2.py, engine.py), cut together with the reference video's transitions
+// redrawn in pixels: fade in on the face, dissolve to the dragon rising, the dragon lunges into the lens, cut to the
+// Rinnegan, its glow dissolves into a violet orb on falling streaks, the orb fades into the forming Susanoo, cut to
+// the chest flare and a dive into the blue, the low angle, the arm drawing and whipping the blade out of frame, the
+// slow descent of the blade and a fall into the burst, the blast flooding cyan, the valley from above with the slash,
+// the ring, the crater and smoke, and a last blast of the cut mountain into white. One 1-pixel grid, 480x270, 24 fps.
 import { READY, hex } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
 import { ultBanner, frameOf } from "./_ultimate.js";
@@ -34,25 +35,28 @@ export const act = {
   poses: [[-0.25, READY], [DUR, READY]],
   hits: [
     { t: at(27), target: false, sfx: "rumble" },
-    { t: at(41), stop: 0, target: false, sfx: "explosion" },
-    { t: at(60), target: false, sfx: "heavy" },
-    { t: at(107), target: false, sfx: "cast" },
-    { t: at(129), target: false, sfx: "rumble" },
-    { t: at(160), target: false, sfx: "heavy" },
-    { t: at(179), target: false, sfx: "thunder" },
-    { t: at(201), target: false, sfx: "explosion" },
-    { t: at(229), target: false, sfx: "rumble" },
+    { t: at(37), stop: 0, target: false, sfx: "explosion" },
+    { t: at(55), target: false, sfx: "heavy" },
+    { t: at(83), target: false, sfx: "whoosh" },
+    { t: at(97), target: false, sfx: "heavy" },
+    { t: at(113), target: false, sfx: "cast" },
+    { t: at(125), target: false, sfx: "rumble" },
+    { t: at(149), target: false, sfx: "heavy" },
+    { t: at(183), target: false, sfx: "thunder" },
+    { t: at(203), target: false, sfx: "explosion" },
+    { t: at(224), target: false, sfx: "whoosh" },
+    { t: at(231), target: false, sfx: "rumble" },
     { t: at(249), target: false, sfx: "thunder" },
-    { t: at(289), target: false, sfx: "whoosh" },
-    { t: at(300), target: false, sfx: "parry" },
-    { t: at(321), target: false, sfx: "whoosh" },
-    { t: at(337), target: false, sfx: "explosion" },
-    { t: at(348), target: false, sfx: "rumble" },
-    { t: at(375), target: false, sfx: "explosion" },
-    { t: at(405), target: false, sfx: "rumble" },
-    { t: at(417), target: false, sfx: "heavy" },
-    { t: at(440), target: false, sfx: "land" },
-    { t: at(460), target: false, sfx: "land" },
+    { t: at(285), target: false, sfx: "whoosh" },
+    { t: at(296), target: false, sfx: "parry" },
+    { t: at(318), target: false, sfx: "whoosh" },
+    { t: at(343), target: false, sfx: "explosion" },
+    { t: at(363), target: false, sfx: "rumble" },
+    { t: at(373), target: false, sfx: "explosion" },
+    { t: at(399), target: false, sfx: "heavy" },
+    { t: at(404), target: false, sfx: "rumble" },
+    { t: at(430), target: false, sfx: "land" },
+    { t: at(467), target: false, sfx: "explosion" },
   ],
 };
 // the cutscene draws everyone itself: the rig figure and the dummy stay hidden
