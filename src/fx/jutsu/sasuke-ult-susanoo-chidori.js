@@ -1,7 +1,7 @@
 // ULTIMATE: Susanoo Chidori (Sasuke Uchiha, Rinnegan and Eternal Mangekyou). Against Kaguya and her sphere: his
 // eyes, the seal and black flames, Kaguya above the field, the Chidori in his hand, the winged Susanoo carrying it into
 // the sphere, the hand driving through its wall, light bursting out, the sphere blowing apart.
-// A 20 s cutscene after the user's shot script, on the user's storyboard panels (blender/sasuke_px/sshots6.py on sshots5.py; figures move against their backgrounds): his
+// A 20 s cutscene after the user's shot script, on the user's storyboard panels (blender/sasuke_px/sshots7.py on sshots6/5.py; figures move against their backgrounds; the Amaterasu spears pierce Madara): his
 // eyes held calm for a breath (Mangekyou right, Rinnegan left), the seal closing on a still camera, dark chakra spikes
 // rising through the opponent (a swappable target), Sasuke in the air with the rope belt swinging and the Chidori
 // igniting in his left hand, violet chakra closing round him and parting on the winged Susanoo, the wide shot of the

@@ -135,6 +135,8 @@ class S4(v5.S4):
         for dx in (0, 1680):
             for dy in (0, 946):
                 draw(img, cam, s.Lg, ox=o1 + dx, oy=o2 + dy)
+        r = np.random.default_rng(1400 + i)
+        speed_lines(img, r, 10, -0.83, -0.55, hexc("#d8b890"), (40, 120))  # over the ground, under him
         # the figure: the rope swings, the Chidori grows (v5's art), and he drifts into the attack
         art = s.plate2.copy()
         ys, xs = np.nonzero(s.rope)
@@ -154,8 +156,6 @@ class S4(v5.S4):
             v3.shimmer(img, sample(cam, s.glow & (s.d < reach)), i, 41)
             px, py = cam.P(s.C[0] + drift[0], s.C[1] + drift[1])
             v3.bolts_at(img, px, py, min(reach, 50) * cam.r, i, 4, 5)
-        r = np.random.default_rng(1400 + i)
-        speed_lines(img, r, 10, -0.83, -0.55, hexc("#d8b890"), (40, 120))
         V0 = n - 14
         if i >= V0:
             u = ease_in((i - V0) / 13)
@@ -188,8 +188,7 @@ class S6(v5.S6):
             img[sample(cam, s.rim & (np.mgrid[0:473, 0:840][1] > 330))] = hexc("#ff6a8a")
         u = ease_in(i / (n - 1))
         fx, fy = round(-70 + 190 * u), round(16 - 30 * u)  # it flies from far back toward the sphere, accelerating
-        if i > n * 0.55:
-            smear(img, cam, s.Lf, [(fx - 14, fy + 2)], hexc("#4a2a5a"))
+
         draw(img, cam, s.Lf, ox=fx, oy=fy)
         v3.shimmer(img, sample(cam, dil(s.glow, 1)), i, 61) if False else None
         px, py = cam.P(s.C[0] + fx, s.C[1] + fy)
