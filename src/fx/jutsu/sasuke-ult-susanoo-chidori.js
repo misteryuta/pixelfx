@@ -19,7 +19,7 @@ const at = (f) => (f - 1) / FPS3D;
 
 export const meta = {
   name: "Susanoo Chidori",
-  desc: "ULTIMATE. Sasuke's Sharingan turns and black flames swallow the field; Kaguya looms above; the Chidori crackles in his hand and his winged Susanoo carries it into her sphere, drives its hand through the wall, and the sphere throbs, splits with light and blows apart.",
+  desc: "ULTIMATE. Sasuke holds his gaze, Mangekyou and Rinnegan, and closes the seal; purple Amaterasu spikes burst out of the ground and impale the opponent; in the air the Chidori ignites in his hand and his winged Susanoo flies at the vast sphere; he shouts, the open hand hits the sphere side on, the crackle cuts off, violet light breaks out and the shockwave throws debris against the white final flash.",
   tags: ["jutsu", "ultimate", "sasuke", "susanoo", "chidori", "rinnegan", "amaterasu", "cutscene", "one-shot"],
   size: [800, 450],
   origin: [400, 393],
