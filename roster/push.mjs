@@ -8,6 +8,7 @@ const files = [
   ["ModuleScript", "ShinobiRoster", R + "ShinobiRoster.lua"],
   ["ModuleScript", "ShinobiRules", R + "studio/ShinobiRules.lua"],
   ["ModuleScript", "ShinobiSprites", R + "studio/ShinobiSprites.lua"],
+  ["ModuleScript", "ShinobiLive", R + "studio/ShinobiLive.lua"],
   ["ModuleScript", "ShinobiBattleClient", R + "studio/ShinobiBattleClient.lua"],
   ["Script", "ShinobiBattleServer", R + "studio/ShinobiBattleServer.lua"],
   ["ModuleScript", "JutsuViewerData", R + "out/JutsuViewerData.lua"],

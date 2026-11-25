@@ -11,6 +11,8 @@ local Rules = require(RS:WaitForChild("ShinobiRules"))
 local remotes = RS:WaitForChild("ShinobiRemotes")
 -- the variants' own fight sprites (atlases cut from the user's turnarounds); the rest use the arena's stock fighter
 local SPRITES = RS:FindFirstChild("ShinobiSprites") and require(RS.ShinobiSprites) or {}
+local LIVE = RS:FindFirstChild("ShinobiLive") and require(RS.ShinobiLive) or {}
+local ContentProvider = game:GetService("ContentProvider")
 local Fn, Ev = remotes:WaitForChild("Battle"), remotes:WaitForChild("Event")
 
 local Battle = {}
@@ -54,7 +56,9 @@ function Battle.mount(stage, deps)
 	local inputs = {}
 
 	-- ── the selection screen ──────────────────────────────────────────
-	local root = new("Frame", { Name = "RosterBattle", Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.bg, BorderSizePixel = 0, ZIndex = 20, Visible = false, ClipsDescendants = true }, stage)
+	-- the training ground fills the screen (deps.screen); the stage is only used for the old clip moves
+	local holder = deps.screen or stage
+	local root = new("Frame", { Name = "RosterBattle", Size = UDim2.fromScale(1, 1), BackgroundColor3 = C.bg, BorderSizePixel = 0, ZIndex = 20, Visible = false, ClipsDescendants = true }, holder)
 	corner(root, 10)
 	local sel = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 21 }, root)
 	label(sel, { Text = "ROSTER", Font = Enum.Font.Arcade, TextSize = 30, Size = UDim2.fromOffset(160, 34), Position = UDim2.fromOffset(14, 8), ZIndex = 22 })
@@ -153,7 +157,7 @@ function Battle.mount(stage, deps)
 	local scene = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 21, Visible = false }, root)
 	new("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.fromHex("#2a2148"), Color3.fromHex("#0c0c18")) }, root)
 	local floorL = new("Frame", { BackgroundColor3 = Color3.fromHex("#3a3460"), BorderSizePixel = 0, ZIndex = 21 }, scene)
-	local hud = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 40, Visible = false }, stage)
+	local hud = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 40, Visible = false }, holder)
 	local function sideBar(alignRight)
 		local f = new("Frame", { Size = UDim2.new(0.42, 0, 0, 74), Position = alignRight and UDim2.new(1, -12, 0, 10) or UDim2.fromOffset(12, 10), AnchorPoint = Vector2.new(alignRight and 1 or 0, 0), BackgroundTransparency = 1, ZIndex = 41 }, hud)
 		local xa = alignRight and Enum.TextXAlignment.Right or Enum.TextXAlignment.Left
@@ -202,14 +206,14 @@ function Battle.mount(stage, deps)
 		sp.img.ImageColor3 = (sp.cfg == STOCK and sp.rival) and Color3.fromRGB(255, 170, 120) or Color3.new(1, 1, 1)
 	end
 	local spMe, spFoe = sprite(false), sprite(true)
-	local S, GY = 3, 200
+	-- the game camera: one side view, whole-pixel scale, following the middle of the two fighters smoothly; no cuts,
+	-- no zoom. Tall enough for a Complete Body Susanoo (about 300 px) over the floor.
+	local S, GY, camX = 3, 200, 220
+	local function toScreen(x, y) return root.AbsoluteSize.X / 2 + (x - camX) * S, GY + y * S end
 	local function layoutScene()
 		local W, H = root.AbsoluteSize.X, root.AbsoluteSize.Y
-		-- whole-pixel scale; small enough that the tallest fighter (own sprites are taller than the stock one) stays
-		-- under the HUD
-		local tall = math.max(spMe.cfg.ch, spFoe.cfg.ch)
-		S = math.max(2, math.min(math.floor(math.min(H / 120, W / 240)), math.floor(H / (tall * 1.5))))
-		GY = math.floor(H * 0.66)
+		S = math.max(2, math.min(math.floor(H / 330), math.floor(W / 300)))
+		GY = math.floor(H * 0.82)
 		floorL.Size = UDim2.new(1, 0, 0, 2)
 		floorL.Position = UDim2.fromOffset(0, GY)
 		for _, sp in ipairs({ spMe, spFoe }) do sp.img.Size = UDim2.fromOffset(sp.cfg.cw * S, sp.cfg.ch * S) end
@@ -225,10 +229,12 @@ function Battle.mount(stage, deps)
 		local flip = f.face < 0
 		sp.img.ImageRectOffset = Vector2.new(n * c.cw + (flip and c.cw or 0), row[1] * c.ch)
 		sp.img.ImageRectSize = Vector2.new(flip and -c.cw or c.cw, c.ch)
-		local sx = root.AbsoluteSize.X / 2 + (f.x - 160) * S * 0.9
+		local sx = toScreen(f.x, 0)
 		sp.img.Position = UDim2.fromOffset(math.floor(sx - (flip and (c.cw - c.fx) or c.fx) * S), GY - c.fy * S)
 		sp.img.ImageTransparency = f.st.intangible and 0.55 or 0
-		sp.tag.Position = UDim2.fromOffset(sx, GY - 46 * S)
+		-- hidden while his live move draws him (the actor layer has him in it)
+		sp.img.Visible = not sp.hidden
+		sp.tag.Position = UDim2.fromOffset(sx, GY - 80 * S)
 		local aura = nil
 		for k, c in pairs(AURA) do if f.st[k] then aura = c end end
 		sp.aura.Visible = aura ~= nil
@@ -261,7 +267,7 @@ function Battle.mount(stage, deps)
 			local sl = battle.me.slots[i]
 			local cd = s.me.cd[i]
 			local k = Rules.KINDS[sl.kind]
-			local can = sl.clip ~= nil and not cd and s.me.ck >= k.cost and not s.stageBusy and not s.me.st.bound and not s.me.st.sealed and not s.me.st.illusion
+			local can = (sl.clip ~= nil or (sl.params ~= nil and sl.params.live ~= nil and LIVE[sl.params.live] ~= nil)) and not cd and s.me.ck >= k.cost and not s.stageBusy and not s.me.st.bound and not s.me.st.sealed and not s.me.st.illusion
 			sb.b.BackgroundColor3 = can and C.panel2 or Color3.fromHex("#121322")
 			sb.cd.Text = cd and string.format("%.1f", cd) or ""
 		end
@@ -278,6 +284,128 @@ function Battle.mount(stage, deps)
 			local cd = label(b, { Text = "", Font = Enum.Font.Arcade, TextSize = 20, TextXAlignment = Enum.TextXAlignment.Right, Size = UDim2.new(1, -8, 1, 0), ZIndex = 44, TextColor3 = Color3.fromHex("#ffd040") })
 			b.MouseButton1Click:Connect(function() api.cast(i) end)
 			slotBtns[i] = { b = b, cd = cd }
+		end
+	end
+
+	-- ── live moves on the training ground ─────────────────────────────
+	-- A live move is drawn here as it happens: the actor layer (the user and his Susanoo) frame by frame from its
+	-- atlas at the caster's spot, runtime flipbooks at anchors or at the contact the server reports, projectiles flying
+	-- on their own, the guard's reaction where a blocked hit meets it. Its clock starts when its sheets are loaded
+	-- ("go"), the server's clock with it.
+	local lives, books, projs = {}, {}, {}
+	local ANSWER = { ["sasuke-susanoo-arrow-summit"] = Color3.fromHex("#a8f0c0"), ["madara-perfect-susanoo"] = Color3.fromHex("#4aa0ff") }
+	local function liveIdOf(def) for k, d in pairs(LIVE) do if d == def then return k end end return nil end
+	local function bookImg(z) return new("ImageLabel", { BackgroundTransparency = 1, ResampleMode = Enum.ResamplerMode.Pixelated, ZIndex = z }, scene) end
+	local function placeBook(img, book, frame, x, y, face)
+		local idx = frame - 1
+		for _, sh in ipairs(book.sheets) do
+			if idx < sh.n then img.Image = sh.id; break end
+			idx -= sh.n
+		end
+		local col, row, flip = idx % book.cols, math.floor(idx / book.cols), face < 0
+		img.ImageRectOffset = Vector2.new(col * book.cw + (flip and book.cw or 0), row * book.ch)
+		img.ImageRectSize = Vector2.new(flip and -book.cw or book.cw, book.ch)
+		img.Size = UDim2.fromOffset(book.cw * S, book.ch * S)
+		local sx, sy = toScreen(x, y)
+		img.Position = UDim2.fromOffset(math.floor(sx - (flip and (book.cw - book.pivot[1]) or book.pivot[1]) * S), math.floor(sy - book.pivot[2] * S))
+	end
+	local function preloadDef(def)
+		local list = {}
+		for _, sh in ipairs(def.actor.sheets) do local l = Instance.new("ImageLabel"); l.Image = sh.id; table.insert(list, l) end
+		for _, b in pairs(def.fx) do for _, sh in ipairs(b.sheets) do local l = Instance.new("ImageLabel"); l.Image = sh.id; table.insert(list, l) end end
+		ContentProvider:PreloadAsync(list)
+	end
+	local function spawnBook(book, x, y, face, opts)
+		local img = bookImg(opts and opts.z or 27)
+		if opts and opts.tint then img.ImageColor3 = opts.tint end
+		local b = { book = book, img = img, t = 0, x = x, y = y, face = face, vx = opts and opts.vx or 0, life = opts and opts.life }
+		placeBook(img, book, 1, x, y, face)
+		table.insert(books, b)
+		return b
+	end
+	local function anchorOf(L, name)
+		if not L or not L.t0 then return nil end
+		local fr = math.clamp(math.floor((os.clock() - L.t0) * L.def.fps) + 1, 1, #L.def.actor.anchors)
+		local a = L.def.actor.anchors[fr][name]
+		return a and { L.x0 + L.face * a[1], a[2] } or nil
+	end
+	-- the guard of whoever was struck reacts where the blow met it (Yata: a ripple in the answering nature's colour)
+	local function guardReact(tgtSide, attackerId)
+		for _, L in pairs(lives) do
+			if L.by == tgtSide and L.def.onBlock then
+				local at = anchorOf(L, L.def.onBlock.at)
+				if at then spawnBook(L.def.fx[L.def.onBlock.fx], at[1], at[2], L.face, { z = 29, tint = ANSWER[attackerId or ""] or Color3.fromHex("#4aa0ff") }) end
+			end
+		end
+	end
+	local function startLive(info)
+		local def = LIVE[info.live]
+		if not def then return end
+		local sp = info.by == "me" and spMe or spFoe
+		local L = { def = def, id = info.live, by = info.by, x0 = info.x0, face = info.face, seq = info.seq, img = bookImg(24), done = {}, sfx = {} }
+		L.img.Visible = false
+		lives[info.seq] = L
+		task.spawn(function()
+			preloadDef(def)
+			if lives[info.seq] ~= L then return end
+			pcall(function() Fn:InvokeServer("go", { seq = info.seq }) end)
+			L.t0 = os.clock()
+			L.img.Visible = true
+			sp.hidden = true
+		end)
+	end
+	local function endLive(seq)
+		local L = lives[seq]
+		if not L then return end
+		L.img:Destroy()
+		lives[seq] = nil
+		local sp = L.by == "me" and spMe or spFoe
+		sp.hidden = false
+	end
+	local function clearLive()
+		for seq in pairs(lives) do endLive(seq) end
+		for _, b in ipairs(books) do b.img:Destroy() end
+		for _, p in pairs(projs) do p.img:Destroy() end
+		books, projs = {}, {}
+	end
+	local function stepLive(dt)
+		for seq, L in pairs(lives) do
+			if L.t0 then
+				local age = os.clock() - L.t0
+				local fr = math.min(L.def.actor.frames, math.floor(age * L.def.fps) + 1)
+				placeBook(L.img, L.def.actor, fr, L.x0, 0, L.face)
+				for i, e in ipairs(L.def.sfx) do if not L.sfx[i] and age >= e[1] then L.sfx[i] = true; deps.playSfx(e[2]) end end
+				for i, sp in ipairs(L.def.spawns) do
+					if not L.done[i] and age >= sp.t and not sp.projectile then
+						if string.sub(sp.at, 1, 7) == "contact" then
+							if L.contact then
+								L.done[i] = true
+								local ground = string.find(sp.at, "ground") ~= nil
+								spawnBook(L.def.fx[sp.fx], L.contact, ground and 0 or -26, L.face, { vx = sp.vx, life = sp.life, z = 28 })
+							end
+						else
+							L.done[i] = true
+							local at = anchorOf(L, sp.anchor or "")
+							if at then spawnBook(L.def.fx[sp.fx], at[1], at[2], L.face, { vx = sp.vx, life = sp.life, z = 28 }) end
+						end
+					end
+				end
+				if age > L.def.len + 0.1 then endLive(seq) end
+			end
+		end
+		for i = #books, 1, -1 do
+			local b = books[i]
+			b.t += dt
+			b.x += b.vx * b.face * dt
+			local n = math.floor(b.t * 20)
+			local over = (b.life and b.t > b.life) or (not b.book.loop and n >= b.book.frames)
+			if over then b.img:Destroy(); table.remove(books, i)
+			else placeBook(b.img, b.book, b.book.loop and (n % b.book.frames) + 1 or n + 1, b.x, b.y, b.face) end
+		end
+		for _, p in pairs(projs) do
+			p.t += dt
+			p.x += p.vx * dt
+			placeBook(p.img, p.book, (math.floor(p.t * 20) % p.book.frames) + 1, p.x, p.y, p.vx >= 0 and 1 or -1)
 		end
 	end
 
@@ -307,7 +435,9 @@ function Battle.mount(stage, deps)
 		end
 		if not battle then return end
 		if state then battle.state = state end
-		if ev.type == "cast" then
+		if ev.type == "cast" and ev.info.live then
+			startLive(ev.info)
+		elseif ev.type == "cast" then
 			table.insert(queue, ev.info)
 			if ev.info.by == "me" then setAnim(spMe, "cast") else setAnim(spFoe, "cast") end
 			playNext()
@@ -327,6 +457,34 @@ function Battle.mount(stage, deps)
 				setAnim(sp, ev.result == "hit" and "hit" or "block")
 				deps.playSfx(ev.result == "hit" and "punch" or "block")
 			end
+		elseif ev.type == "liveHit" or ev.type == "liveMiss" then
+			local L = lives[ev.seq]
+			if L and not L.contact then L.contact = ev.x end
+			local tgt = ev.by == "me" and "foe" or "me"
+			if ev.type == "liveMiss" then popAt(tgt, "VERFEHLT", Color3.fromHex("#c0c4e0"))
+			else
+				if ev.result == "blocked" then guardReact(tgt, L and L.id) end
+				if RES[ev.result] then popAt(tgt, RES[ev.result], Color3.fromHex("#e0e0ff")) elseif (ev.dmg or 0) > 0 then popAt(tgt, "-" .. ev.dmg, Color3.fromHex("#ff6a5a")) end
+				if ev.result == "hit" then setAnim(tgt == "me" and spMe or spFoe, "hit") end
+			end
+		elseif ev.type == "proj" then
+			local L = lives[ev.seq]
+			local def = L and L.def
+			if def and def.fx[ev.name] then projs[ev.seq] = { img = bookImg(28), book = def.fx[ev.name], x = ev.x, y = ev.y, vx = ev.vx, t = 0, def = def, id = L.id } end
+		elseif ev.type == "projEnd" then
+			local p = projs[ev.seq]
+			local tgt = ev.by == "me" and "foe" or "me"
+			if p then
+				p.img:Destroy()
+				projs[ev.seq] = nil
+				if ev.result ~= "expired" and p.def.onHit then spawnBook(p.def.fx[p.def.onHit.fx], ev.x, p.y, 1, { z = 29 }) end
+				if ev.result == "blocked" then guardReact(tgt, p.id) end
+			end
+			if ev.result == "expired" then popAt(tgt, "VERFEHLT", Color3.fromHex("#c0c4e0"))
+			elseif RES[ev.result] then popAt(tgt, RES[ev.result], Color3.fromHex("#e0e0ff"))
+			elseif (ev.dmg or 0) > 0 then popAt(tgt, "-" .. ev.dmg, Color3.fromHex("#ff6a5a")); setAnim(tgt == "me" and spMe or spFoe, "hit") end
+		elseif ev.type == "move" then
+			setAnim(ev.by == "me" and spMe or spFoe, "walk")
 		elseif ev.type == "strike" then
 			setAnim(ev.by == "me" and spMe or spFoe, "jab")
 			deps.playSfx("whoosh")
@@ -373,6 +531,10 @@ function Battle.mount(stage, deps)
 		layoutScene()
 		setAnim(spMe, "idle"); setAnim(spFoe, "idle")
 		say(battle.me.name .. "  VS  " .. battle.foe.name, Color3.fromHex("#ffd040"), 1.6)
+		clearLive()
+		spMe.hidden, spFoe.hidden = false, false
+		camX = (res.state.me.x + res.state.foe.x) / 2
+		for _, v in ipairs({ battle.me, battle.foe }) do for _, sl in ipairs(v.slots) do local d = sl.params and sl.params.live and LIVE[sl.params.live]; if d then task.spawn(preloadDef, d) end end end
 		renderHud()
 		return res
 	end
@@ -387,6 +549,7 @@ function Battle.mount(stage, deps)
 		if battle and not fromServer then call("leave") end
 		battle, playing, queue = nil, nil, {}
 		if deps.stopClip then deps.stopClip() end
+		clearLive()
 		hud.Visible = false
 		root.Visible = false
 		msg.Text = ""
@@ -395,7 +558,7 @@ function Battle.mount(stage, deps)
 		if deps.onOpen then deps.onOpen(false) end
 	end
 	function api.snapshot()
-		return { open = api.isOpen(), battle = battle and { me = battle.me.id, foe = battle.foe.id, state = battle.state } or nil, playing = playing and { clip = playing.clip, by = playing.by, seq = playing.seq } or nil, queue = #queue, hudMe = barMe.chips.Text, hudFoe = barFoe.chips.Text, msg = msg.Text, sceneVisible = scene.Visible and root.Visible }
+		return { open = api.isOpen(), battle = battle and { me = battle.me.id, foe = battle.foe.id, state = battle.state } or nil, playing = playing and { clip = playing.clip, by = playing.by, seq = playing.seq } or nil, queue = #queue, hudMe = barMe.chips.Text, hudFoe = barFoe.chips.Text, msg = msg.Text, sceneVisible = scene.Visible and root.Visible, lives = (function() local o = {} for seq, L in pairs(lives) do o[#o + 1] = { seq = seq, by = L.by, age = L.t0 and (os.clock() - L.t0) or -1, contact = L.contact } end return o end)(), books = #books, projs = (function() local n = 0 for _ in pairs(projs) do n += 1 end return n end)(), camX = camX, S = S }
 	end
 
 	table.insert(inputs, RunService.RenderStepped:Connect(function(dt)
@@ -406,6 +569,11 @@ function Battle.mount(stage, deps)
 			p.l.Position = UDim2.fromScale(p.x, 0.45 - p.t * 0.08)
 			p.l.TextTransparency = math.clamp((p.t - 0.7) / 0.4, 0, 1)
 			if p.t > 1.1 then p.l:Destroy(); table.remove(pops, i) end
+		end
+		if battle and battle.state then
+			local target = (battle.state.me.x + battle.state.foe.x) / 2
+			camX += (target - camX) * math.min(1, dt * 2.5)
+			stepLive(dt)
 		end
 		if battle and battle.state and scene.Visible then
 			for _, pair in ipairs({ { spMe, battle.state.me }, { spFoe, battle.state.foe } }) do

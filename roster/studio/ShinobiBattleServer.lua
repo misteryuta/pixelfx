@@ -75,7 +75,8 @@ local function hurt(b, a, d, dmg)
 	if has(d, "intangible") then return "phased", 0 end
 	if has(d, "summon") and not d.st.summon.used then d.st.summon.used = true; return "absorbed", 0 end
 	local res = "hit"
-	if has(d, "shield") then dmg *= 0.15; res = "blocked" end
+	-- a shield takes most of a blow; a full guard (the Yata Mirror nullifies any attack) takes all of it
+	if has(d, "shield") then dmg *= d.st.shield.full and 0 or 0.15; res = "blocked" end
 	if has(d, "transformed") then dmg *= K.transform.guard end
 	if has(a, "transformed") then dmg *= K.transform.mult end
 	if has(a, "buff") then dmg *= K.buff.mult end
@@ -178,10 +179,130 @@ local function apply(b, a, d, s, i, n, castSeq, cs)
 end
 
 -- start a cast for fighter `a` against `d`; returns ok, why / info
+-- ── LIVE moves: played on the training ground itself (no clip, no camera, no stage lock). Their hit windows,
+-- floor waves and projectiles are checked against where the target is at that moment, so they can miss.
+local Live = RS:FindFirstChild("ShinobiLive") and require(RS.ShinobiLive) or {}
+local function liveOf(s) return s.params and s.params.live and Live[s.params.live] or nil end
+local function frameAt(L, t) return math.clamp(math.floor(t * L.fps + 0.5) + 1, 1, #L.actor.anchors) end
+local function castLive(b, a, d, slot, s, L)
+	if a.casting then return false, "BUSY" end
+	if b.stageUntil > now() then return false, "STAGE_BUSY" end
+	if has(a, "bound") then return false, "BOUND" end
+	if has(a, "illusion") then return false, "IN_GENJUTSU" end
+	if has(a, "sealed") then return false, "SEALED" end
+	local k = K[s.kind]
+	if (a.cd[slot] or 0) > now() then return false, "COOLDOWN" end
+	if a.ck < k.cost then return false, "CHAKRA" end
+	a.ck -= k.cost
+	a.cd[slot] = now() + k.cd + L.len
+	b.seq += 1
+	local seq, by = b.seq, a == b.me and "me" or "foe"
+	-- he turns to the target as he starts and stays rooted where he stands until it is over
+	local face = (d.x >= a.x) and 1 or -1
+	a.face = face
+	local x0 = a.x
+	a.casting = { slot = slot, seq = seq, t0 = nil, live = true }
+	local boxHit = false
+	local function alive() return battles[b.player] == b and not b.over and a.casting ~= nil and a.casting.seq == seq end
+	local function dmgOf(h) return k.dmg * Rules.scale(a.v.ovr) * (h.dmg or 1) end
+	local function run(h)
+		if h.shape == "box" then
+			local rel = (d.x - x0) * face
+			if rel >= h.x0 and rel <= h.x1 then
+				boxHit = true
+				local res, dealt = hurt(b, a, d, dmgOf(h))
+				b.contact[seq] = d.x
+				send(b, { type = "liveHit", by = by, name = h.name, result = res, dmg = math.floor(dealt + 0.5), x = d.x, seq = seq })
+			else
+				-- a miss: the contact is where the named anchor (the blade's tip) is on that frame
+				local an = L.actor.anchors[frameAt(L, h.t)][h.contact or "tip"]
+				b.contact[seq] = x0 + face * (an and an[1] or h.x1)
+				send(b, { type = "liveMiss", by = by, name = h.name, x = b.contact[seq], seq = seq })
+			end
+			ko(b)
+		elseif h.shape == "wave" then
+			-- runs on along the floor from the contact; it can catch someone who stepped just out of the cut
+			local wx, t1, done = b.contact[seq] or (x0 + face * 40), now() + h.life, boxHit
+			task.spawn(function()
+				local last = now()
+				while now() < t1 and battles[b.player] == b and not b.over do
+					task.wait()
+					local dt = now() - last
+					last = now()
+					wx += face * h.vx * dt
+					if not done and math.abs(wx - d.x) < h.w then
+						done = true
+						local res, dealt = hurt(b, a, d, dmgOf(h))
+						send(b, { type = "liveHit", by = by, name = h.name, result = res, dmg = math.floor(dealt + 0.5), x = d.x, seq = seq })
+						ko(b)
+					end
+				end
+			end)
+		elseif h.shape == "projectile" then
+			-- flies on its own from where it left the bow; a raised guard in its path stops it at the guard's face
+			local px, py = x0 + face * (h.anchorPos and h.anchorPos[1] or 30), h.anchorPos and h.anchorPos[2] or -50
+			send(b, { type = "proj", by = by, name = h.name, x = px, y = py, vx = face * h.vx, life = h.life, seq = seq })
+			local t1 = now() + h.life
+			task.spawn(function()
+				local last = now()
+				while now() < t1 and battles[b.player] == b and not b.over do
+					task.wait()
+					local dt = now() - last
+					last = now()
+					px += face * h.vx * dt
+					local ahead = (d.x - px) * face
+					if has(d, "shield") and ahead <= 26 then
+						local res, dealt = hurt(b, a, d, dmgOf(h))
+						send(b, { type = "projEnd", by = by, name = h.name, result = res, dmg = math.floor(dealt + 0.5), x = px, seq = seq })
+						ko(b)
+						return
+					elseif ahead <= h.w * 0.5 then
+						local res, dealt = hurt(b, a, d, dmgOf(h))
+						send(b, { type = "projEnd", by = by, name = h.name, result = res, dmg = math.floor(dealt + 0.5), x = px, seq = seq })
+						ko(b)
+						return
+					end
+				end
+				if battles[b.player] == b then send(b, { type = "projEnd", by = by, name = h.name, result = "expired", x = px, seq = seq }) end
+			end)
+		elseif h.shape == "self" then
+			setState(a, h.state, (h["until"] or L.len) - h.t + 0.1, { full = h.full == true or nil })
+			send(b, { type = "liveState", by = by, state = h.state, seq = seq })
+		end
+	end
+	local function start()
+		if a.casting == nil or a.casting.seq ~= seq or a.casting.t0 then return end
+		a.casting.t0 = now()
+		for _, h in ipairs(L.hits) do
+			task.delay(h.t, function() if alive() or (h.shape ~= "box" and h.shape ~= "self" and battles[b.player] == b) then run(h) end end)
+		end
+		-- the rival sees it coming: a chance to step back out of a cut or an arrow's reach
+		if by == "me" and not b.passive and not has(d, "bound") then
+			for _, h in ipairs(L.hits) do
+				if (h.shape == "box" or h.shape == "projectile") and math.random() < 0.5 then
+					b.dodge = { t = now() + math.max(0.15, h.t - 0.55), dir = face, steps = 3 }
+					break
+				end
+			end
+		end
+		task.delay(L.len, function()
+			if a.casting and a.casting.seq == seq then a.casting = nil end
+			if battles[b.player] == b then send(b, { type = "castEnd", by = by, slot = slot, seq = seq }) end
+		end)
+	end
+	b.starts[seq] = start
+	task.delay(READY_WAIT, start)
+	local info = { seq = seq, slot = slot, live = s.params.live, len = L.len, kind = s.kind, by = by, x0 = x0, face = face }
+	send(b, { type = "cast", info = info })
+	return true, info
+end
+
 local function cast(b, a, d, slot)
 	if b.over then return false, "OVER" end
 	local s = a.v.slots[slot]
 	if not s then return false, "NO_SLOT" end
+	local L = liveOf(s)
+	if L then return castLive(b, a, d, slot, s, L) end
 	if not s.clip then return false, "NO_CLIP" end
 	if a.casting then return false, "BUSY" end
 	if b.stageUntil > now() then return false, "STAGE_BUSY" end
@@ -246,12 +367,12 @@ local function newBattle(plr, vid, rid)
 		local pool = {}
 		for _, o in ipairs(Roster.variants) do
 			if o.era == v.era and o.id ~= v.id then
-				for _, s in ipairs(o.slots) do if s.clip then table.insert(pool, o); break end end
+				for _, s in ipairs(o.slots) do if s.clip or liveOf(s) then table.insert(pool, o); break end end
 			end
 		end
 		r = pool[math.random(1, #pool)]
 	end
-	local b = { player = plr, me = fighter(v, 90, 1), foe = fighter(r, 210, -1), seq = 0, starts = {}, stageUntil = 0, over = false, passive = false, think = now() + 3 }
+	local b = { player = plr, me = fighter(v, 150, 1), foe = fighter(r, 290, -1), seq = 0, starts = {}, contact = {}, stageUntil = 0, over = false, passive = false, think = now() + 3 }
 	battles[plr] = b
 	return b
 end
@@ -272,7 +393,7 @@ local function think(b)
 		local opts = {}
 		for i, s in ipairs(f.v.slots) do
 			local k = K[s.kind]
-			if s.clip and (f.cd[i] or 0) <= now() and f.ck >= k.cost and (k.self or dist <= k.range) then table.insert(opts, i) end
+			if (s.clip or liveOf(s)) and (f.cd[i] or 0) <= now() and f.ck >= k.cost and (k.self or dist <= k.range) then table.insert(opts, i) end
 		end
 		if #opts > 0 then cast(b, f, me, opts[math.random(1, #opts)]); return end
 	end
@@ -292,6 +413,14 @@ RunService.Heartbeat:Connect(function()
 	for _, b in pairs(battles) do
 		if not b.over then
 			for _, f in ipairs({ b.me, b.foe }) do f.ck = math.min(Rules.CK_MAX, f.ck + Rules.CK_REGEN * dt) end
+			-- the rival stepping back out of a live attack it saw coming, one step every 0.12 s
+			if b.dodge and t >= b.dodge.t and not b.foe.casting and not has(b.foe, "bound") then
+				b.foe.x = math.clamp(b.foe.x + b.dodge.dir * Rules.STEP, Rules.MIN_X, Rules.MAX_X)
+				send(b, { type = "move", by = "foe", dodge = true })
+				b.dodge.steps -= 1
+				b.dodge.t = t + 0.12
+				if b.dodge.steps <= 0 then b.dodge = nil end
+			end
 			think(b)
 		end
 	end
@@ -353,6 +482,9 @@ Fn.OnServerInvoke = function(plr, action, arg)
 		-- Studio-only test switches: refill, clear cooldowns, rival passive, put the rival in range, apply a state
 		if arg.refill then b.me.ck, b.foe.ck = Rules.CK_MAX, Rules.CK_MAX; b.me.cd = {}; b.foe.cd = {} end
 		if arg.passive ~= nil then b.passive = arg.passive == true end
+		if arg.dodgeNow then b.dodge = { t = now(), dir = (b.foe.x >= b.me.x) and 1 or -1, steps = arg.dodgeNow } end
+		if typeof(arg.foeX) == "number" then b.foe.x = math.clamp(arg.foeX, Rules.MIN_X, Rules.MAX_X) end
+		if typeof(arg.meX) == "number" then b.me.x = math.clamp(arg.meX, Rules.MIN_X, Rules.MAX_X) end
 		if arg.heal then b.me.hp, b.foe.hp = b.me.maxHp, b.foe.maxHp; b.over = false; b.winner = nil end
 		if typeof(arg.gap) == "number" then b.foe.x = math.clamp(b.me.x + arg.gap, Rules.MIN_X, Rules.MAX_X) end
 		if typeof(arg.state) == "string" and typeof(arg.dur) == "number" then setState(arg.who == "foe" and b.foe or b.me, arg.state, arg.dur) end

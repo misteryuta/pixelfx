@@ -33,7 +33,8 @@ Rules.CK_MAX = 100
 Rules.CK_REGEN = 7          -- per second
 Rules.BREAK_COST = 25       -- chakra to break a genjutsu (Kai)
 Rules.STRIKE = { range = 170, dmg = 7, contact = 0.32, len = 0.6, cd = 0.7 }
-Rules.STEP, Rules.MIN_X, Rules.MAX_X, Rules.MIN_GAP = 30, 20, 300, 24
+-- the training ground is 480 px wide (room to step out of a Complete Body Susanoo's reach)
+Rules.STEP, Rules.MIN_X, Rules.MAX_X, Rules.MIN_GAP = 30, 20, 460, 24
 
 function Rules.hp(ovr) return math.floor(100 + (ovr - 60) * 2.5) end
 -- damage scales with OVR: 60 -> 0.6x, 100 -> 1.4x

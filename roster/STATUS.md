@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 27 | 6 | 1 | 31 |
-| Naruto Shippūden | 55 | 130 | 58 | 9 | 6 | 57 |
-| **Gesamt** | 81 | 195 | 85 | 15 | 7 | 88 |
+| Naruto Shippūden | 55 | 130 | 60 | 7 | 6 | 57 |
+| **Gesamt** | 81 | 195 | 87 | 13 | 7 | 88 |
 
 ## Classic
 
@@ -82,7 +82,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 
 | Variante | OVR | Rarität | Fraktion | Slot | Move | Clip | Stand | Notiz |
 |---|---:|---|---|---:|---|---|---|---|
-| Madara Uchiha (Uchiha Clan Leader — Flashback) | 99 | Legendary | Uchiha Clan | 1 | Perfect Susanoo | `madara-ult-perfect-susanoo` | Clip da, Anwender offen | Vorhandene Cutscene. Abweichung: sie zeigt das Rinnegan; der Clanführer der Rückblende hat das Ewige Mangekyō. Im Place liegt noch die alte Blender-Fassung. |
+| Madara Uchiha (Uchiha Clan Leader — Flashback) | 99 | Legendary | Uchiha Clan | 1 | Perfect Susanoo | – | umgesetzt | LIVE statt Cutscene (2026-11-25): eigenes blaues Complete-Body-Susanoo-Rig (Tengu-Nase, seitlich gebundenes Haar, Flügel, Rüstung, Katana mit Scheide). Hand greift am Scheidenmund, kurzes Innehalten, die Spitze verlässt die Scheide mit Lichtsaum, Seitenhieb durch den anvisierten Raum, Bodenwelle ab Kontakt, Staub verzögert; Ausweichen möglich. Madara mit Ewigem Mangekyō (Rückblende), nicht Rinnegan. Die alte 19,5-s-Cutscene ist aus dem Spiel genommen (Dateien bleiben in blender/). |
 |  |  |  |  | 2 | Majestic Destroyer Flame | `madara-gouka-mekkyaku` | umgesetzt | Gōka Mekkyaku. |
 |  |  |  |  | 3 | Nine-Tails Summoning | – | fehlt | Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende). |
 |  |  |  |  | 4 | Gunbai Reflection | – | fehlt | Uchiha Gaeshi mit dem Gunbai. |
@@ -97,7 +97,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Itachi Uchiha (Mangekyō Sharingan) | 96 | Legendary | Uchiha Clan | 1 | Tsukuyomi | `itachi-tsukuyomi` | umgesetzt | Narutopedia: Blickkontakt, mit beiden Augen möglich; Zeitwahrnehmung unter seiner Kontrolle; normales Lösen wirkt nicht (im Spiel kein Kai). Mit Itachis eigener Figur. |
 |  |  |  |  | 2 | Amaterasu | `itachi-amaterasu` | umgesetzt | Narutopedia: Amaterasu aus Itachis rechtem Auge, Flamme am Blickpunkt, er kann sie löschen. Mit Itachis eigener Figur, Effekte am echten Auge. |
 |  |  |  |  | 3 | Susanoo: Totsuka Blade | `itachi-totsuka` | umgesetzt | Narutopedia (Kap. 392/393): Klinge aus der Flüssigkeit des Sake-Krugs, Krug in einer zweiten Hand am rechten Unterarm, Getroffener wird in den Krug versiegelt. Itachi in seinem Susanoo (Modell 1,5-fach). |
-|  |  |  |  | 4 | Yata Mirror Defense | `itachi-yata-mirror` | umgesetzt | Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung. |
+|  |  |  |  | 4 | Yata Mirror Defense | – | umgesetzt | Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung. LIVE (2026-11-25): eigenes rotes Susanoo-Rig; die Reaktion entsteht an der Spiegelfläche, wenn der echte Angriff des Gegners geblockt wird. |
 | Obito Uchiha (Tobi / Orange Mask) | 96 | Legendary | Uchiha Clan | 1 | Kamui Intangibility | `obito-kamui-surinuke` | umgesetzt | Kamui-Durchdringung. |
 |  |  |  |  | 2 | Kamui Warp | `obito-kamui-warp` | umgesetzt | Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung. |
 |  |  |  |  | 3 | Wood Style: Cutting Sprigs | – | fehlt | Zeitkonflikt: Mokuton von Tobi erst gegen Konan und im Krieg. |
@@ -110,7 +110,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Lariat | `killerbee-lariat` | umgesetzt | Raiton: Lariat im Bijū-Mantel. |
 |  |  |  |  | 3 | Acrobat (Seven Swords Dance) | `killerbee-nanatou` | umgesetzt | Nanatō. |
 |  |  |  |  | 4 | Ink Clone Sealing | – | fehlt | Tintenkrake als Ersatzkörper. |
-| Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 93 | Legendary | Uchiha Clan | 1 | Susanoo Arrow | `sasuke-susanoo-arrow` | Clip da, Anwender offen | Susanoo-Pfeil; der Clip zeigt das Ewige Mangekyō, am Gipfel hat Sasuke das Mangekyō. |
+| Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 93 | Legendary | Uchiha Clan | 1 | Susanoo Arrow | – | umgesetzt | LIVE (2026-11-25): eigenes lila Susanoo-Rig der Gipfel-Stufe (Hörner, Zahnkranz an der Kapuze, Kinnfortsatz). Narutopedia: Bogen am linken Handgelenk, Pfeil aus einer Kugel in der rechten Hand. Anlegen, Spannen, Zielen, Lösen mit eigenen Posen; der Pfeil fliegt als Projektil weiter, ein Schild stoppt ihn. Mangekyō (Kap. 480), nicht Ewiges. |
 |  |  |  |  | 2 | Inferno Style: Flame Control | `sasuke-enton-kagutsuchi-summit` | umgesetzt | Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464). |
 |  |  |  |  | 3 | Kirin | `sasuke-kirin` | umgesetzt | Kirin gegen Itachi. |
 |  |  |  |  | 4 | Amaterasu | – | fehlt | Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite). |

@@ -221,6 +221,8 @@ local function applyCam(n)
 	local j = LIST[cur]
 	if not j or not base then return end
 	local c = j.cam and j.cam[n]
+	-- in a fight there is no film camera: no cuts, no zoom, no roll (the old clips play flat)
+	if battle and battle.isOpen() then c = nil end
 	if c and flipX then c = { c[1], j.fw - c[2], c[3], -c[4] } end
 	local z, x, y, r = 1, base.x, base.y, 0
 	if c then
@@ -238,8 +240,9 @@ local function applyCam(n)
 	ground.Rotation = r
 	floor.Position = UDim2.fromOffset(0, gy + 2)
 	floor.Size = UDim2.new(1, 0, 0, math.max(0, base.H - gy))
-	barTop.Visible = j.cam ~= nil
-	barBot.Visible = j.cam ~= nil
+	local film = j.cam ~= nil and not (battle and battle.isOpen())
+	barTop.Visible = film
+	barBot.Visible = film
 end
 local function layout()
 	local j = LIST[cur]
@@ -525,6 +528,7 @@ local function playClipFor(key, done, opts)
 	return false
 end
 battle = require(RS:WaitForChild("ShinobiBattleClient")).mount(stage, {
+	screen = gui,
 	playSfx = function(tag) playSfx(tag, 1) end,
 	playClip = playClipFor,
 	stopClip = function() clipDone = nil; setPaused(true) end,

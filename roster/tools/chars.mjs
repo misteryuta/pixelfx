@@ -9,7 +9,15 @@ const { encodePNG } = await import("file:///" + ROOT + "tools/lib/png.mjs");
 
 // name, rgba file, w, h, in-game height (px), views left to right
 // Itachi (2026-11-25): head ~23 px wide at 72 px, the same head size as Naruto's sheet
-const SHEETS = [["itachi", "assets/chars/itachi/turnaround.rgba", 1774, 887, 72, ["front", "back", "left", "right"]]];
+// one scale for everybody (Itachi's: 859 sheet px -> 72 game px), so heads come out the same size; th = height or 0 (auto)
+const PX = 859 / 72;
+// eyes: the sheets for Madara and Sasuke show the Rinnegan; the roster variants are Flashback Madara (Eternal
+// Mangekyou) and Kage Summit Sasuke (Mangekyou in both eyes), so purple eye pixels in the head turn Sharingan red
+const SHEETS = [
+  ["itachi", "assets/chars/itachi/turnaround.rgba", 1774, 887, 72, ["front", "back", "left", "right"]],
+  ["madara", "assets/chars/madara/turnaround.rgba", 1774, 887, 0, ["front", "back", "left", "right"], { eyes: "red" }],
+  ["sasuke", "assets/chars/sasuke/turnaround.rgba", 1774, 887, 0, ["front", "back", "right", "left"], { eyes: "red" }],
+];
 
 function keyOut(px, w, h) {
   const tol = 70, bg = [px[0], px[1], px[2]];
@@ -83,12 +91,17 @@ function quantise(img, K = 40) {
 const rle = (idx) => { const o = []; for (let i = 0; i < idx.length;) { let j = i; while (j < idx.length && idx[j] === idx[i] && j - i < 255) j++; o.push(j - i, idx[i]); i = j; } return Buffer.from(o).toString("base64"); };
 
 const chars = {}, previews = [];
-for (const [name, file, w, h, th, names] of SHEETS) {
+for (const [name, file, w, h, th0, names, opt = {}] of SHEETS) {
   const px = readFileSync(ROOT + file), mask = keyOut(px, w, h), segs = views(mask, w, h);
   if (segs.length !== names.length) throw new Error(`${name}: ${segs.length} views found`);
   chars[name] = {};
   segs.forEach(([a, b], i) => {
-    const box = bbox(mask, w, a, b, h), img = downscale(px, mask, w, box, th), q = quantise(img);
+    const box = bbox(mask, w, a, b, h), th = th0 || Math.round((box[3] - box[1] + 1) / PX), img = downscale(px, mask, w, box, th), q = quantise(img);
+    if (opt.eyes === "red") {
+      // purple/lavender pixels in the top 40 % (the Rinnegan) -> Sharingan red, darker ones -> deep red
+      const lav = (c) => c[2] > c[0] + 15 && c[2] > c[1] + 25 && c[0] > 80 && c[0] + c[1] + c[2] > 330;
+      q.pal.forEach((c, i) => { if (!lav(c)) return; q.pal.push(c[0] + c[1] + c[2] > 520 ? [255, 70, 70] : [170, 16, 28]); const to = q.pal.length; for (let k = 0; k < q.idx.length; k++) if (q.idx[k] === i + 1 && Math.floor(k / img.w) < img.h * 0.4) q.idx[k] = to; });
+    }
     chars[name][names[i]] = { w: img.w, h: img.h, pal: q.pal.map((c) => "#" + c.map((v) => Math.min(255, v).toString(16).padStart(2, "0")).join("")), data: rle(q.idx) };
     // the quantised view, for the preview
     const qi = new Uint8ClampedArray(img.w * img.h * 4);

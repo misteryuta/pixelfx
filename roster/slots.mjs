@@ -132,7 +132,7 @@ export const SLOTS = {
 
   // ───────────────────────────── SHIPPŪDEN ─────────────────────────────
   "shippuden|Madara Uchiha (Uchiha Clan Leader — Flashback)": { desc: "Rückblende: Clanführer im Kampf gegen Hashirama.", moves: [
-    ["madara-ult-perfect-susanoo", "aoe", "actor", "Vorhandene Cutscene. Abweichung: sie zeigt das Rinnegan; der Clanführer der Rückblende hat das Ewige Mangekyō. Im Place liegt noch die alte Blender-Fassung."],
+    [null, "aoe", "ok", "LIVE statt Cutscene (2026-11-25): eigenes blaues Complete-Body-Susanoo-Rig (Tengu-Nase, seitlich gebundenes Haar, Flügel, Rüstung, Katana mit Scheide). Hand greift am Scheidenmund, kurzes Innehalten, die Spitze verlässt die Scheide mit Lichtsaum, Seitenhieb durch den anvisierten Raum, Bodenwelle ab Kontakt, Staub verzögert; Ausweichen möglich. Madara mit Ewigem Mangekyō (Rückblende), nicht Rinnegan. Die alte 19,5-s-Cutscene ist aus dem Spiel genommen (Dateien bleiben in blender/).", { live: "madara-perfect-susanoo" }],
     ["madara-gouka-mekkyaku", "aoe", "ok", "Gōka Mekkyaku."],
     [null, "summon", "new", "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende)."],
     [null, "defense", "new", "Uchiha Gaeshi mit dem Gunbai."],
@@ -153,7 +153,7 @@ export const SLOTS = {
     ["itachi-tsukuyomi", "illusion", "ok", "Narutopedia: Blickkontakt, mit beiden Augen möglich; Zeitwahrnehmung unter seiner Kontrolle; normales Lösen wirkt nicht (im Spiel kein Kai). Mit Itachis eigener Figur.", { noKai: true }],
     ["itachi-amaterasu", "aoe", "ok", "Narutopedia: Amaterasu aus Itachis rechtem Auge, Flamme am Blickpunkt, er kann sie löschen. Mit Itachis eigener Figur, Effekte am echten Auge."],
     ["itachi-totsuka", "seal", "ok", "Narutopedia (Kap. 392/393): Klinge aus der Flüssigkeit des Sake-Krugs, Krug in einer zweiten Hand am rechten Unterarm, Getroffener wird in den Krug versiegelt. Itachi in seinem Susanoo (Modell 1,5-fach)."],
-    ["itachi-yata-mirror", "defense", "ok", "Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung."],
+    [null, "defense", "ok", "Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung. LIVE (2026-11-25): eigenes rotes Susanoo-Rig; die Reaktion entsteht an der Spiegelfläche, wenn der echte Angriff des Gegners geblockt wird.", { live: "itachi-yata-mirror" }],
   ] },
   "shippuden|Obito Uchiha (Tobi / Orange Mask)": { desc: "Tobi mit oranger Maske.", moves: [
     ["obito-kamui-surinuke", "intangible", "ok", "Kamui-Durchdringung."],
@@ -174,7 +174,7 @@ export const SLOTS = {
     [null, "teleport", "new", "Tintenkrake als Ersatzkörper."],
   ] },
   "shippuden|Sasuke Uchiha (Mangekyō Sharingan — Kage Summit)": { desc: "Mangekyō, Kage-Gipfel.", moves: [
-    ["sasuke-susanoo-arrow", "projectile", "actor", "Susanoo-Pfeil; der Clip zeigt das Ewige Mangekyō, am Gipfel hat Sasuke das Mangekyō."],
+    [null, "projectile", "ok", "LIVE (2026-11-25): eigenes lila Susanoo-Rig der Gipfel-Stufe (Hörner, Zahnkranz an der Kapuze, Kinnfortsatz). Narutopedia: Bogen am linken Handgelenk, Pfeil aus einer Kugel in der rechten Hand. Anlegen, Spannen, Zielen, Lösen mit eigenen Posen; der Pfeil fliegt als Projektil weiter, ein Schild stoppt ihn. Mangekyō (Kap. 480), nicht Ewiges.", { live: "sasuke-susanoo-arrow-summit" }],
     ["sasuke-enton-kagutsuchi-summit", "barrier", "ok", "Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464)."],
     ["sasuke-kirin", "aoe", "ok", "Kirin gegen Itachi."],
     [null, "aoe", "new", "Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite)."],
