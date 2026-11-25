@@ -8,6 +8,7 @@
 import { Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, noise2, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
+import { cineCam } from "./_cinema.js";
 
 const EYE = 0.05, OPEN = 0.6, CORK = OPEN + 0.1, POUR = CORK + 0.15, FLOW = POUR + 0.2, ARRIVE = FLOW + 0.35, WRAP = ARRIVE + 0.5, HAND = WRAP + 0.2, CLENCH = HAND + 0.4, END = CLENCH + 1.8, TX = 150;
 const SAND = ["#4a3418", "#7a5a2a", "#b08a4a", "#d8b878", "#f4e0a8"].map(hex);
@@ -40,9 +41,24 @@ export const act = {
   ],
   hits: [
     { t: WRAP, stop: 0.04, flash: 0, push: 0, straw: 0, shiver: 0.8 },
-    { t: CLENCH, stop: 0.2, shake: 0.45, amp: 3, push: 1, straw: 40, shiver: 1 },
+    { t: CLENCH, stop: 0.2, shake: 0.45, amp: 3, push: 1, straw: 40, shiver: 1, sfx: "heavy" },
   ],
 };
+
+// the camera (2026-11-25): wide while the sand runs out over the floor; in on the coffin as it closes and held there so
+// the shut silhouette reads; a short cut to his open hand as it starts to close; back on the coffin exactly as the hand
+// clenches (compression, the dull blow, the hit); out as the sand trickles down
+export const camera = cineCam([
+  [0, { z: 1.2, x: 60, y: -30 }],
+  [FLOW, { z: 1.15, x: 80, y: -30 }],
+  [ARRIVE, { z: 1.7, x: TX, y: -30 }],
+  [WRAP + 0.1, { z: 1.9, x: TX, y: -30 }],
+  [HAND + 0.05, { z: 2.4, x: 18, y: -30, r: -2 }, "cut"],
+  [CLENCH - 0.06, { z: 2.5, x: 18, y: -30, r: -2 }],
+  [CLENCH - 0.02, { z: 2.0, x: TX, y: -30, r: 2, shake: 0.7 }, "cut"],
+  [CLENCH + 0.35, { z: 1.85, x: TX, y: -28, r: 1 }],
+  [END, { z: 1.3, x: TX - 30, y: -26 }],
+]);
 
 // the coffin: a mound of sand over the target, rising with h (0..1), squeezed by s (0..1)
 function coffin(p, t, h, s) {

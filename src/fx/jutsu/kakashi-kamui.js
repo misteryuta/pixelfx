@@ -7,6 +7,7 @@
 import { Particles, P, Rng, READY, fit, clamp, smooth, ease, hex, rand, WHITE, TAU } from "../../core/index.js";
 import { play, bodyAt, warp } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
+import { cineCam } from "./_cinema.js";
 
 const EYE = 0.05, OPEN = 0.6, FOCUS = OPEN + 0.2, TWIST = FOCUS + 0.4, SNAP = TWIST + 0.8, TX = 150, CY = -28, RW = 34;
 const SP = ["#0a0a12", "#1a1a2a", "#3a3850", "#7a7898", "#d8d8f0"].map(hex);
@@ -41,6 +42,19 @@ export const act = {
     { t: SNAP, stop: 0.16, shake: 0.35, amp: 3, push: 3, straw: 30, flash: 0.05 },
   ],
 };
+
+// the camera (2026-11-25): close on his face and the Mangekyou as he braces; the focus travels from the eye along his
+// line of sight to the far target and stays on it while space twists there; it snaps; a little wider for the throw-out
+export const camera = cineCam([
+  [0, { z: 1.5, x: 30, y: -32 }],
+  [OPEN, { z: 2.6, x: 8, y: -28, r: -2 }],
+  [FOCUS + 0.1, { z: 2.6, x: 10, y: -28, r: -2 }],
+  [TWIST + 0.2, { z: 2.1, x: TX - 6, y: CY - 2, r: 1 }],
+  [SNAP, { z: 2.25, x: TX, y: CY, r: 2 }],
+  [SNAP + 0.05, { z: 2.25, x: TX, y: CY, r: 2, shake: 0.6 }],
+  [SNAP + 0.4, { z: 1.6, x: TX - 20, y: CY - 4, r: 0 }],
+  [meta.duration, { z: 1.25, x: 80, y: -32 }],
+]);
 
 export const create = play([], (o) => {
   const R = new Rng(o.seed), ps = new Particles({ rng: R, ground: () => 0 });
