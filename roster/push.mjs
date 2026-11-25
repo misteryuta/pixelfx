@@ -7,6 +7,7 @@ const VER = process.argv[2] ?? "C:/Users/yanni/AppData/Local/Roblox/Versions/ver
 const files = [
   ["ModuleScript", "ShinobiRoster", R + "ShinobiRoster.lua"],
   ["ModuleScript", "ShinobiRules", R + "studio/ShinobiRules.lua"],
+  ["ModuleScript", "ShinobiSprites", R + "studio/ShinobiSprites.lua"],
   ["ModuleScript", "ShinobiBattleClient", R + "studio/ShinobiBattleClient.lua"],
   ["Script", "ShinobiBattleServer", R + "studio/ShinobiBattleServer.lua"],
   ["ModuleScript", "JutsuViewerData", R + "out/JutsuViewerData.lua"],

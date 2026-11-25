@@ -205,7 +205,10 @@ function Battle.mount(stage, deps)
 	local S, GY = 3, 200
 	local function layoutScene()
 		local W, H = root.AbsoluteSize.X, root.AbsoluteSize.Y
-		S = math.max(2, math.floor(math.min(H / 120, W / 240)))
+		-- whole-pixel scale; small enough that the tallest fighter (own sprites are taller than the stock one) stays
+		-- under the HUD
+		local tall = math.max(spMe.cfg.ch, spFoe.cfg.ch)
+		S = math.max(2, math.min(math.floor(math.min(H / 120, W / 240)), math.floor(H / (tall * 1.5))))
 		GY = math.floor(H * 0.66)
 		floorL.Size = UDim2.new(1, 0, 0, 2)
 		floorL.Position = UDim2.fromOffset(0, GY)

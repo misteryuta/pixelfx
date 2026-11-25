@@ -17,11 +17,13 @@ const ROWS = [
   ["jab", 5, false, (i) => ({ arm: [0.2, -0.5, -1.45, -1.35, -0.5][i], st: [1, 1, 1.15, 1.1, 1][i], rot: [0, 0.02, 0.06, 0.05, 0.02][i] })],
   ["block", 2, false, (i) => ({ arm: [-1.6, -2.1][i], st: 0.85, rot: -0.03 })],
   ["hit", 5, false, (i) => ({ rot: [-0.06, -0.14, -0.12, -0.07, -0.02][i], arm: [0.3, 0.5, 0.4, 0.2, 0.05][i], head: -0.1, tint: i === 0 ? 0xffffffff : null })],
-  ["down", 12, false, (i) => { const u = Math.min(1, i / 7); return { rot: -1.5 * (u * u * (3 - 2 * u)), arm: 0.6 * u, head: -0.2 * u, dy: i >= 8 ? [0, -1, 0, 0][i - 8] : 0 }; }],
+  // 8 frames at most per row: Roblox shrinks images wider than 1024 px, which breaks the cell offsets
+  ["down", 8, false, (i) => { const u = Math.min(1, i / 5); return { rot: -1.5 * (u * u * (3 - 2 * u)), arm: 0.6 * u, head: -0.2 * u, dy: i === 6 ? -1 : 0 }; }],
   ["cast", 6, false, (i) => ({ arm: [-0.6, -1.6, -2.4, -2.5, -2.5, -2.45][i], st: [1, 0.95, 0.82, 0.8, 0.8, 0.8][i], head: 0.04 })],
   ["win", 7, false, (i) => ({ arm: 0.05 * S(i), head: [0, 0, 0.05, 0.08, 0.08, 0.06, 0.05][i] })],
 ];
 const cols = Math.max(...ROWS.map((r) => r[1])), W = cols * CW, H = ROWS.length * CH;
+if (W > 1024 || H > 1024) throw new Error(`atlas ${W}x${H} is over 1024 px: Roblox would shrink it`);
 const atlas = new Uint8ClampedArray(W * H * 4);
 const fr = createFrame(CW, CH);
 const rows = {};

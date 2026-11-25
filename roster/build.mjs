@@ -58,7 +58,7 @@ for (const v of variants) if (!v.faction) throw new Error("no faction: " + v.cel
 const FPS = 20, timing = {};
 // clips reworked after their last upload: the place plays the old version until the next upload round
 // (2026-11-25: zabuza-suirou, kakashi-kamui, gaara-sabaku-sousou uploaded in round upload28; none open)
-const REWORKED = ["itachi-tsukuyomi", "itachi-amaterasu", "itachi-totsuka"];
+const REWORKED = []; // upload29 (2026-11-25): the Itachi reworks are in the place
 async function clipTiming(key) {
   if (timing[key]) return timing[key];
   // the wall's element clips (RS.JutsuShowcaseData, 12 fps, own pipeline) have no roblox4 manifest entry
