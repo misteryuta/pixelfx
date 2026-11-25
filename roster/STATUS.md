@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 27 | 6 | 1 | 31 |
-| Naruto Shippūden | 55 | 130 | 57 | 9 | 6 | 58 |
-| **Gesamt** | 81 | 195 | 84 | 15 | 7 | 89 |
+| Naruto Shippūden | 55 | 130 | 58 | 9 | 6 | 57 |
+| **Gesamt** | 81 | 195 | 85 | 15 | 7 | 88 |
 
 ## Classic
 
@@ -94,10 +94,10 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Rasengan | – | fehlt | Minatos Rasengan allein. |
 |  |  |  |  | 3 | Flying Raijin: Guiding Thunder | `minato-hiraishin-rasengan` | umgesetzt | Kunai, Sprung zum Zeichen, Rasengan in den Rücken (gegen Tobi). |
 |  |  |  |  | 4 | Reaper Death Seal | `hiruzen-shiki-fuujin` | Clip da, Anwender offen | Shiki Fūjin; Clip mit Hiruzen als Anwender. |
-| Itachi Uchiha (Mangekyō Sharingan) | 96 | Legendary | Uchiha Clan | 1 | Tsukuyomi | `itachi-tsukuyomi` | umgesetzt | Tsukuyomi. |
-|  |  |  |  | 2 | Amaterasu | `itachi-amaterasu` | umgesetzt | Amaterasu: die schwarze Flamme entsteht am Blickpunkt; Kamera setzt auf das Ziel. |
-|  |  |  |  | 3 | Susanoo: Totsuka Blade | `itachi-totsuka` | umgesetzt | Susanoo mit Totsuka. |
-|  |  |  |  | 4 | Yata Mirror Defense | – | fehlt | Yata no Kagami. |
+| Itachi Uchiha (Mangekyō Sharingan) | 96 | Legendary | Uchiha Clan | 1 | Tsukuyomi | `itachi-tsukuyomi` (überarbeitet, Upload offen) | umgesetzt | Narutopedia: Blickkontakt, mit beiden Augen möglich; Zeitwahrnehmung unter seiner Kontrolle; normales Lösen wirkt nicht (im Spiel kein Kai). Mit Itachis eigener Figur. |
+|  |  |  |  | 2 | Amaterasu | `itachi-amaterasu` (überarbeitet, Upload offen) | umgesetzt | Narutopedia: Amaterasu aus Itachis rechtem Auge, Flamme am Blickpunkt, er kann sie löschen. Mit Itachis eigener Figur, Effekte am echten Auge. |
+|  |  |  |  | 3 | Susanoo: Totsuka Blade | `itachi-totsuka` (überarbeitet, Upload offen) | umgesetzt | Narutopedia (Kap. 392/393): Klinge aus der Flüssigkeit des Sake-Krugs, Krug in einer zweiten Hand am rechten Unterarm, Getroffener wird in den Krug versiegelt. Itachi in seinem Susanoo (Modell 1,5-fach). |
+|  |  |  |  | 4 | Yata Mirror Defense | `itachi-yata-mirror` (gebaut, Upload offen) | umgesetzt | Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung. |
 | Obito Uchiha (Tobi / Orange Mask) | 96 | Legendary | Uchiha Clan | 1 | Kamui Intangibility | `obito-kamui-surinuke` | umgesetzt | Kamui-Durchdringung. |
 |  |  |  |  | 2 | Kamui Warp | `obito-kamui-warp` | umgesetzt | Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung. |
 |  |  |  |  | 3 | Wood Style: Cutting Sprigs | – | fehlt | Zeitkonflikt: Mokuton von Tobi erst gegen Konan und im Krieg. |

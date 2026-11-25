@@ -126,7 +126,8 @@ local function apply(b, a, d, s, i, n, castSeq, cs)
 			damage(k.dmg, false)
 			if ev.result ~= "phased" then
 				local st = s.kind == "illusion" and "illusion" or "sealed"
-				setState(d, st, (s.len - cs[1]) + k.dur)
+				-- Tsukuyomi (params.noKai): normal genjutsu release does not work on it (Narutopedia)
+				setState(d, st, (s.len - cs[1]) + k.dur, { noKai = s.params and s.params.noKai or nil })
 				ev.state = st
 				if d.casting then d.casting = nil end
 			end
@@ -263,7 +264,7 @@ local function think(b)
 	b.think = now() + 1.2 + math.random() * 1.6
 	if has(f, "bound") then return end
 	if has(f, "illusion") then
-		if f.ck >= Rules.BREAK_COST and math.random() < 0.35 then f.ck -= Rules.BREAK_COST; f.st.illusion = nil; send(b, { type = "break", by = "foe" }) end
+		if not f.st.illusion.noKai and f.ck >= Rules.BREAK_COST and math.random() < 0.35 then f.ck -= Rules.BREAK_COST; f.st.illusion = nil; send(b, { type = "break", by = "foe" }) end
 		return
 	end
 	local dist = math.abs(f.x - me.x)
@@ -333,6 +334,7 @@ Fn.OnServerInvoke = function(plr, action, arg)
 		return { ok = true, state = snap(b) }
 	elseif action == "break" then
 		if not has(b.me, "illusion") then return { ok = false, why = "NO_GENJUTSU", state = snap(b) } end
+		if b.me.st.illusion.noKai then return { ok = false, why = "NO_KAI", state = snap(b) } end
 		if b.me.ck < Rules.BREAK_COST then return { ok = false, why = "CHAKRA", state = snap(b) } end
 		b.me.ck -= Rules.BREAK_COST
 		b.me.st.illusion = nil

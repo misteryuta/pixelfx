@@ -14,6 +14,12 @@ export { modelPixels };
 // z: -1 paints it behind the body; fill: what shows in its place once it moves ("shade" = its own pixels darkened,
 // a colour, or null = nothing); len: the length its bend and sway ramp up over.
 export const RIGS = {
+  // Itachi (the user's turnaround, 2026-11-25), side view facing right, 23x72: the head with hair (turns at the neck),
+  // the near sleeve with the hand at its end (turns at the shoulder; the coat shows darkened where it was)
+  "itachi/right": { parts: [
+    { name: "head", poly: [[1, 0], [23, 0], [23, 27], [15, 27], [5, 26], [0, 18]], pivot: [12, 27], len: 22, fill: "inpaint" },
+    { name: "arm", poly: [[5, 28], [14, 28], [16, 36], [15, 52], [8, 53], [5, 45]], pivot: [10, 30], hand: [11, 48], len: 22, fill: "shade" },
+  ] },
   // Kurama, side view facing right: nine tails fanned up behind, head low on the chest, jaw under the snout
   "kurama/right": { parts: [
     { name: "tails", poly: [[0, 0], [93, 0], [93, 72], [84, 84], [70, 88], [62, 90], [40, 92], [22, 96], [18, 104], [20, 122], [0, 122]], pivot: [48, 96], z: -1, fill: null, len: 80 },

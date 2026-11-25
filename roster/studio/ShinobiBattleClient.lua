@@ -9,6 +9,8 @@ local RunService = game:GetService("RunService")
 local Roster = require(RS:WaitForChild("ShinobiRoster"))
 local Rules = require(RS:WaitForChild("ShinobiRules"))
 local remotes = RS:WaitForChild("ShinobiRemotes")
+-- the variants' own fight sprites (atlases cut from the user's turnarounds); the rest use the arena's stock fighter
+local SPRITES = RS:FindFirstChild("ShinobiSprites") and require(RS.ShinobiSprites) or {}
 local Fn, Ev = remotes:WaitForChild("Battle"), remotes:WaitForChild("Event")
 
 local Battle = {}
@@ -17,7 +19,7 @@ local CW, CH, FX, FY, FPS = 76, 60, 26, 55, 15
 local ROWS = { idle = { 0, 8, true }, walk = { 1, 6, true }, jab = { 3, 5 }, block = { 6, 2 }, hit = { 8, 5 }, down = { 9, 12 }, cast = { 10, 6 }, win = { 11, 7 } }
 local RAR = { Legendary = Color3.fromRGB(255, 205, 80), Epic = Color3.fromRGB(200, 140, 255), Rare = Color3.fromRGB(110, 180, 255), Common = Color3.fromRGB(190, 200, 210) }
 local STATUS = { ok = { "BEREIT", Color3.fromHex("#5ad07a") }, actor = { "ANWENDER OFFEN", Color3.fromHex("#e0b050") }, partial = { "NUR VERWANDT", Color3.fromHex("#e08a50") }, new = { "FEHLT", Color3.fromHex("#8a8eb0") } }
-local WHY = { NO_CLIP = "NOCH KEINE ANIMATION", BUSY = "WIRKT NOCH", STAGE_BUSY = "WARTE", BOUND = "GEFESSELT", IN_GENJUTSU = "IM GENJUTSU  [B] KAI", SEALED = "VERSIEGELT", COOLDOWN = "ABKLINGZEIT", CHAKRA = "ZU WENIG CHAKRA", OUT_OF_RANGE = "ZU WEIT WEG", OVER = "KAMPF VORBEI", CANT_MOVE = "KANN SICH NICHT BEWEGEN" }
+local WHY = { NO_CLIP = "NOCH KEINE ANIMATION", BUSY = "WIRKT NOCH", STAGE_BUSY = "WARTE", BOUND = "GEFESSELT", IN_GENJUTSU = "IM GENJUTSU  [B] KAI", SEALED = "VERSIEGELT", COOLDOWN = "ABKLINGZEIT", CHAKRA = "ZU WENIG CHAKRA", OUT_OF_RANGE = "ZU WEIT WEG", OVER = "KAMPF VORBEI", CANT_MOVE = "KANN SICH NICHT BEWEGEN", NO_KAI = "TSUKUYOMI LAESST SICH NICHT LOESEN", NO_GENJUTSU = "KEIN GENJUTSU" }
 local RES = { phased = "DURCHDRUNGEN", blocked = "GEBLOCKT", absorbed = "ABGEFANGEN", healed = "GEHEILT" }
 local C = { bg = Color3.fromHex("#0d0e1a"), panel = Color3.fromHex("#151729"), panel2 = Color3.fromHex("#1d2038"), line = Color3.fromHex("#2c3054"), text = Color3.fromHex("#e8e8f4"), dim = Color3.fromHex("#8a8eb0") }
 
@@ -185,13 +187,19 @@ function Battle.mount(stage, deps)
 	end
 
 	-- the two fighters of the idle scene (the arena's sprite atlas; the rival mirrored and tinted)
+	local STOCK = { image = ATLAS, cw = CW, ch = CH, fx = FX, fy = FY, rows = ROWS }
 	local function sprite(rival)
 		local img = new("ImageLabel", { BackgroundTransparency = 1, Image = ATLAS, ImageRectSize = Vector2.new(CW, CH), ResampleMode = Enum.ResamplerMode.Pixelated, ZIndex = rival and 23 or 24 }, scene)
-		if rival then img.ImageColor3 = Color3.fromRGB(255, 170, 120) end
 		local tag = label(scene, { Text = "", Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Center, TextStrokeTransparency = 0.4, Size = UDim2.fromOffset(200, 14), AnchorPoint = Vector2.new(0.5, 1), ZIndex = 25 })
 		local aura = new("Frame", { BackgroundTransparency = 0.6, BorderSizePixel = 0, ZIndex = 22, Visible = false }, scene)
 		corner(aura, 999)
-		return { img = img, tag = tag, aura = aura, state = "idle", t = 0 }
+		return { img = img, tag = tag, aura = aura, state = "idle", t = 0, cfg = STOCK, rival = rival }
+	end
+	-- a variant's own sprite if it has one; the stock fighter (the rival tinted) otherwise
+	local function dress(sp, v)
+		sp.cfg = SPRITES[v.id] or STOCK
+		sp.img.Image = sp.cfg.image
+		sp.img.ImageColor3 = (sp.cfg == STOCK and sp.rival) and Color3.fromRGB(255, 170, 120) or Color3.new(1, 1, 1)
 	end
 	local spMe, spFoe = sprite(false), sprite(true)
 	local S, GY = 3, 200
@@ -201,20 +209,21 @@ function Battle.mount(stage, deps)
 		GY = math.floor(H * 0.66)
 		floorL.Size = UDim2.new(1, 0, 0, 2)
 		floorL.Position = UDim2.fromOffset(0, GY)
-		for _, sp in ipairs({ spMe, spFoe }) do sp.img.Size = UDim2.fromOffset(CW * S, CH * S) end
+		for _, sp in ipairs({ spMe, spFoe }) do sp.img.Size = UDim2.fromOffset(sp.cfg.cw * S, sp.cfg.ch * S) end
 	end
 	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutScene)
 	local AURA = { bound = Color3.fromHex("#3a6aff"), illusion = Color3.fromHex("#c040ff"), sealed = Color3.fromHex("#ffcc40"), shield = Color3.fromHex("#80e0ff"), intangible = Color3.fromHex("#e0e0ff"), transformed = Color3.fromHex("#ff6030"), buff = Color3.fromHex("#ff9a40"), summon = Color3.fromHex("#a0ff80") }
 	local function drawFighter(sp, f)
 		if not f then return end
-		local row = ROWS[sp.state] or ROWS.idle
+		local c = sp.cfg
+		local row = c.rows[sp.state] or c.rows.idle
 		local n = math.floor(sp.t * FPS)
 		if row[3] then n = n % row[2] else n = math.min(n, row[2] - 1) end
 		local flip = f.face < 0
-		sp.img.ImageRectOffset = Vector2.new(n * CW + (flip and CW or 0), row[1] * CH)
-		sp.img.ImageRectSize = Vector2.new(flip and -CW or CW, CH)
+		sp.img.ImageRectOffset = Vector2.new(n * c.cw + (flip and c.cw or 0), row[1] * c.ch)
+		sp.img.ImageRectSize = Vector2.new(flip and -c.cw or c.cw, c.ch)
 		local sx = root.AbsoluteSize.X / 2 + (f.x - 160) * S * 0.9
-		sp.img.Position = UDim2.fromOffset(math.floor(sx - (flip and (CW - FX) or FX) * S), GY - FY * S)
+		sp.img.Position = UDim2.fromOffset(math.floor(sx - (flip and (c.cw - c.fx) or c.fx) * S), GY - c.fy * S)
 		sp.img.ImageTransparency = f.st.intangible and 0.55 or 0
 		sp.tag.Position = UDim2.fromOffset(sx, GY - 46 * S)
 		local aura = nil
@@ -354,6 +363,8 @@ function Battle.mount(stage, deps)
 		battle = { me = Roster.byId[res.me], foe = Roster.byId[res.foe], state = res.state }
 		playing, queue = nil, {}
 		buildSlots()
+		dress(spMe, battle.me)
+		dress(spFoe, battle.foe)
 		hud.Visible = true
 		showScene(true)
 		layoutScene()
@@ -397,7 +408,7 @@ function Battle.mount(stage, deps)
 			for _, pair in ipairs({ { spMe, battle.state.me }, { spFoe, battle.state.foe } }) do
 				local sp, f = pair[1], pair[2]
 				sp.t += dt
-				local row = ROWS[sp.state]
+				local row = sp.cfg.rows[sp.state]
 				if row and not row[3] and sp.t * FPS >= row[2] + 2 and sp.state ~= "down" and sp.state ~= "win" then setAnim(sp, "idle") end
 				drawFighter(sp, f)
 			end

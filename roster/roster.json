@@ -83,7 +83,8 @@
      "reworked": false,
      "kind": "summon",
      "status": "new",
-     "note": "Edo Tensei: im Konoha Crush ruft er die Ersten beiden Hokage."
+     "note": "Edo Tensei: im Konoha Crush ruft er die Ersten beiden Hokage.",
+     "params": null
     },
     {
      "slot": 2,
@@ -94,6 +95,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Klinge aus dem Schlangenmaul.",
+     "params": null,
      "len": 4.45,
      "contacts": [
       1.45
@@ -108,7 +110,8 @@
      "reworked": false,
      "kind": "seal",
      "status": "new",
-     "note": "Gogyō Fūin auf Narutos Siegel, Wald des Todes."
+     "note": "Gogyō Fūin auf Narutos Siegel, Wald des Todes.",
+     "params": null
     },
     {
      "slot": 4,
@@ -118,7 +121,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Rashōmon dreifach gegen Hiruzens Enma."
+     "note": "Rashōmon dreifach gegen Hiruzens Enma.",
+     "params": null
     }
    ]
   },
@@ -143,7 +147,8 @@
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Gamaguchi Shibari: Magen einer Kröte, gegen Itachi und Kisame."
+     "note": "Gamaguchi Shibari: Magen einer Kröte, gegen Itachi und Kisame.",
+     "params": null
     },
     {
      "slot": 2,
@@ -153,7 +158,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Jiraiyas eigenes Rasengan; der vorhandene Clip ist Narutos Version mit Schattendoppelgänger."
+     "note": "Jiraiyas eigenes Rasengan; der vorhandene Clip ist Narutos Version mit Schattendoppelgänger.",
+     "params": null
     },
     {
      "slot": 3,
@@ -164,6 +170,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Gamayu Endan mit Gamabunta gegen Orochimaru, Tanzaku.",
+     "params": null,
      "len": 7.4,
      "contacts": [
       3.1,
@@ -183,6 +190,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Hari Jizō/Kebari Senbon, Haarnadeln.",
+     "params": null,
      "len": 4.7,
      "contacts": [
       2.2,
@@ -216,7 +224,8 @@
      "reworked": false,
      "kind": "heal",
      "status": "new",
-     "note": "Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto."
+     "note": "Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto.",
+     "params": null
     },
     {
      "slot": 2,
@@ -227,6 +236,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Tsūtenkyaku, Fersenhieb aus der Höhe.",
+     "params": null,
      "len": 4.9,
      "contacts": [
       1.85
@@ -242,6 +252,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht.",
+     "params": null,
      "len": 4.85,
      "contacts": [
       1.3,
@@ -262,7 +273,8 @@
      "reworked": false,
      "kind": "summon",
      "status": "new",
-     "note": "Kuchiyose: Katsuyu (Tanzaku)."
+     "note": "Kuchiyose: Katsuyu (Tanzaku).",
+     "params": null
     }
    ]
   },
@@ -288,6 +300,7 @@
      "kind": "seal",
      "status": "ok",
      "note": "Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt.",
+     "params": null,
      "len": 6.1,
      "contacts": [
       2.45,
@@ -305,6 +318,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Enma als Kongōnyoi.",
+     "params": null,
      "len": 5,
      "contacts": [
       2.85,
@@ -321,6 +335,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Katon: Karyū Endan; Clip mit Standard-Anwender. Hiruzen als Anwender: Anime-Konoha-Crush (zu belegen).",
+     "params": null,
      "len": 4.9,
      "contacts": [
       1.9,
@@ -336,7 +351,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Shuriken Kage Bunshin gegen Orochimaru."
+     "note": "Shuriken Kage Bunshin gegen Orochimaru.",
+     "params": null
     }
    ]
   },
@@ -362,6 +378,7 @@
      "kind": "bind",
      "status": "actor",
      "note": "Jukai Kōtan im Barrierekampf. Clip zeigt Hashirama zu Lebzeiten, nicht den Edo-Körper (Risse).",
+     "params": null,
      "len": 6.35,
      "contacts": [
       1.25,
@@ -380,7 +397,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Mokujōheki."
+     "note": "Mokujōheki.",
+     "params": null
     },
     {
      "slot": 3,
@@ -390,7 +408,8 @@
      "reworked": false,
      "kind": "illusion",
      "status": "new",
-     "note": "Kokuangyō: im Konoha Crush nur im Anime; Anwender laut Datei."
+     "note": "Kokuangyō: im Konoha Crush nur im Anime; Anwender laut Datei.",
+     "params": null
     },
     {
      "slot": 4,
@@ -400,7 +419,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Taijutsu-Kombination (keine benannte Technik, Darstellung als Edo-Taijutsu)."
+     "note": "Taijutsu-Kombination (keine benannte Technik, Darstellung als Edo-Taijutsu).",
+     "params": null
     }
    ]
   },
@@ -426,6 +446,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Suiryūdan; Clip zeigt Tobirama lebend (kein Edo-Körper).",
+     "params": null,
      "len": 4.55,
      "contacts": [
       2.25
@@ -440,7 +461,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Suishōha. Im Konoha Crush nicht im Manga belegt (Anime/Spiel)."
+     "note": "Suishōha. Im Konoha Crush nicht im Manga belegt (Anime/Spiel).",
+     "params": null
     },
     {
      "slot": 3,
@@ -450,7 +472,8 @@
      "reworked": false,
      "kind": "illusion",
      "status": "new",
-     "note": "Datei: 'Infinite Darkness (Manga/Anime)'. Kokuangyō, Anime."
+     "note": "Datei: 'Infinite Darkness (Manga/Anime)'. Kokuangyō, Anime.",
+     "params": null
     },
     {
      "slot": 4,
@@ -460,7 +483,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Raijin no Ken: Anime (Kinkaku-Bogen-Rückblende), nicht im Konoha Crush."
+     "note": "Raijin no Ken: Anime (Kinkaku-Bogen-Rückblende), nicht im Konoha Crush.",
+     "params": null
     }
    ]
   },
@@ -486,6 +510,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Raikiri gegen Haku/Zabuza.",
+     "params": null,
      "len": 4.05,
      "contacts": [
       2
@@ -500,7 +525,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Sharingan-Kopie von Zabuzas Suiryūdan, Spiegelduell."
+     "note": "Sharingan-Kopie von Zabuzas Suiryūdan, Spiegelduell.",
+     "params": null
     },
     {
      "slot": 3,
@@ -510,7 +536,8 @@
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Doton: Tsuiga no Jutsu, Ninken halten Zabuza."
+     "note": "Doton: Tsuiga no Jutsu, Ninken halten Zabuza.",
+     "params": null
     },
     {
      "slot": 4,
@@ -520,7 +547,8 @@
      "reworked": false,
      "kind": "buff",
      "status": "new",
-     "note": "Kirigakure im Land der Wellen ist Zabuzas Technik; Kakashi als Anwender laut Datei (Sharingan-Kopie)."
+     "note": "Kirigakure im Land der Wellen ist Zabuzas Technik; Kakashi als Anwender laut Datei (Sharingan-Kopie).",
+     "params": null
     }
    ]
   },
@@ -545,7 +573,8 @@
      "reworked": false,
      "kind": "transform",
      "status": "new",
-     "note": "Zeitkonflikt: das sechste Tor zeigt Guy erst in Shippūden. Darstellung auf die belegte Shippūden-Version begrenzt."
+     "note": "Zeitkonflikt: das sechste Tor zeigt Guy erst in Shippūden. Darstellung auf die belegte Shippūden-Version begrenzt.",
+     "params": null
     },
     {
      "slot": 2,
@@ -556,6 +585,7 @@
      "kind": "strike",
      "status": "partial",
      "note": "Dynamic Entry. Der vorhandene Clip ist ein generischer Taijutsu-Austausch.",
+     "params": null,
      "len": 4.35,
      "contacts": [
       0.7,
@@ -577,7 +607,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "'Strong Fist Hurricane': Übersetzung uneindeutig (Konoha Gōriki Senpū)."
+     "note": "'Strong Fist Hurricane': Übersetzung uneindeutig (Konoha Gōriki Senpū).",
+     "params": null
     }
    ]
   },
@@ -603,6 +634,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Kirigakure no Jutsu mit Muon Satsujin. Spielzustand: Ziel verliert ihn aus dem Blick.",
+     "params": null,
      "len": 5.3,
      "contacts": [
       2.8
@@ -618,6 +650,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Suirō no Jutsu gegen Kakashi: Hand bleibt im Wasser.",
+     "params": null,
      "len": 5.05,
      "contacts": [
       1.25,
@@ -634,6 +667,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Suiryūdan; Clip mit Standard-Anwender.",
+     "params": null,
      "len": 7.417,
      "contacts": [
       3.667,
@@ -665,6 +699,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Sawarabi no Mai.",
+     "params": null,
      "len": 4.2,
      "contacts": [
       1.6
@@ -680,6 +715,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Tessenka no Mai: Hana.",
+     "params": null,
      "len": 4.7,
      "contacts": [
       2.2,
@@ -697,7 +733,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Karamatsu no Mai."
+     "note": "Karamatsu no Mai.",
+     "params": null
     }
    ]
   },
@@ -723,6 +760,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Sabaku Kyū + Sabaku Sōsō: ein Move, zwei Phasen.",
+     "params": null,
      "len": 5.35,
      "contacts": [
       2.15,
@@ -738,7 +776,8 @@
      "reworked": false,
      "kind": "transform",
      "status": "new",
-     "note": "Tanuki Neiri: Gaara schläft, Shukaku übernimmt. 'Mini-Shukaku' = Teilverwandlung."
+     "note": "Tanuki Neiri: Gaara schläft, Shukaku übernimmt. 'Mini-Shukaku' = Teilverwandlung.",
+     "params": null
     },
     {
      "slot": 3,
@@ -749,6 +788,7 @@
      "kind": "defense",
      "status": "ok",
      "note": "Suna no Tate (automatisch).",
+     "params": null,
      "len": 4.7,
      "contacts": [
       2.3,
@@ -779,7 +819,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Rasengan im Ein-Schweif-Mantel gegen Sasuke."
+     "note": "Rasengan im Ein-Schweif-Mantel gegen Sasuke.",
+     "params": null
     },
     {
      "slot": 2,
@@ -790,6 +831,7 @@
      "kind": "strike",
      "status": "actor",
      "note": "Uzumaki Naruto Rendan. Clip zeigt Naruto ohne Kyūbi-Mantel.",
+     "params": null,
      "len": 4.85,
      "contacts": [
       1.2,
@@ -808,7 +850,8 @@
      "reworked": false,
      "kind": "summon",
      "status": "new",
-     "note": "Gamabunta: belegt im Konoha Crush, nicht im Tal des Endes."
+     "note": "Gamabunta: belegt im Konoha Crush, nicht im Tal des Endes.",
+     "params": null
     }
    ]
   },
@@ -833,7 +876,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Schwarzes Chidori im Fluchmal Stufe 2."
+     "note": "Schwarzes Chidori im Fluchmal Stufe 2.",
+     "params": null
     },
     {
      "slot": 2,
@@ -843,7 +887,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Shishi Rendan."
+     "note": "Shishi Rendan.",
+     "params": null
     },
     {
      "slot": 3,
@@ -854,6 +899,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Hōsenka no Jutsu; Clip mit Standard-Anwender.",
+     "params": null,
      "len": 8.25,
      "contacts": [
       2.25,
@@ -884,7 +930,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Chakra no Mesu."
+     "note": "Chakra no Mesu.",
+     "params": null
     },
     {
      "slot": 2,
@@ -894,7 +941,8 @@
      "reworked": false,
      "kind": "illusion",
      "status": "new",
-     "note": "Nehan Shōja no Jutsu, Konoha Crush."
+     "note": "Nehan Shōja no Jutsu, Konoha Crush.",
+     "params": null
     }
    ]
   },
@@ -919,7 +967,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Ura Renge, fünftes Tor."
+     "note": "Ura Renge, fünftes Tor.",
+     "params": null
     },
     {
      "slot": 2,
@@ -930,6 +979,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Omote Renge.",
+     "params": null,
      "len": 4.75,
      "contacts": [
       1.35,
@@ -962,6 +1012,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Makyō Hyōshō.",
+     "params": null,
      "len": 4.8,
      "contacts": [
       1.7,
@@ -981,6 +1032,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Sensatsu Suishō.",
+     "params": null,
      "len": 4.55,
      "contacts": [
       2.5,
@@ -1014,6 +1066,7 @@
      "kind": "seal",
      "status": "ok",
      "note": "Hakke Rokujūyon Shō: schließt Tenketsu -> Spielzustand: Jutsu gesperrt.",
+     "params": null,
      "len": 5.75,
      "contacts": [
       1.55,
@@ -1034,6 +1087,7 @@
      "kind": "defense",
      "status": "ok",
      "note": "Hakkeshō Kaiten.",
+     "params": null,
      "len": 4.1,
      "contacts": [
       1.6,
@@ -1065,6 +1119,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Magen: Jubaku Satsu gegen Itachi.",
+     "params": null,
      "len": 5.15,
      "contacts": [
       1.9,
@@ -1080,7 +1135,8 @@
      "reworked": false,
      "kind": "illusion",
      "status": "new",
-     "note": "'Genjutsu Petal Escape': kein eindeutiger Manga-Beleg; Darstellung als Genjutsu-Ausweichen."
+     "note": "'Genjutsu Petal Escape': kein eindeutiger Manga-Beleg; Darstellung als Genjutsu-Ausweichen.",
+     "params": null
     }
    ]
   },
@@ -1106,6 +1162,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Kuchiyose: Kirikiri Mai.",
+     "params": null,
      "len": 5.65,
      "contacts": [
       2.1,
@@ -1130,6 +1187,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Fūton: Kamaitachi.",
+     "params": null,
      "len": 4.15,
      "contacts": [
       1.4,
@@ -1165,6 +1223,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Kagemane no Jutsu: Verbindung über den Boden, gekoppelte Bewegung.",
+     "params": null,
      "len": 4.9,
      "contacts": [
       2.15,
@@ -1196,6 +1255,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Kuroari + Karasu.",
+     "params": null,
      "len": 5.25,
      "contacts": [
       1.6,
@@ -1227,6 +1287,7 @@
      "kind": "drain",
      "status": "ok",
      "note": "Kikaichū frisst Chakra.",
+     "params": null,
      "len": 5.1,
      "contacts": [
       2.15,
@@ -1260,6 +1321,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Gatsūga mit Akamaru.",
+     "params": null,
      "len": 4.25,
      "contacts": [
       1.85,
@@ -1290,7 +1352,8 @@
      "reworked": false,
      "kind": "seal",
      "status": "new",
-     "note": "Jūken auf die Tenketsu, gegen Neji."
+     "note": "Jūken auf die Tenketsu, gegen Neji.",
+     "params": null
     }
    ]
   },
@@ -1316,6 +1379,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Sōshōryū gegen Temari.",
+     "params": null,
      "len": 5.1,
      "contacts": [
       2.05,
@@ -1351,7 +1415,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Kibakufuda-Falle (Anime-Füller)."
+     "note": "Kibakufuda-Falle (Anime-Füller).",
+     "params": null
     }
    ]
   },
@@ -1377,6 +1442,7 @@
      "kind": "aoe",
      "status": "actor",
      "note": "Vorhandene Cutscene. Abweichung: sie zeigt das Rinnegan; der Clanführer der Rückblende hat das Ewige Mangekyō. Im Place liegt noch die alte Blender-Fassung.",
+     "params": null,
      "len": 20.7,
      "contacts": [],
      "main": 12.42
@@ -1390,6 +1456,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Gōka Mekkyaku.",
+     "params": null,
      "len": 9.45,
      "contacts": [
       1.85,
@@ -1408,7 +1475,8 @@
      "reworked": false,
      "kind": "summon",
      "status": "new",
-     "note": "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende)."
+     "note": "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende).",
+     "params": null
     },
     {
      "slot": 4,
@@ -1418,7 +1486,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Uchiha Gaeshi mit dem Gunbai."
+     "note": "Uchiha Gaeshi mit dem Gunbai.",
+     "params": null
     }
    ]
   },
@@ -1444,6 +1513,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Shinra Tensei.",
+     "params": null,
      "len": 4.85,
      "contacts": [
       2.05
@@ -1459,6 +1529,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Chibaku Tensei gegen Naruto.",
+     "params": null,
      "len": 9.1,
      "contacts": [
       4.8,
@@ -1475,6 +1546,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Banshō Ten'in.",
+     "params": null,
      "len": 4.95,
      "contacts": [
       1.85,
@@ -1491,6 +1563,7 @@
      "kind": "summon",
      "status": "actor",
      "note": "Gedō Mazō; der Clip ist mit Nagato als Rufer gebacken.",
+     "params": null,
      "len": 6,
      "contacts": [
       2.8,
@@ -1524,6 +1597,7 @@
      "kind": "teleport",
      "status": "partial",
      "note": "Hiraishin Level 2 ist eine eigene Stufe (Ziel per Berührung markiert); der Clip zeigt Kunai + Rasengan.",
+     "params": null,
      "len": 4.3,
      "contacts": [
       1.65,
@@ -1539,7 +1613,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Minatos Rasengan allein."
+     "note": "Minatos Rasengan allein.",
+     "params": null
     },
     {
      "slot": 3,
@@ -1550,6 +1625,7 @@
      "kind": "teleport",
      "status": "ok",
      "note": "Kunai, Sprung zum Zeichen, Rasengan in den Rücken (gegen Tobi).",
+     "params": null,
      "len": 4.55,
      "contacts": [
       1.95,
@@ -1566,6 +1642,7 @@
      "kind": "seal",
      "status": "actor",
      "note": "Shiki Fūjin; Clip mit Hiruzen als Anwender.",
+     "params": null,
      "len": 6.1,
      "contacts": [
       2.45,
@@ -1594,10 +1671,13 @@
      "name": "Tsukuyomi",
      "clip": "itachi-tsukuyomi",
      "pendingClip": null,
-     "reworked": false,
+     "reworked": true,
      "kind": "illusion",
      "status": "ok",
-     "note": "Tsukuyomi.",
+     "note": "Narutopedia: Blickkontakt, mit beiden Augen möglich; Zeitwahrnehmung unter seiner Kontrolle; normales Lösen wirkt nicht (im Spiel kein Kai). Mit Itachis eigener Figur.",
+     "params": {
+      "noKai": true
+     },
      "len": 5.55,
      "contacts": [
       1.25,
@@ -1616,10 +1696,11 @@
      "name": "Amaterasu",
      "clip": "itachi-amaterasu",
      "pendingClip": null,
-     "reworked": false,
+     "reworked": true,
      "kind": "aoe",
      "status": "ok",
-     "note": "Amaterasu: die schwarze Flamme entsteht am Blickpunkt; Kamera setzt auf das Ziel.",
+     "note": "Narutopedia: Amaterasu aus Itachis rechtem Auge, Flamme am Blickpunkt, er kann sie löschen. Mit Itachis eigener Figur, Effekte am echten Auge.",
+     "params": null,
      "len": 5.9,
      "contacts": [
       1.75,
@@ -1634,10 +1715,11 @@
      "name": "Susanoo: Totsuka Blade",
      "clip": "itachi-totsuka",
      "pendingClip": null,
-     "reworked": false,
+     "reworked": true,
      "kind": "seal",
      "status": "ok",
-     "note": "Susanoo mit Totsuka.",
+     "note": "Narutopedia (Kap. 392/393): Klinge aus der Flüssigkeit des Sake-Krugs, Krug in einer zweiten Hand am rechten Unterarm, Getroffener wird in den Krug versiegelt. Itachi in seinem Susanoo (Modell 1,5-fach).",
+     "params": null,
      "len": 8.15,
      "contacts": [
       4.1,
@@ -1651,11 +1733,19 @@
      "slot": 4,
      "name": "Yata Mirror Defense",
      "clip": null,
-     "pendingClip": null,
+     "pendingClip": "itachi-yata-mirror",
      "reworked": false,
      "kind": "defense",
-     "status": "new",
-     "note": "Yata no Kagami."
+     "status": "ok",
+     "note": "Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung.",
+     "params": null,
+     "len": 5.55,
+     "contacts": [
+      0.8,
+      2.7,
+      3.5
+     ],
+     "main": 2.7
     }
    ]
   },
@@ -1681,6 +1771,7 @@
      "kind": "intangible",
      "status": "ok",
      "note": "Kamui-Durchdringung.",
+     "params": null,
      "len": 5.75,
      "contacts": [
       1,
@@ -1697,6 +1788,7 @@
      "kind": "teleport",
      "status": "ok",
      "note": "Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung.",
+     "params": null,
      "len": 4.6,
      "contacts": [
       2.5,
@@ -1712,7 +1804,8 @@
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Zeitkonflikt: Mokuton von Tobi erst gegen Konan und im Krieg."
+     "note": "Zeitkonflikt: Mokuton von Tobi erst gegen Konan und im Krieg.",
+     "params": null
     },
     {
      "slot": 4,
@@ -1722,7 +1815,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "'Fire Style: Bomb Blast Dance' ist nicht eindeutig belegt."
+     "note": "'Fire Style: Bomb Blast Dance' ist nicht eindeutig belegt.",
+     "params": null
     }
    ]
   },
@@ -1748,6 +1842,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Senpō: Fūton Rasenshuriken.",
+     "params": null,
      "len": 5.85,
      "contacts": [
       2.45,
@@ -1769,6 +1864,7 @@
      "kind": "strike",
      "status": "partial",
      "note": "Clip zeigt ein einzelnes Ōdama Rasengan, kein Rendan.",
+     "params": null,
      "len": 7.35,
      "contacts": [
       2.75,
@@ -1786,6 +1882,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Kawazu Kumite.",
+     "params": null,
      "len": 4.75,
      "contacts": [
       1.55,
@@ -1802,7 +1899,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Zwei Ōdama-Rasengan mit Doppelgängern."
+     "note": "Zwei Ōdama-Rasengan mit Doppelgängern.",
+     "params": null
     }
    ]
   },
@@ -1827,7 +1925,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Bijūdama von Gyūki gegen Taka."
+     "note": "Bijūdama von Gyūki gegen Taka.",
+     "params": null
     },
     {
      "slot": 2,
@@ -1838,6 +1937,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Raiton: Lariat im Bijū-Mantel.",
+     "params": null,
      "len": 4.25,
      "contacts": [
       1.9
@@ -1853,6 +1953,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Nanatō.",
+     "params": null,
      "len": 4.6,
      "contacts": [
       1.85,
@@ -1871,7 +1972,8 @@
      "reworked": false,
      "kind": "teleport",
      "status": "new",
-     "note": "Tintenkrake als Ersatzkörper."
+     "note": "Tintenkrake als Ersatzkörper.",
+     "params": null
     }
    ]
   },
@@ -1897,6 +1999,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Susanoo-Pfeil; der Clip zeigt das Ewige Mangekyō, am Gipfel hat Sasuke das Mangekyō.",
+     "params": null,
      "len": 6.8,
      "contacts": [
       4.25
@@ -1912,6 +2015,7 @@
      "kind": "barrier",
      "status": "ok",
      "note": "Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464).",
+     "params": null,
      "len": 5.45,
      "contacts": [
       2.05,
@@ -1929,6 +2033,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Kirin gegen Itachi.",
+     "params": null,
      "len": 6.5,
      "contacts": [
       3.3,
@@ -1944,7 +2049,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite)."
+     "note": "Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite).",
+     "params": null
     }
    ]
   },
@@ -1970,6 +2076,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Jinton.",
+     "params": null,
      "len": 5.75,
      "contacts": [
       2.05
@@ -1984,7 +2091,8 @@
      "reworked": false,
      "kind": "buff",
      "status": "new",
-     "note": "Keijūgan: Ōnoki schwebt."
+     "note": "Keijūgan: Ōnoki schwebt.",
+     "params": null
     },
     {
      "slot": 3,
@@ -1994,7 +2102,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Kajūgan; vorhandener Clip onoki-kajuugan zeigt die Kriegsform 'Chō Kajūgan'."
+     "note": "Kajūgan; vorhandener Clip onoki-kajuugan zeigt die Kriegsform 'Chō Kajūgan'.",
+     "params": null
     },
     {
      "slot": 4,
@@ -2004,7 +2113,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Iwa Bunshin."
+     "note": "Iwa Bunshin.",
+     "params": null
     }
    ]
   },
@@ -2030,6 +2140,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Liger Bomb.",
+     "params": null,
      "len": 5.15,
      "contacts": [
       1.4,
@@ -2046,6 +2157,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Giro Chin Doroppu gegen Sasuke.",
+     "params": null,
      "len": 4.55,
      "contacts": [
       2.1
@@ -2060,7 +2172,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Raiton: gerader Schlag."
+     "note": "Raiton: gerader Schlag.",
+     "params": null
     },
     {
      "slot": 4,
@@ -2070,7 +2183,8 @@
      "reworked": false,
      "kind": "teleport",
      "status": "new",
-     "note": "Shunshin mit Raiton-Panzer."
+     "note": "Shunshin mit Raiton-Panzer.",
+     "params": null
     }
    ]
   },
@@ -2096,6 +2210,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Zeitkonflikt: der Kisame-Kampf liegt nach dem Gipfel, vor dem Krieg. Slot bleibt laut Datei.",
+     "params": null,
      "len": 4.65,
      "contacts": [
       2.3
@@ -2111,6 +2226,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Asa Kujaku, sechstes Tor.",
+     "params": null,
      "len": 5.25,
      "contacts": [
       1.2,
@@ -2132,7 +2248,8 @@
      "reworked": false,
      "kind": "transform",
      "status": "new",
-     "note": "Kyōmon, siebtes Tor."
+     "note": "Kyōmon, siebtes Tor.",
+     "params": null
     },
     {
      "slot": 4,
@@ -2143,6 +2260,7 @@
      "kind": "strike",
      "status": "actor",
      "note": "Konoha Senpū; Clip mit Rock Lee.",
+     "params": null,
      "len": 3.25,
      "contacts": [
       1.15,
@@ -2174,6 +2292,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt.",
+     "params": null,
      "len": 5.15,
      "contacts": [
       2.05,
@@ -2191,7 +2310,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Sennin-Ōdama Rasengan."
+     "note": "Sennin-Ōdama Rasengan.",
+     "params": null
     },
     {
      "slot": 3,
@@ -2202,6 +2322,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Magen: Gamarinshō.",
+     "params": null,
      "len": 6.65,
      "contacts": [
       1.95,
@@ -2218,7 +2339,8 @@
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Gamaguchi Shibari."
+     "note": "Gamaguchi Shibari.",
+     "params": null
     }
    ]
   },
@@ -2244,6 +2366,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Enma als Kongōnyoi.",
+     "params": null,
      "len": 5,
      "contacts": [
       2.85,
@@ -2259,7 +2382,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga."
+     "note": "'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga.",
+     "params": null
     },
     {
      "slot": 3,
@@ -2269,7 +2393,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Shuriken Kage Bunshin."
+     "note": "Shuriken Kage Bunshin.",
+     "params": null
     }
    ]
   },
@@ -2295,6 +2420,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Suirō Samehada.",
+     "params": null,
      "len": 6.3,
      "contacts": [
       1.85,
@@ -2317,6 +2443,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Suiton: Daikōdan.",
+     "params": null,
      "len": 5.95,
      "contacts": [
       2.65,
@@ -2332,7 +2459,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Goshokuzame."
+     "note": "Goshokuzame.",
+     "params": null
     }
    ]
   },
@@ -2357,7 +2485,8 @@
      "reworked": false,
      "kind": "heal",
      "status": "new",
-     "note": "Sōzō Saisei."
+     "note": "Sōzō Saisei.",
+     "params": null
     },
     {
      "slot": 2,
@@ -2368,6 +2497,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Tsūtenkyaku.",
+     "params": null,
      "len": 4.9,
      "contacts": [
       1.85
@@ -2382,7 +2512,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Katsuyus Säure (Zesshi Nensan)."
+     "note": "Katsuyus Säure (Zesshi Nensan).",
+     "params": null
     }
    ]
   },
@@ -2408,6 +2539,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Yamata no Jutsu.",
+     "params": null,
      "len": 6.3,
      "contacts": [
       2.15,
@@ -2430,6 +2562,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Kusanagi aus dem Mund.",
+     "params": null,
      "len": 4.45,
      "contacts": [
       1.45
@@ -2444,7 +2577,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Rashōmon."
+     "note": "Rashōmon.",
+     "params": null
     }
    ]
   },
@@ -2469,7 +2603,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Ryūsa Bakuryū."
+     "note": "Ryūsa Bakuryū.",
+     "params": null
     },
     {
      "slot": 2,
@@ -2480,6 +2615,7 @@
      "kind": "seal",
      "status": "ok",
      "note": "Sabaku Taisō: begraben und verdichtet.",
+     "params": null,
      "len": 6.3,
      "contacts": [
       1.9,
@@ -2496,6 +2632,7 @@
      "kind": "defense",
      "status": "ok",
      "note": "Zettai Bōgyo.",
+     "params": null,
      "len": 4.7,
      "contacts": [
       2.3,
@@ -2527,6 +2664,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Kotoamatsukami. Spielzustand: Ziel greift nicht an.",
+     "params": null,
      "len": 5.1,
      "contacts": [
       1.8
@@ -2542,6 +2680,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Shunshin no Shisui.",
+     "params": null,
      "len": 4.65,
      "contacts": [
       0.9,
@@ -2563,6 +2702,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Gōkakyū; Clip mit Standard-Anwender.",
+     "params": null,
      "len": 9,
      "contacts": [
       3
@@ -2593,6 +2733,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Kamui-Fernangriff.",
+     "params": null,
      "len": 4.35,
      "contacts": [
       1.45,
@@ -2609,6 +2750,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Raikiri.",
+     "params": null,
      "len": 4.05,
      "contacts": [
       2
@@ -2624,6 +2766,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Raijū Tsuiga am Kage-Gipfel.",
+     "params": null,
      "len": 4.35,
      "contacts": [
       2,
@@ -2655,6 +2798,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Futton: Kōmu no Jutsu.",
+     "params": null,
      "len": 4.95,
      "contacts": [
       2.15,
@@ -2673,6 +2817,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Yōton: Yōkai no Jutsu.",
+     "params": null,
      "len": 5.25,
      "contacts": [
       1.3,
@@ -2691,6 +2836,7 @@
      "kind": "projectile",
      "status": "actor",
      "note": "Suiryūdan gegen Sasuke; Clip mit Standard-Anwender.",
+     "params": null,
      "len": 7.417,
      "contacts": [
       3.667,
@@ -2722,6 +2868,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Zeitkonflikt: 600 Milliarden Kibakufuda gegen Tobi nach dem Gipfel.",
+     "params": null,
      "len": 6.4,
      "contacts": [
       2.6,
@@ -2744,6 +2891,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Shikigami no Mai.",
+     "params": null,
      "len": 6.6,
      "contacts": [
       1.9,
@@ -2763,7 +2911,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Papier-Chakram."
+     "note": "Papier-Chakram.",
+     "params": null
     }
    ]
   },
@@ -2789,6 +2938,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "C4 Karura.",
+     "params": null,
      "len": 6.1,
      "contacts": [
       3.55
@@ -2803,7 +2953,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "C3."
+     "note": "C3.",
+     "params": null
     },
     {
      "slot": 3,
@@ -2814,6 +2965,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "C2 Dragon.",
+     "params": null,
      "len": 5.85,
      "contacts": [
       2.95,
@@ -2846,6 +2998,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Akahigi: Hyakki no Sōen.",
+     "params": null,
      "len": 5.15,
      "contacts": [
       2.65,
@@ -2866,6 +3019,7 @@
      "kind": "projectile",
      "status": "partial",
      "note": "Clip zeigt Satetsu Shigure; 'World Method' ist Satetsu Kaihō.",
+     "params": null,
      "len": 5.45,
      "contacts": [
       2.25,
@@ -2884,7 +3038,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Flammenwerfer aus Sasoris Körper."
+     "note": "Flammenwerfer aus Sasoris Körper.",
+     "params": null
     }
    ]
   },
@@ -2909,7 +3064,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Doton: Domu."
+     "note": "Doton: Domu.",
+     "params": null
     },
     {
      "slot": 2,
@@ -2920,6 +3076,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Fūton Atsugai mit Katon Zukokku.",
+     "params": null,
      "len": 5.6,
      "contacts": [
       2.3,
@@ -2936,7 +3093,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Raiton: Gian."
+     "note": "Raiton: Gian.",
+     "params": null
     }
    ]
   },
@@ -2961,7 +3119,8 @@
      "reworked": false,
      "kind": "illusion",
      "status": "new",
-     "note": "Rinpun Kakuremino. Fūs Kämpfe sind Anime-/Spielinhalt."
+     "note": "Rinpun Kakuremino. Fūs Kämpfe sind Anime-/Spielinhalt.",
+     "params": null
     },
     {
      "slot": 2,
@@ -2971,7 +3130,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Insektenbiss (Anime/Spiel)."
+     "note": "Insektenbiss (Anime/Spiel).",
+     "params": null
     },
     {
      "slot": 3,
@@ -2981,7 +3141,8 @@
      "reworked": false,
      "kind": "transform",
      "status": "new",
-     "note": "Volle Verwandlung in Chōmei (Anime/Spiel)."
+     "note": "Volle Verwandlung in Chōmei (Anime/Spiel).",
+     "params": null
     }
    ]
   },
@@ -3006,7 +3167,8 @@
      "reworked": false,
      "kind": "intangible",
      "status": "new",
-     "note": "Izanagi."
+     "note": "Izanagi.",
+     "params": null
     },
     {
      "slot": 2,
@@ -3016,7 +3178,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Fūton: Shinkū Taigyoku."
+     "note": "Fūton: Shinkū Taigyoku.",
+     "params": null
     },
     {
      "slot": 3,
@@ -3026,7 +3189,8 @@
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Kuchiyose: Baku."
+     "note": "Kuchiyose: Baku.",
+     "params": null
     }
    ]
   },
@@ -3052,6 +3216,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Zeitkonflikt: Laser Circus ist im Krieg gegen Kinkaku belegt.",
+     "params": null,
      "len": 4.65,
      "contacts": [
       2.55,
@@ -3071,7 +3236,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Suiton: Mizu no Kabe."
+     "note": "Suiton: Mizu no Kabe.",
+     "params": null
     }
    ]
   },
@@ -3096,7 +3262,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Blaues Feuer der Nekomata (Anime)."
+     "note": "Blaues Feuer der Nekomata (Anime).",
+     "params": null
     },
     {
      "slot": 2,
@@ -3106,7 +3273,8 @@
      "reworked": false,
      "kind": "transform",
      "status": "new",
-     "note": "Volle Verwandlung in Matatabi."
+     "note": "Volle Verwandlung in Matatabi.",
+     "params": null
     }
    ]
   },
@@ -3131,7 +3299,8 @@
      "reworked": false,
      "kind": "transform",
      "status": "new",
-     "note": "Yōton-Chakra-Modus."
+     "note": "Yōton-Chakra-Modus.",
+     "params": null
     },
     {
      "slot": 2,
@@ -3141,7 +3310,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Yōton-Gestein."
+     "note": "Yōton-Gestein.",
+     "params": null
     }
    ]
   },
@@ -3166,7 +3336,8 @@
      "reworked": false,
      "kind": "buff",
      "status": "new",
-     "note": "Futton-Kraftschub (Anime/Spiel)."
+     "note": "Futton-Kraftschub (Anime/Spiel).",
+     "params": null
     },
     {
      "slot": 2,
@@ -3176,7 +3347,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Dampfgetriebener Schlag (Anime/Spiel)."
+     "note": "Dampfgetriebener Schlag (Anime/Spiel).",
+     "params": null
     }
    ]
   },
@@ -3201,7 +3373,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Seifenblasen-Explosion (Anime-Füller)."
+     "note": "Seifenblasen-Explosion (Anime-Füller).",
+     "params": null
     },
     {
      "slot": 2,
@@ -3211,7 +3384,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Ätzender Nebel des Saiken (Anime/Spiel)."
+     "note": "Ätzender Nebel des Saiken (Anime/Spiel).",
+     "params": null
     }
    ]
   },
@@ -3237,6 +3411,7 @@
      "kind": "strike",
      "status": "actor",
      "note": "Zeitkonflikt: Lee nutzt Asa Kujaku erst im Krieg. Clip mit Guy.",
+     "params": null,
      "len": 5.25,
      "contacts": [
       1.2,
@@ -3259,6 +3434,7 @@
      "kind": "strike",
      "status": "partial",
      "note": "Clip zeigt Konoha Senpū, nicht Gōriki Senpū.",
+     "params": null,
      "len": 3.25,
      "contacts": [
       1.15,
@@ -3290,6 +3466,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Jujutsu: Shiji Hyōketsu.",
+     "params": null,
      "len": 5.5,
      "contacts": [
       0.85,
@@ -3305,7 +3482,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Sense am Seil."
+     "note": "Sense am Seil.",
+     "params": null
     }
    ]
   },
@@ -3330,7 +3508,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Suideppō."
+     "note": "Suideppō.",
+     "params": null
     },
     {
      "slot": 2,
@@ -3340,7 +3519,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Kubikiribōchō."
+     "note": "Kubikiribōchō.",
+     "params": null
     }
    ]
   },
@@ -3365,7 +3545,8 @@
      "reworked": false,
      "kind": "projectile",
      "status": "new",
-     "note": "Chakra-Kanone."
+     "note": "Chakra-Kanone.",
+     "params": null
     },
     {
      "slot": 2,
@@ -3375,7 +3556,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Kolbenschlag."
+     "note": "Kolbenschlag.",
+     "params": null
     }
    ]
   },
@@ -3401,6 +3583,7 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Chōjū Giga: Löwen.",
+     "params": null,
      "len": 4.9,
      "contacts": [
       2.25,
@@ -3416,7 +3599,8 @@
      "reworked": false,
      "kind": "seal",
      "status": "new",
-     "note": "Tiger-Siegeltechnik; Anwender/Name nur im Anime (Füller)."
+     "note": "Tiger-Siegeltechnik; Anwender/Name nur im Anime (Füller).",
+     "params": null
     }
    ]
   },
@@ -3442,6 +3626,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Shichūrō.",
+     "params": null,
      "len": 4.85,
      "contacts": [
       1.2,
@@ -3457,7 +3642,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Mokujōheki."
+     "note": "Mokujōheki.",
+     "params": null
     }
    ]
   },
@@ -3483,6 +3669,7 @@
      "kind": "seal",
      "status": "ok",
      "note": "Hakke Rokujūyon Shō.",
+     "params": null,
      "len": 5.75,
      "contacts": [
       1.55,
@@ -3518,6 +3705,7 @@
      "kind": "aoe",
      "status": "partial",
      "note": "Clip kombiniert Hien und Haisekishō; der Slot ist nur Haisekishō.",
+     "params": null,
      "len": 5.55,
      "contacts": [
       1.5,
@@ -3549,6 +3737,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane.",
+     "params": null,
      "len": 5.7,
      "contacts": [
       2.5,
@@ -3580,7 +3769,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "'Great Cast Net': Übersetzung uneindeutig."
+     "note": "'Great Cast Net': Übersetzung uneindeutig.",
+     "params": null
     }
    ]
   },
@@ -3606,6 +3796,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Magen: Jubaku Satsu.",
+     "params": null,
      "len": 5.15,
      "contacts": [
       1.9,
@@ -3637,6 +3828,7 @@
      "kind": "bind",
      "status": "ok",
      "note": "Kuroari + Karasu.",
+     "params": null,
      "len": 5.25,
      "contacts": [
       1.6,
@@ -3668,6 +3860,7 @@
      "kind": "strike",
      "status": "partial",
      "note": "Clip zeigt Nikudan Sensha ohne Stacheln (Nikudan Hari Sensha).",
+     "params": null,
      "len": 4.3,
      "contacts": [
       1.95,
@@ -3698,7 +3891,8 @@
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Dokugiri."
+     "note": "Dokugiri.",
+     "params": null
     }
    ]
   },
@@ -3724,6 +3918,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Jūho Sōshiken.",
+     "params": null,
      "len": 4.6,
      "contacts": [
       1.95,
@@ -3756,6 +3951,7 @@
      "kind": "drain",
      "status": "ok",
      "note": "Hijutsu: Mushidama.",
+     "params": null,
      "len": 5.25,
      "contacts": [
       1.65,
@@ -3789,7 +3985,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Chakra no Mesu."
+     "note": "Chakra no Mesu.",
+     "params": null
     }
    ]
   },
@@ -3815,6 +4012,7 @@
      "kind": "bind",
      "status": "actor",
      "note": "Sen'eijashu; der Clip zeigt Orochimaru als Anwender.",
+     "params": null,
      "len": 5.9,
      "contacts": [
       1.8,
@@ -3852,6 +4050,7 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Ōka Shōraiken.",
+     "params": null,
      "len": 5.65,
      "contacts": [
       2
@@ -3882,6 +4081,7 @@
      "kind": "strike",
      "status": "ok",
      "note": "Garōga.",
+     "params": null,
      "len": 5.45,
      "contacts": [
       2.3,
@@ -3916,7 +4116,8 @@
      "reworked": false,
      "kind": "strike",
      "status": "new",
-     "note": "Konohamarus Rasengan gegen den Naraka-Pfad."
+     "note": "Konohamarus Rasengan gegen den Naraka-Pfad.",
+     "params": null
     }
    ]
   },
@@ -3941,7 +4142,8 @@
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Kettenwaffe aus der Schriftrolle."
+     "note": "Kettenwaffe aus der Schriftrolle.",
+     "params": null
     }
    ]
   },
@@ -3967,6 +4169,7 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Shintenshin no Jutsu.",
+     "params": null,
      "len": 4.3,
      "contacts": [
       1.75,
@@ -3997,7 +4200,8 @@
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Barrieresiegel (Anime)."
+     "note": "Barrieresiegel (Anime).",
+     "params": null
     }
    ]
   }

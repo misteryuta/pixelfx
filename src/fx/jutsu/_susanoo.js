@@ -378,7 +378,8 @@ function drawSusanooProc(p, t, R, { kind = "itachi", st = {}, fade = 0, layer = 
 // the user's models (2026-11-22): which sprite and view each kind uses, its scale, and its rig: the near (sword) arm,
 // what it holds, the far arm
 export const SUSANOO_MODEL = {
-  itachi: { name: "susanooItachi", view: "right", scale: 1, arm: "arm", weapon: "blade", far: "mirror" },
+  // 1.5 since Itachi himself (72 px, the user's turnaround) stands inside it (2026-11-25)
+  itachi: { name: "susanooItachi", view: "right", scale: 1.5, arm: "arm", weapon: "blade", far: "mirror" },
   sasuke: { name: "susanooSasuke", view: "front", scale: 0.85, arm: "arm", weapon: "sword", far: "armR" },
   madara: { name: "susanooMadara", view: "right", scale: 1, arm: "arm", weapon: "katana", far: null },
 };

@@ -58,7 +58,7 @@ for (const v of variants) if (!v.faction) throw new Error("no faction: " + v.cel
 const FPS = 20, timing = {};
 // clips reworked after their last upload: the place plays the old version until the next upload round
 // (2026-11-25: zabuza-suirou, kakashi-kamui, gaara-sabaku-sousou uploaded in round upload28; none open)
-const REWORKED = [];
+const REWORKED = ["itachi-tsukuyomi", "itachi-amaterasu", "itachi-totsuka"];
 async function clipTiming(key) {
   if (timing[key]) return timing[key];
   // the wall's element clips (RS.JutsuShowcaseData, 12 fps, own pipeline) have no roblox4 manifest entry
@@ -91,11 +91,11 @@ for (const v of variants) {
   Object.assign(v, { id: v.era + "/" + slug(v.cell), name: m ? m[1] : v.cell, form: m ? m[2] : "", desc: s.desc });
   v.slots = [];
   for (const [i, name] of v.moves.entries()) {
-    const [clip, kind, status, note] = s.moves[i];
+    const [clip, kind, status, note, params] = s.moves[i];
     const t = clip ? await clipTiming(clip) : null;
     const { inPlace, ...tt } = t ?? {};
     // a clip built but not in the place yet can't play there: the slot waits for the upload
-    v.slots.push({ slot: i + 1, name, clip: clip && inPlace ? clip : null, pendingClip: clip && !inPlace ? clip : null, reworked: REWORKED.includes(clip), kind, status, note: note ?? "", ...tt });
+    v.slots.push({ slot: i + 1, name, clip: clip && inPlace ? clip : null, pendingClip: clip && !inPlace ? clip : null, reworked: REWORKED.includes(clip), kind, status, note: note ?? "", params: params ?? null, ...tt });
   }
   delete v.moves;
 }
@@ -121,7 +121,7 @@ for (const [e, fs] of Object.entries(factions)) lua += `R.factions.${e} = {${fs.
 lua += `local function V(t) table.insert(R.variants, t); R.byId[t.id] = t end\n`;
 for (const v of variants) {
   lua += `V({ id = ${q(v.id)}, era = ${q(v.era)}, cell = ${q(v.cell)}, name = ${q(v.name)}, form = ${q(v.form)}, ovr = ${v.ovr}, rarity = ${q(v.rarity)}, faction = ${q(v.faction)}, factionTier = ${v.factionTier}, desc = ${q(v.desc)}, slots = {\n`;
-  for (const s of v.slots) lua += `\t{ slot = ${s.slot}, name = ${q(s.name)}, clip = ${s.clip ? q(s.clip) : "nil"}, pending = ${s.pendingClip ? q(s.pendingClip) : "nil"}, kind = ${q(s.kind)}, status = ${q(s.status)}, note = ${q(s.note)}, len = ${s.len ?? "nil"}, main = ${s.main ?? "nil"}, contacts = {${(s.contacts ?? []).join(", ")}} },\n`;
+  for (const s of v.slots) lua += `\t{ slot = ${s.slot}, name = ${q(s.name)}, clip = ${s.clip ? q(s.clip) : "nil"}, pending = ${s.pendingClip ? q(s.pendingClip) : "nil"}, kind = ${q(s.kind)}, params = ${s.params ? "{ " + Object.entries(s.params).map(([k, v]) => k + " = " + JSON.stringify(v)).join(", ") + " }" : "nil"}, status = ${q(s.status)}, note = ${q(s.note)}, len = ${s.len ?? "nil"}, main = ${s.main ?? "nil"}, contacts = {${(s.contacts ?? []).join(", ")}} },\n`;
   lua += `} })\n`;
 }
 lua += "return R\n";

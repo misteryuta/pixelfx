@@ -150,10 +150,10 @@ export const SLOTS = {
     ["hiruzen-shiki-fuujin", "seal", "actor", "Shiki Fūjin; Clip mit Hiruzen als Anwender."],
   ] },
   "shippuden|Itachi Uchiha (Mangekyō Sharingan)": { desc: "Akatsuki, Kampf gegen Sasuke.", moves: [
-    ["itachi-tsukuyomi", "illusion", "ok", "Tsukuyomi."],
-    ["itachi-amaterasu", "aoe", "ok", "Amaterasu: die schwarze Flamme entsteht am Blickpunkt; Kamera setzt auf das Ziel."],
-    ["itachi-totsuka", "seal", "ok", "Susanoo mit Totsuka."],
-    [null, "defense", "new", "Yata no Kagami."],
+    ["itachi-tsukuyomi", "illusion", "ok", "Narutopedia: Blickkontakt, mit beiden Augen möglich; Zeitwahrnehmung unter seiner Kontrolle; normales Lösen wirkt nicht (im Spiel kein Kai). Mit Itachis eigener Figur.", { noKai: true }],
+    ["itachi-amaterasu", "aoe", "ok", "Narutopedia: Amaterasu aus Itachis rechtem Auge, Flamme am Blickpunkt, er kann sie löschen. Mit Itachis eigener Figur, Effekte am echten Auge."],
+    ["itachi-totsuka", "seal", "ok", "Narutopedia (Kap. 392/393): Klinge aus der Flüssigkeit des Sake-Krugs, Krug in einer zweiten Hand am rechten Unterarm, Getroffener wird in den Krug versiegelt. Itachi in seinem Susanoo (Modell 1,5-fach)."],
+    ["itachi-yata-mirror", "defense", "ok", "Narutopedia (Yata Mirror, Debüt Kap. 392): Schild in der linken Susanoo-Hand, wechselt seine Natur und hebt jeden Angriff auf. Farben der Gegen-Natur (Wasser gegen Feuer, Wind gegen Blitz) sind eine Spiel-Darstellung."],
   ] },
   "shippuden|Obito Uchiha (Tobi / Orange Mask)": { desc: "Tobi mit oranger Maske.", moves: [
     ["obito-kamui-surinuke", "intangible", "ok", "Kamui-Durchdringung."],

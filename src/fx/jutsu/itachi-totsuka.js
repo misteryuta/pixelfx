@@ -14,6 +14,7 @@ import { play, bodyAt, impactFrame } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { drawSusanoo, susanooPuppet, rigOf, keyTrack, SUSANOO } from "./_susanoo.js";
 import { modelPoint } from "./_models.js";
+import { drawItachi } from "./_itachi.js";
 
 const EYE = 0.05, OPEN = 0.6, RIBS = OPEN + 0.05, BONES = RIBS + 0.32, FLESH = BONES + 0.38, ARMOUR = FLESH + 0.6, READYT = ARMOUR + 0.5;
 const REACH = READYT + 0.25, DRAWN = REACH + 0.35, WIND = DRAWN + 0.45, SWING = WIND + 0.1, HIT = SWING + 0.08, FOLLOW = HIT + 0.16, SETTLE = FOLLOW + 0.25;
@@ -82,6 +83,11 @@ export const meta = {
 };
 
 const CALM = { ...READY, crouch: 2, lean: -1, fx: 4, fy: -17, bx: -2, by: -17, ffx: 6, fbx: -6 };
+// 2026-11-25: Itachi himself (the user's turnaround, _itachi.js) inside the Susanoo instead of the stock figure.
+// Narutopedia (Sword of Totsuka; Yata Mirror; debut ch. 392): the blade is the liquid of the sake jar shaped into a
+// sword, the jar held by a second hand growing from the right forearm, the blade in the foremost right hand; whoever it
+// pierces is drawn into the jar and sealed in a genjutsu world of drunken dreams. The mirror is in the left hand.
+export const actorAlpha = () => 0;
 export const act = {
   target: { x: TX },
   poses: [
@@ -181,10 +187,12 @@ export const create = play([], (o) => {
       ps.draw(p, "back");
     },
     draw(p, t) {
-      const b = bodyAt(act.poses, t), Rg = rigAt(t), st = stageAt(t);
+      const Rg = rigAt(t), st = stageAt(t);
+      // Itachi at the Susanoo's heart, then its front layer over him
+      const I = drawItachi(p, t, act.poses), eye = [Math.round(I.eye[0]), Math.round(I.eye[1])];
       drawSusanoo(p, t, Rg, { kind: "itachi", st, layer: "front" });
-      drawBadge(p, t, { kind: "itachi", t0: EYE, t1: OPEN, label: "MANGEKYOU", head: b.head });
-      drawGlint(p, t, "itachi", OPEN + 0.05, END - 0.3, b.head);
+      drawBadge(p, t, { kind: "itachi", t0: EYE, t1: OPEN, label: "MANGEKYOU", head: [I.crown[0] + 2, I.crown[1] + 18] });
+      drawGlint(p, t, "itachi", OPEN + 0.05, END - 0.3, [eye[0] - 2, eye[1] + 0.5]);
       const L = bladeLen(t);
       if (L > 1) {
         // the smear: where the blade was over the last few hundredths of a second, sampled from the swing itself

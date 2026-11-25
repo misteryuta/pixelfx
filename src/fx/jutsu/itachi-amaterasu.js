@@ -7,10 +7,14 @@
 // with a crimson rim, creeps out over the ground and scorches it black; the target chars, sags and crumbles into a
 // heap of ash; the flames burn on over the ash, then die down to smouldering patches.
 // The camera: in on him; the eye insert; a cut to the target as it catches, close; pulling slowly out as it burns.
+// 2026-11-25: Itachi himself (the user's turnaround, _itachi.js) instead of the stock figure. Narutopedia (Itachi
+// Uchiha, Mangekyou): Amaterasu comes from his RIGHT eye, the one facing the camera when he faces right; his Mangekyou
+// is three spiralling curves round the pupil; he can put the flames out at will. Effects hang on his real eye.
 import { Particles, P, Rng, READY, clamp, smooth, ease, hex, rand, noise2, mix, WHITE } from "../../core/index.js";
 import { play, bodyAt, drawBlackFlame, BLACK_FIRE, veil } from "./_lib.js";
 import { drawBadge, drawGlint } from "./_badge.js";
 import { cineCam, inserts, insertKeys, backdrop, eyeShot } from "./_cinema.js";
+import { drawItachi, itachiAt } from "./_itachi.js";
 
 const EYE = 0.05, OPEN = 0.6, LOOK = OPEN + 0.25, INS = LOOK + 0.12, IGNITE = INS + 0.5, FULL = IGNITE + 0.6, ASH = IGNITE + 2.0, END = ASH + 1.4, TX = 150;
 const F = BLACK_FIRE, ASHC = ["#2a2426", "#4a4244", "#7a7072"].map(hex), BLOOD = hex("#a01020");
@@ -33,6 +37,8 @@ export const meta = {
 };
 
 const CALM = { ...READY, crouch: 1, lean: -1, fx: 4, fy: -17, bx: -2, by: -17, ffx: 5, fbx: -5 };
+// the stock figure is hidden; Itachi is drawn in its place (draw)
+export const actorAlpha = () => 0;
 export const act = {
   target: { x: TX },
   poses: [
@@ -67,8 +73,8 @@ const INSL = [[INS, IGNITE - 0.02, (p, u, t, box) => {
   p.circle(86, -24, 2.6, BLOOD); p.beam(86, -24, 87, -24 + L, 3, BLOOD); p.circle(87, -24 + L, 2.2, BLOOD);
 }]];
 export const camera = cineCam([
-  [0, { z: 1.6, x: 10, y: -32 }],
-  [LOOK, { z: 2.4, x: 4, y: -34, r: -2 }],
+  [0, { z: 1.6, x: 10, y: -44 }],
+  [LOOK, { z: 2.6, x: 10, y: -54, r: -2 }],
   ...insertKeys(INSL),
   [IGNITE, { z: 2.0, x: TX, y: -34, r: 3, shake: 0.5 }, "cut"],
   [FULL, { z: 1.7, x: TX - 10, y: -38, r: 1, shake: 0.1 }],
@@ -96,11 +102,11 @@ export const create = play([], (o) => {
       ps.draw(p, "back");
     },
     draw(p, t) {
-      const b = bodyAt(act.poses, t);
-      drawBadge(p, t, { kind: "itachi", t0: EYE, t1: OPEN, label: "MANGEKYOU", head: b.head });
-      drawGlint(p, t, "itachi", OPEN + 0.05, END, b.head);
-      // his eye bleeds once the flames are called
-      if (t > INS) p.line(b.head[0] + 2, b.head[1] + 0.5, b.head[0] + 2, b.head[1] + 0.5 + Math.min(5, (t - INS) * 8), BLOOD);
+      const I = drawItachi(p, t, act.poses), eye = [Math.round(I.eye[0]), Math.round(I.eye[1])];
+      drawBadge(p, t, { kind: "itachi", t0: EYE, t1: OPEN, label: "MANGEKYOU", head: [I.crown[0] + 2, I.crown[1] + 18] });
+      drawGlint(p, t, "itachi", OPEN + 0.05, END, [eye[0] - 2, eye[1] + 0.5]);
+      // his right eye bleeds once the flames are called, a line down the cheek under it
+      if (t > INS) p.line(eye[0], eye[1] + 1, eye[0], eye[1] + 1 + Math.min(7, (t - INS) * 10), BLOOD);
       // the red frame: an instant of ink on blood over everything, a red pulse dying away
       if (t >= IGNITE && t < IGNITE + 0.05) { p.rect(BOX[0], BOX[1], BOX[2] - BOX[0], BOX[3] - BOX[1], hex("#6a0610")); }
       else if (t >= IGNITE && t < IGNITE + 0.5) veil(p, BOX[0], BOX[1], BOX[2] - BOX[0], 34, hex("#8a0a18"), 0.5 * (1 - smooth(IGNITE + 0.05, IGNITE + 0.5, t)));
@@ -132,4 +138,4 @@ export const create = play([], (o) => {
     },
   };
 });
-void mix; void WHITE;
+void mix; void WHITE; void itachiAt; void bodyAt;
