@@ -44,12 +44,12 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Dynamic Entry | `taijutsu-dynamic-entry` | nur verwandter Clip | Dynamic Entry. Der vorhandene Clip ist ein generischer Taijutsu-Austausch. |
 |  |  |  |  | 3 | Strong Fist Hurricane | – | fehlt | 'Strong Fist Hurricane': Übersetzung uneindeutig (Konoha Gōriki Senpū). |
 | Zabuza Momochi (Demon of the Hidden Mist) | 85 | Epic | Konoha Jōnin | 1 | Hidden Mist Jutsu | `zabuza-silent-kill` | umgesetzt | Kirigakure no Jutsu mit Muon Satsujin. Spielzustand: Ziel verliert ihn aus dem Blick. |
-|  |  |  |  | 2 | Water Prison Jutsu | `zabuza-suirou` (überarbeitet, Upload offen) | umgesetzt | Suirō no Jutsu gegen Kakashi: Hand bleibt im Wasser. |
+|  |  |  |  | 2 | Water Prison Jutsu | `zabuza-suirou` | umgesetzt | Suirō no Jutsu gegen Kakashi: Hand bleibt im Wasser. |
 |  |  |  |  | 3 | Water Style: Water Dragon Jutsu | `water-dragon` | Clip da, Anwender offen | Suiryūdan; Clip mit Standard-Anwender. |
 | Kimimaro (Cursed Seal Stage 2) | 84 | Epic | Sand & Sound | 1 | Dance of the Seedling Fern (Bracken Dance) | `kimimaro-sawarabi` | umgesetzt | Sawarabi no Mai. |
 |  |  |  |  | 2 | Dance of the Clematis: Flower | `kimimaro-tessenka` | umgesetzt | Tessenka no Mai: Hana. |
 |  |  |  |  | 3 | Dance of the Larch | – | fehlt | Karamatsu no Mai. |
-| Gaara (Chūnin Exams / Shukaku) | 83 | Epic | Sand & Sound | 1 | Sand Coffin & Sand Burial | `gaara-sabaku-sousou` (überarbeitet, Upload offen) | umgesetzt | Sabaku Kyū + Sabaku Sōsō: ein Move, zwei Phasen. |
+| Gaara (Chūnin Exams / Shukaku) | 83 | Epic | Sand & Sound | 1 | Sand Coffin & Sand Burial | `gaara-sabaku-sousou` | umgesetzt | Sabaku Kyū + Sabaku Sōsō: ein Move, zwei Phasen. |
 |  |  |  |  | 2 | Playing Possum (Mini-Shukaku) | – | fehlt | Tanuki Neiri: Gaara schläft, Shukaku übernimmt. 'Mini-Shukaku' = Teilverwandlung. |
 |  |  |  |  | 3 | Sand Shield | `gaara-suna-no-tate` | umgesetzt | Suna no Tate (automatisch). |
 | Naruto Uzumaki (Final Valley) | 84 | Epic | Exam Prodigies | 1 | One-Tailed Vermilion Rasengan | – | fehlt | Rasengan im Ein-Schweif-Mantel gegen Sasuke. |
@@ -99,7 +99,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 3 | Susanoo: Totsuka Blade | `itachi-totsuka` | umgesetzt | Susanoo mit Totsuka. |
 |  |  |  |  | 4 | Yata Mirror Defense | – | fehlt | Yata no Kagami. |
 | Obito Uchiha (Tobi / Orange Mask) | 96 | Legendary | Uchiha Clan | 1 | Kamui Intangibility | `obito-kamui-surinuke` | umgesetzt | Kamui-Durchdringung. |
-|  |  |  |  | 2 | Kamui Warp | `obito-kamui-warp` (gebaut, Upload offen) | umgesetzt | Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung. |
+|  |  |  |  | 2 | Kamui Warp | `obito-kamui-warp` | umgesetzt | Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung. |
 |  |  |  |  | 3 | Wood Style: Cutting Sprigs | – | fehlt | Zeitkonflikt: Mokuton von Tobi erst gegen Konan und im Krieg. |
 |  |  |  |  | 4 | Fire Style: Bomb Blast Dance | – | fehlt | 'Fire Style: Bomb Blast Dance' ist nicht eindeutig belegt. |
 | Naruto Uzumaki (Sage Mode) | 95 | Legendary | Jinchūriki | 1 | Wind Style: Rasenshuriken | `naruto-rasenshuriken` | umgesetzt | Senpō: Fūton Rasenshuriken. |
@@ -111,7 +111,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 3 | Acrobat (Seven Swords Dance) | `killerbee-nanatou` | umgesetzt | Nanatō. |
 |  |  |  |  | 4 | Ink Clone Sealing | – | fehlt | Tintenkrake als Ersatzkörper. |
 | Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 93 | Legendary | Uchiha Clan | 1 | Susanoo Arrow | `sasuke-susanoo-arrow` | Clip da, Anwender offen | Susanoo-Pfeil; der Clip zeigt das Ewige Mangekyō, am Gipfel hat Sasuke das Mangekyō. |
-|  |  |  |  | 2 | Inferno Style: Flame Control | `sasuke-enton-kagutsuchi-summit` (gebaut, Upload offen) | umgesetzt | Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464). |
+|  |  |  |  | 2 | Inferno Style: Flame Control | `sasuke-enton-kagutsuchi-summit` | umgesetzt | Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464). |
 |  |  |  |  | 3 | Kirin | `sasuke-kirin` | umgesetzt | Kirin gegen Itachi. |
 |  |  |  |  | 4 | Amaterasu | – | fehlt | Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite). |
 | Ōnoki (Third Tsuchikage) | 92 | Legendary | Five Kage | 1 | Particle Style: Atomic Dismantling Jutsu | `onoki-jinton` | umgesetzt | Jinton. |
@@ -148,7 +148,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Shisui Uchiha (Body Flicker — Flashback) | 89 | Epic | Uchiha Clan | 1 | Kotoamatsukami | `shisui-kotoamatsukami` | umgesetzt | Kotoamatsukami. Spielzustand: Ziel greift nicht an. |
 |  |  |  |  | 2 | Body Flicker Afterimage Clones | `shisui-shunshin` | umgesetzt | Shunshin no Shisui. |
 |  |  |  |  | 3 | Fire Style: Great Fireball | `fire-great-fireball` | Clip da, Anwender offen | Gōkakyū; Clip mit Standard-Anwender. |
-| Kakashi Hatake (Mangekyō Sharingan) | 88 | Epic | Konoha Shinobi | 1 | Kamui Snipe | `kakashi-kamui` (überarbeitet, Upload offen) | umgesetzt | Kamui-Fernangriff. |
+| Kakashi Hatake (Mangekyō Sharingan) | 88 | Epic | Konoha Shinobi | 1 | Kamui Snipe | `kakashi-kamui` | umgesetzt | Kamui-Fernangriff. |
 |  |  |  |  | 2 | Lightning Blade (Raikiri) | `kakashi-raikiri` | umgesetzt | Raikiri. |
 |  |  |  |  | 3 | Lightning Beast Tracking Fang | `kakashi-raijuu-tsuiga` | umgesetzt | Raijū Tsuiga am Kage-Gipfel. |
 | Mei Terumī (Fifth Mizukage) | 88 | Epic | Five Kage | 1 | Boil Release: Skilled Mist | `mei-futton` | umgesetzt | Futton: Kōmu no Jutsu. |
@@ -196,7 +196,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Wood Locking Wall | – | fehlt | Mokujōheki. |
 | Neji Hyūga (Jōnin) | 76 | Common | Konoha Shinobi | 1 | Eight Trigrams Sixty-Four Palms | `neji-64-palms` | umgesetzt | Hakke Rokujūyon Shō. |
 | Asuma Sarutobi (Jōnin) | 76 | Common | Konoha Shinobi | 1 | Fire Style: Burning Ash | `asuma-hien` | nur verwandter Clip | Clip kombiniert Hien und Haisekishō; der Slot ist nur Haisekishō. |
-| Shikamaru Nara (Jōnin) | 75 | Common | Konoha Shinobi | 1 | Shadow Stitching Jutsu | `shikamaru-kage-nui` (gebaut, Upload offen) | umgesetzt | Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane. |
+| Shikamaru Nara (Jōnin) | 75 | Common | Konoha Shinobi | 1 | Shadow Stitching Jutsu | `shikamaru-kage-nui` | umgesetzt | Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane. |
 | Temari (Wind Scythe / Jōnin) | 75 | Common | Konoha Shinobi | 1 | Wind Style: Great Cast Net | – | fehlt | 'Great Cast Net': Übersetzung uneindeutig. |
 | Kurenai Yūhi (Genjutsu Master — Jōnin) | 74 | Common | Konoha Shinobi | 1 | Demonic Illusion: Tree Binding Death | `kurenai-jubaku-satsu` | umgesetzt | Magen: Jubaku Satsu. |
 | Kankurō (Kage Summit / Jōnin) | 74 | Common | Konoha Shinobi | 1 | Black Secret Technique: Machine One Shot | `kankuro-kuroari` | umgesetzt | Kuroari + Karasu. |

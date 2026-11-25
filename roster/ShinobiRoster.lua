@@ -55,7 +55,7 @@ V({ id = "classic/might-guy-jonin", era = "classic", cell = "Might Guy (Jōnin)"
 } })
 V({ id = "classic/zabuza-momochi-demon-of-the-hidden-mist", era = "classic", cell = "Zabuza Momochi (Demon of the Hidden Mist)", name = "Zabuza Momochi", form = "Demon of the Hidden Mist", ovr = 85, rarity = "Epic", faction = "Konoha Jōnin", factionTier = 4, desc = "Dämon von Kiri, Land der Wellen.", slots = {
 	{ slot = 1, name = "Hidden Mist Jutsu", clip = "zabuza-silent-kill", pending = nil, kind = "illusion", status = "ok", note = "Kirigakure no Jutsu mit Muon Satsujin. Spielzustand: Ziel verliert ihn aus dem Blick.", len = 5.3, main = 2.8, contacts = {2.8} },
-	{ slot = 2, name = "Water Prison Jutsu", clip = "zabuza-suirou", pending = nil, kind = "bind", status = "ok", note = "Suirō no Jutsu gegen Kakashi: Hand bleibt im Wasser.", len = 4.95, main = 1.25, contacts = {1.25, 3.5} },
+	{ slot = 2, name = "Water Prison Jutsu", clip = "zabuza-suirou", pending = nil, kind = "bind", status = "ok", note = "Suirō no Jutsu gegen Kakashi: Hand bleibt im Wasser.", len = 5.05, main = 1.25, contacts = {1.25, 3.5} },
 	{ slot = 3, name = "Water Style: Water Dragon Jutsu", clip = "water-dragon", pending = nil, kind = "projectile", status = "actor", note = "Suiryūdan; Clip mit Standard-Anwender.", len = 7.417, main = 3.667, contacts = {3.667, 4.167} },
 } })
 V({ id = "classic/kimimaro-cursed-seal-stage-2", era = "classic", cell = "Kimimaro (Cursed Seal Stage 2)", name = "Kimimaro", form = "Cursed Seal Stage 2", ovr = 84, rarity = "Epic", faction = "Sand & Sound", factionTier = 2, desc = "Sound Four-Bogen, Erdsiegel Stufe 2.", slots = {
@@ -149,7 +149,7 @@ V({ id = "shippuden/itachi-uchiha-mangekyo-sharingan", era = "shippuden", cell =
 } })
 V({ id = "shippuden/obito-uchiha-tobi-orange-mask", era = "shippuden", cell = "Obito Uchiha (Tobi / Orange Mask)", name = "Obito Uchiha", form = "Tobi / Orange Mask", ovr = 96, rarity = "Legendary", faction = "Uchiha Clan", factionTier = 6, desc = "Tobi mit oranger Maske.", slots = {
 	{ slot = 1, name = "Kamui Intangibility", clip = "obito-kamui-surinuke", pending = nil, kind = "intangible", status = "ok", note = "Kamui-Durchdringung.", len = 5.75, main = 4.25, contacts = {1, 4.25} },
-	{ slot = 2, name = "Kamui Warp", clip = nil, pending = "obito-kamui-warp", kind = "teleport", status = "ok", note = "Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung.", len = 4.25, main = 2.85, contacts = {2.5, 2.85} },
+	{ slot = 2, name = "Kamui Warp", clip = "obito-kamui-warp", pending = nil, kind = "teleport", status = "ok", note = "Körper wird in die Augenöffnung der Maske gesogen, Austritt hinter dem Ziel. Eigener Ablauf, getrennt von der Durchdringung.", len = 4.6, main = 2.85, contacts = {2.5, 2.85} },
 	{ slot = 3, name = "Wood Style: Cutting Sprigs", clip = nil, pending = nil, kind = "bind", status = "new", note = "Zeitkonflikt: Mokuton von Tobi erst gegen Konan und im Krieg.", len = nil, main = nil, contacts = {} },
 	{ slot = 4, name = "Fire Style: Bomb Blast Dance", clip = nil, pending = nil, kind = "aoe", status = "new", note = "'Fire Style: Bomb Blast Dance' ist nicht eindeutig belegt.", len = nil, main = nil, contacts = {} },
 } })
@@ -167,7 +167,7 @@ V({ id = "shippuden/killer-b-eight-tails-full-gyuki", era = "shippuden", cell = 
 } })
 V({ id = "shippuden/sasuke-uchiha-mangekyo-sharingan-kage-summit", era = "shippuden", cell = "Sasuke Uchiha (Mangekyō Sharingan — Kage Summit)", name = "Sasuke Uchiha", form = "Mangekyō Sharingan — Kage Summit", ovr = 93, rarity = "Legendary", faction = "Uchiha Clan", factionTier = 6, desc = "Mangekyō, Kage-Gipfel.", slots = {
 	{ slot = 1, name = "Susanoo Arrow", clip = "sasuke-susanoo-arrow", pending = nil, kind = "projectile", status = "actor", note = "Susanoo-Pfeil; der Clip zeigt das Ewige Mangekyō, am Gipfel hat Sasuke das Mangekyō.", len = 6.8, main = 4.25, contacts = {4.25} },
-	{ slot = 2, name = "Inferno Style: Flame Control", clip = nil, pending = "sasuke-enton-kagutsuchi-summit", kind = "barrier", status = "ok", note = "Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464).", len = 5.05, main = 2.9, contacts = {2.05, 2.9, 3.95} },
+	{ slot = 2, name = "Inferno Style: Flame Control", clip = "sasuke-enton-kagutsuchi-summit", pending = nil, kind = "barrier", status = "ok", note = "Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464).", len = 5.45, main = 2.9, contacts = {2.05, 2.9, 3.95} },
 	{ slot = 3, name = "Kirin", clip = "sasuke-kirin", pending = nil, kind = "aoe", status = "ok", note = "Kirin gegen Itachi.", len = 6.5, main = 3.3, contacts = {3.3, 3.9} },
 	{ slot = 4, name = "Amaterasu", clip = nil, pending = nil, kind = "aoe", status = "new", note = "Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite).", len = nil, main = nil, contacts = {} },
 } })
@@ -316,7 +316,7 @@ V({ id = "shippuden/asuma-sarutobi-jonin", era = "shippuden", cell = "Asuma Saru
 	{ slot = 1, name = "Fire Style: Burning Ash", clip = "asuma-hien", pending = nil, kind = "aoe", status = "partial", note = "Clip kombiniert Hien und Haisekishō; der Slot ist nur Haisekishō.", len = 5.55, main = 3.15, contacts = {1.5, 3.15} },
 } })
 V({ id = "shippuden/shikamaru-nara-jonin", era = "shippuden", cell = "Shikamaru Nara (Jōnin)", name = "Shikamaru Nara", form = "Jōnin", ovr = 75, rarity = "Common", faction = "Konoha Shinobi", factionTier = 1, desc = "Team 10. Abweichung: vor dem Krieg ist Shikamaru Chūnin.", slots = {
-	{ slot = 1, name = "Shadow Stitching Jutsu", clip = nil, pending = "shikamaru-kage-nui", kind = "bind", status = "ok", note = "Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane.", len = 5.25, main = 2.5, contacts = {2.5, 2.95, 4.3} },
+	{ slot = 1, name = "Shadow Stitching Jutsu", clip = "shikamaru-kage-nui", pending = nil, kind = "bind", status = "ok", note = "Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane.", len = 5.7, main = 2.5, contacts = {2.5, 2.95, 4.3} },
 } })
 V({ id = "shippuden/temari-wind-scythe-jonin", era = "shippuden", cell = "Temari (Wind Scythe / Jōnin)", name = "Temari", form = "Wind Scythe / Jōnin", ovr = 75, rarity = "Common", faction = "Konoha Shinobi", factionTier = 1, desc = "Suna.", slots = {
 	{ slot = 1, name = "Wind Style: Great Cast Net", clip = nil, pending = nil, kind = "aoe", status = "new", note = "'Great Cast Net': Übersetzung uneindeutig.", len = nil, main = nil, contacts = {} },
