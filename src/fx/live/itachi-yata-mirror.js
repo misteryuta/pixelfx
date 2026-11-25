@@ -44,7 +44,7 @@ export const live = {
   },
   spawns: [],
   // the guard: the server holds a shield on him from UP to HOLD
-  hits: [{ t: UP, shape: "self", state: "shield", until: HOLD, full: true }],
+  hits: [{ t: UP, shape: "self", state: "shield", until: HOLD, full: true, reach: 54 }],
   // played at runtime on a blocked hit, at the mirror face, tinted by the answering nature
   onBlock: { fx: "ripple", at: "mirror" },
   sfx: [[FORMED, "cast"], [UP, "block"]],

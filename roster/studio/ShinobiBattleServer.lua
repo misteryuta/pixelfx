@@ -251,7 +251,8 @@ local function castLive(b, a, d, slot, s, L)
 					last = now()
 					px += face * h.vx * dt
 					local ahead = (d.x - px) * face
-					if has(d, "shield") and ahead <= 26 then
+					-- the guard stops it where its face is (a held mirror reaches out in front of him)
+					if has(d, "shield") and ahead <= (d.st.shield.reach or 26) then
 						local res, dealt = hurt(b, a, d, dmgOf(h))
 						send(b, { type = "projEnd", by = by, name = h.name, result = res, dmg = math.floor(dealt + 0.5), x = px, seq = seq })
 						ko(b)
@@ -266,7 +267,7 @@ local function castLive(b, a, d, slot, s, L)
 				if battles[b.player] == b then send(b, { type = "projEnd", by = by, name = h.name, result = "expired", x = px, seq = seq }) end
 			end)
 		elseif h.shape == "self" then
-			setState(a, h.state, (h["until"] or L.len) - h.t + 0.1, { full = h.full == true or nil })
+			setState(a, h.state, (h["until"] or L.len) - h.t + 0.1, { full = h.full == true or nil, reach = h.reach })
 			send(b, { type = "liveState", by = by, state = h.state, seq = seq })
 		end
 	end

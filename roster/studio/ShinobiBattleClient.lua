@@ -369,9 +369,17 @@ function Battle.mount(stage, deps)
 		books, projs = {}, {}
 	end
 	local function stepLive(dt)
+		-- test only: FreezeAll stops every live thing where it is (layers, flipbooks, projectiles), for frame checks
+		if holder:GetAttribute("FreezeAll") then
+			for _, L in pairs(lives) do if L.t0 then L.t0 += dt end end
+			return
+		end
 		for seq, L in pairs(lives) do
 			if L.t0 then
 				local age = os.clock() - L.t0
+				-- test only: the attribute LiveFreeze (seconds) holds every live layer on that moment, for frame checks
+				local fz = holder:GetAttribute("LiveFreeze")
+				if typeof(fz) == "number" then age = math.min(age, fz) end
 				local fr = math.min(L.def.actor.frames, math.floor(age * L.def.fps) + 1)
 				placeBook(L.img, L.def.actor, fr, L.x0, 0, L.face)
 				for i, e in ipairs(L.def.sfx) do if not L.sfx[i] and age >= e[1] then L.sfx[i] = true; deps.playSfx(e[2]) end end
@@ -470,7 +478,12 @@ function Battle.mount(stage, deps)
 		elseif ev.type == "proj" then
 			local L = lives[ev.seq]
 			local def = L and L.def
-			if def and def.fx[ev.name] then projs[ev.seq] = { img = bookImg(28), book = def.fx[ev.name], x = ev.x, y = ev.y, vx = ev.vx, t = 0, def = def, id = L.id } end
+			if def and def.fx[ev.name] then
+				local p = { img = bookImg(28), book = def.fx[ev.name], x = ev.x, y = ev.y, vx = ev.vx, t = 0, def = def, id = L.id }
+				projs[ev.seq] = p
+				-- placed at once: it is free of the string on this very frame
+				placeBook(p.img, p.book, 1, p.x, p.y, p.vx >= 0 and 1 or -1)
+			end
 		elseif ev.type == "projEnd" then
 			local p = projs[ev.seq]
 			local tgt = ev.by == "me" and "foe" or "me"

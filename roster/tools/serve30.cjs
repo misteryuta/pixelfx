@@ -1,0 +1,2 @@
+const http = require("http"), fs = require("fs"), path = require("path"), D = "C:/Users/yanni/Downloads/BuildAShinobi_JutsuModels/pixelfx/records/upload30";
+http.createServer((q, r) => { const f = path.join(D, decodeURIComponent(q.url.slice(1))); if (!fs.existsSync(f)) { r.writeHead(404); return r.end(); } r.writeHead(200, { "Content-Type": "image/png" }); fs.createReadStream(f).pipe(r); }).listen(8765, () => console.log("up"));
