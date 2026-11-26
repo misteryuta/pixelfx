@@ -194,9 +194,15 @@ function T.mount(ctx)
 		table.insert(targets, t)
 		return t
 	end
-	addTarget(30, 0)
-	addTarget(52, 7)
 	addTarget(96, 0, true)
+	-- the straw targets themselves belong to the arena (server-side, PixelArena): the same dummies the summons hit
+	local actx = nil
+	local function each()
+		local list = {}
+		if actx and actx.arenaTargets then for _, t in ipairs(actx.arenaTargets()) do table.insert(list, t) end end
+		for _, t in ipairs(targets) do table.insert(list, t) end
+		return list
+	end
 
 	-- a word over a target (or over the player) for a moment
 	local function pop(x, z, text, color)
@@ -234,7 +240,7 @@ function T.mount(ctx)
 	end
 	local function hitBox(c, h)
 		local best, contact = nil, nil
-		for _, t in ipairs(targets) do
+		for _, t in ipairs(each()) do
 			local rel = (t.p.X - c.x0) * c.face
 			if rel >= h.x0 * SPP and rel <= h.x1 * SPP and math.abs(t.p.Y - c.z) < 9 then best = t; break end
 		end
@@ -258,7 +264,7 @@ function T.mount(ctx)
 				local dt = os.clock() - last
 				last = os.clock()
 				wx += c.face * h.vx * SPP * dt
-				for _, t in ipairs(targets) do
+				for _, t in ipairs(each()) do
 					if not done[t] and math.abs(t.p.Y - c.z) < 6 and math.abs(wx - t.p.X) < h.w * SPP then done[t] = true; struck(t, 9) end
 				end
 			end
@@ -352,7 +358,7 @@ function T.mount(ctx)
 			P.t += dt
 			P.x += P.vx * dt
 			local hit = nil
-			for _, t in ipairs(targets) do if math.abs(t.p.Y - P.c.z) < 5 and (t.p.X - P.x) * (P.vx >= 0 and 1 or -1) <= 0.6 and (t.p.X - (P.x - P.vx * dt)) * (P.vx >= 0 and 1 or -1) > -0.6 then hit = t end end
+			for _, t in ipairs(each()) do if math.abs(t.p.Y - P.c.z) < 5 and (t.p.X - P.x) * (P.vx >= 0 and 1 or -1) <= 0.6 and (t.p.X - (P.x - P.vx * dt)) * (P.vx >= 0 and 1 or -1) > -0.6 then hit = t end end
 			if hit or P.t > P.life then
 				kill(P.card)
 				table.remove(projs, i)
@@ -433,10 +439,25 @@ function T.mount(ctx)
 		end
 	end
 	table.insert(conns, RunService.Heartbeat:Connect(function(dt) if alive then step(dt) end end))
-	table.insert(conns, Input.InputBegan:Connect(function(input, processed)
-		if processed or Input:GetFocusedTextBox() then return end
-		for _, m in ipairs(MOVES) do if input.KeyCode == m.key then startCast(m) end end
-	end))
+	-- the live moves are started from a variant's slot (PixelArena's panel: keys 1-4 of the chosen variant)
+	local function liveCast(id)
+		for _, m in ipairs(MOVES) do if m.id == id then startCast(m); return true end end
+		return false
+	end
+	local arenaCleanup = nil
+	local ArenaModule = game:GetService("ReplicatedStorage"):FindFirstChild("PixelArena")
+	if ArenaModule then
+		actx = { folder = folder, origin = O, start = ctx.map.Start, pitch = Config.CAM_PITCH,
+			ground = function(m) return ctx.map.HeightAt(m.X, m.Y) end, pos = ctx.pos, facing = ctx.facing,
+			lock = ctx.lock, say = ctx.say, shake = ctx.shake, liveCast = liveCast, place = ctx.place }
+		local ok, err = pcall(function() arenaCleanup = require(ArenaModule).mount(actx) end)
+		if not ok then warn("PixelArena: " .. tostring(err)) end
+	else
+		table.insert(conns, Input.InputBegan:Connect(function(input, processed)
+			if processed or Input:GetFocusedTextBox() then return end
+			for _, m in ipairs(MOVES) do if input.KeyCode == m.key then startCast(m) end end
+		end))
+	end
 
 	-- the key hint, bottom left
 	local hint = Instance.new("ScreenGui")
@@ -445,7 +466,7 @@ function T.mount(ctx)
 	box.Size, box.Position, box.AnchorPoint = UDim2.fromOffset(560, 64), UDim2.new(0, 16, 1, -96), Vector2.new(0, 1)
 	box.BackgroundColor3, box.BackgroundTransparency, box.BorderSizePixel = Color3.fromRGB(16, 18, 38), 0.15, 0
 	box.Font, box.TextSize, box.TextColor3, box.TextXAlignment = Enum.Font.Arcade, 18, Color3.fromRGB(240, 238, 228), Enum.TextXAlignment.Left
-	box.Text = "  TEST-FAEHIGKEITEN\n  1 PERFECT SUSANOO (MADARA)   2 SUSANOO-PFEIL (SASUKE)\n  3 YATA-SPIEGEL (ITACHI)  -  ZIELE RECHTS VOM START"
+	box.Text = ArenaModule and "  TRAINING: VARIANTE MIT [ ] WAEHLEN, SLOTS 1-4\n  R WIEDERH.  Q ABBRUCH  P PAUSE  T ZEITLUPE  F EINZELBILD\n  ZIELE RECHTS VOM START (SERVER)" or "  TEST-FAEHIGKEITEN\n  1 PERFECT SUSANOO (MADARA)   2 SUSANOO-PFEIL (SASUKE)\n  3 YATA-SPIEGEL (ITACHI)  -  ZIELE RECHTS VOM START"
 	box.Parent = hint
 	hint.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
@@ -460,6 +481,7 @@ function T.mount(ctx)
 		for _, q in ipairs(pops) do kill(q.card) end
 		for _, t in ipairs(targets) do kill(t.card); t.image:Destroy() end
 		hint:Destroy()
+		if arenaCleanup then pcall(arenaCleanup) end
 		ctx.hidePlayer(false)
 		ctx.lock(false)
 		if ctx.camera then ctx.camera(nil) end

@@ -4,9 +4,9 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
-| Naruto Classic | 26 | 65 | 27 | 6 | 1 | 31 |
-| Naruto Shippūden | 55 | 130 | 60 | 7 | 6 | 57 |
-| **Gesamt** | 81 | 195 | 87 | 13 | 7 | 88 |
+| Naruto Classic | 26 | 65 | 28 | 6 | 1 | 30 |
+| Naruto Shippūden | 55 | 130 | 52 | 6 | 9 | 62 |
+| **Gesamt** | 81 | 195 | 80 | 12 | 10 | 92 |
 
 ## Classic
 
@@ -15,7 +15,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Orochimaru (Legendary) | 94 | Legendary | Legends | 1 | Summoning: Impure World Reincarnation (Edo Tensei) | – | fehlt | Edo Tensei: im Konoha Crush ruft er die Ersten beiden Hokage. |
 |  |  |  |  | 2 | Sword of Kusanagi | `orochimaru-kusanagi` | umgesetzt | Klinge aus dem Schlangenmaul. |
 |  |  |  |  | 3 | Five Elements Seal | – | fehlt | Gogyō Fūin auf Narutos Siegel, Wald des Todes. |
-|  |  |  |  | 4 | Triple Rashōmon | – | fehlt | Rashōmon dreifach gegen Hiruzens Enma. |
+|  |  |  |  | 4 | Triple Rashōmon | – | fehlt | Rashōmon gegen Hiruzens Enma. Zeitkonflikt: das dreifache Rashōmon ist erst in Shippūden belegt (Manga 295); hier als Kuchiyose: Rashōmon gezeigt. |
 | Jiraiya (Legendary Sannin) | 93 | Legendary | Legends | 1 | Summoning: Toad Mouth Bind | – | fehlt | Gamaguchi Shibari: Magen einer Kröte, gegen Itachi und Kisame. |
 |  |  |  |  | 2 | Rasengan | – | fehlt | Jiraiyas eigenes Rasengan; der vorhandene Clip ist Narutos Version mit Schattendoppelgänger. |
 |  |  |  |  | 3 | Fire Style: Toad Oil Flame Bullet | `jiraiya-kuchiyose` | umgesetzt | Gamayu Endan mit Gamabunta gegen Orochimaru, Tanzaku. |
@@ -23,7 +23,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Tsunade (Fifth Hokage) | 93 | Legendary | Legends | 1 | Creation Rebirth | – | fehlt | Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto. |
 |  |  |  |  | 2 | Heaven Kick of Pain | `tsunade-tsuutenkyaku` | umgesetzt | Tsūtenkyaku, Fersenhieb aus der Höhe. |
 |  |  |  |  | 3 | Nervous System Rupture | `tsunade-ranshinshou` | umgesetzt | Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht. |
-|  |  |  |  | 4 | Summoning: Katsuyu | – | fehlt | Kuchiyose: Katsuyu (Tanzaku). |
+|  |  |  |  | 4 | Summoning: Katsuyu | – | fehlt | Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda). |
 | Hiruzen Sarutobi (Third Hokage) | 92 | Legendary | Legends | 1 | Reaper Death Seal | `hiruzen-shiki-fuujin` | umgesetzt | Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt. |
 |  |  |  |  | 2 | Monkey King Enma: Adamantine Staff | `hiruzen-enma` | umgesetzt | Enma als Kongōnyoi. |
 |  |  |  |  | 3 | Fire Style: Dragon Flame Bomb | `fire-karyuu-endan` | Clip da, Anwender offen | Katon: Karyū Endan; Clip mit Standard-Anwender. Hiruzen als Anwender: Anime-Konoha-Crush (zu belegen). |
@@ -38,7 +38,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 4 | Sword of the Thunder God | – | fehlt | Raijin no Ken: Anime (Kinkaku-Bogen-Rückblende), nicht im Konoha Crush. |
 | Kakashi Hatake (Team 7 Sensei) | 88 | Legendary | Konoha Jōnin | 1 | Lightning Blade (Raikiri) | `kakashi-raikiri` | umgesetzt | Raikiri gegen Haku/Zabuza. |
 |  |  |  |  | 2 | Sharingan Copy: Water Dragon | – | fehlt | Sharingan-Kopie von Zabuzas Suiryūdan, Spiegelduell. |
-|  |  |  |  | 3 | Summoning: Ninken Fanged Pursuit | – | fehlt | Doton: Tsuiga no Jutsu, Ninken halten Zabuza. |
+|  |  |  |  | 3 | Summoning: Ninken Fanged Pursuit | – | umgesetzt | Kuchiyose: Doton: Tsuiga no Jutsu (Manga 29 / Anime 17): acht Ninken spüren Zabuza unter der Erde auf, brechen gemeinsam heraus und halten ihn mit den Zähnen. Live-Beschwörung mit eigenem Rig (Seite/Front/Rücken). |
 |  |  |  |  | 4 | Hidden Mist Jutsu | – | fehlt | Kirigakure im Land der Wellen ist Zabuzas Technik; Kakashi als Anwender laut Datei (Sharingan-Kopie). |
 | Might Guy (Jōnin) | 86 | Epic | Konoha Jōnin | 1 | Sixth Gate: Gate of Joy | – | fehlt | Zeitkonflikt: das sechste Tor zeigt Guy erst in Shippūden. Darstellung auf die belegte Shippūden-Version begrenzt. |
 |  |  |  |  | 2 | Dynamic Entry | `taijutsu-dynamic-entry` | nur verwandter Clip | Dynamic Entry. Der vorhandene Clip ist ein generischer Taijutsu-Austausch. |
@@ -124,32 +124,32 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 4 | Body Flicker Blitz | – | fehlt | Shunshin mit Raiton-Panzer. |
 | Might Guy (Seventh Gate — Kisame Fight) | 91 | Legendary | Konoha Shinobi | 1 | Hirudora (Daytime Tiger) | `guy-hirudora` | umgesetzt | Zeitkonflikt: der Kisame-Kampf liegt nach dem Gipfel, vor dem Krieg. Slot bleibt laut Datei. |
 |  |  |  |  | 2 | Morning Peacock | `guy-asa-kujaku` | umgesetzt | Asa Kujaku, sechstes Tor. |
-|  |  |  |  | 3 | Seventh Gate: Gate of Wonder | – | fehlt | Kyōmon, siebtes Tor. |
-|  |  |  |  | 4 | Leaf Hurricane | `lee-konoha-senpuu` | Clip da, Anwender offen | Konoha Senpū; Clip mit Rock Lee. |
+|  |  |  |  | 3 | Dynamic Action | – | fehlt | Doppelung: das Öffnen eines Tores (Classic: sechstes Tor) ist derselbe Spielzustand; das siebte Tor bleibt sichtbarer Zustand der Variante (Hirudora öffnet es). Ersatz: Dynamic Action, Salto auf das Ziel und Schlag-Tritt-Serie, gegen Kisames Doppelgänger (Shippūden Folge 13). |
+|  |  |  |  | 4 | Leaf Rock-Destroying Rise | – | fehlt | Doppelung: Konoha Senpū ist dieselbe Drehtritt-Familie wie Classic 'Strong Fist Hurricane' (Konoha Gōriki Senpū). Ersatz: Konoha Saiha Shōfū, Ellbogenstoß mit Stützarm, zerbricht im Kisame-Kampf Yaguras Korallen. |
 | Jiraiya (Sage Mode) | 91 | Legendary | Five Kage | 1 | Sage Art: Bath of Boiling Oil | `jiraiya-goemon` | umgesetzt | Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt. |
 |  |  |  |  | 2 | Massive Rasengan | – | fehlt | Sennin-Ōdama Rasengan. |
 |  |  |  |  | 3 | Frog Song Genjutsu | `jiraiya-ult-gamarinshou` | umgesetzt | Magen: Gamarinshō. |
-|  |  |  |  | 4 | Toad Mouth Bind | – | fehlt | Gamaguchi Shibari. |
-| Hiruzen Sarutobi (Prime — Flashback) | 90 | Epic | Five Kage | 1 | Monkey King Enma: Adamantine Staff | `hiruzen-enma` | umgesetzt | Enma als Kongōnyoi. |
+|  |  |  |  | 4 | Barrier: Toad Gourd Prison | – | fehlt | Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain). |
+| Hiruzen Sarutobi (Prime — Flashback) | 90 | Epic | Five Kage | 1 | Monkey King Enma: Adamantine Prison Wall | – | fehlt | Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor. |
 |  |  |  |  | 2 | Five-Element Combo Blast | – | fehlt | 'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga. |
-|  |  |  |  | 3 | Shuriken Shadow Clone | – | fehlt | Shuriken Kage Bunshin. |
+|  |  |  |  | 3 | Earth Release: Earth-Style Wall | – | fehlt | Doppelung: Shuriken Kage Bunshin hat Hiruzen schon in Classic. Ersatz: Doton: Doryūheki, Erdwall aus dem Mund (Konoha Crush, Manga 120). |
 | Kisame Hoshigaki (Samehada Fusion) | 90 | Epic | Akatsuki | 1 | Water Prison Shark Dance | `kisame-shark-dance` | umgesetzt | Suirō Samehada. |
 |  |  |  |  | 2 | Super Shark Bomb | `kisame-daikoudan` | umgesetzt | Suiton: Daikōdan. |
 |  |  |  |  | 3 | Five Feeding Sharks | – | fehlt | Goshokuzame. |
-| Tsunade (Fifth Hokage) | 89 | Epic | Five Kage | 1 | Creation Rebirth | – | fehlt | Sōzō Saisei. |
-|  |  |  |  | 2 | Heaven Kick of Pain | `tsunade-tsuutenkyaku` | umgesetzt | Tsūtenkyaku. |
-|  |  |  |  | 3 | Katsuyu Acid Slime | – | fehlt | Katsuyus Säure (Zesshi Nensan). |
+| Tsunade (Fifth Hokage) | 89 | Epic | Five Kage | 1 | Katsuyu: Immense Network Healing | – | fehlt | Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha). |
+|  |  |  |  | 2 | Strength of a Hundred Technique | – | fehlt | Doppelung: Tsūtenkyaku hat Tsunade schon in Classic (Heavenly Spear Foot wäre derselbe Sturz-Tritt). Ersatz: Byakugō no Jutsu, die Zeichen breiten sich über den Körper, Dauer-Regeneration während des Kampfes (gegen Madara). |
+|  |  |  |  | 3 | Katsuyu Acid Slime | – | fehlt | Katsuyus Säure (Zesshi Nensan). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu). |
 | Orochimaru (Eight-Headed Serpent) | 89 | Epic | Serpents | 1 | Eight Branches Technique | `orochimaru-yamata` | umgesetzt | Yamata no Jutsu. |
-|  |  |  |  | 2 | Kusanagi Sword: Longsword of the Sky | `orochimaru-kusanagi` | umgesetzt | Kusanagi aus dem Mund. |
-|  |  |  |  | 3 | Rashōmon Triple Gate | – | fehlt | Rashōmon. |
+|  |  |  |  | 2 | Kusanagi Sword: Longsword of the Sky | `orochimaru-kusanagi` | nur verwandter Clip | Kein Doppel: Kū no Tachi (Manga 123) ist der aus dem Mund schnellende Langstoß; Classic 'Sword of Kusanagi' wird geführt. Braucht eigenen Clip, solange beide Slots denselben zeigen. |
+|  |  |  |  | 3 | Many Hidden Shadow Snake Hands | – | fehlt | Doppelung: Sanjū Rashōmon steht schon in Classic. Ersatz: Sen'ei Tajashu, viele Schlangen aus den Ärmeln binden das Ziel (Tenchi-Brücke). |
 | Gaara (Fifth Kazekage) | 89 | Epic | Five Kage | 1 | Sand Tsunami | – | fehlt | Ryūsa Bakuryū. |
 |  |  |  |  | 2 | Grand Sand Mausoleum Seal | `gaara-sabaku-taisou` | umgesetzt | Sabaku Taisō: begraben und verdichtet. |
-|  |  |  |  | 3 | Absolute Sand Shield | `gaara-suna-no-tate` | umgesetzt | Zettai Bōgyo. |
+|  |  |  |  | 3 | Absolute Sand Shield | `gaara-suna-no-tate` | nur verwandter Clip | Kein Doppel: Zettai Bōgyo: Shukaku no Tate ist der große Schild für ein Gebiet, Classic Suna no Tate der automatische Eigenschutz. Braucht eigenen Clip. |
 | Shisui Uchiha (Body Flicker — Flashback) | 89 | Epic | Uchiha Clan | 1 | Kotoamatsukami | `shisui-kotoamatsukami` | umgesetzt | Kotoamatsukami. Spielzustand: Ziel greift nicht an. |
 |  |  |  |  | 2 | Body Flicker Afterimage Clones | `shisui-shunshin` | umgesetzt | Shunshin no Shisui. |
 |  |  |  |  | 3 | Fire Style: Great Fireball | `fire-great-fireball` | Clip da, Anwender offen | Gōkakyū; Clip mit Standard-Anwender. |
 | Kakashi Hatake (Mangekyō Sharingan) | 88 | Epic | Konoha Shinobi | 1 | Kamui Snipe | `kakashi-kamui` | umgesetzt | Kamui-Fernangriff. |
-|  |  |  |  | 2 | Lightning Blade (Raikiri) | `kakashi-raikiri` | umgesetzt | Raikiri. |
+|  |  |  |  | 2 | Lightning Release: Shadow Clone | – | fehlt | Doppelung: Raikiri hat Kakashi schon in Classic. Ersatz: Raiton Kage Bunshin, ein Blitz-Doppelgänger lähmt das Ziel bei Berührung (gegen Pain). |
 |  |  |  |  | 3 | Lightning Beast Tracking Fang | `kakashi-raijuu-tsuiga` | umgesetzt | Raijū Tsuiga am Kage-Gipfel. |
 | Mei Terumī (Fifth Mizukage) | 88 | Epic | Five Kage | 1 | Boil Release: Skilled Mist | `mei-futton` | umgesetzt | Futton: Kōmu no Jutsu. |
 |  |  |  |  | 2 | Lava Release: Melting Apparition | `mei-yoton` | umgesetzt | Yōton: Yōkai no Jutsu. |
@@ -194,17 +194,17 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Sealing Technique: Tiger Vision Staring Bullet | – | fehlt | Tiger-Siegeltechnik; Anwender/Name nur im Anime (Füller). |
 | Yamato (Wood Style) | 78 | Rare | Konoha Shinobi | 1 | Wood Style: Four-Pillar Prison | `yamato-shichuukaku` | umgesetzt | Shichūrō. |
 |  |  |  |  | 2 | Wood Locking Wall | – | fehlt | Mokujōheki. |
-| Neji Hyūga (Jōnin) | 76 | Common | Konoha Shinobi | 1 | Eight Trigrams Sixty-Four Palms | `neji-64-palms` | umgesetzt | Hakke Rokujūyon Shō. |
+| Neji Hyūga (Jōnin) | 76 | Common | Konoha Shinobi | 1 | Eight Trigrams Vacuum Palm | `neji-kuushou` | nur verwandter Clip | Doppelung: Hakke Rokujūyon Shō bleibt in Classic. Ersatz: Hakke Kūshō, ein einzelner gerichteter Fernstoß. Der Clip hängt Hakke Hasangeki an; der Slot braucht den Einzelstoß. |
 | Asuma Sarutobi (Jōnin) | 76 | Common | Konoha Shinobi | 1 | Fire Style: Burning Ash | `asuma-hien` | nur verwandter Clip | Clip kombiniert Hien und Haisekishō; der Slot ist nur Haisekishō. |
 | Shikamaru Nara (Jōnin) | 75 | Common | Konoha Shinobi | 1 | Shadow Stitching Jutsu | `shikamaru-kage-nui` | umgesetzt | Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane. |
 | Temari (Wind Scythe / Jōnin) | 75 | Common | Konoha Shinobi | 1 | Wind Style: Great Cast Net | – | fehlt | 'Great Cast Net': Übersetzung uneindeutig. |
-| Kurenai Yūhi (Genjutsu Master — Jōnin) | 74 | Common | Konoha Shinobi | 1 | Demonic Illusion: Tree Binding Death | `kurenai-jubaku-satsu` | umgesetzt | Magen: Jubaku Satsu. |
-| Kankurō (Kage Summit / Jōnin) | 74 | Common | Konoha Shinobi | 1 | Black Secret Technique: Machine One Shot | `kankuro-kuroari` | umgesetzt | Kuroari + Karasu. |
+| Kurenai Yūhi (Genjutsu Master — Jōnin) | 74 | Common | Konoha Shinobi | 1 | Demonic Illusion: Tree Binding Death | – | offen (kein belegter Ersatz) | Doppelung: Jubaku Satsu hat Kurenai schon in Classic. Kein Shippūden-Ersatz belegt: ihre übrigen Genjutsu (Jubaku Messatsu, Jubaku Satsu Bakuhatsu, Hanabira Nogare) sind Part-I-Anime, in Shippūden nur Psycho Mind Transmission und Sensorik. Slot offen. |
+| Kankurō (Kage Summit / Jōnin) | 74 | Common | Konoha Shinobi | 1 | Red Secret Technique: Machinery Triangles | – | fehlt | Doppelung: Kuroari + Karasu (Machine One Shot) hat Kankurō schon in Classic; Machine Triple Shot wäre nur ein zusätzlicher Treffer. Ersatz: Akahigi: Kiki Sankaku, die Sasori-Puppe wirft dreieckige Klingen mit Sprengkugeln aus Hals und Händen. |
 | Chōji Akimichi (Chūnin — Pre-War) | 73 | Common | Konoha Shinobi | 1 | Spiky Human Boulder | `chouji-nikudan-sensha` | nur verwandter Clip | Clip zeigt Nikudan Sensha ohne Stacheln (Nikudan Hari Sensha). |
 | Shizune (Medical Jōnin) | 73 | Common | Konoha Shinobi | 1 | Ninja Art: Poison Fog | – | fehlt | Dokugiri. |
 | Hinata Hyūga (Twin Lion Fists) | 72 | Common | Konoha Shinobi | 1 | Gentle Step Twin Lion Fists | `hinata-twin-lions` | umgesetzt | Jūho Sōshiken. |
 | Shino Aburame (Destruction Insects) | 72 | Common | Konoha Shinobi | 1 | Secret Technique: Insect Sphere | `shino-mushidama` | umgesetzt | Hijutsu: Mushidama. |
-| Kabuto Yakushi (Snake Cloak) | 71 | Common | Serpents | 1 | Chakra Scalpel | – | fehlt | Chakra no Mesu. |
+| Kabuto Yakushi (Snake Cloak) | 71 | Common | Serpents | 1 | Chakra Draining Seal | – | fehlt | Doppelung: Chakra no Mesu hat Kabuto schon in Classic. Ersatz: Chakra Kyūin Fūin, ein Siegel auf dem Ziel zieht dessen Chakra zum Anwender (gegen Anko). |
 | Anko Mitarashi (Special Jōnin) | 71 | Common | Serpents | 1 | Hidden Shadow Snake Hands | `orochimaru-senei-jashu` | Clip da, Anwender offen | Sen'eijashu; der Clip zeigt Orochimaru als Anwender. |
 | Sakura Haruno (Chūnin) | 70 | Common | Konoha Shinobi | 1 | Cherry Blossom Impact | `sakura-ouka-shouraiken` | umgesetzt | Ōka Shōraiken. |
 | Kiba & Akamaru (Chūnin) | 69 | Common | Konoha Shinobi | 1 | Two-Headed Wolf: Fang Passing Fang | `kiba-garouga` | umgesetzt | Garōga. |

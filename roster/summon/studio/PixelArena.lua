@@ -1,0 +1,557 @@
+-- ReplicatedStorage.PixelArena (2026-11-26): the client side of the summon moves on a 2.5D stage (Pixel BAS level 1,
+-- and the same module on vfx test's 2.5D training stage). It draws what the server's simulation decided
+-- (ReplicatedStorage.PixelArenaState: targets and casts as attributes) and sends the player's slot presses.
+-- No hit is decided here.
+--   mount(ctx) -> cleanup. ctx: folder, origin (Vector3 of map 0,0), start (Vector2: the stage's 0,0 in map coords),
+--   ground(Vector2 map) -> height, pitch (camera pitch, rad), pos() -> Vector2 map, facing() -> 0 down 1 up 2 left
+--   3 right, lock(bool), say(text|nil), shake(a, t), liveCast(liveId) -> bool (optional: the clip-free live moves)
+-- The animals: one card per dog; each frame the dog's heading on the floor picks the view (toward the camera =
+-- front, away = back, sideways = profile, mirrored for left) and the animation its phase.
+local RS = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local Input = game:GetService("UserInputService")
+local AssetService = game:GetService("AssetService")
+local EncodingService = game:GetService("EncodingService")
+local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
+
+local Defs = require(script:WaitForChild("Defs"))
+local Roster = require(script:WaitForChild("Roster"))
+local PACKS = script:WaitForChild("Packs")
+local A = {}
+
+local SPP = 10.7 / 72 -- studs per pixel: the sprites are drawn for 72 px fighters, ~10.7 studs on the stage
+local SFX = { cast = 9120972321, rumble = 9114502756, burst = 9113524242, bite = 9114457006, whoosh = 9120972444, poof = 9120972321, miss = 9120972444 }
+
+-- packs: "LIVE", u16 count, then per frame u16 x, y, w, h (in its cell) and the RGBA bytes
+local cache = {}
+local function loadPack(name)
+	if cache[name] then return cache[name] end
+	local folder = PACKS:FindFirstChild(name)
+	if not folder then return nil end
+	local parts, i = {}, 1
+	while folder:FindFirstChild(("P%03d"):format(i)) do parts[i] = folder[("P%03d"):format(i)].Value; i += 1 end
+	local raw = EncodingService:DecompressBuffer(EncodingService:Base64Decode(buffer.fromstring(table.concat(parts))), Enum.CompressionAlgorithm.Zstd)
+	assert(buffer.readstring(raw, 0, 4) == "LIVE", "pack format")
+	local n, o, frames = buffer.readu16(raw, 4), 6, {}
+	for k = 1, n do
+		local x, y, w, h = buffer.readu16(raw, o), buffer.readu16(raw, o + 2), buffer.readu16(raw, o + 4), buffer.readu16(raw, o + 6)
+		o += 8
+		frames[k] = { x = x, y = y, w = w, h = h, off = o }
+		o += w * h * 4
+	end
+	cache[name] = { raw = raw, frames = frames, meta = Defs.books[name], name = name }
+	return cache[name]
+end
+A.loadPack = loadPack
+
+-- the straw dummy (drawn pixel by pixel; no upload)
+function A.dummyImage(thrower)
+	local W, H = 26, 54
+	local img = AssetService:CreateEditableImage({ Size = Vector2.new(W, H) })
+	local px = buffer.create(W * H * 4)
+	local function put(x, y, c)
+		if x < 0 or y < 0 or x >= W or y >= H then return end
+		local k = (y * W + x) * 4
+		buffer.writeu8(px, k, c[1]); buffer.writeu8(px, k + 1, c[2]); buffer.writeu8(px, k + 2, c[3]); buffer.writeu8(px, k + 3, 255)
+	end
+	local function rect(x0, y0, x1, y1, c) for y = y0, y1 do for x = x0, x1 do put(x, y, c) end end end
+	local wood, woodD, straw, strawD, sack, ink, red = { 128, 84, 48 }, { 84, 52, 30 }, { 222, 184, 96 }, { 168, 128, 58 }, { 210, 190, 150 }, { 30, 24, 28 }, { 200, 40, 40 }
+	rect(12, 30, 14, 53, wood); rect(14, 30, 14, 53, woodD)
+	rect(1, 22, 24, 25, wood); rect(1, 25, 24, 25, woodD)
+	rect(5, 16, 20, 40, straw); rect(5, 16, 6, 40, strawD); rect(19, 16, 20, 40, strawD)
+	for y = 18, 40, 3 do put(8, y, strawD); put(16, y + 1, strawD) end
+	for a = 0, 35 do local t = a / 36 * math.pi * 2; put(13 + math.round(math.cos(t) * 4), 28 + math.round(math.sin(t) * 4), red) end
+	put(13, 28, red)
+	rect(7, 2, 18, 15, sack); rect(7, 2, 8, 15, strawD)
+	for i = 0, 2 do put(9 + i, 6 + i, ink); put(11 - i, 6 + i, ink); put(14 + i, 6 + i, ink); put(16 - i, 6 + i, ink) end
+	rect(10, 12, 15, 12, ink)
+	if thrower then rect(5, 34, 20, 36, { 60, 90, 200 }); rect(22, 18, 25, 19, { 200, 205, 215 }) end
+	local out = buffer.create(W * H * 4)
+	buffer.copy(out, 0, px)
+	for y = 0, H - 1 do for x = 0, W - 1 do
+		local k = (y * W + x) * 4
+		if buffer.readu8(px, k + 3) == 0 then
+			for _, d in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+				local nx, ny = x + d[1], y + d[2]
+				if nx >= 0 and ny >= 0 and nx < W and ny < H and buffer.readu8(px, (ny * W + nx) * 4 + 3) > 0 then
+					buffer.writeu8(out, k, 18); buffer.writeu8(out, k + 1, 15); buffer.writeu8(out, k + 2, 28); buffer.writeu8(out, k + 3, 255)
+					break
+				end
+			end
+		end
+	end end
+	img:WritePixelsBuffer(Vector2.zero, Vector2.new(W, H), out)
+	return img, W, H
+end
+
+function A.mount(ctx)
+	local O, folder, START = ctx.origin, ctx.folder, ctx.start
+	local COS = math.cos(ctx.pitch)
+	local state = RS:WaitForChild("PixelArenaState", 10)
+	local remote = RS:WaitForChild("PixelArenaRemote", 10)
+	assert(state and remote, "PixelArenaServer is not running")
+	local conns, alive = {}, true
+	local player = Players.LocalPlayer
+
+	local function sfx(tag, vol)
+		local id = SFX[tag]
+		if not id then return end
+		local s = Instance.new("Sound")
+		s.SoundId = "rbxassetid://" .. id
+		s.Volume = vol or 0.5
+		s.Parent = SoundService
+		s:Play()
+		task.delay(2, function() s:Destroy() end)
+	end
+	local function toMap(x, z) return START + Vector2.new(x, z) end
+	local function groundAt(m) return ctx.ground(m) end
+
+	---------------------------------------------------------------- cards (camera-facing, feet at a floor point)
+	local function newCard(z)
+		local anchor = Instance.new("Part")
+		anchor.Anchored, anchor.CanCollide, anchor.CanQuery, anchor.CanTouch, anchor.CastShadow = true, false, false, false, false
+		anchor.Transparency, anchor.Size = 1, Vector3.one
+		anchor.Parent = folder
+		local bb = Instance.new("BillboardGui")
+		bb.Adornee, bb.LightInfluence, bb.MaxDistance = anchor, 0, 1e5
+		bb.Parent = anchor
+		local img = Instance.new("ImageLabel")
+		img.BackgroundTransparency, img.Size, img.ResampleMode = 1, UDim2.fromScale(1, 1), Enum.ResamplerMode.Pixelated
+		img.ZIndex = z or 1
+		img.Parent = bb
+		return { anchor = anchor, bb = bb, img = img }
+	end
+	-- depth: Roblox orders the cards by where their centre is, so a tall card (Bull) would come in front of a short one
+	-- standing nearer the camera. Each card is moved along the camera ray (same place on screen, size kept) so that
+	-- it sorts by its feet on the floor, as if its centre were at a fighter's mid height (like the player's sprite)
+	local SORT_H = 5.35
+	local function settle(card, feet, ox, oy, w, h, nudge)
+		local cam = workspace.CurrentCamera
+		local cp, look = cam.CFrame.Position, cam.CFrame.LookVector
+		local centre = feet + Vector3.new(ox, oy, 0)
+		local dc = (centre - cp):Dot(look)
+		local dk = (feet + Vector3.new(0, SORT_H, nudge or 0) - cp):Dot(look)
+		local k = (dc > 1 and dk > 1) and dk / dc or 1
+		card.anchor.Position = cp + (centre - cp) * k
+		card.bb.StudsOffsetWorldSpace = Vector3.zero
+		card.bb.Size = UDim2.fromScale(w * k, h * k)
+	end
+	local function kill(card)
+		if not card then return end
+		if card.ei then card.ei:Destroy(); card.ei = nil end
+		if card.anchor then card.anchor:Destroy(); card.anchor = nil end
+	end
+	-- frame k of a pack into the card; face -1 mirrors; flipY turns it upside down (the seal toward the back);
+	-- m: the floor point in map coords; lift in px; depth nudges the card toward the camera (+) for sorting
+	local function show(card, pack, k, m, face, lift, flipY, depth)
+		local meta = pack.meta
+		if card.pack ~= pack then
+			if card.ei then card.ei:Destroy() end
+			card.ei = AssetService:CreateEditableImage({ Size = Vector2.new(meta.cw, meta.ch) })
+			card.buf = buffer.create(meta.cw * meta.ch * 4)
+			card.img.ImageContent = Content.fromObject(card.ei)
+			card.pack, card.k = pack, nil
+		end
+		if card.k ~= k then
+			local f = pack.frames[math.clamp(k, 1, #pack.frames)]
+			buffer.fill(card.buf, 0, 0)
+			local row = f.w * 4
+			for yy = 0, f.h - 1 do buffer.copy(card.buf, ((f.y + yy) * meta.cw + f.x) * 4, pack.raw, f.off + yy * row, row) end
+			card.ei:WritePixelsBuffer(Vector2.zero, Vector2.new(meta.cw, meta.ch), card.buf)
+			card.k = k
+		end
+		local fx, fy = face < 0, flipY == true
+		card.img.ImageRectOffset = Vector2.new(fx and meta.cw or 0, fy and meta.ch or 0)
+		card.img.ImageRectSize = Vector2.new(fx and -meta.cw or meta.cw, fy and -meta.ch or meta.ch)
+		local piv = meta.pivot
+		local px = (fx and (meta.cw - piv[1]) or piv[1])
+		local py = (fy and (meta.ch - piv[2]) or piv[2])
+		settle(card, O + Vector3.new(m.X, groundAt(m), m.Y), (meta.cw / 2 - px) * SPP, ((py - meta.ch / 2) * SPP + (lift or 0) * SPP) / COS, meta.cw * SPP, meta.ch * SPP, depth)
+		card.bb.Enabled = true
+	end
+
+	---------------------------------------------------------------- targets
+	local targets = {} -- name -> { p (map), card, image, shake, f }
+	local pops = {}
+	local function pop(m, text, color)
+		local card = newCard(5)
+		card.img:Destroy()
+		local l = Instance.new("TextLabel")
+		l.BackgroundTransparency, l.Size, l.Font, l.TextScaled = 1, UDim2.fromScale(1, 1), Enum.Font.Arcade, true
+		l.Text, l.TextColor3, l.TextStrokeTransparency = text, color or Color3.new(1, 1, 1), 0.2
+		l.Parent = card.bb
+		card.bb.Size = UDim2.fromScale(14, 3)
+		card.anchor.Position = O + Vector3.new(m.X, groundAt(m), m.Y)
+		table.insert(pops, { card = card, l = l, t = 0 })
+	end
+	A.pop = pop
+	local function syncTarget(f)
+		local t = targets[f.Name]
+		if not t then
+			local image, W, H = A.dummyImage(false)
+			local card = newCard(1)
+			card.img.ImageContent = Content.fromObject(image)
+			local s = SPP * 1.25
+			t = { name = f.Name, card = card, image = image, shake = 0, f = f, W = W * s, H = H * s, oy = (H / 2 - 1) * s / COS }
+			targets[f.Name] = t
+		end
+		t.p = toMap(f:GetAttribute("X") or 0, f:GetAttribute("Z") or 0)
+		t.alive = f:GetAttribute("Alive") ~= false
+		t.held = f:GetAttribute("Held") == true
+		t.card.bb.Enabled = t.alive
+		settle(t.card, O + Vector3.new(t.p.X, groundAt(t.p), t.p.Y), 0, t.oy, t.W, t.H, 0)
+	end
+	-- the targets as other test abilities see them (same objects: a hit there shakes the same dummy)
+	function A.targets()
+		local list = {}
+		for _, t in pairs(targets) do if t.alive then table.insert(list, t) end end
+		return list
+	end
+	ctx.arenaTargets = A.targets
+
+	---------------------------------------------------------------- casts
+	local views = {} -- cast folder -> view
+	local logLines = {}
+	local panel -- set below
+	local function addLog(line)
+		table.insert(logLines, 1, line)
+		while #logLines > 7 do table.remove(logLines) end
+		if panel then panel.log.Text = table.concat(logLines, "\n") end
+		print("[PixelArena] " .. line)
+	end
+	local function viewOf(h)
+		local cx, cz = math.cos(h), math.sin(h)
+		if math.abs(cz) > math.abs(cx) * 0.9 then return (cz > 0) and "front" or "back", 1 end
+		return "side", (cx >= 0) and 1 or -1
+	end
+	local dirName = function(dx, dz)
+		if math.abs(dz) > math.abs(dx) then return dz > 0 and "unten" or "oben" end
+		return dx > 0 and "rechts" or "links"
+	end
+	local function newView(f)
+		local v = { f = f, seal = newCard(1), dogs = {}, dirt = {}, smoke = {}, mark = newCard(4), zone = newCard(1), lastPhase = nil, said = {}, trails = {} }
+		for i, id in ipairs(Defs.dogs) do
+			v.dogs[i] = { id = id, card = newCard(2), mound = newCard(1), pack = loadPack("dog_" .. id), trail = nil }
+			v.dirt[i] = newCard(3)
+			v.smoke[i] = newCard(4)
+		end
+		views[f] = v
+		return v
+	end
+	local function killView(v)
+		kill(v.seal); kill(v.mark); kill(v.zone)
+		for _, tr in ipairs(v.trails) do kill(tr.card) end
+		for i, d in ipairs(v.dogs) do kill(d.card); kill(d.mound); kill(v.dirt[i]); kill(v.smoke[i]) end
+	end
+	local function frameOf(pack, anim, view, u)
+		local ix = pack.meta.index[anim]
+		local n = ix.n
+		local k = math.floor(u * ix.fps)
+		k = ix.loop and (k % n) or math.min(n - 1, k)
+		return ix[view] + k
+	end
+	local function hide(card) if card and card.bb then card.bb.Enabled = false end end
+	local function stepView(v)
+		local f = v.f
+		local T, phase = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal"
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local caster = toMap(cx, cz)
+		-- the seal: the scroll at his feet, the script running out in the cast direction
+		if T < M.seal + 0.6 then
+			local vert = math.abs(dz) > math.abs(dx)
+			local pk = loadPack(vert and "fx_sealv" or "fx_seal")
+			local n = pk.meta.frames
+			-- the scroll lies a step in front of him (in the cast direction)
+			show(v.seal, pk, math.min(n, math.floor(T * pk.meta.fps) + 1), caster + Vector2.new(dx, dz) * 2.2, vert and 1 or (dx >= 0 and 1 or -1), 0, vert and dz < 0, -0.3)
+			v.seal.img.ImageTransparency = math.clamp((T - M.seal - 0.3) / 0.3, 0, 1)
+		else hide(v.seal) end
+		local burstT, endT = f:GetAttribute("BurstT"), f:GetAttribute("EndT")
+		local result = f:GetAttribute("Result") or ""
+		local moundPk, bulgePk = loadPack("fx_mound"), loadPack("fx_bulge")
+		for i, d in ipairs(v.dogs) do
+			local m = toMap(f:GetAttribute("D" .. i .. "X") or cx, f:GetAttribute("D" .. i .. "Z") or cz)
+			local h = f:GetAttribute("D" .. i .. "H") or 0
+			-- under the ground: a moving mound; while the ground bulges, the bulge at its hole
+			if phase == "track" then
+				-- a furrow left behind every ~2 studs, fading
+				if not d.trail or (m - d.trail).Magnitude > 2.2 then
+					d.trail = m
+					local tr = { card = newCard(1), born = T, m = m }
+					show(tr.card, loadPack("fx_trail"), 1, m, 1, 0, false, -0.2)
+					-- along the dog's line on the floor (the floor is foreshortened by the camera's tilt)
+					tr.card.img.Rotation = math.deg(math.atan2(math.sin(h) * math.sin(ctx.pitch), math.cos(h)))
+					table.insert(v.trails, tr)
+				end
+				show(d.mound, moundPk, (math.floor(T * moundPk.meta.fps) + i) % moundPk.meta.frames + 1, m, 1, 0, false, 0)
+				hide(d.card)
+			elseif phase == "warn" then
+				local u = T - (f:GetAttribute("LockT") or T)
+				show(d.mound, bulgePk, math.min(bulgePk.meta.frames, math.floor(u * bulgePk.meta.fps) + 1), m, 1, 0, false, 0)
+				hide(d.card)
+			else hide(d.mound) end
+			-- out of the ground
+			if burstT and (phase == "hold" or phase == "miss" or ((phase == "done" or phase == "abort") and T - (endT or T) < 0.15)) then
+				local u = T - burstT
+				local view, face = viewOf(h)
+				local anim, au = "burst", u
+				local bIx = d.pack.meta.index.burst
+				local burstLen = bIx.n / bIx.fps
+				if u >= burstLen then
+					if result == "hit" then anim, au = "bite", u - burstLen
+					else
+						local sIx = d.pack.meta.index.snap
+						local snapLen = sIx.n / sIx.fps
+						if u < burstLen + snapLen then anim, au = "snap", u - burstLen else anim, au = "sniff", u - burstLen - snapLen end
+					end
+				end
+				-- hold: up on the target a little (the bite height of the dummy's legs and arms); dogs on the far
+				-- side of the target are behind it, near ones in front (the card's floor point decides)
+				local BITE = { pakkun = 2, bisuke = 3, guruko = 5, akino = 5, urushi = 5, shiba = 6, uhei = 7, bull = 9 }
+				local lift = (anim == "bite") and (BITE[d.id] or 4) or 0
+				show(d.card, d.pack, frameOf(d.pack, anim, view, au), m, face, lift, false, 0.05)
+				-- earth thrown up at the hole
+				local dp = loadPack("fx_dirt")
+				if u < dp.meta.frames / dp.meta.fps then show(v.dirt[i], dp, math.floor(u * dp.meta.fps) + 1, m, (i % 2 == 0) and 1 or -1, 0, false, 0.1) else hide(v.dirt[i]) end
+			else
+				hide(d.card); hide(v.dirt[i])
+			end
+			-- gone: summoning smoke where each dog was
+			if (phase == "done" or phase == "abort") and endT then
+				local sp = loadPack("fx_smoke")
+				local u = T - endT
+				if u < sp.meta.frames / sp.meta.fps then show(v.smoke[i], sp, math.floor(u * sp.meta.fps) + 1, m, 1, 4, false, 0.2) else hide(v.smoke[i]) end
+				hide(d.mound)
+			end
+		end
+		-- the furrows fade; the burst zone shows while the ground bulges
+		for k = #v.trails, 1, -1 do
+			local tr = v.trails[k]
+			local a = math.clamp((T - tr.born) / 1.2, 0, 1)
+			tr.card.img.ImageTransparency = a
+			if a >= 1 then kill(tr.card); table.remove(v.trails, k) end
+		end
+		if phase == "warn" and f:GetAttribute("BX") then
+			local zp = loadPack("fx_zone")
+			show(v.zone, zp, math.floor(T * zp.meta.fps) % zp.meta.frames + 1, toMap(f:GetAttribute("BX"), f:GetAttribute("BZ")), 1, 0, false, -0.4)
+		else hide(v.zone) end
+		-- the hold mark on the caught target
+		local tgt = targets[f:GetAttribute("Target") or ""]
+		if phase == "hold" and tgt then
+			local hp = loadPack("fx_hold")
+			show(v.mark, hp, math.floor(T * hp.meta.fps) % hp.meta.frames + 1, tgt.p, 1, 30, false, 0.3)
+		else hide(v.mark) end
+		-- sounds and words on the phase changes (once each)
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "track" then sfx("rumble", 0.35)
+			elseif phase == "warn" then sfx("rumble", 0.6)
+			elseif phase == "hold" then
+				sfx("burst", 0.7); sfx("bite", 0.6)
+				if tgt then pop(tgt.p, "GEFANGEN", Color3.fromRGB(255, 196, 90)); tgt.shake = 0.35; ctx.shake(1.4, 0.3) end
+			elseif phase == "miss" then
+				sfx("burst", 0.6)
+				local b = toMap(f:GetAttribute("BX") or cx, f:GetAttribute("BZ") or cz)
+				pop(b, "VERFEHLT", Color3.fromRGB(192, 196, 224))
+			elseif phase == "done" or phase == "abort" then sfx("poof", 0.4) end
+			if (phase == "hold" or phase == "miss") and f:GetAttribute("Owner") == player.UserId then
+				local d = dirName(dx, dz)
+				addLog(("%s | %s | %s | %s"):format(v.who or "?", d, phase == "hold" and "TREFFER" or "VERFEHLT", f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target")) or "kein Ziel im Kegel"))
+			end
+			if phase == "abort" and f:GetAttribute("Owner") == player.UserId then addLog("abgebrochen (" .. tostring(was) .. ")") end
+		end
+		-- the caster can move again once the scroll is down
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
+	---------------------------------------------------------------- slots, directions, the training panel
+	local variantIdx = 1
+	for i, v in ipairs(Roster.list) do if v.id == "classic/kakashi-hatake-team-7-sensei" then variantIdx = i end end
+	local onlyLive = true
+	local dirMode = "blick" -- blick (the player's facing), unten, oben, rechts, links
+	local last = nil -- the last cast: { slot, pos, dir }
+	local pendingWho = nil
+	local function variant() return Roster.list[variantIdx] end
+	local function isLive(v) for _, s in ipairs(v.slots) do if s.live or s.summon then return true end end return false end
+	local function dirVec()
+		if dirMode == "unten" then return Vector2.new(0, 1) elseif dirMode == "oben" then return Vector2.new(0, -1)
+		elseif dirMode == "rechts" then return Vector2.new(1, 0) elseif dirMode == "links" then return Vector2.new(-1, 0) end
+		local fc = ctx.facing()
+		if fc == 0 then return Vector2.new(0, 1) elseif fc == 1 then return Vector2.new(0, -1) elseif fc == 2 then return Vector2.new(-1, 0) end
+		return Vector2.new(1, 0)
+	end
+	local function castSlot(slot, pos, dir)
+		local v = variant()
+		local s = v.slots[slot]
+		if not s then return end
+		if s.summon then
+			local p = pos or ctx.pos()
+			local d = dir or dirVec()
+			last = { slot = slot, pos = p, dir = d }
+			pendingWho = ("%s %s | %s"):format(v.name, v.era == "classic" and "Classic" or "Shippuden", s.name)
+			remote:FireServer("cast", v.id, slot, p - START, d)
+		elseif s.live and ctx.liveCast then
+			ctx.liveCast(s.live)
+		else
+			ctx.say(("%s: %s - noch nicht live"):format(v.name, s.name))
+			task.delay(1.6, function() if alive then ctx.say(nil) end end)
+		end
+	end
+	table.insert(conns, remote.OnClientEvent:Connect(function(op, a, b)
+		if op == "cast" then
+			local f = state.Casts:WaitForChild("C" .. a, 2)
+			if f then
+				local v = views[f] or newView(f)
+				v.who = pendingWho
+				v.locked = true
+				ctx.lock(true)
+			end
+		elseif op == "refused" then
+			ctx.say("Nicht möglich: " .. tostring(a))
+			task.delay(1.4, function() if alive then ctx.say(nil) end end)
+		end
+	end))
+
+	-- the panel (bottom right): variant, slots, direction, time, target tests
+	local gui = Instance.new("ScreenGui")
+	gui.Name, gui.ResetOnSpawn, gui.DisplayOrder = "PixelArenaPanel", false, 60
+	local frame = Instance.new("Frame")
+	frame.Size, frame.Position, frame.AnchorPoint = UDim2.fromOffset(470, 300), UDim2.new(0, 16, 0, 92), Vector2.new(0, 0)
+	frame.BackgroundColor3, frame.BackgroundTransparency, frame.BorderSizePixel = Color3.fromRGB(16, 18, 38), 0.12, 0
+	frame.Parent = gui
+	local function label(text, x, y, w, h, size)
+		local l = Instance.new("TextLabel")
+		l.BackgroundTransparency, l.Position, l.Size = 1, UDim2.fromOffset(x, y), UDim2.fromOffset(w, h)
+		l.Font, l.TextSize, l.TextColor3, l.TextXAlignment, l.TextYAlignment = Enum.Font.Arcade, size or 14, Color3.fromRGB(240, 238, 228), Enum.TextXAlignment.Left, Enum.TextYAlignment.Top
+		l.TextWrapped, l.Text = true, text
+		l.Parent = frame
+		return l
+	end
+	local buttons = {}
+	local function button(name, text, x, y, w, fn)
+		local b = Instance.new("TextButton")
+		b.Name, b.Position, b.Size = name, UDim2.fromOffset(x, y), UDim2.fromOffset(w, 22)
+		b.BackgroundColor3, b.BorderSizePixel, b.AutoButtonColor = Color3.fromRGB(46, 52, 96), 0, true
+		b.Font, b.TextSize, b.TextColor3, b.Text = Enum.Font.Arcade, 13, Color3.fromRGB(240, 238, 228), text
+		b.Parent = frame
+		b.Activated:Connect(fn)
+		buttons[name] = b
+		return b
+	end
+	local title = label("", 10, 6, 450, 34, 15)
+	local slotsL = label("", 10, 40, 450, 70, 13)
+	local logL = label("", 10, 196, 450, 100, 12)
+	logL.TextColor3 = Color3.fromRGB(196, 206, 255)
+	panel = { log = logL }
+	local function refresh()
+		local v = variant()
+		title.Text = ("[ ] VARIANTE: %s (%s)"):format(v.cell, v.era == "classic" and "Classic" or "Shippuden")
+		local lines = {}
+		for i, s in ipairs(v.slots) do lines[i] = ("%d  %s%s"):format(i, s.name, s.summon and "  [BESCHWOERUNG LIVE]" or s.live and "  [LIVE]" or "") end
+		slotsL.Text = table.concat(lines, "\n")
+		for _, k in ipairs({ "blick", "unten", "oben", "rechts", "links" }) do buttons["d_" .. k].BackgroundColor3 = (dirMode == k) and Color3.fromRGB(120, 70, 40) or Color3.fromRGB(46, 52, 96) end
+	end
+	local function cycle(dv)
+		for _ = 1, #Roster.list do
+			variantIdx = (variantIdx - 1 + dv) % #Roster.list + 1
+			if not onlyLive or isLive(variant()) then break end
+		end
+		refresh()
+	end
+	button("prev", "<", 10, 112, 26, function() cycle(-1) end)
+	button("next", ">", 40, 112, 26, function() cycle(1) end)
+	local dx0 = 74
+	for i, k in ipairs({ "blick", "unten", "oben", "rechts", "links" }) do
+		button("d_" .. k, k:upper(), dx0 + (i - 1) * 78, 112, 74, function() dirMode = k; refresh() end)
+	end
+	local timeScale = 1
+	button("repeat", "R WIEDERH.", 10, 140, 88, function() if last then castSlot(last.slot, last.pos, last.dir) end end)
+	button("pause", "P PAUSE", 102, 140, 70, function() remote:FireServer("pause", not state:GetAttribute("Paused")) end)
+	button("slow", "T ZEITLUPE", 176, 140, 84, function() timeScale = (timeScale == 1) and 0.25 or 1; remote:FireServer("time", timeScale) end)
+	button("frame", "F BILD", 264, 140, 62, function() remote:FireServer("frame") end)
+	button("abort", "Q ABBRUCH", 330, 140, 84, function() remote:FireServer("abort") end)
+	button("t_walk", "ZIEL LAEUFT", 10, 168, 96, function() remote:FireServer("targets", nil, "walk") end)
+	button("t_dodge", "WEICHT AUS", 110, 168, 92, function() remote:FireServer("targets", nil, "dodge") end)
+	button("t_stand", "STEHT", 206, 168, 58, function() remote:FireServer("targets", nil, "stand") end)
+	button("t_remove", "ENTFERNEN", 268, 168, 84, function() remote:FireServer("targets", "T1", "remove") end)
+	button("t_reset", "RESET+RESPAWN", 356, 168, 104, function() remote:FireServer("respawn"); remote:FireServer("targets", nil, "reset"); remote:FireServer("cooldowns") end)
+	gui.Parent = player:WaitForChild("PlayerGui")
+	refresh()
+	-- the test hook (Studio): same calls as the buttons, for scripted playtests
+	local hook = Instance.new("BindableFunction")
+	hook.Name = "ArenaTest"
+	hook.Parent = gui
+	hook.OnInvoke = function(op, a, b, c)
+		if op == "variant" then for i, v in ipairs(Roster.list) do if v.id == a then variantIdx = i end end; refresh(); return variant().id
+		elseif op == "dir" then dirMode = a; refresh(); return dirMode
+		elseif op == "slot" then castSlot(a, b, c); return true
+		elseif op == "button" then buttons[a]:Activate(); return true
+		elseif op == "log" then return logLines
+		elseif op == "server" then remote:FireServer(a, b, c); return true
+		elseif op == "place" and ctx.place then ctx.place(START + a, b); return true
+		elseif op == "pos" then return ctx.pos() - START
+		elseif op == "views" then local n = 0; for _ in pairs(views) do n += 1 end; return n end
+	end
+
+	local keys = { [Enum.KeyCode.One] = 1, [Enum.KeyCode.Two] = 2, [Enum.KeyCode.Three] = 3, [Enum.KeyCode.Four] = 4 }
+	table.insert(conns, Input.InputBegan:Connect(function(input, processed)
+		if processed or Input:GetFocusedTextBox() then return end
+		local k = input.KeyCode
+		if keys[k] then castSlot(keys[k])
+		elseif k == Enum.KeyCode.R then if last then castSlot(last.slot, last.pos, last.dir) end
+		elseif k == Enum.KeyCode.Q then remote:FireServer("abort")
+		elseif k == Enum.KeyCode.P then remote:FireServer("pause", not state:GetAttribute("Paused"))
+		elseif k == Enum.KeyCode.F then remote:FireServer("frame")
+		elseif k == Enum.KeyCode.T then timeScale = (timeScale == 1) and 0.25 or 1; remote:FireServer("time", timeScale)
+		elseif k == Enum.KeyCode.LeftBracket then cycle(-1) elseif k == Enum.KeyCode.RightBracket then cycle(1) end
+	end))
+
+	-- warm the packs (decode once) so the first cast's first frame is ready
+	task.spawn(function() for name in pairs(Defs.books) do loadPack(name); task.wait() end end)
+
+	table.insert(conns, RunService.RenderStepped:Connect(function(dt)
+		if not alive then return end
+		for _, f in ipairs(state.Targets:GetChildren()) do syncTarget(f) end
+		for _, t in pairs(targets) do
+			if t.held then t.card.img.ImageColor3 = Color3.fromRGB(255, 214, 160) elseif t.shake <= 0 then t.card.img.ImageColor3 = Color3.new(1, 1, 1) end
+			if t.shake > 0 then
+				t.shake -= dt
+				t.card.img.Rotation = math.sin(t.shake * 60) * 6 * t.shake / 0.35
+				if t.shake <= 0 then t.card.img.Rotation = 0 end
+			elseif t.held then t.card.img.Rotation = math.sin(os.clock() * 30) * 1.5 end
+		end
+		for _, f in ipairs(state.Casts:GetChildren()) do
+			local v = views[f] or newView(f)
+			stepView(v)
+		end
+		for f, v in pairs(views) do
+			if not f.Parent then
+				if v.locked then ctx.lock(false) end
+				killView(v); views[f] = nil
+			end
+		end
+		for i = #pops, 1, -1 do
+			local q = pops[i]
+			q.t += dt
+			q.card.bb.StudsOffsetWorldSpace = Vector3.new(0, (12 + q.t * 3) / COS, 0)
+			q.l.TextTransparency = math.clamp((q.t - 0.6) / 0.4, 0, 1)
+			if q.t > 1 then kill(q.card); table.remove(pops, i) end
+		end
+	end))
+
+	return function()
+		alive = false
+		for _, c in ipairs(conns) do c:Disconnect() end
+		remote:FireServer("respawn")
+		for _, v in pairs(views) do killView(v) end
+		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
+		for _, q in ipairs(pops) do kill(q.card) end
+		gui:Destroy()
+		ctx.lock(false)
+		ctx.arenaTargets = nil
+	end
+end
+
+return A

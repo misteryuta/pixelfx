@@ -82,6 +82,7 @@ async function clipTiming(key) {
 // ── merge ──────────────────────────────────────────────────────────
 const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const seen = new Set();
+const dupLog = [];
 for (const v of variants) {
   const k = v.era + "|" + v.cell, s = SLOTS[k];
   if (!s) throw new Error("no slots for " + k);
@@ -95,7 +96,11 @@ for (const v of variants) {
     const t = clip ? await clipTiming(clip) : null;
     const { inPlace, ...tt } = t ?? {};
     // a clip built but not in the place yet can't play there: the slot waits for the upload
-    v.slots.push({ slot: i + 1, name, clip: clip && inPlace ? clip : null, pendingClip: clip && !inPlace ? clip : null, reworked: REWORKED.includes(clip), kind, status, note: note ?? "", params: params ?? null, ...tt });
+    // Classic/Shippuden duplicate rule: a Shippuden slot whose technique this figure already has in Classic gets a
+    // documented replacement (params.replace = { name, was, src }); "fileName" keeps the roster file's wording
+    const rp = params?.replace;
+    if (rp) dupLog.push({ era: v.era, cell: v.cell, slot: i + 1, was: name, now: rp.name ?? null, src: rp.src, note: note ?? "" });
+    v.slots.push({ slot: i + 1, name: rp?.name ?? name, fileName: name, clip: clip && inPlace ? clip : null, pendingClip: clip && !inPlace ? clip : null, reworked: REWORKED.includes(clip), kind, status, note: note ?? "", params: params ?? null, ...tt });
   }
   delete v.moves;
 }
@@ -121,7 +126,7 @@ for (const [e, fs] of Object.entries(factions)) lua += `R.factions.${e} = {${fs.
 lua += `local function V(t) table.insert(R.variants, t); R.byId[t.id] = t end\n`;
 for (const v of variants) {
   lua += `V({ id = ${q(v.id)}, era = ${q(v.era)}, cell = ${q(v.cell)}, name = ${q(v.name)}, form = ${q(v.form)}, ovr = ${v.ovr}, rarity = ${q(v.rarity)}, faction = ${q(v.faction)}, factionTier = ${v.factionTier}, desc = ${q(v.desc)}, slots = {\n`;
-  for (const s of v.slots) lua += `\t{ slot = ${s.slot}, name = ${q(s.name)}, clip = ${s.clip ? q(s.clip) : "nil"}, pending = ${s.pendingClip ? q(s.pendingClip) : "nil"}, kind = ${q(s.kind)}, params = ${s.params ? "{ " + Object.entries(s.params).map(([k, v]) => k + " = " + JSON.stringify(v)).join(", ") + " }" : "nil"}, status = ${q(s.status)}, note = ${q(s.note)}, len = ${s.len ?? "nil"}, main = ${s.main ?? "nil"}, contacts = {${(s.contacts ?? []).join(", ")}} },\n`;
+  for (const s of v.slots) lua += `\t{ slot = ${s.slot}, name = ${q(s.name)}, fileName = ${q(s.fileName)}, clip = ${s.clip ? q(s.clip) : "nil"}, pending = ${s.pendingClip ? q(s.pendingClip) : "nil"}, kind = ${q(s.kind)}, params = ${s.params ? "{ " + Object.entries(s.params).filter(([k]) => k !== "replace").map(([k, v]) => k + " = " + JSON.stringify(v)).join(", ") + " }" : "nil"}, status = ${q(s.status)}, note = ${q(s.note)}, len = ${s.len ?? "nil"}, main = ${s.main ?? "nil"}, contacts = {${(s.contacts ?? []).join(", ")}} },\n`;
   lua += `} })\n`;
 }
 lua += "return R\n";
@@ -137,7 +142,7 @@ for (const v of variants) for (const s of v.slots) if (s.clip) {
 writeFileSync(ROOT + "roster/titlesRoster.json", JSON.stringify(titles));
 
 // ── status table ───────────────────────────────────────────────────
-const LAB = { ok: "umgesetzt", actor: "Clip da, Anwender offen", partial: "nur verwandter Clip", new: "fehlt" };
+const LAB = { ok: "umgesetzt", actor: "Clip da, Anwender offen", partial: "nur verwandter Clip", new: "fehlt", open: "offen (kein belegter Ersatz)" };
 let md = `# Roster-Abgleich (generiert)\n\nQuelle: \`${MD.split(/[\\/]/).pop()}\`\n\n`;
 md += `| Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |\n|---|---:|---:|---:|---:|---:|---:|\n`;
 for (const e of ["classic", "shippuden", null]) {
@@ -150,4 +155,8 @@ for (const e of ["classic", "shippuden"]) {
     md += `| ${s.slot === 1 ? v.cell : ""} | ${s.slot === 1 ? v.ovr : ""} | ${s.slot === 1 ? v.rarity : ""} | ${s.slot === 1 ? v.faction : ""} | ${s.slot} | ${s.name} | ${s.clip ? "`" + s.clip + "`" : s.pendingClip ? "`" + s.pendingClip + "` (gebaut, Upload offen)" : "–"}${s.reworked ? " (überarbeitet, Upload offen)" : ""} | ${LAB[s.status]} | ${s.note} |\n`;
 }
 writeFileSync(ROOT + "roster/STATUS.md", md);
+let dm = "# Doppelte Moves Classic/Shippūden (generiert)\n\nRegel: hat eine Figur einen Move schon in Classic, bekommt der Shippūden-Slot eine andere, belegte Technik. Name, Schaden oder Farbe allein machen keinen neuen Move.\n\n| Figur (Shippūden) | Slot | Doppelung (Datei) | Ersatz | Quelle | Begründung |\n|---|---:|---|---|---|---|\n";
+for (const d of dupLog) dm += `| ${d.cell} | ${d.slot} | ${d.was} | ${d.now ?? "**offen**"} | ${d.src} | ${d.note} |\n`;
+writeFileSync(ROOT + "roster/DUPLICATES.md", dm);
+console.log("replaced slots", dupLog.length);
 console.log("viewer entries", titles.length);

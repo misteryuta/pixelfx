@@ -78,6 +78,7 @@
     {
      "slot": 1,
      "name": "Summoning: Impure World Reincarnation (Edo Tensei)",
+     "fileName": "Summoning: Impure World Reincarnation (Edo Tensei)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -89,6 +90,7 @@
     {
      "slot": 2,
      "name": "Sword of Kusanagi",
+     "fileName": "Sword of Kusanagi",
      "clip": "orochimaru-kusanagi",
      "pendingClip": null,
      "reworked": false,
@@ -105,6 +107,7 @@
     {
      "slot": 3,
      "name": "Five Elements Seal",
+     "fileName": "Five Elements Seal",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -116,12 +119,13 @@
     {
      "slot": 4,
      "name": "Triple Rashōmon",
+     "fileName": "Triple Rashōmon",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "defense",
      "status": "new",
-     "note": "Rashōmon dreifach gegen Hiruzens Enma.",
+     "note": "Rashōmon gegen Hiruzens Enma. Zeitkonflikt: das dreifache Rashōmon ist erst in Shippūden belegt (Manga 295); hier als Kuchiyose: Rashōmon gezeigt.",
      "params": null
     }
    ]
@@ -142,6 +146,7 @@
     {
      "slot": 1,
      "name": "Summoning: Toad Mouth Bind",
+     "fileName": "Summoning: Toad Mouth Bind",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -153,6 +158,7 @@
     {
      "slot": 2,
      "name": "Rasengan",
+     "fileName": "Rasengan",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -164,6 +170,7 @@
     {
      "slot": 3,
      "name": "Fire Style: Toad Oil Flame Bullet",
+     "fileName": "Fire Style: Toad Oil Flame Bullet",
      "clip": "jiraiya-kuchiyose",
      "pendingClip": null,
      "reworked": false,
@@ -184,6 +191,7 @@
     {
      "slot": 4,
      "name": "Hair Needle Senbon",
+     "fileName": "Hair Needle Senbon",
      "clip": "jiraiya-kebari-senbon",
      "pendingClip": null,
      "reworked": false,
@@ -219,6 +227,7 @@
     {
      "slot": 1,
      "name": "Creation Rebirth",
+     "fileName": "Creation Rebirth",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -230,6 +239,7 @@
     {
      "slot": 2,
      "name": "Heaven Kick of Pain",
+     "fileName": "Heaven Kick of Pain",
      "clip": "tsunade-tsuutenkyaku",
      "pendingClip": null,
      "reworked": false,
@@ -246,6 +256,7 @@
     {
      "slot": 3,
      "name": "Nervous System Rupture",
+     "fileName": "Nervous System Rupture",
      "clip": "tsunade-ranshinshou",
      "pendingClip": null,
      "reworked": false,
@@ -268,12 +279,13 @@
     {
      "slot": 4,
      "name": "Summoning: Katsuyu",
+     "fileName": "Summoning: Katsuyu",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "summon",
+     "kind": "defense",
      "status": "new",
-     "note": "Kuchiyose: Katsuyu (Tanzaku).",
+     "note": "Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda).",
      "params": null
     }
    ]
@@ -294,6 +306,7 @@
     {
      "slot": 1,
      "name": "Reaper Death Seal",
+     "fileName": "Reaper Death Seal",
      "clip": "hiruzen-shiki-fuujin",
      "pendingClip": null,
      "reworked": false,
@@ -312,6 +325,7 @@
     {
      "slot": 2,
      "name": "Monkey King Enma: Adamantine Staff",
+     "fileName": "Monkey King Enma: Adamantine Staff",
      "clip": "hiruzen-enma",
      "pendingClip": null,
      "reworked": false,
@@ -329,6 +343,7 @@
     {
      "slot": 3,
      "name": "Fire Style: Dragon Flame Bomb",
+     "fileName": "Fire Style: Dragon Flame Bomb",
      "clip": "fire-karyuu-endan",
      "pendingClip": null,
      "reworked": false,
@@ -346,6 +361,7 @@
     {
      "slot": 4,
      "name": "Shuriken Shadow Clone",
+     "fileName": "Shuriken Shadow Clone",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -372,6 +388,7 @@
     {
      "slot": 1,
      "name": "Wood Style: Deep Forest Emergence",
+     "fileName": "Wood Style: Deep Forest Emergence",
      "clip": "hashirama-jukai-kotan",
      "pendingClip": null,
      "reworked": false,
@@ -392,6 +409,7 @@
     {
      "slot": 2,
      "name": "Wood Locking Wall",
+     "fileName": "Wood Locking Wall",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -403,6 +421,7 @@
     {
      "slot": 3,
      "name": "Bringer-of-Darkness Technique",
+     "fileName": "Bringer-of-Darkness Technique",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -414,6 +433,7 @@
     {
      "slot": 4,
      "name": "Taijutsu Combo",
+     "fileName": "Taijutsu Combo",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -440,6 +460,7 @@
     {
      "slot": 1,
      "name": "Water Style: Water Dragon Jutsu",
+     "fileName": "Water Style: Water Dragon Jutsu",
      "clip": "tobirama-suiryuudan",
      "pendingClip": null,
      "reworked": false,
@@ -456,6 +477,7 @@
     {
      "slot": 2,
      "name": "Water Shockwave",
+     "fileName": "Water Shockwave",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -467,6 +489,7 @@
     {
      "slot": 3,
      "name": "Infinite Darkness (Manga/Anime)",
+     "fileName": "Infinite Darkness (Manga/Anime)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -478,6 +501,7 @@
     {
      "slot": 4,
      "name": "Sword of the Thunder God",
+     "fileName": "Sword of the Thunder God",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -504,6 +528,7 @@
     {
      "slot": 1,
      "name": "Lightning Blade (Raikiri)",
+     "fileName": "Lightning Blade (Raikiri)",
      "clip": "kakashi-raikiri",
      "pendingClip": null,
      "reworked": false,
@@ -520,6 +545,7 @@
     {
      "slot": 2,
      "name": "Sharingan Copy: Water Dragon",
+     "fileName": "Sharingan Copy: Water Dragon",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -531,17 +557,21 @@
     {
      "slot": 3,
      "name": "Summoning: Ninken Fanged Pursuit",
+     "fileName": "Summoning: Ninken Fanged Pursuit",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
-     "status": "new",
-     "note": "Doton: Tsuiga no Jutsu, Ninken halten Zabuza.",
-     "params": null
+     "status": "ok",
+     "note": "Kuchiyose: Doton: Tsuiga no Jutsu (Manga 29 / Anime 17): acht Ninken spüren Zabuza unter der Erde auf, brechen gemeinsam heraus und halten ihn mit den Zähnen. Live-Beschwörung mit eigenem Rig (Seite/Front/Rücken).",
+     "params": {
+      "summon": "kakashi-ninken-tsuiga"
+     }
     },
     {
      "slot": 4,
      "name": "Hidden Mist Jutsu",
+     "fileName": "Hidden Mist Jutsu",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -568,6 +598,7 @@
     {
      "slot": 1,
      "name": "Sixth Gate: Gate of Joy",
+     "fileName": "Sixth Gate: Gate of Joy",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -579,6 +610,7 @@
     {
      "slot": 2,
      "name": "Dynamic Entry",
+     "fileName": "Dynamic Entry",
      "clip": "taijutsu-dynamic-entry",
      "pendingClip": null,
      "reworked": false,
@@ -602,6 +634,7 @@
     {
      "slot": 3,
      "name": "Strong Fist Hurricane",
+     "fileName": "Strong Fist Hurricane",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -628,6 +661,7 @@
     {
      "slot": 1,
      "name": "Hidden Mist Jutsu",
+     "fileName": "Hidden Mist Jutsu",
      "clip": "zabuza-silent-kill",
      "pendingClip": null,
      "reworked": false,
@@ -644,6 +678,7 @@
     {
      "slot": 2,
      "name": "Water Prison Jutsu",
+     "fileName": "Water Prison Jutsu",
      "clip": "zabuza-suirou",
      "pendingClip": null,
      "reworked": false,
@@ -661,6 +696,7 @@
     {
      "slot": 3,
      "name": "Water Style: Water Dragon Jutsu",
+     "fileName": "Water Style: Water Dragon Jutsu",
      "clip": "water-dragon",
      "pendingClip": null,
      "reworked": false,
@@ -693,6 +729,7 @@
     {
      "slot": 1,
      "name": "Dance of the Seedling Fern (Bracken Dance)",
+     "fileName": "Dance of the Seedling Fern (Bracken Dance)",
      "clip": "kimimaro-sawarabi",
      "pendingClip": null,
      "reworked": false,
@@ -709,6 +746,7 @@
     {
      "slot": 2,
      "name": "Dance of the Clematis: Flower",
+     "fileName": "Dance of the Clematis: Flower",
      "clip": "kimimaro-tessenka",
      "pendingClip": null,
      "reworked": false,
@@ -728,6 +766,7 @@
     {
      "slot": 3,
      "name": "Dance of the Larch",
+     "fileName": "Dance of the Larch",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -754,6 +793,7 @@
     {
      "slot": 1,
      "name": "Sand Coffin & Sand Burial",
+     "fileName": "Sand Coffin & Sand Burial",
      "clip": "gaara-sabaku-sousou",
      "pendingClip": null,
      "reworked": false,
@@ -771,6 +811,7 @@
     {
      "slot": 2,
      "name": "Playing Possum (Mini-Shukaku)",
+     "fileName": "Playing Possum (Mini-Shukaku)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -782,6 +823,7 @@
     {
      "slot": 3,
      "name": "Sand Shield",
+     "fileName": "Sand Shield",
      "clip": "gaara-suna-no-tate",
      "pendingClip": null,
      "reworked": false,
@@ -814,6 +856,7 @@
     {
      "slot": 1,
      "name": "One-Tailed Vermilion Rasengan",
+     "fileName": "One-Tailed Vermilion Rasengan",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -825,6 +868,7 @@
     {
      "slot": 2,
      "name": "Uzumaki Barrage",
+     "fileName": "Uzumaki Barrage",
      "clip": "naruto-uzumaki-rendan",
      "pendingClip": null,
      "reworked": false,
@@ -845,6 +889,7 @@
     {
      "slot": 3,
      "name": "Summoning: Gamabunta",
+     "fileName": "Summoning: Gamabunta",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -871,6 +916,7 @@
     {
      "slot": 1,
      "name": "Cursed Seal Stage 2: Onyx Chidori",
+     "fileName": "Cursed Seal Stage 2: Onyx Chidori",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -882,6 +928,7 @@
     {
      "slot": 2,
      "name": "Lion's Barrage",
+     "fileName": "Lion's Barrage",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -893,6 +940,7 @@
     {
      "slot": 3,
      "name": "Fire Style: Phoenix Flower Jutsu",
+     "fileName": "Fire Style: Phoenix Flower Jutsu",
      "clip": "fire-phoenix-flower",
      "pendingClip": null,
      "reworked": false,
@@ -925,6 +973,7 @@
     {
      "slot": 1,
      "name": "Chakra Scalpel",
+     "fileName": "Chakra Scalpel",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -936,6 +985,7 @@
     {
      "slot": 2,
      "name": "Temple of Nirvana (Feather Illusion)",
+     "fileName": "Temple of Nirvana (Feather Illusion)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -962,6 +1012,7 @@
     {
      "slot": 1,
      "name": "Hidden Lotus (Reverse Lotus)",
+     "fileName": "Hidden Lotus (Reverse Lotus)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -973,6 +1024,7 @@
     {
      "slot": 2,
      "name": "Primary Lotus",
+     "fileName": "Primary Lotus",
      "clip": "lee-omote-renge",
      "pendingClip": null,
      "reworked": false,
@@ -1006,6 +1058,7 @@
     {
      "slot": 1,
      "name": "Secret Technique: Crystal Ice Mirrors",
+     "fileName": "Secret Technique: Crystal Ice Mirrors",
      "clip": "haku-makyou-hyoushou",
      "pendingClip": null,
      "reworked": false,
@@ -1026,6 +1079,7 @@
     {
      "slot": 2,
      "name": "Thousand Flying Water Needles of Death",
+     "fileName": "Thousand Flying Water Needles of Death",
      "clip": "haku-sensatsu-suishou",
      "pendingClip": null,
      "reworked": false,
@@ -1060,6 +1114,7 @@
     {
      "slot": 1,
      "name": "Eight Trigrams Sixty-Four Palms",
+     "fileName": "Eight Trigrams Sixty-Four Palms",
      "clip": "neji-64-palms",
      "pendingClip": null,
      "reworked": false,
@@ -1081,6 +1136,7 @@
     {
      "slot": 2,
      "name": "Eight Trigrams Palms Revolving Heaven",
+     "fileName": "Eight Trigrams Palms Revolving Heaven",
      "clip": "neji-kaiten",
      "pendingClip": null,
      "reworked": false,
@@ -1113,6 +1169,7 @@
     {
      "slot": 1,
      "name": "Demonic Illusion: Tree Binding Death",
+     "fileName": "Demonic Illusion: Tree Binding Death",
      "clip": "kurenai-jubaku-satsu",
      "pendingClip": null,
      "reworked": false,
@@ -1130,6 +1187,7 @@
     {
      "slot": 2,
      "name": "Genjutsu Petal Escape",
+     "fileName": "Genjutsu Petal Escape",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1156,6 +1214,7 @@
     {
      "slot": 1,
      "name": "Summoning: Quick Beheading Dance",
+     "fileName": "Summoning: Quick Beheading Dance",
      "clip": "temari-kamatari",
      "pendingClip": null,
      "reworked": false,
@@ -1181,6 +1240,7 @@
     {
      "slot": 2,
      "name": "Wind Scythe Jutsu",
+     "fileName": "Wind Scythe Jutsu",
      "clip": "temari-kamaitachi",
      "pendingClip": null,
      "reworked": false,
@@ -1217,6 +1277,7 @@
     {
      "slot": 1,
      "name": "Shadow Possession Jutsu",
+     "fileName": "Shadow Possession Jutsu",
      "clip": "shikamaru-kagemane",
      "pendingClip": null,
      "reworked": false,
@@ -1249,6 +1310,7 @@
     {
      "slot": 1,
      "name": "Black Secret Technique: Machine One Shot (Crow & Black Ant)",
+     "fileName": "Black Secret Technique: Machine One Shot (Crow & Black Ant)",
      "clip": "kankuro-kuroari",
      "pendingClip": null,
      "reworked": false,
@@ -1281,6 +1343,7 @@
     {
      "slot": 1,
      "name": "Parasitic Destruction Insect Swarm",
+     "fileName": "Parasitic Destruction Insect Swarm",
      "clip": "shino-kikaichuu",
      "pendingClip": null,
      "reworked": false,
@@ -1315,6 +1378,7 @@
     {
      "slot": 1,
      "name": "Fang Over Fang",
+     "fileName": "Fang Over Fang",
      "clip": "kiba-gatsuuga",
      "pendingClip": null,
      "reworked": false,
@@ -1347,6 +1411,7 @@
     {
      "slot": 1,
      "name": "Gentle Fist: Tenketsu Strike",
+     "fileName": "Gentle Fist: Tenketsu Strike",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1373,6 +1438,7 @@
     {
      "slot": 1,
      "name": "Rising Twin Dragons",
+     "fileName": "Rising Twin Dragons",
      "clip": "tenten-soushouryuu",
      "pendingClip": null,
      "reworked": false,
@@ -1410,6 +1476,7 @@
     {
      "slot": 1,
      "name": "Shurikenjutsu: Paper Bomb Trap",
+     "fileName": "Shurikenjutsu: Paper Bomb Trap",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1436,6 +1503,7 @@
     {
      "slot": 1,
      "name": "Perfect Susanoo",
+     "fileName": "Perfect Susanoo",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1449,6 +1517,7 @@
     {
      "slot": 2,
      "name": "Majestic Destroyer Flame",
+     "fileName": "Majestic Destroyer Flame",
      "clip": "madara-gouka-mekkyaku",
      "pendingClip": null,
      "reworked": false,
@@ -1469,6 +1538,7 @@
     {
      "slot": 3,
      "name": "Nine-Tails Summoning",
+     "fileName": "Nine-Tails Summoning",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1480,6 +1550,7 @@
     {
      "slot": 4,
      "name": "Gunbai Reflection",
+     "fileName": "Gunbai Reflection",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1506,6 +1577,7 @@
     {
      "slot": 1,
      "name": "Shinra Tensei (Almighty Push)",
+     "fileName": "Shinra Tensei (Almighty Push)",
      "clip": "pain-shinra-tensei",
      "pendingClip": null,
      "reworked": false,
@@ -1522,6 +1594,7 @@
     {
      "slot": 2,
      "name": "Chibaku Tensei (Planetary Devastation)",
+     "fileName": "Chibaku Tensei (Planetary Devastation)",
      "clip": "pain-chibaku-tensei",
      "pendingClip": null,
      "reworked": false,
@@ -1539,6 +1612,7 @@
     {
      "slot": 3,
      "name": "Banshō Ten'in",
+     "fileName": "Banshō Ten'in",
      "clip": "pain-banshou-tenin",
      "pendingClip": null,
      "reworked": false,
@@ -1556,6 +1630,7 @@
     {
      "slot": 4,
      "name": "Summoning: Gedo Statue",
+     "fileName": "Summoning: Gedo Statue",
      "clip": "nagato-gedo-mazo",
      "pendingClip": null,
      "reworked": false,
@@ -1590,6 +1665,7 @@
     {
      "slot": 1,
      "name": "Flying Raijin Level 2",
+     "fileName": "Flying Raijin Level 2",
      "clip": "minato-hiraishin",
      "pendingClip": null,
      "reworked": false,
@@ -1607,6 +1683,7 @@
     {
      "slot": 2,
      "name": "Rasengan",
+     "fileName": "Rasengan",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1618,6 +1695,7 @@
     {
      "slot": 3,
      "name": "Flying Raijin: Guiding Thunder",
+     "fileName": "Flying Raijin: Guiding Thunder",
      "clip": "minato-hiraishin-rasengan",
      "pendingClip": null,
      "reworked": false,
@@ -1635,6 +1713,7 @@
     {
      "slot": 4,
      "name": "Reaper Death Seal",
+     "fileName": "Reaper Death Seal",
      "clip": "hiruzen-shiki-fuujin",
      "pendingClip": null,
      "reworked": false,
@@ -1668,6 +1747,7 @@
     {
      "slot": 1,
      "name": "Tsukuyomi",
+     "fileName": "Tsukuyomi",
      "clip": "itachi-tsukuyomi",
      "pendingClip": null,
      "reworked": false,
@@ -1693,6 +1773,7 @@
     {
      "slot": 2,
      "name": "Amaterasu",
+     "fileName": "Amaterasu",
      "clip": "itachi-amaterasu",
      "pendingClip": null,
      "reworked": false,
@@ -1712,6 +1793,7 @@
     {
      "slot": 3,
      "name": "Susanoo: Totsuka Blade",
+     "fileName": "Susanoo: Totsuka Blade",
      "clip": "itachi-totsuka",
      "pendingClip": null,
      "reworked": false,
@@ -1731,6 +1813,7 @@
     {
      "slot": 4,
      "name": "Yata Mirror Defense",
+     "fileName": "Yata Mirror Defense",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1759,6 +1842,7 @@
     {
      "slot": 1,
      "name": "Kamui Intangibility",
+     "fileName": "Kamui Intangibility",
      "clip": "obito-kamui-surinuke",
      "pendingClip": null,
      "reworked": false,
@@ -1776,6 +1860,7 @@
     {
      "slot": 2,
      "name": "Kamui Warp",
+     "fileName": "Kamui Warp",
      "clip": "obito-kamui-warp",
      "pendingClip": null,
      "reworked": false,
@@ -1793,6 +1878,7 @@
     {
      "slot": 3,
      "name": "Wood Style: Cutting Sprigs",
+     "fileName": "Wood Style: Cutting Sprigs",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1804,6 +1890,7 @@
     {
      "slot": 4,
      "name": "Fire Style: Bomb Blast Dance",
+     "fileName": "Fire Style: Bomb Blast Dance",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1830,6 +1917,7 @@
     {
      "slot": 1,
      "name": "Wind Style: Rasenshuriken",
+     "fileName": "Wind Style: Rasenshuriken",
      "clip": "naruto-rasenshuriken",
      "pendingClip": null,
      "reworked": false,
@@ -1852,6 +1940,7 @@
     {
      "slot": 2,
      "name": "Massive Rasengan Barrage",
+     "fileName": "Massive Rasengan Barrage",
      "clip": "naruto-oodama-rasengan",
      "pendingClip": null,
      "reworked": false,
@@ -1870,6 +1959,7 @@
     {
      "slot": 3,
      "name": "Frog Kumite",
+     "fileName": "Frog Kumite",
      "clip": "naruto-frog-kata",
      "pendingClip": null,
      "reworked": false,
@@ -1888,6 +1978,7 @@
     {
      "slot": 4,
      "name": "Sage Art: Two Great Ball Rasengan",
+     "fileName": "Sage Art: Two Great Ball Rasengan",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1914,6 +2005,7 @@
     {
      "slot": 1,
      "name": "Tailed Beast Ball",
+     "fileName": "Tailed Beast Ball",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1925,6 +2017,7 @@
     {
      "slot": 2,
      "name": "Lariat",
+     "fileName": "Lariat",
      "clip": "killerbee-lariat",
      "pendingClip": null,
      "reworked": false,
@@ -1941,6 +2034,7 @@
     {
      "slot": 3,
      "name": "Acrobat (Seven Swords Dance)",
+     "fileName": "Acrobat (Seven Swords Dance)",
      "clip": "killerbee-nanatou",
      "pendingClip": null,
      "reworked": false,
@@ -1961,6 +2055,7 @@
     {
      "slot": 4,
      "name": "Ink Clone Sealing",
+     "fileName": "Ink Clone Sealing",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -1987,6 +2082,7 @@
     {
      "slot": 1,
      "name": "Susanoo Arrow",
+     "fileName": "Susanoo Arrow",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2000,6 +2096,7 @@
     {
      "slot": 2,
      "name": "Inferno Style: Flame Control",
+     "fileName": "Inferno Style: Flame Control",
      "clip": "sasuke-enton-kagutsuchi-summit",
      "pendingClip": null,
      "reworked": false,
@@ -2018,6 +2115,7 @@
     {
      "slot": 3,
      "name": "Kirin",
+     "fileName": "Kirin",
      "clip": "sasuke-kirin",
      "pendingClip": null,
      "reworked": false,
@@ -2035,6 +2133,7 @@
     {
      "slot": 4,
      "name": "Amaterasu",
+     "fileName": "Amaterasu",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2061,6 +2160,7 @@
     {
      "slot": 1,
      "name": "Particle Style: Atomic Dismantling Jutsu",
+     "fileName": "Particle Style: Atomic Dismantling Jutsu",
      "clip": "onoki-jinton",
      "pendingClip": null,
      "reworked": false,
@@ -2077,6 +2177,7 @@
     {
      "slot": 2,
      "name": "Light-Weight Rock (Flight)",
+     "fileName": "Light-Weight Rock (Flight)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2088,6 +2189,7 @@
     {
      "slot": 3,
      "name": "Added-Weight Rock",
+     "fileName": "Added-Weight Rock",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2099,6 +2201,7 @@
     {
      "slot": 4,
      "name": "Rock Clone",
+     "fileName": "Rock Clone",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2125,6 +2228,7 @@
     {
      "slot": 1,
      "name": "Liger Bomb",
+     "fileName": "Liger Bomb",
      "clip": "raikage-liger-bomb",
      "pendingClip": null,
      "reworked": false,
@@ -2142,6 +2246,7 @@
     {
      "slot": 2,
      "name": "Guillotine Drop",
+     "fileName": "Guillotine Drop",
      "clip": "raikage-guillotine",
      "pendingClip": null,
      "reworked": false,
@@ -2158,6 +2263,7 @@
     {
      "slot": 3,
      "name": "Lightning Straight",
+     "fileName": "Lightning Straight",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2169,6 +2275,7 @@
     {
      "slot": 4,
      "name": "Body Flicker Blitz",
+     "fileName": "Body Flicker Blitz",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2195,6 +2302,7 @@
     {
      "slot": 1,
      "name": "Hirudora (Daytime Tiger)",
+     "fileName": "Hirudora (Daytime Tiger)",
      "clip": "guy-hirudora",
      "pendingClip": null,
      "reworked": false,
@@ -2211,6 +2319,7 @@
     {
      "slot": 2,
      "name": "Morning Peacock",
+     "fileName": "Morning Peacock",
      "clip": "guy-asa-kujaku",
      "pendingClip": null,
      "reworked": false,
@@ -2233,31 +2342,37 @@
     },
     {
      "slot": 3,
-     "name": "Seventh Gate: Gate of Wonder",
+     "name": "Dynamic Action",
+     "fileName": "Seventh Gate: Gate of Wonder",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "transform",
+     "kind": "strike",
      "status": "new",
-     "note": "Kyōmon, siebtes Tor.",
-     "params": null
+     "note": "Doppelung: das Öffnen eines Tores (Classic: sechstes Tor) ist derselbe Spielzustand; das siebte Tor bleibt sichtbarer Zustand der Variante (Hirudora öffnet es). Ersatz: Dynamic Action, Salto auf das Ziel und Schlag-Tritt-Serie, gegen Kisames Doppelgänger (Shippūden Folge 13).",
+     "params": {
+      "replace": {
+       "name": "Dynamic Action",
+       "src": "Narutopedia: Dynamic Action, Anime Shippūden 13"
+      }
+     }
     },
     {
      "slot": 4,
-     "name": "Leaf Hurricane",
-     "clip": "lee-konoha-senpuu",
+     "name": "Leaf Rock-Destroying Rise",
+     "fileName": "Leaf Hurricane",
+     "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "actor",
-     "note": "Konoha Senpū; Clip mit Rock Lee.",
-     "params": null,
-     "len": 3.25,
-     "contacts": [
-      1.15,
-      1.45
-     ],
-     "main": 1.45
+     "status": "new",
+     "note": "Doppelung: Konoha Senpū ist dieselbe Drehtritt-Familie wie Classic 'Strong Fist Hurricane' (Konoha Gōriki Senpū). Ersatz: Konoha Saiha Shōfū, Ellbogenstoß mit Stützarm, zerbricht im Kisame-Kampf Yaguras Korallen.",
+     "params": {
+      "replace": {
+       "name": "Leaf Rock-Destroying Rise",
+       "src": "Narutopedia: Leaf Rock-Destroying Rise, Manga 505 / Anime Shippūden 250"
+      }
+     }
     }
    ]
   },
@@ -2277,6 +2392,7 @@
     {
      "slot": 1,
      "name": "Sage Art: Bath of Boiling Oil",
+     "fileName": "Sage Art: Bath of Boiling Oil",
      "clip": "jiraiya-goemon",
      "pendingClip": null,
      "reworked": false,
@@ -2296,6 +2412,7 @@
     {
      "slot": 2,
      "name": "Massive Rasengan",
+     "fileName": "Massive Rasengan",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2307,6 +2424,7 @@
     {
      "slot": 3,
      "name": "Frog Song Genjutsu",
+     "fileName": "Frog Song Genjutsu",
      "clip": "jiraiya-ult-gamarinshou",
      "pendingClip": null,
      "reworked": false,
@@ -2324,14 +2442,20 @@
     },
     {
      "slot": 4,
-     "name": "Toad Mouth Bind",
+     "name": "Barrier: Toad Gourd Prison",
+     "fileName": "Toad Mouth Bind",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
      "status": "new",
-     "note": "Gamaguchi Shibari.",
-     "params": null
+     "note": "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).",
+     "params": {
+      "replace": {
+       "name": "Barrier: Toad Gourd Prison",
+       "src": "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133"
+      }
+     }
     }
    ]
   },
@@ -2350,24 +2474,25 @@
    "slots": [
     {
      "slot": 1,
-     "name": "Monkey King Enma: Adamantine Staff",
-     "clip": "hiruzen-enma",
+     "name": "Monkey King Enma: Adamantine Prison Wall",
+     "fileName": "Monkey King Enma: Adamantine Staff",
+     "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "strike",
-     "status": "ok",
-     "note": "Enma als Kongōnyoi.",
-     "params": null,
-     "len": 5,
-     "contacts": [
-      2.85,
-      3.35
-     ],
-     "main": 2.85
+     "kind": "bind",
+     "status": "new",
+     "note": "Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor.",
+     "params": {
+      "replace": {
+       "name": "Monkey King Enma: Adamantine Prison Wall",
+       "src": "Narutopedia: Adamantine Prison Wall, Manga 122 / Anime 72"
+      }
+     }
     },
     {
      "slot": 2,
      "name": "Five-Element Combo Blast",
+     "fileName": "Five-Element Combo Blast",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2378,14 +2503,20 @@
     },
     {
      "slot": 3,
-     "name": "Shuriken Shadow Clone",
+     "name": "Earth Release: Earth-Style Wall",
+     "fileName": "Shuriken Shadow Clone",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "projectile",
+     "kind": "defense",
      "status": "new",
-     "note": "Shuriken Kage Bunshin.",
-     "params": null
+     "note": "Doppelung: Shuriken Kage Bunshin hat Hiruzen schon in Classic. Ersatz: Doton: Doryūheki, Erdwall aus dem Mund (Konoha Crush, Manga 120).",
+     "params": {
+      "replace": {
+       "name": "Earth Release: Earth-Style Wall",
+       "src": "Narutopedia: Earth Release: Earth-Style Wall, Manga 120 / Anime 71"
+      }
+     }
     }
    ]
   },
@@ -2405,6 +2536,7 @@
     {
      "slot": 1,
      "name": "Water Prison Shark Dance",
+     "fileName": "Water Prison Shark Dance",
      "clip": "kisame-shark-dance",
      "pendingClip": null,
      "reworked": false,
@@ -2428,6 +2560,7 @@
     {
      "slot": 2,
      "name": "Super Shark Bomb",
+     "fileName": "Super Shark Bomb",
      "clip": "kisame-daikoudan",
      "pendingClip": null,
      "reworked": false,
@@ -2445,6 +2578,7 @@
     {
      "slot": 3,
      "name": "Five Feeding Sharks",
+     "fileName": "Five Feeding Sharks",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2470,40 +2604,48 @@
    "slots": [
     {
      "slot": 1,
-     "name": "Creation Rebirth",
+     "name": "Katsuyu: Immense Network Healing",
+     "fileName": "Creation Rebirth",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "heal",
      "status": "new",
-     "note": "Sōzō Saisei.",
-     "params": null
+     "note": "Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha).",
+     "params": {
+      "replace": {
+       "name": "Katsuyu: Immense Network Healing",
+       "src": "Narutopedia: Katsuyu: Immense Network Healing, Manga 424 / Anime Shippūden 159"
+      }
+     }
     },
     {
      "slot": 2,
-     "name": "Heaven Kick of Pain",
-     "clip": "tsunade-tsuutenkyaku",
+     "name": "Strength of a Hundred Technique",
+     "fileName": "Heaven Kick of Pain",
+     "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "strike",
-     "status": "ok",
-     "note": "Tsūtenkyaku.",
-     "params": null,
-     "len": 4.9,
-     "contacts": [
-      1.85
-     ],
-     "main": 1.85
+     "kind": "transform",
+     "status": "new",
+     "note": "Doppelung: Tsūtenkyaku hat Tsunade schon in Classic (Heavenly Spear Foot wäre derselbe Sturz-Tritt). Ersatz: Byakugō no Jutsu, die Zeichen breiten sich über den Körper, Dauer-Regeneration während des Kampfes (gegen Madara).",
+     "params": {
+      "replace": {
+       "name": "Strength of a Hundred Technique",
+       "src": "Narutopedia: Ninja Art Creation Rebirth — Strength of a Hundred Technique, Manga 577 / Anime Shippūden 333"
+      }
+     }
     },
     {
      "slot": 3,
      "name": "Katsuyu Acid Slime",
+     "fileName": "Katsuyu Acid Slime",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "aoe",
      "status": "new",
-     "note": "Katsuyus Säure (Zesshi Nensan).",
+     "note": "Katsuyus Säure (Zesshi Nensan). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu).",
      "params": null
     }
    ]
@@ -2524,6 +2666,7 @@
     {
      "slot": 1,
      "name": "Eight Branches Technique",
+     "fileName": "Eight Branches Technique",
      "clip": "orochimaru-yamata",
      "pendingClip": null,
      "reworked": false,
@@ -2547,12 +2690,13 @@
     {
      "slot": 2,
      "name": "Kusanagi Sword: Longsword of the Sky",
+     "fileName": "Kusanagi Sword: Longsword of the Sky",
      "clip": "orochimaru-kusanagi",
      "pendingClip": null,
      "reworked": false,
      "kind": "projectile",
-     "status": "ok",
-     "note": "Kusanagi aus dem Mund.",
+     "status": "partial",
+     "note": "Kein Doppel: Kū no Tachi (Manga 123) ist der aus dem Mund schnellende Langstoß; Classic 'Sword of Kusanagi' wird geführt. Braucht eigenen Clip, solange beide Slots denselben zeigen.",
      "params": null,
      "len": 4.45,
      "contacts": [
@@ -2562,14 +2706,20 @@
     },
     {
      "slot": 3,
-     "name": "Rashōmon Triple Gate",
+     "name": "Many Hidden Shadow Snake Hands",
+     "fileName": "Rashōmon Triple Gate",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "defense",
+     "kind": "bind",
      "status": "new",
-     "note": "Rashōmon.",
-     "params": null
+     "note": "Doppelung: Sanjū Rashōmon steht schon in Classic. Ersatz: Sen'ei Tajashu, viele Schlangen aus den Ärmeln binden das Ziel (Tenchi-Brücke).",
+     "params": {
+      "replace": {
+       "name": "Many Hidden Shadow Snake Hands",
+       "src": "Narutopedia: Many Hidden Shadow Snake Hands, Manga 290 / Anime Shippūden 39"
+      }
+     }
     }
    ]
   },
@@ -2589,6 +2739,7 @@
     {
      "slot": 1,
      "name": "Sand Tsunami",
+     "fileName": "Sand Tsunami",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2600,6 +2751,7 @@
     {
      "slot": 2,
      "name": "Grand Sand Mausoleum Seal",
+     "fileName": "Grand Sand Mausoleum Seal",
      "clip": "gaara-sabaku-taisou",
      "pendingClip": null,
      "reworked": false,
@@ -2617,12 +2769,13 @@
     {
      "slot": 3,
      "name": "Absolute Sand Shield",
+     "fileName": "Absolute Sand Shield",
      "clip": "gaara-suna-no-tate",
      "pendingClip": null,
      "reworked": false,
      "kind": "defense",
-     "status": "ok",
-     "note": "Zettai Bōgyo.",
+     "status": "partial",
+     "note": "Kein Doppel: Zettai Bōgyo: Shukaku no Tate ist der große Schild für ein Gebiet, Classic Suna no Tate der automatische Eigenschutz. Braucht eigenen Clip.",
      "params": null,
      "len": 4.7,
      "contacts": [
@@ -2649,6 +2802,7 @@
     {
      "slot": 1,
      "name": "Kotoamatsukami",
+     "fileName": "Kotoamatsukami",
      "clip": "shisui-kotoamatsukami",
      "pendingClip": null,
      "reworked": false,
@@ -2665,6 +2819,7 @@
     {
      "slot": 2,
      "name": "Body Flicker Afterimage Clones",
+     "fileName": "Body Flicker Afterimage Clones",
      "clip": "shisui-shunshin",
      "pendingClip": null,
      "reworked": false,
@@ -2687,6 +2842,7 @@
     {
      "slot": 3,
      "name": "Fire Style: Great Fireball",
+     "fileName": "Fire Style: Great Fireball",
      "clip": "fire-great-fireball",
      "pendingClip": null,
      "reworked": false,
@@ -2718,6 +2874,7 @@
     {
      "slot": 1,
      "name": "Kamui Snipe",
+     "fileName": "Kamui Snipe",
      "clip": "kakashi-kamui",
      "pendingClip": null,
      "reworked": false,
@@ -2734,23 +2891,25 @@
     },
     {
      "slot": 2,
-     "name": "Lightning Blade (Raikiri)",
-     "clip": "kakashi-raikiri",
+     "name": "Lightning Release: Shadow Clone",
+     "fileName": "Lightning Blade (Raikiri)",
+     "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "strike",
-     "status": "ok",
-     "note": "Raikiri.",
-     "params": null,
-     "len": 4.05,
-     "contacts": [
-      2
-     ],
-     "main": 2
+     "kind": "bind",
+     "status": "new",
+     "note": "Doppelung: Raikiri hat Kakashi schon in Classic. Ersatz: Raiton Kage Bunshin, ein Blitz-Doppelgänger lähmt das Ziel bei Berührung (gegen Pain).",
+     "params": {
+      "replace": {
+       "name": "Lightning Release: Shadow Clone",
+       "src": "Narutopedia: Lightning Release: Shadow Clone Technique, Manga 422 / Anime Shippūden 159"
+      }
+     }
     },
     {
      "slot": 3,
      "name": "Lightning Beast Tracking Fang",
+     "fileName": "Lightning Beast Tracking Fang",
      "clip": "kakashi-raijuu-tsuiga",
      "pendingClip": null,
      "reworked": false,
@@ -2783,6 +2942,7 @@
     {
      "slot": 1,
      "name": "Boil Release: Skilled Mist",
+     "fileName": "Boil Release: Skilled Mist",
      "clip": "mei-futton",
      "pendingClip": null,
      "reworked": false,
@@ -2802,6 +2962,7 @@
     {
      "slot": 2,
      "name": "Lava Release: Melting Apparition",
+     "fileName": "Lava Release: Melting Apparition",
      "clip": "mei-yoton",
      "pendingClip": null,
      "reworked": false,
@@ -2821,6 +2982,7 @@
     {
      "slot": 3,
      "name": "Water Dragon Pillar",
+     "fileName": "Water Dragon Pillar",
      "clip": "water-dragon",
      "pendingClip": null,
      "reworked": false,
@@ -2853,6 +3015,7 @@
     {
      "slot": 1,
      "name": "Sacred Paper Emissary (600 Billion Bombs)",
+     "fileName": "Sacred Paper Emissary (600 Billion Bombs)",
      "clip": "konan-kami-no-shisha",
      "pendingClip": null,
      "reworked": false,
@@ -2876,6 +3039,7 @@
     {
      "slot": 2,
      "name": "Shikigami Dance",
+     "fileName": "Shikigami Dance",
      "clip": "konan-shikigami",
      "pendingClip": null,
      "reworked": false,
@@ -2897,6 +3061,7 @@
     {
      "slot": 3,
      "name": "Paper Chakram",
+     "fileName": "Paper Chakram",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2923,6 +3088,7 @@
     {
      "slot": 1,
      "name": "C4 Karura (Microscopic Bombs)",
+     "fileName": "C4 Karura (Microscopic Bombs)",
      "clip": "deidara-c4",
      "pendingClip": null,
      "reworked": false,
@@ -2939,6 +3105,7 @@
     {
      "slot": 2,
      "name": "C3 Eighteen",
+     "fileName": "C3 Eighteen",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -2950,6 +3117,7 @@
     {
      "slot": 3,
      "name": "C2 Dragon",
+     "fileName": "C2 Dragon",
      "clip": "deidara-c2-dragon",
      "pendingClip": null,
      "reworked": false,
@@ -2983,6 +3151,7 @@
     {
      "slot": 1,
      "name": "Red Secret Technique: Performance of a Hundred Puppets",
+     "fileName": "Red Secret Technique: Performance of a Hundred Puppets",
      "clip": "sasori-hyakki",
      "pendingClip": null,
      "reworked": false,
@@ -3004,6 +3173,7 @@
     {
      "slot": 2,
      "name": "Third Kazekage: Iron Sand World Method",
+     "fileName": "Third Kazekage: Iron Sand World Method",
      "clip": "sasori-satetsu",
      "pendingClip": null,
      "reworked": false,
@@ -3024,6 +3194,7 @@
     {
      "slot": 3,
      "name": "Flamethrower Jet",
+     "fileName": "Flamethrower Jet",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3050,6 +3221,7 @@
     {
      "slot": 1,
      "name": "Earth Style: Earth Spear",
+     "fileName": "Earth Style: Earth Spear",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3061,6 +3233,7 @@
     {
      "slot": 2,
      "name": "Fire/Wind Combo: Searing Migraine",
+     "fileName": "Fire/Wind Combo: Searing Migraine",
      "clip": "kakuzu-zukokku",
      "pendingClip": null,
      "reworked": false,
@@ -3079,6 +3252,7 @@
     {
      "slot": 3,
      "name": "Lightning Style: False Darkness",
+     "fileName": "Lightning Style: False Darkness",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3105,6 +3279,7 @@
     {
      "slot": 1,
      "name": "Secret Technique: Scale Powder",
+     "fileName": "Secret Technique: Scale Powder",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3116,6 +3291,7 @@
     {
      "slot": 2,
      "name": "Bug Bite",
+     "fileName": "Bug Bite",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3127,6 +3303,7 @@
     {
      "slot": 3,
      "name": "Full Chōmei Transformation",
+     "fileName": "Full Chōmei Transformation",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3153,6 +3330,7 @@
     {
      "slot": 1,
      "name": "Izanagi Reality Rewrite",
+     "fileName": "Izanagi Reality Rewrite",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3164,6 +3342,7 @@
     {
      "slot": 2,
      "name": "Wind Style: Vacuum Great Sphere",
+     "fileName": "Wind Style: Vacuum Great Sphere",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3175,6 +3354,7 @@
     {
      "slot": 3,
      "name": "Summoning: Baku",
+     "fileName": "Summoning: Baku",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3201,6 +3381,7 @@
     {
      "slot": 1,
      "name": "Storm Release: Laser Circus",
+     "fileName": "Storm Release: Laser Circus",
      "clip": "darui-laser-circus",
      "pendingClip": null,
      "reworked": false,
@@ -3222,6 +3403,7 @@
     {
      "slot": 2,
      "name": "Water Style: Water Wall",
+     "fileName": "Water Style: Water Wall",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3248,6 +3430,7 @@
     {
      "slot": 1,
      "name": "Mouse Hairball (Blue Fire)",
+     "fileName": "Mouse Hairball (Blue Fire)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3259,6 +3442,7 @@
     {
      "slot": 2,
      "name": "Full Matatabi Transformation",
+     "fileName": "Full Matatabi Transformation",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3285,6 +3469,7 @@
     {
      "slot": 1,
      "name": "Lava Release Chakra Mode",
+     "fileName": "Lava Release Chakra Mode",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3296,6 +3481,7 @@
     {
      "slot": 2,
      "name": "Scorching Stream Rock",
+     "fileName": "Scorching Stream Rock",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3322,6 +3508,7 @@
     {
      "slot": 1,
      "name": "Boil Release: Unrivaled Strength",
+     "fileName": "Boil Release: Unrivaled Strength",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3333,6 +3520,7 @@
     {
      "slot": 2,
      "name": "Erupting Propulsion Fist",
+     "fileName": "Erupting Propulsion Fist",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3359,6 +3547,7 @@
     {
      "slot": 1,
      "name": "Soap Bubble Explosion",
+     "fileName": "Soap Bubble Explosion",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3370,6 +3559,7 @@
     {
      "slot": 2,
      "name": "Corrosive Alkali Mist",
+     "fileName": "Corrosive Alkali Mist",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3396,6 +3586,7 @@
     {
      "slot": 1,
      "name": "Morning Peacock",
+     "fileName": "Morning Peacock",
      "clip": "guy-asa-kujaku",
      "pendingClip": null,
      "reworked": false,
@@ -3419,6 +3610,7 @@
     {
      "slot": 2,
      "name": "Leaf Strong Whirlwind",
+     "fileName": "Leaf Strong Whirlwind",
      "clip": "lee-konoha-senpuu",
      "pendingClip": null,
      "reworked": false,
@@ -3451,6 +3643,7 @@
     {
      "slot": 1,
      "name": "Curse Technique: Death Controlling Possessed Blood",
+     "fileName": "Curse Technique: Death Controlling Possessed Blood",
      "clip": "hidan-jashin",
      "pendingClip": null,
      "reworked": false,
@@ -3468,6 +3661,7 @@
     {
      "slot": 2,
      "name": "Triple-Bladed Scythe Throw",
+     "fileName": "Triple-Bladed Scythe Throw",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3494,6 +3688,7 @@
     {
      "slot": 1,
      "name": "Hydrification Water Gun",
+     "fileName": "Hydrification Water Gun",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3505,6 +3700,7 @@
     {
      "slot": 2,
      "name": "Executioner's Blade: Great Cleave",
+     "fileName": "Executioner's Blade: Great Cleave",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3531,6 +3727,7 @@
     {
      "slot": 1,
      "name": "Multiple Lotus Chakra Cannon",
+     "fileName": "Multiple Lotus Chakra Cannon",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3542,6 +3739,7 @@
     {
      "slot": 2,
      "name": "Full Curse Mark Piston Punch",
+     "fileName": "Full Curse Mark Piston Punch",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3568,6 +3766,7 @@
     {
      "slot": 1,
      "name": "Ninja Art: Super Beast Imitating Drawing (Lions)",
+     "fileName": "Ninja Art: Super Beast Imitating Drawing (Lions)",
      "clip": "sai-chouju-giga",
      "pendingClip": null,
      "reworked": false,
@@ -3585,6 +3784,7 @@
     {
      "slot": 2,
      "name": "Sealing Technique: Tiger Vision Staring Bullet",
+     "fileName": "Sealing Technique: Tiger Vision Staring Bullet",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3611,6 +3811,7 @@
     {
      "slot": 1,
      "name": "Wood Style: Four-Pillar Prison",
+     "fileName": "Wood Style: Four-Pillar Prison",
      "clip": "yamato-shichuukaku",
      "pendingClip": null,
      "reworked": false,
@@ -3628,6 +3829,7 @@
     {
      "slot": 2,
      "name": "Wood Locking Wall",
+     "fileName": "Wood Locking Wall",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3653,24 +3855,27 @@
    "slots": [
     {
      "slot": 1,
-     "name": "Eight Trigrams Sixty-Four Palms",
-     "clip": "neji-64-palms",
+     "name": "Eight Trigrams Vacuum Palm",
+     "fileName": "Eight Trigrams Sixty-Four Palms",
+     "clip": "neji-kuushou",
      "pendingClip": null,
      "reworked": false,
-     "kind": "seal",
-     "status": "ok",
-     "note": "Hakke Rokujūyon Shō.",
-     "params": null,
-     "len": 5.75,
+     "kind": "projectile",
+     "status": "partial",
+     "note": "Doppelung: Hakke Rokujūyon Shō bleibt in Classic. Ersatz: Hakke Kūshō, ein einzelner gerichteter Fernstoß. Der Clip hängt Hakke Hasangeki an; der Slot braucht den Einzelstoß.",
+     "params": {
+      "replace": {
+       "name": "Eight Trigrams Vacuum Palm",
+       "src": "Narutopedia: Eight Trigrams Vacuum Palm, Manga 256 / Anime Shippūden 13"
+      }
+     },
+     "len": 5.1,
      "contacts": [
-      1.55,
-      2.05,
-      2.5,
-      3,
-      3.45,
-      4
+      1.2,
+      1.75,
+      2.95
      ],
-     "main": 4
+     "main": 2.95
     }
    ]
   },
@@ -3690,6 +3895,7 @@
     {
      "slot": 1,
      "name": "Fire Style: Burning Ash",
+     "fileName": "Fire Style: Burning Ash",
      "clip": "asuma-hien",
      "pendingClip": null,
      "reworked": false,
@@ -3722,6 +3928,7 @@
     {
      "slot": 1,
      "name": "Shadow Stitching Jutsu",
+     "fileName": "Shadow Stitching Jutsu",
      "clip": "shikamaru-kage-nui",
      "pendingClip": null,
      "reworked": false,
@@ -3755,6 +3962,7 @@
     {
      "slot": 1,
      "name": "Wind Style: Great Cast Net",
+     "fileName": "Wind Style: Great Cast Net",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3781,19 +3989,19 @@
     {
      "slot": 1,
      "name": "Demonic Illusion: Tree Binding Death",
-     "clip": "kurenai-jubaku-satsu",
+     "fileName": "Demonic Illusion: Tree Binding Death",
+     "clip": null,
      "pendingClip": null,
      "reworked": false,
      "kind": "illusion",
-     "status": "ok",
-     "note": "Magen: Jubaku Satsu.",
-     "params": null,
-     "len": 5.15,
-     "contacts": [
-      1.9,
-      2.7
-     ],
-     "main": 2.7
+     "status": "open",
+     "note": "Doppelung: Jubaku Satsu hat Kurenai schon in Classic. Kein Shippūden-Ersatz belegt: ihre übrigen Genjutsu (Jubaku Messatsu, Jubaku Satsu Bakuhatsu, Hanabira Nogare) sind Part-I-Anime, in Shippūden nur Psycho Mind Transmission und Sensorik. Slot offen.",
+     "params": {
+      "replace": {
+       "name": null,
+       "src": "Narutopedia: Kurenai Yūhi, Technikliste mit Debüts"
+      }
+     }
     }
    ]
   },
@@ -3812,20 +4020,20 @@
    "slots": [
     {
      "slot": 1,
-     "name": "Black Secret Technique: Machine One Shot",
-     "clip": "kankuro-kuroari",
+     "name": "Red Secret Technique: Machinery Triangles",
+     "fileName": "Black Secret Technique: Machine One Shot",
+     "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "bind",
-     "status": "ok",
-     "note": "Kuroari + Karasu.",
-     "params": null,
-     "len": 5.25,
-     "contacts": [
-      1.6,
-      3.55
-     ],
-     "main": 1.6
+     "kind": "projectile",
+     "status": "new",
+     "note": "Doppelung: Kuroari + Karasu (Machine One Shot) hat Kankurō schon in Classic; Machine Triple Shot wäre nur ein zusätzlicher Treffer. Ersatz: Akahigi: Kiki Sankaku, die Sasori-Puppe wirft dreieckige Klingen mit Sprengkugeln aus Hals und Händen.",
+     "params": {
+      "replace": {
+       "name": "Red Secret Technique: Machinery Triangles",
+       "src": "Narutopedia: Red Secret Technique: Machinery Triangles, Manga 464 / Anime Shippūden 203"
+      }
+     }
     }
    ]
   },
@@ -3845,6 +4053,7 @@
     {
      "slot": 1,
      "name": "Spiky Human Boulder",
+     "fileName": "Spiky Human Boulder",
      "clip": "chouji-nikudan-sensha",
      "pendingClip": null,
      "reworked": false,
@@ -3877,6 +4086,7 @@
     {
      "slot": 1,
      "name": "Ninja Art: Poison Fog",
+     "fileName": "Ninja Art: Poison Fog",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -3903,6 +4113,7 @@
     {
      "slot": 1,
      "name": "Gentle Step Twin Lion Fists",
+     "fileName": "Gentle Step Twin Lion Fists",
      "clip": "hinata-twin-lions",
      "pendingClip": null,
      "reworked": false,
@@ -3936,6 +4147,7 @@
     {
      "slot": 1,
      "name": "Secret Technique: Insect Sphere",
+     "fileName": "Secret Technique: Insect Sphere",
      "clip": "shino-mushidama",
      "pendingClip": null,
      "reworked": false,
@@ -3970,14 +4182,20 @@
    "slots": [
     {
      "slot": 1,
-     "name": "Chakra Scalpel",
+     "name": "Chakra Draining Seal",
+     "fileName": "Chakra Scalpel",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
-     "kind": "strike",
+     "kind": "drain",
      "status": "new",
-     "note": "Chakra no Mesu.",
-     "params": null
+     "note": "Doppelung: Chakra no Mesu hat Kabuto schon in Classic. Ersatz: Chakra Kyūin Fūin, ein Siegel auf dem Ziel zieht dessen Chakra zum Anwender (gegen Anko).",
+     "params": {
+      "replace": {
+       "name": "Chakra Draining Seal",
+       "src": "Narutopedia: Chakra Draining Seal, Manga 521 / Anime Shippūden 265"
+      }
+     }
     }
    ]
   },
@@ -3997,6 +4215,7 @@
     {
      "slot": 1,
      "name": "Hidden Shadow Snake Hands",
+     "fileName": "Hidden Shadow Snake Hands",
      "clip": "orochimaru-senei-jashu",
      "pendingClip": null,
      "reworked": false,
@@ -4035,6 +4254,7 @@
     {
      "slot": 1,
      "name": "Cherry Blossom Impact",
+     "fileName": "Cherry Blossom Impact",
      "clip": "sakura-ouka-shouraiken",
      "pendingClip": null,
      "reworked": false,
@@ -4066,6 +4286,7 @@
     {
      "slot": 1,
      "name": "Two-Headed Wolf: Fang Passing Fang",
+     "fileName": "Two-Headed Wolf: Fang Passing Fang",
      "clip": "kiba-garouga",
      "pendingClip": null,
      "reworked": false,
@@ -4102,6 +4323,7 @@
     {
      "slot": 1,
      "name": "Rasengan",
+     "fileName": "Rasengan",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -4128,6 +4350,7 @@
     {
      "slot": 1,
      "name": "Manipulated Tools: Heavenly Chain of Destruction",
+     "fileName": "Manipulated Tools: Heavenly Chain of Destruction",
      "clip": null,
      "pendingClip": null,
      "reworked": false,
@@ -4154,6 +4377,7 @@
     {
      "slot": 1,
      "name": "Mind Transfer Jutsu",
+     "fileName": "Mind Transfer Jutsu",
      "clip": "ino-shintenshin",
      "pendingClip": null,
      "reworked": false,
@@ -4186,6 +4410,7 @@
     {
      "slot": 1,
      "name": "String Light Formation (Barrier Seal)",
+     "fileName": "String Light Formation (Barrier Seal)",
      "clip": null,
      "pendingClip": null,
      "reworked": false,

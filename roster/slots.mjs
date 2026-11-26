@@ -16,7 +16,7 @@ export const SLOTS = {
     [null, "summon", "new", "Edo Tensei: im Konoha Crush ruft er die Ersten beiden Hokage."],
     ["orochimaru-kusanagi", "projectile", "ok", "Klinge aus dem Schlangenmaul."],
     [null, "seal", "new", "Gogyō Fūin auf Narutos Siegel, Wald des Todes."],
-    [null, "defense", "new", "Rashōmon dreifach gegen Hiruzens Enma."],
+    [null, "defense", "new", "Rashōmon gegen Hiruzens Enma. Zeitkonflikt: das dreifache Rashōmon ist erst in Shippūden belegt (Manga 295); hier als Kuchiyose: Rashōmon gezeigt."],
   ] },
   "classic|Jiraiya (Legendary Sannin)": { desc: "Sannin, Suche nach Tsunade.", moves: [
     [null, "bind", "new", "Gamaguchi Shibari: Magen einer Kröte, gegen Itachi und Kisame."],
@@ -28,7 +28,7 @@ export const SLOTS = {
     [null, "heal", "new", "Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto."],
     ["tsunade-tsuutenkyaku", "strike", "ok", "Tsūtenkyaku, Fersenhieb aus der Höhe."],
     ["tsunade-ranshinshou", "illusion", "ok", "Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht."],
-    [null, "summon", "new", "Kuchiyose: Katsuyu (Tanzaku)."],
+    [null, "defense", "new", "Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda)."],
   ] },
   "classic|Hiruzen Sarutobi (Third Hokage)": { desc: "Dritter Hokage, Konoha Crush.", moves: [
     ["hiruzen-shiki-fuujin", "seal", "ok", "Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt."],
@@ -51,7 +51,7 @@ export const SLOTS = {
   "classic|Kakashi Hatake (Team 7 Sensei)": { desc: "Team-7-Sensei, Land der Wellen.", moves: [
     ["kakashi-raikiri", "strike", "ok", "Raikiri gegen Haku/Zabuza."],
     [null, "projectile", "new", "Sharingan-Kopie von Zabuzas Suiryūdan, Spiegelduell."],
-    [null, "bind", "new", "Doton: Tsuiga no Jutsu, Ninken halten Zabuza."],
+    [null, "bind", "ok", "Kuchiyose: Doton: Tsuiga no Jutsu (Manga 29 / Anime 17): acht Ninken spüren Zabuza unter der Erde auf, brechen gemeinsam heraus und halten ihn mit den Zähnen. Live-Beschwörung mit eigenem Rig (Seite/Front/Rücken).", { summon: "kakashi-ninken-tsuiga" }],
     [null, "buff", "new", "Kirigakure im Land der Wellen ist Zabuzas Technik; Kakashi als Anwender laut Datei (Sharingan-Kopie)."],
   ] },
   "classic|Might Guy (Jōnin)": { desc: "Jōnin, Team Guy.", moves: [
@@ -194,19 +194,19 @@ export const SLOTS = {
   "shippuden|Might Guy (Seventh Gate — Kisame Fight)": { desc: "Kampf gegen Kisame.", moves: [
     ["guy-hirudora", "projectile", "ok", "Zeitkonflikt: der Kisame-Kampf liegt nach dem Gipfel, vor dem Krieg. Slot bleibt laut Datei."],
     ["guy-asa-kujaku", "strike", "ok", "Asa Kujaku, sechstes Tor."],
-    [null, "transform", "new", "Kyōmon, siebtes Tor."],
-    ["lee-konoha-senpuu", "strike", "actor", "Konoha Senpū; Clip mit Rock Lee."],
+    [null, "strike", "new", "Doppelung: das Öffnen eines Tores (Classic: sechstes Tor) ist derselbe Spielzustand; das siebte Tor bleibt sichtbarer Zustand der Variante (Hirudora öffnet es). Ersatz: Dynamic Action, Salto auf das Ziel und Schlag-Tritt-Serie, gegen Kisames Doppelgänger (Shippūden Folge 13).", { replace: { name: "Dynamic Action", src: "Narutopedia: Dynamic Action, Anime Shippūden 13" } }],
+    [null, "strike", "new", "Doppelung: Konoha Senpū ist dieselbe Drehtritt-Familie wie Classic 'Strong Fist Hurricane' (Konoha Gōriki Senpū). Ersatz: Konoha Saiha Shōfū, Ellbogenstoß mit Stützarm, zerbricht im Kisame-Kampf Yaguras Korallen.", { replace: { name: "Leaf Rock-Destroying Rise", src: "Narutopedia: Leaf Rock-Destroying Rise, Manga 505 / Anime Shippūden 250" } }],
   ] },
   "shippuden|Jiraiya (Sage Mode)": { desc: "Sennin-Modus gegen Pain.", moves: [
     ["jiraiya-goemon", "aoe", "ok", "Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt."],
     [null, "strike", "new", "Sennin-Ōdama Rasengan."],
     ["jiraiya-ult-gamarinshou", "illusion", "ok", "Magen: Gamarinshō."],
-    [null, "bind", "new", "Gamaguchi Shibari."],
+    [null, "bind", "new", "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).", { replace: { name: "Barrier: Toad Gourd Prison", src: "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133" } }],
   ] },
   "shippuden|Hiruzen Sarutobi (Prime — Flashback)": { desc: "Rückblende: Hiruzen in seiner besten Zeit.", moves: [
-    ["hiruzen-enma", "strike", "ok", "Enma als Kongōnyoi."],
+    [null, "bind", "new", "Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor.", { replace: { name: "Monkey King Enma: Adamantine Prison Wall", src: "Narutopedia: Adamantine Prison Wall, Manga 122 / Anime 72" } }],
     [null, "aoe", "new", "'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga."],
-    [null, "projectile", "new", "Shuriken Kage Bunshin."],
+    [null, "defense", "new", "Doppelung: Shuriken Kage Bunshin hat Hiruzen schon in Classic. Ersatz: Doton: Doryūheki, Erdwall aus dem Mund (Konoha Crush, Manga 120).", { replace: { name: "Earth Release: Earth-Style Wall", src: "Narutopedia: Earth Release: Earth-Style Wall, Manga 120 / Anime 71" } }],
   ] },
   "shippuden|Kisame Hoshigaki (Samehada Fusion)": { desc: "Mit Samehada verschmolzen.", moves: [
     ["kisame-shark-dance", "bind", "ok", "Suirō Samehada."],
@@ -214,19 +214,19 @@ export const SLOTS = {
     [null, "projectile", "new", "Goshokuzame."],
   ] },
   "shippuden|Tsunade (Fifth Hokage)": { desc: "Fünfte Hokage, Kage-Gipfel.", moves: [
-    [null, "heal", "new", "Sōzō Saisei."],
-    ["tsunade-tsuutenkyaku", "strike", "ok", "Tsūtenkyaku."],
-    [null, "aoe", "new", "Katsuyus Säure (Zesshi Nensan)."],
+    [null, "heal", "new", "Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha).", { replace: { name: "Katsuyu: Immense Network Healing", src: "Narutopedia: Katsuyu: Immense Network Healing, Manga 424 / Anime Shippūden 159" } }],
+    [null, "transform", "new", "Doppelung: Tsūtenkyaku hat Tsunade schon in Classic (Heavenly Spear Foot wäre derselbe Sturz-Tritt). Ersatz: Byakugō no Jutsu, die Zeichen breiten sich über den Körper, Dauer-Regeneration während des Kampfes (gegen Madara).", { replace: { name: "Strength of a Hundred Technique", src: "Narutopedia: Ninja Art Creation Rebirth — Strength of a Hundred Technique, Manga 577 / Anime Shippūden 333" } }],
+    [null, "aoe", "new", "Katsuyus Säure (Zesshi Nensan). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu)."],
   ] },
   "shippuden|Orochimaru (Eight-Headed Serpent)": { desc: "Yamata no Jutsu gegen Sasuke.", moves: [
     ["orochimaru-yamata", "aoe", "ok", "Yamata no Jutsu."],
-    ["orochimaru-kusanagi", "projectile", "ok", "Kusanagi aus dem Mund."],
-    [null, "defense", "new", "Rashōmon."],
+    ["orochimaru-kusanagi", "projectile", "partial", "Kein Doppel: Kū no Tachi (Manga 123) ist der aus dem Mund schnellende Langstoß; Classic 'Sword of Kusanagi' wird geführt. Braucht eigenen Clip, solange beide Slots denselben zeigen."],
+    [null, "bind", "new", "Doppelung: Sanjū Rashōmon steht schon in Classic. Ersatz: Sen'ei Tajashu, viele Schlangen aus den Ärmeln binden das Ziel (Tenchi-Brücke).", { replace: { name: "Many Hidden Shadow Snake Hands", src: "Narutopedia: Many Hidden Shadow Snake Hands, Manga 290 / Anime Shippūden 39" } }],
   ] },
   "shippuden|Gaara (Fifth Kazekage)": { desc: "Fünfter Kazekage.", moves: [
     [null, "aoe", "new", "Ryūsa Bakuryū."],
     ["gaara-sabaku-taisou", "seal", "ok", "Sabaku Taisō: begraben und verdichtet."],
-    ["gaara-suna-no-tate", "defense", "ok", "Zettai Bōgyo."],
+    ["gaara-suna-no-tate", "defense", "partial", "Kein Doppel: Zettai Bōgyo: Shukaku no Tate ist der große Schild für ein Gebiet, Classic Suna no Tate der automatische Eigenschutz. Braucht eigenen Clip."],
   ] },
   "shippuden|Shisui Uchiha (Body Flicker — Flashback)": { desc: "Rückblende.", moves: [
     ["shisui-kotoamatsukami", "illusion", "ok", "Kotoamatsukami. Spielzustand: Ziel greift nicht an."],
@@ -235,7 +235,7 @@ export const SLOTS = {
   ] },
   "shippuden|Kakashi Hatake (Mangekyō Sharingan)": { desc: "Mangekyō, Kampf gegen Pain.", moves: [
     ["kakashi-kamui", "aoe", "ok", "Kamui-Fernangriff."],
-    ["kakashi-raikiri", "strike", "ok", "Raikiri."],
+    [null, "bind", "new", "Doppelung: Raikiri hat Kakashi schon in Classic. Ersatz: Raiton Kage Bunshin, ein Blitz-Doppelgänger lähmt das Ziel bei Berührung (gegen Pain).", { replace: { name: "Lightning Release: Shadow Clone", src: "Narutopedia: Lightning Release: Shadow Clone Technique, Manga 422 / Anime Shippūden 159" } }],
     ["kakashi-raijuu-tsuiga", "projectile", "ok", "Raijū Tsuiga am Kage-Gipfel."],
   ] },
   "shippuden|Mei Terumī (Fifth Mizukage)": { desc: "Fünfte Mizukage, Kage-Gipfel.", moves: [
@@ -318,7 +318,7 @@ export const SLOTS = {
     [null, "defense", "new", "Mokujōheki."],
   ] },
   "shippuden|Neji Hyūga (Jōnin)": { desc: "Jōnin, Team Guy.", moves: [
-    ["neji-64-palms", "seal", "ok", "Hakke Rokujūyon Shō."],
+    ["neji-kuushou", "projectile", "partial", "Doppelung: Hakke Rokujūyon Shō bleibt in Classic. Ersatz: Hakke Kūshō, ein einzelner gerichteter Fernstoß. Der Clip hängt Hakke Hasangeki an; der Slot braucht den Einzelstoß.", { replace: { name: "Eight Trigrams Vacuum Palm", src: "Narutopedia: Eight Trigrams Vacuum Palm, Manga 256 / Anime Shippūden 13" } }],
   ] },
   "shippuden|Asuma Sarutobi (Jōnin)": { desc: "Jōnin, Team 10.", moves: [
     ["asuma-hien", "aoe", "partial", "Clip kombiniert Hien und Haisekishō; der Slot ist nur Haisekishō."],
@@ -330,10 +330,10 @@ export const SLOTS = {
     [null, "aoe", "new", "'Great Cast Net': Übersetzung uneindeutig."],
   ] },
   "shippuden|Kurenai Yūhi (Genjutsu Master — Jōnin)": { desc: "Jōnin.", moves: [
-    ["kurenai-jubaku-satsu", "illusion", "ok", "Magen: Jubaku Satsu."],
+    [null, "illusion", "open", "Doppelung: Jubaku Satsu hat Kurenai schon in Classic. Kein Shippūden-Ersatz belegt: ihre übrigen Genjutsu (Jubaku Messatsu, Jubaku Satsu Bakuhatsu, Hanabira Nogare) sind Part-I-Anime, in Shippūden nur Psycho Mind Transmission und Sensorik. Slot offen.", { replace: { name: null, src: "Narutopedia: Kurenai Yūhi, Technikliste mit Debüts" } }],
   ] },
   "shippuden|Kankurō (Kage Summit / Jōnin)": { desc: "Suna.", moves: [
-    ["kankuro-kuroari", "bind", "ok", "Kuroari + Karasu."],
+    [null, "projectile", "new", "Doppelung: Kuroari + Karasu (Machine One Shot) hat Kankurō schon in Classic; Machine Triple Shot wäre nur ein zusätzlicher Treffer. Ersatz: Akahigi: Kiki Sankaku, die Sasori-Puppe wirft dreieckige Klingen mit Sprengkugeln aus Hals und Händen.", { replace: { name: "Red Secret Technique: Machinery Triangles", src: "Narutopedia: Red Secret Technique: Machinery Triangles, Manga 464 / Anime Shippūden 203" } }],
   ] },
   "shippuden|Chōji Akimichi (Chūnin — Pre-War)": { desc: "Team 10.", moves: [
     ["chouji-nikudan-sensha", "strike", "partial", "Clip zeigt Nikudan Sensha ohne Stacheln (Nikudan Hari Sensha)."],
@@ -348,7 +348,7 @@ export const SLOTS = {
     ["shino-mushidama", "drain", "ok", "Hijutsu: Mushidama."],
   ] },
   "shippuden|Kabuto Yakushi (Snake Cloak)": { desc: "Kabuto mit Orochimarus Zellen.", moves: [
-    [null, "strike", "new", "Chakra no Mesu."],
+    [null, "drain", "new", "Doppelung: Chakra no Mesu hat Kabuto schon in Classic. Ersatz: Chakra Kyūin Fūin, ein Siegel auf dem Ziel zieht dessen Chakra zum Anwender (gegen Anko).", { replace: { name: "Chakra Draining Seal", src: "Narutopedia: Chakra Draining Seal, Manga 521 / Anime Shippūden 265" } }],
   ] },
   "shippuden|Anko Mitarashi (Special Jōnin)": { desc: "Spezial-Jōnin.", moves: [
     ["orochimaru-senei-jashu", "bind", "actor", "Sen'eijashu; der Clip zeigt Orochimaru als Anwender."],
