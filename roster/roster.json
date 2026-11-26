@@ -331,8 +331,10 @@
      "reworked": false,
      "kind": "strike",
      "status": "ok",
-     "note": "Enma als Kongōnyoi.",
-     "params": null,
+     "note": "Enma als Kongōnyoi (Henge: Kongōnyoi, Manga 120 / Anime 71): Enma erscheint als Affe, springt Hiruzen in die Hände und wird zum Stab, der sich ausfährt; die Spitze trifft und schiebt.",
+     "params": {
+      "summon": "hiruzen-enma-staff"
+     },
      "len": 5,
      "contacts": [
       2.85,
@@ -2482,13 +2484,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor.",
      "params": {
       "replace": {
        "name": "Monkey King Enma: Adamantine Prison Wall",
        "src": "Narutopedia: Adamantine Prison Wall, Manga 122 / Anime 72"
-      }
+      },
+      "summon": "hiruzen-enma-prison"
      }
     },
     {

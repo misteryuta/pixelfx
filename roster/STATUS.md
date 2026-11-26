@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
-| Naruto Shippūden | 55 | 130 | 54 | 6 | 9 | 60 |
-| **Gesamt** | 81 | 195 | 83 | 12 | 10 | 89 |
+| Naruto Shippūden | 55 | 130 | 55 | 6 | 9 | 59 |
+| **Gesamt** | 81 | 195 | 84 | 12 | 10 | 88 |
 
 ## Classic
 
@@ -25,7 +25,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 3 | Nervous System Rupture | `tsunade-ranshinshou` | umgesetzt | Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht. |
 |  |  |  |  | 4 | Summoning: Katsuyu | – | fehlt | Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda). |
 | Hiruzen Sarutobi (Third Hokage) | 92 | Legendary | Legends | 1 | Reaper Death Seal | `hiruzen-shiki-fuujin` | umgesetzt | Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt. |
-|  |  |  |  | 2 | Monkey King Enma: Adamantine Staff | `hiruzen-enma` | umgesetzt | Enma als Kongōnyoi. |
+|  |  |  |  | 2 | Monkey King Enma: Adamantine Staff | `hiruzen-enma` | umgesetzt | Enma als Kongōnyoi (Henge: Kongōnyoi, Manga 120 / Anime 71): Enma erscheint als Affe, springt Hiruzen in die Hände und wird zum Stab, der sich ausfährt; die Spitze trifft und schiebt. |
 |  |  |  |  | 3 | Fire Style: Dragon Flame Bomb | `fire-karyuu-endan` | Clip da, Anwender offen | Katon: Karyū Endan; Clip mit Standard-Anwender. Hiruzen als Anwender: Anime-Konoha-Crush (zu belegen). |
 |  |  |  |  | 4 | Shuriken Shadow Clone | – | fehlt | Shuriken Kage Bunshin gegen Orochimaru. |
 | Hashirama Senju (First Hokage — Konoha Crush) | 91 | Legendary | Legends | 1 | Wood Style: Deep Forest Emergence | `hashirama-jukai-kotan` | Clip da, Anwender offen | Jukai Kōtan im Barrierekampf. Clip zeigt Hashirama zu Lebzeiten, nicht den Edo-Körper (Risse). |
@@ -130,7 +130,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Massive Rasengan | – | fehlt | Sennin-Ōdama Rasengan. |
 |  |  |  |  | 3 | Frog Song Genjutsu | `jiraiya-ult-gamarinshou` | umgesetzt | Magen: Gamarinshō. |
 |  |  |  |  | 4 | Barrier: Toad Gourd Prison | – | fehlt | Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain). |
-| Hiruzen Sarutobi (Prime — Flashback) | 90 | Epic | Five Kage | 1 | Monkey King Enma: Adamantine Prison Wall | – | fehlt | Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor. |
+| Hiruzen Sarutobi (Prime — Flashback) | 90 | Epic | Five Kage | 1 | Monkey King Enma: Adamantine Prison Wall | – | umgesetzt | Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor. |
 |  |  |  |  | 2 | Five-Element Combo Blast | – | fehlt | 'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga. |
 |  |  |  |  | 3 | Earth Release: Earth-Style Wall | – | fehlt | Doppelung: Shuriken Kage Bunshin hat Hiruzen schon in Classic. Ersatz: Doton: Doryūheki, Erdwall aus dem Mund (Konoha Crush, Manga 120). |
 | Kisame Hoshigaki (Samehada Fusion) | 90 | Epic | Akatsuki | 1 | Water Prison Shark Dance | `kisame-shark-dance` | umgesetzt | Suirō Samehada. |

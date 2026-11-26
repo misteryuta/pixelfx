@@ -145,6 +145,66 @@ Gefundener und behobener Fehler: Ein Ziel genau im Zentrum eines Spritzers oder 
 
 Nicht im Bild geprüft: Katsuyu in der Vorder- und Rückansicht im Spiel. Bei diesem Durchgang blieb Pixel BAS im Spielmodus schwarz, nur die GUI war sichtbar, auch ganz ohne Wurf. Die Edit-Ansicht war normal. Das ist nachzuholen. Die Server-Fälle sind vollständig.
 
+## Hiruzen Sarutobi: Monkey King Enma, zwei Moves
+
+Aussehen (Narutopedia „Appearance“):
+
+- weißes Fell an Körper und Schwanz, lange weiße Mähne bis auf den Rücken, Koteletten und Kinnbart
+- olivfarbener Anzug mit Netzpanzer an Handgelenken und Knöcheln
+- goldenes ärmelloses Kimono-Hemd mit Tigerstreifen und weißem Fellbesatz, rote Schärpe, Konoha-Stirnschutz
+
+Rig mit Seiten-, Vorder- und Rückansicht. Der Stab ist schwarz mit goldenen Enden.
+
+Der Stab wird als Kette von Teilen in Hiruzens Handhöhe gezeichnet: Griff mit zwei Fäusten in schwarzen Handschuhen, Schaftstücke, goldene Spitze. Jedes Teil wird auf den Bildschirmwinkel der Linie gedreht. Die Spitze liegt immer genau dort, wo der Server die Trefferzone hat. Dadurch geht auch jede Schrägrichtung.
+
+### Classic, Slot 2: Monkey King Enma: Adamantine Staff (Henge: Kongōnyoi, Manga 120 / Anime 71)
+
+Ablauf:
+
+1. Enma erscheint als Affe neben Hiruzen.
+2. Er springt Hiruzen in die Hände, Puff: Hiruzen hält den Stab.
+3. Ausholen: Hiruzen dreht sich zum Ziel und folgt ihm. Das ist das Signal.
+4. Der Stab schießt aus (62 Studs/s, bis 30 Studs). Nur die Spitze trifft: Sie nimmt das Ziel mit bis zur vollen Länge und wirft es dann ab (14 Schaden, Rückstoß entlang des Stabs).
+5. Der Stab fährt zurück, Puff.
+
+Hiruzen bleibt währenddessen gesperrt.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| A1 | Treffer | rechts | 0,0 | Spitze trägt T1 bis 31,4, Abwurf bis 35,4 | bestanden | Server bestanden |
+| A2 | weicht beim Ausstoßen aus | rechts | 0,0 | Fehlschlag | bestanden | – |
+| A3 | Treffer | unten | 30,-24 | T1 nach unten getragen (30,11.4) | bestanden | – |
+| A4 | weicht aus | unten | 30,-24 | Fehlschlag | bestanden | Server bestanden |
+| A5 | Treffer | oben | 52,30 | T2 nach oben getragen (52,-5.4) | bestanden | Server bestanden |
+| A6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | – |
+| A7 | Ziel läuft beim Ausholen | rechts | 0,0 | Stoß schräg (0.94, 0.34) auf T1 bei 30,11; Treffer | bestanden | – |
+| A8 | Ziel beim Ausholen entfernt | rechts | 0,0 | Stoß zum letzten Ort; Fehlschlag | bestanden | – |
+| A9 | kein Ziel im Kegel | links | 0,0 | Fehlschlag | bestanden | – |
+| A10 | Abbruch, während T1 getragen wird | rechts | 0,0 | T1 sofort losgelassen (Held true → false) | bestanden | – |
+
+### Shippūden (Prime), Slot 1: Monkey King Enma: Adamantine Prison Wall (Kongō Rōheki, Manga 122 / Anime 72)
+
+Ablauf:
+
+1. Enma erscheint und wird zum Stab, Hiruzen holt aus.
+2. Der Stab fährt bis zur Stelle des Ziels aus.
+3. Dort fallen die Klone als Pfosten ein und die Stäbe schieben sich zu einem Gitterkasten zusammen (Hälfte 3,4 Studs, hinter und vor dem Gefangenen gezeichnet).
+4. Wer beim Schließen drin ist, wird 3 s festgehalten (4 Schaden). Sonst steht der Käfig kurz leer und verschwindet.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| K1 | Treffer | rechts | 0,0 | T1 gefangen | bestanden | Server bestanden |
+| K2 | weicht aus | rechts | 0,0 | leerer Käfig, Fehlschlag | bestanden | – |
+| K3 | Treffer | unten | 30,-24 | T1 gefangen | bestanden | Server bestanden |
+| K4 | weicht aus | unten | 30,-24 | Fehlschlag | bestanden | – |
+| K5 | Treffer | oben | 52,30 | T2 gefangen | bestanden | – |
+| K6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | Server bestanden |
+| K7 | Ziel läuft | rechts | 0,0 | Käfig bei 30,11 (dem verfolgten Ort); T1 bleibt im Käfig (bei 30,8.4 an der Wand) | bestanden | – |
+| K8 | Ziel beim Ausholen entfernt | rechts | 0,0 | leerer Käfig am letzten Ort | bestanden | – |
+| K9 | Abbruch im Käfig | rechts | 0,0 | T1 sofort frei | bestanden | – |
+
+Nicht im Bild geprüft: Enma, der Stab und der Käfig im Spiel. Pixel BAS rendert in dieser Sitzung im Spielmodus keine 3D-Ansicht. Sogar ein neonroter Würfel und ein AlwaysOnTop-Billboard direkt vor der Kamera blieben unsichtbar; nur die Bildschirm-GUI erscheint. Geprüft sind nur die Bake-Blätter (`records/summon/enma_sheet.png`, `enma_turnaround.png`).
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

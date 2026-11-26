@@ -36,7 +36,7 @@ for (const R of M.RIGS ?? []) {
   const BW = 760, BH = 560, bx = BW / 2, by = BH - 150, full = [], index = {};
   for (const [an, A] of Object.entries(R.anims ?? M.ANIMS)) {
     index[an] = { fps: A.fps, loop: !!A.loop, n: A.frames };
-    for (const v of M.VIEWS) {
+    for (const v of R.views ?? M.VIEWS) {
       index[an][v] = full.length + 1;
       for (let i = 0; i < A.frames; i++) {
         const u = A.loop ? i / A.frames : A.frames > 1 ? i / (A.frames - 1) : 0;

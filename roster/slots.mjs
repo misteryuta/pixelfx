@@ -32,7 +32,7 @@ export const SLOTS = {
   ] },
   "classic|Hiruzen Sarutobi (Third Hokage)": { desc: "Dritter Hokage, Konoha Crush.", moves: [
     ["hiruzen-shiki-fuujin", "seal", "ok", "Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt."],
-    ["hiruzen-enma", "strike", "ok", "Enma als Kongōnyoi."],
+    ["hiruzen-enma", "strike", "ok", "Enma als Kongōnyoi (Henge: Kongōnyoi, Manga 120 / Anime 71): Enma erscheint als Affe, springt Hiruzen in die Hände und wird zum Stab, der sich ausfährt; die Spitze trifft und schiebt.", { summon: "hiruzen-enma-staff" }],
     ["fire-karyuu-endan", "projectile", "actor", "Katon: Karyū Endan; Clip mit Standard-Anwender. Hiruzen als Anwender: Anime-Konoha-Crush (zu belegen)."],
     [null, "projectile", "new", "Shuriken Kage Bunshin gegen Orochimaru."],
   ] },
@@ -204,7 +204,7 @@ export const SLOTS = {
     [null, "bind", "new", "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).", { replace: { name: "Barrier: Toad Gourd Prison", src: "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133" } }],
   ] },
   "shippuden|Hiruzen Sarutobi (Prime — Flashback)": { desc: "Rückblende: Hiruzen in seiner besten Zeit.", moves: [
-    [null, "bind", "new", "Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor.", { replace: { name: "Monkey King Enma: Adamantine Prison Wall", src: "Narutopedia: Adamantine Prison Wall, Manga 122 / Anime 72" } }],
+    [null, "bind", "ok", "Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor.", { replace: { name: "Monkey King Enma: Adamantine Prison Wall", src: "Narutopedia: Adamantine Prison Wall, Manga 122 / Anime 72" }, summon: "hiruzen-enma-prison" }],
     [null, "aoe", "new", "'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga."],
     [null, "defense", "new", "Doppelung: Shuriken Kage Bunshin hat Hiruzen schon in Classic. Ersatz: Doton: Doryūheki, Erdwall aus dem Mund (Konoha Crush, Manga 120).", { replace: { name: "Earth Release: Earth-Style Wall", src: "Narutopedia: Earth Release: Earth-Style Wall, Manga 120 / Anime 71" } }],
   ] },

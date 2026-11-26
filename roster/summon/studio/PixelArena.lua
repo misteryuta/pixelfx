@@ -738,6 +738,116 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- Enma (kind "staff")
+	local function newStaff(f)
+		local v = { f = f, kind = "staff", monkey = newCard(2), smoke = newCard(4), puff = newCard(5), hit = newCard(5),
+			grip = newCard(3), tip = newCard(3), shafts = {}, cageB = newCard(1), cageF = newCard(3), popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killStaff(v)
+		for _, k in ipairs({ "monkey", "smoke", "puff", "hit", "grip", "tip", "cageB", "cageF" }) do kill(v[k]) end
+		for _, c in ipairs(v.shafts) do kill(c) end
+	end
+	local function stepStaff(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local base = toMap(f:GetAttribute("BX") or cx, f:GetAttribute("BZ") or cz)
+		local sd = Vector2.new(f:GetAttribute("SDX") or dx, f:GetAttribute("SDZ") or dz)
+		local L = f:GetAttribute("L") or 0
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.5)
+			elseif phase == "aim" then sfx("poof", 0.4); v.hengeT = T
+			elseif phase == "extend" then sfx("whoosh", 0.8)
+			elseif phase == "cage" then sfx("burst", 0.6); ctx.shake(1.2, 0.2)
+			elseif phase == "release" then sfx("poof", 0.4); v.releaseT = T
+			end
+			-- results: once the thrust is held out, or the cage is shut
+			if mine and (phase == "hold" or phase == "bound" or phase == "empty") then
+				local res = f:GetAttribute("Result")
+				addLog(("%s | %s | %s | %s"):format(v.who or "?", dirName(dx, dz), res == "hit" and ("TREFFER (" .. (f:GetAttribute("HitKind") or "") .. ")") or "VERFEHLT",
+					res == "hit" and ("Ziel " .. tostring(f:GetAttribute("HitName"))) or (f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")))
+				if res ~= "hit" then pop(base + sd * L, "VERFEHLT", Color3.fromRGB(192, 196, 224)) end
+			end
+			if mine and phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			if ending then sfx("poof", 0.3) end
+		end
+		-- Enma in monkey form beside Hiruzen, then his jump into Hiruzen's hands
+		local mk = loadPack("monkey_enma")
+		local em = toMap(f:GetAttribute("EX") or cx, f:GetAttribute("EZ") or cz)
+		local h = math.atan2(dz, dx)
+		local view, face = viewOf(h)
+		local sm = loadPack("en_smoke")
+		if phase == "appear" then
+			if u >= 0.1 then show(v.monkey, mk, frameOf(mk, "idle", view, u), em, face, 0, false, 0) else hide(v.monkey) end
+			if u < sm.meta.frames / sm.meta.fps then show(v.smoke, sm, math.floor(u * sm.meta.fps) + 1, em, 1, 0, false, 0.3) else hide(v.smoke) end
+		elseif phase == "henge" then
+			-- along the way from his place to the grip
+			local q = math.clamp(u / M.henge, 0, 1)
+			show(v.monkey, mk, byProg(mk, "hop", view, q), em:Lerp(base, q), face, 0, false, 0)
+			hide(v.smoke)
+		else hide(v.monkey); hide(v.smoke) end
+		-- puffs: turning into the staff (at the grip), turning back at the end
+		local pf = loadPack("en_puff")
+		local pLen = pf.meta.frames / pf.meta.fps
+		local puffT = (v.releaseT and T - v.releaseT < pLen and v.releaseT) or (v.hengeT and T - v.hengeT < pLen and v.hengeT) or nil
+		if puffT then show(v.puff, pf, math.floor((T - puffT) * pf.meta.fps) + 1, base + sd * 1.5, 1, M.handPx, false, 0.4) else hide(v.puff) end
+		-- the staff: pieces along its line at Hiruzen's hand height, each turned to the line's angle on screen
+		local showStaff = phase == "aim" or phase == "extend" or phase == "hold" or phase == "retract" or phase == "cage" or phase == "bound" or phase == "empty" or (phase == "release" and u < 0.1)
+		if showStaff and L > 0 then
+			local rot = math.deg(math.atan2(sd.Y * math.sin(ctx.pitch), sd.X))
+			show(v.grip, loadPack("en_grip"), 1, base + sd * 1.1, 1, M.handPx, false, 0.1); v.grip.img.Rotation = rot
+			local tipP = base + sd * L
+			show(v.tip, loadPack("en_tip"), 1, tipP - sd * 1.0, 1, M.handPx, false, 0.12); v.tip.img.Rotation = rot
+			local sp = loadPack("en_shaft")
+			local n = math.max(0, math.ceil((L - 4.2) / 3.4))
+			for i = 1, math.max(n, #v.shafts) do
+				local c = v.shafts[i]
+				if i <= n then
+					if not c then c = newCard(3); v.shafts[i] = c end
+					local along = math.min(L - 2.6, 3.4 + (i - 0.5) * 3.4)
+					show(c, sp, 1, base + sd * along, 1, M.handPx, false, 0.1); c.img.Rotation = rot
+				elseif c then hide(c) end
+			end
+		else
+			hide(v.grip); hide(v.tip)
+			for _, c in ipairs(v.shafts) do hide(c) end
+		end
+		-- the tip striking
+		local hitT = f:GetAttribute("HitT")
+		local hp = loadPack("en_hit")
+		if hitT and T - hitT < hp.meta.frames / hp.meta.fps and f:GetAttribute("HitKind") == "Spitze" then
+			show(v.hit, hp, math.floor((T - hitT) * hp.meta.fps) + 1, base + sd * L, 1, M.handPx, false, 0.5)
+		else hide(v.hit) end
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.popped[name] then
+				v.popped[name] = true
+				t.shake = 0.35
+				pop(t.p, f:GetAttribute("HitKind") == "Kaefig" and "GEFANGEN" or "GETROFFEN", Color3.fromRGB(255, 196, 90))
+				ctx.shake(1.4, 0.25); sfx("bite", 0.6)
+			end
+		end
+		-- the cage: the far half behind the prisoner, the near half in front
+		local cX, cZ = f:GetAttribute("CX"), f:GetAttribute("CZ")
+		if cX and (phase == "cage" or phase == "bound" or phase == "empty" or (phase == "release" and u < 0.12)) then
+			local cm = toMap(cX, cZ)
+			local bp, fp = loadPack("cage_back"), loadPack("cage_front")
+			local k1 = phase == "cage" and byProg(bp, "form", "side", u / M.form) or bp.meta.index.hold.side
+			show(v.cageB, bp, k1, cm, 1, 0, false, -M.cageH)
+			show(v.cageF, fp, k1, cm, 1, 0, false, M.cageH + 0.4)
+		else hide(v.cageB); hide(v.cageF) end
+		-- Hiruzen holds the staff the whole time: free again once Enma is gone
+		if v.locked and (phase == "release" or ending) then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- slots, directions, the training panel
 	local variantIdx = 1
 	for i, v in ipairs(Roster.list) do if v.id == "classic/kakashi-hatake-team-7-sensei" then variantIdx = i end end
@@ -776,7 +886,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -899,12 +1009,13 @@ function A.mount(ctx)
 			local kind = f:GetAttribute("Kind")
 			if kind == "leap" then stepToad(views[f] or newToad(f))
 			elseif kind == "network" or kind == "spit" then stepSlug(views[f] or newSlug(f))
+			elseif kind == "staff" then stepStaff(views[f] or newStaff(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -921,7 +1032,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

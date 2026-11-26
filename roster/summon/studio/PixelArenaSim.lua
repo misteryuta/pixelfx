@@ -127,6 +127,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "leap" then return self:castLeap(owner, M, p, dir) end
 	if M.kind == "network" then return self:castNetwork(owner, M, p, dir) end
 	if M.kind == "spit" then return self:castSpit(owner, M, p, dir) end
+	if M.kind == "staff" then return self:castStaff(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -461,6 +462,131 @@ function Sim:stepSpit(c, dt)
 	self:writeCast(c)
 end
 
+-- Enma (kind "staff"): appear beside Hiruzen, jump into his hands as the staff, aim (following the target), then
+-- either the thrust (mode "thrust": the tip carries what it reaches to the full length, then throws it off) or the
+-- prison wall (mode "prison": the staff reaches the spot, the clones form a cage there; whoever is inside is held).
+function Sim:castStaff(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.range, M.cone)
+	local side = Vector2.new(-dir.Y, dir.X)
+	local c = { id = id, f = f, kind = "staff", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * M.missRange), result = "", hitKind = "", hits = {}, carried = {}, dogs = {},
+		L = 0, sdir = dir }
+	c.enma = p + side * M.side
+	c.goal = c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "staff")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepStaff(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	local base = c.p + c.sdir * M.grip
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "henge") end
+	elseif c.phase == "henge" then
+		if u >= M.henge then enter(c, "aim"); c.L = M.L0 end
+	elseif c.phase == "aim" then
+		-- Hiruzen turns with the target while he draws the staff back
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.p
+		if to.Magnitude > 0.5 then c.sdir = to.Unit end
+		c.L = M.L0 * (1 - 0.25 * math.min(1, u / M.aim))
+		if u >= M.aim then
+			c.reach = M.mode == "prison" and math.min(M.Lmax, (c.aim - (c.p + c.sdir * M.grip)).Magnitude) or M.Lmax
+			enter(c, "extend")
+		end
+	elseif c.phase == "extend" then
+		local L0 = c.L
+		c.L = math.min(c.reach, c.L + M.speed * dt)
+		if M.mode == "thrust" then
+			-- the tip: whatever it passes over (within the staff's width of the line) is caught and carried
+			for _, t in pairs(self.targets) do
+				if t.alive and not t.ally and not c.hits[t] then
+					local rel = t.p - base
+					local along, lat = rel:Dot(c.sdir), math.abs(rel:Dot(Vector2.new(-c.sdir.Y, c.sdir.X)))
+					if lat <= M.hitW and along <= c.L + M.hitW * 0.5 and along >= L0 - 1 then
+						c.hits[t] = true
+						t.hp -= M.dmg
+						t.held, t.dodgeTo = true, nil
+						c.carried[t] = true
+						c.result, c.hitKind, c.hitT = "hit", "Spitze", c.t
+						c.hitName = c.hitName and (c.hitName .. "+" .. t.name) or t.name
+					end
+				end
+			end
+			for t in pairs(c.carried) do t.p = base + c.sdir * (c.L + 0.6); self:writeTarget(t) end
+			if c.L >= c.reach then enter(c, "hold") end
+		else
+			if c.L >= c.reach then
+				c.cage = base + c.sdir * c.L
+				enter(c, "cage")
+			end
+		end
+	elseif c.phase == "hold" then
+		for t in pairs(c.carried) do t.p = base + c.sdir * (c.L + 0.6) end
+		if u >= M.hold then
+			-- thrown off the tip, along the staff
+			for t in pairs(c.carried) do
+				t.held = false
+				t.kb, t.kbLeft = c.sdir * (M.kb / M.kbT), M.kbT
+				self:writeTarget(t)
+			end
+			c.carried = {}
+			if c.result == "" then c.result = "miss" end
+			enter(c, "retract")
+		end
+	elseif c.phase == "retract" then
+		c.L = math.max(M.L0, c.L - M.retract * dt)
+		if c.L <= M.L0 then enter(c, "release") end
+	elseif c.phase == "cage" then
+		-- the staff goes home while the clones drop in; when the cage is shut, whoever is inside stays
+		c.L = math.max(M.L0, c.L - M.retract * dt)
+		if u >= M.form then
+			for _, t in pairs(self.targets) do
+				if t.alive and not t.ally and math.abs(t.p.X - c.cage.X) <= M.cageH + 0.3 and math.abs(t.p.Y - c.cage.Y) <= M.cageH + 0.3 and not c.bound then
+					c.bound = t
+					t.held, t.dodgeTo = true, nil
+					t.hp -= M.dmg
+					c.result, c.hitKind, c.hitT, c.hitName = "hit", "Kaefig", c.t, t.name
+					self:writeTarget(t)
+				end
+			end
+			if c.result == "" then c.result = "miss" end
+			enter(c, c.bound and "bound" or "empty")
+		end
+	elseif c.phase == "bound" then
+		c.L = math.max(M.L0, c.L - M.retract * dt)
+		if c.bound and c.bound.alive then c.bound.p = Vector2.new(math.clamp(c.bound.p.X, c.cage.X - M.cageH + 0.8, c.cage.X + M.cageH - 0.8), math.clamp(c.bound.p.Y, c.cage.Y - M.cageH + 0.8, c.cage.Y + M.cageH - 0.8)) end
+		if u >= M.bind or not (c.bound and c.bound.alive) then
+			if c.bound then c.bound.held = false; self:writeTarget(c.bound); c.bound = nil end
+			enter(c, "release")
+		end
+	elseif c.phase == "empty" then
+		c.L = math.max(M.L0, c.L - M.retract * dt)
+		if u >= M.empty then enter(c, "release") end
+	elseif c.phase == "release" then
+		if u >= M.release then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.6 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 function Sim:writeCast(c)
 	local f = c.f
 	f:SetAttribute("T", c.t); f:SetAttribute("Phase", c.phase); f:SetAttribute("Result", c.result)
@@ -468,6 +594,15 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "staff" then
+		local base = c.p + c.sdir * c.M.grip
+		f:SetAttribute("PT", c.pt); f:SetAttribute("EX", c.enma.X); f:SetAttribute("EZ", c.enma.Y)
+		f:SetAttribute("BX", base.X); f:SetAttribute("BZ", base.Y); f:SetAttribute("SDX", c.sdir.X); f:SetAttribute("SDZ", c.sdir.Y)
+		f:SetAttribute("L", c.L); f:SetAttribute("HitKind", c.hitKind)
+		f:SetAttribute("AX", c.aim.X); f:SetAttribute("AZ", c.aim.Y)
+		if c.cage then f:SetAttribute("CX", c.cage.X); f:SetAttribute("CZ", c.cage.Y) end
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "network" or c.kind == "spit" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
 		f:SetAttribute("HitKind", c.hitKind or "")
@@ -505,6 +640,9 @@ function Sim:abort(owner)
 			c.phase, c.endT = "abort", c.t
 			c.pt = c.t
 			if c.target and c.held then c.target.held = false; self:writeTarget(c.target) end
+			for t in pairs(c.carried or {}) do t.held = false; self:writeTarget(t) end
+			if c.bound then c.bound.held = false; self:writeTarget(c.bound); c.bound = nil end
+			c.carried = {}
 			self:writeCast(c)
 		end
 	end
@@ -523,6 +661,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "leap" then return self:stepLeap(c, dt) end
 	if c.kind == "network" then return self:stepNetwork(c, dt) end
 	if c.kind == "spit" then return self:stepSpit(c, dt) end
+	if c.kind == "staff" then return self:stepStaff(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target
