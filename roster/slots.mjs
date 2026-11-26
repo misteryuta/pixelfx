@@ -105,7 +105,7 @@ export const SLOTS = {
     [null, "illusion", "new", "'Genjutsu Petal Escape': kein eindeutiger Manga-Beleg; Darstellung als Genjutsu-Ausweichen."],
   ] },
   "classic|Temari (Genin)": { desc: "Genin aus Suna.", moves: [
-    ["temari-kamatari", "aoe", "ok", "Kuchiyose: Kirikiri Mai."],
+    ["temari-kamatari", "aoe", "ok", "Kuchiyose: Kirikiri Mai (Manga 214 / Anime 125, gegen Tayuya): Kamatari reitet den Wirbelwind des Fächers, wird auf seiner Bahn immer schneller und schneidet alles darin.", { summon: "temari-kamatari-dance" }],
     ["temari-kamaitachi", "projectile", "ok", "Fūton: Kamaitachi."],
   ] },
   "classic|Shikamaru Nara (Genin)": { desc: "Genin, Chūnin-Prüfung.", moves: [

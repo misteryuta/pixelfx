@@ -205,6 +205,35 @@ Ablauf:
 
 Nicht im Bild geprüft: Enma, der Stab und der Käfig im Spiel. Pixel BAS rendert in dieser Sitzung im Spielmodus keine 3D-Ansicht. Sogar ein neonroter Würfel und ein AlwaysOnTop-Billboard direkt vor der Kamera blieben unsichtbar; nur die Bildschirm-GUI erscheint. Geprüft sind nur die Bake-Blätter (`records/summon/enma_sheet.png`, `enma_turnaround.png`).
 
+## Temari (Genin), Classic, Slot 1: Summoning: Quick Beheading Dance (Kirikiri Mai, Manga 214 / Anime 125)
+
+Aussehen (Narutopedia „Appearance“, Anime 125): ein riesiges weißes Wiesel mit dunkelgrüner Augenklappe über dem linken Auge, schwarzer Weste mit rotem Rand und gelber Schnur auf dem Rücken und buschigem Schwanz. Die Sichel ist fast so lang wie er selbst: weiß umwickelter Griff, goldene Beschläge, breite gebogene Klinge. Beim Warten schweben kleine Sicheln und die Laterne mit „鎌“ um ihn. Rig mit Seiten-, Vorder- und Rückansicht.
+
+Ablauf (Server):
+
+1. Temaris Fächerschwung (Windstoß).
+2. Kamatari erscheint im Wind vor ihr.
+3. Er duckt sich mit zurückgezogener Sichel und dreht sich zum Ziel (folgt ihm). Am Boden zeigt sich der Windkorridor, 40 Studs lang, ±3,2 Studs breit: das Signal.
+4. Lauf: Er wird auf der Bahn immer schneller (s = 18 t + 90 t², bis etwa 120 Studs/s). Die Sichel kreist, er wird blasser, die Nachbilder werden länger.
+5. Jeder in Sichelreichweite der Bahn wird geschnitten (16 Schaden) und vom Wind zur Seite und etwas nach vorn geschleudert.
+6. Am Ende schlittert er, Rauch. Die Schnittspuren bleiben kurz am Boden.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| D1 | Treffer | rechts | 0,0 | T1 geschnitten, zur Seite geschleudert (34.2,5.6); Höchstgeschwindigkeit 121 | bestanden | Server bestanden |
+| D2 | weicht beim Loslaufen aus | rechts | 0,0 | Fehlschlag | bestanden | – |
+| D3 | Treffer | unten | 30,-28 | T1 geschnitten | bestanden | – |
+| D4 | weicht aus | unten | 30,-28 | Fehlschlag | bestanden | Server bestanden |
+| D5 | Treffer | oben | 52,30 | T2 geschnitten | bestanden | Server bestanden |
+| D6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | – |
+| D7 | Ziel läuft beim Ausholen | rechts | 0,0 | Bahn schräg (0.94, 0.35) auf T1 bei 30,10.2; Treffer | bestanden | – |
+| D8 | Ziel beim Ausholen entfernt | rechts | 0,0 | Lauf zum letzten Ort; Fehlschlag | bestanden | – |
+| D9 | kein Ziel im Kegel | links | 0,0 | Fehlschlag | bestanden | – |
+| D10 | zwei Ziele auf der Bahn | oben | 30,40 | T3 und T1 geschnitten | bestanden | – |
+| D11 | Abbruch im Lauf | rechts | 0,0 | Rauch; nach 1,2 / 2,4 / 3,6 s 1 / 0 / 1 neue Teile (nur das Kunai des Werfers) | bestanden | – |
+
+Nicht im Bild geprüft: Pixel BAS rendert im Spielmodus weiterhin keine 3D-Ansicht. Geprüft sind die Bake-Blätter (`records/summon/kamatari_sheet.png`, `kamatari_turnaround.png`).
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

@@ -848,6 +848,120 @@ function A.mount(ctx)
 		if v.locked and (phase == "release" or ending) then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- Kamatari (kind "dash")
+	local GHOSTS = 4
+	local function newDash(f)
+		local v = { f = f, kind = "dash", body = newCard(2), ghosts = {}, gust = newCard(4), sickles = newCard(3), streak = newCard(4),
+			smoke = newCard(4), path = newFloor(), scar = newFloor(), cuts = {}, popped = {} }
+		for i = 1, GHOSTS do v.ghosts[i] = newCard(2) end
+		views[f] = v
+		return v
+	end
+	local function killDash(v)
+		for _, k in ipairs({ "body", "gust", "sickles", "streak", "smoke", "path", "scar" }) do kill(v[k]) end
+		for _, c in ipairs(v.ghosts) do kill(c) end
+		for _, c in pairs(v.cuts) do kill(c.card); kill(c.debris) end
+	end
+	local function stepDash(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local start = toMap(f:GetAttribute("SX") or cx, f:GetAttribute("SZ") or cz)
+		local pd = Vector2.new(f:GetAttribute("PDX") or dx, f:GetAttribute("PDZ") or dz)
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local S, V = f:GetAttribute("S") or 0, f:GetAttribute("V") or 0
+		local h = math.atan2(pd.Y, pd.X)
+		local view, face = viewOf(h)
+		local pk = loadPack("weasel_kamatari")
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "seal" or phase == "appear" then sfx("whoosh", 0.6)
+			elseif phase == "dash" then sfx("whoosh", 0.9)
+			elseif phase == "stop" then
+				v.stopT = T
+				if mine then
+					local res = f:GetAttribute("Result")
+					addLog(("%s | %s | %s | %s"):format(v.who or "?", dirName(dx, dz), res == "hit" and ("TREFFER (" .. (f:GetAttribute("HitKind") or "") .. ")") or "VERFEHLT",
+						res == "hit" and ("Ziel " .. tostring(f:GetAttribute("HitName"))) or (f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")))
+					if res ~= "hit" then pop(pos, "VERFEHLT", Color3.fromRGB(192, 196, 224)) end
+				end
+			elseif ending then
+				sfx("poof", 0.4)
+				if mine and phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			end
+		end
+		-- the fan's gust at Temari
+		local gp = loadPack("km_gust")
+		if phase == "seal" or (phase == "appear" and u < 0.15) then
+			local q = T
+			show(v.gust, gp, math.min(gp.meta.frames, math.floor(q * gp.meta.fps) + 1), toMap(cx, cz) + Vector2.new(dx, dz) * 1.5, 1, 0, false, 0.4)
+		else hide(v.gust) end
+		-- Kamatari himself: crouched in the wind, winding up, then the dash (fainter the faster he goes), the stop
+		local k, alpha = nil, 0
+		if phase == "appear" then if u > 0.05 then k = frameOf(pk, "idle", view, u) end
+		elseif phase == "windup" then k = byProg(pk, "windup", view, u / M.windup)
+		elseif phase == "dash" then k = frameOf(pk, "dash", view, u); alpha = math.clamp((V - 40) / 90, 0, 0.75)
+		elseif phase == "stop" then k = byProg(pk, "stop", view, u / M.stop)
+		elseif ending and u < 0.1 and v.lastK then k = v.lastK end
+		if k then v.lastK = k; show(v.body, pk, k, pos, face, 0, false, 0); v.body.img.ImageTransparency = alpha else hide(v.body) end
+		-- his trail in the dash: afterimages behind him, longer as he speeds up
+		for i, g in ipairs(v.ghosts) do
+			if phase == "dash" and k then
+				local back = i * math.clamp(V / 30, 0.6, 4)
+				local gs = S - back
+				if gs > 0 then
+					show(g, pk, frameOf(pk, "dash", view, u - i * 0.03), start + pd * gs, face, 0, false, -0.05 * i)
+					g.img.ImageTransparency = math.clamp(0.45 + i * 0.12 + alpha * 0.3, 0, 0.95)
+				else hide(g) end
+			else hide(g) end
+		end
+		-- the small sickles and the lantern while he waits
+		local sk = loadPack("km_sickles")
+		if phase == "appear" or phase == "windup" then show(v.sickles, sk, math.floor(T * sk.meta.fps) % sk.meta.frames + 1, pos, 1, 0, false, -0.1)
+		else hide(v.sickles) end
+		-- speed lines round him, turned to his line on screen
+		local sp = loadPack("km_streak")
+		if phase == "dash" and V > 35 then
+			show(v.streak, sp, math.floor(T * sp.meta.fps) % sp.meta.frames + 1, pos, 1, 0, false, 0.2)
+			v.streak.img.Rotation = math.deg(math.atan2(pd.Y * math.sin(ctx.pitch), pd.X))
+			v.streak.img.ImageTransparency = 1 - math.clamp((V - 35) / 60, 0, 1) * 0.9
+		else hide(v.streak) end
+		-- the corridor on the floor while he winds up and runs; the cuts it leaves, fading
+		if phase == "windup" or phase == "dash" then
+			local pp = loadPack("km_path")
+			showFloor(v.path, pp, math.floor(T * pp.meta.fps) % pp.meta.frames + 1, start, h, false, phase == "dash" and 0.35 or 0)
+		else hide(v.path) end
+		if v.stopT or phase == "dash" then
+			local fade = v.stopT and math.clamp((T - v.stopT - 0.6) / 1.0, 0, 1) or 0
+			if fade < 1 and (v.stopT or S > 6) then showFloor(v.scar, loadPack("km_scar"), 1, start, h, false, fade) else hide(v.scar) end
+		else hide(v.scar) end
+		-- the cuts: a flash and debris at each target, words, a shake
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.popped[name] then
+				v.popped[name] = { t0 = T, at = t.p, card = newCard(5), debris = newCard(4) }
+				v.cuts[name] = v.popped[name]
+				t.shake = 0.35
+				pop(t.p, "GETROFFEN", Color3.fromRGB(255, 196, 90)); ctx.shake(1.3, 0.2); sfx("bite", 0.6)
+			end
+		end
+		for _, c in pairs(v.cuts) do
+			local q = T - c.t0
+			local cp, dp = loadPack("km_cut"), loadPack("km_debris")
+			if q < cp.meta.frames / cp.meta.fps then show(c.card, cp, math.floor(q * cp.meta.fps) + 1, c.at, 1, 0, false, 0.5) else hide(c.card) end
+			if q < dp.meta.frames / dp.meta.fps then show(c.debris, dp, math.floor(q * dp.meta.fps) + 1, c.at, 1, 0, false, 0.3) else hide(c.debris) end
+		end
+		-- gone in smoke at the end of the path
+		local sm = loadPack("km_smoke")
+		if ending and u < sm.meta.frames / sm.meta.fps then show(v.smoke, sm, math.floor(u * sm.meta.fps) + 1, pos, 1, 0, false, 0.3) else hide(v.smoke) end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- slots, directions, the training panel
 	local variantIdx = 1
 	for i, v in ipairs(Roster.list) do if v.id == "classic/kakashi-hatake-team-7-sensei" then variantIdx = i end end
@@ -886,7 +1000,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1010,12 +1124,13 @@ function A.mount(ctx)
 			if kind == "leap" then stepToad(views[f] or newToad(f))
 			elseif kind == "network" or kind == "spit" then stepSlug(views[f] or newSlug(f))
 			elseif kind == "staff" then stepStaff(views[f] or newStaff(f))
+			elseif kind == "dash" then stepDash(views[f] or newDash(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1032,7 +1147,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

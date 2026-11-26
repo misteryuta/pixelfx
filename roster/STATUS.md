@@ -68,7 +68,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 2 | Eight Trigrams Palms Revolving Heaven | `neji-kaiten` | umgesetzt | Hakkeshō Kaiten. |
 | Kurenai Yūhi (Jōnin) | 74 | Rare | Konoha Jōnin | 1 | Demonic Illusion: Tree Binding Death | `kurenai-jubaku-satsu` | umgesetzt | Magen: Jubaku Satsu gegen Itachi. |
 |  |  |  |  | 2 | Genjutsu Petal Escape | – | fehlt | 'Genjutsu Petal Escape': kein eindeutiger Manga-Beleg; Darstellung als Genjutsu-Ausweichen. |
-| Temari (Genin) | 72 | Rare | Sand & Sound | 1 | Summoning: Quick Beheading Dance | `temari-kamatari` | umgesetzt | Kuchiyose: Kirikiri Mai. |
+| Temari (Genin) | 72 | Rare | Sand & Sound | 1 | Summoning: Quick Beheading Dance | `temari-kamatari` | umgesetzt | Kuchiyose: Kirikiri Mai (Manga 214 / Anime 125, gegen Tayuya): Kamatari reitet den Wirbelwind des Fächers, wird auf seiner Bahn immer schneller und schneidet alles darin. |
 |  |  |  |  | 2 | Wind Scythe Jutsu | `temari-kamaitachi` | umgesetzt | Fūton: Kamaitachi. |
 | Shikamaru Nara (Genin) | 68 | Common | Academy Kids | 1 | Shadow Possession Jutsu | `shikamaru-kagemane` | umgesetzt | Kagemane no Jutsu: Verbindung über den Boden, gekoppelte Bewegung. |
 | Kankurō (Genin) | 67 | Common | Sand & Sound | 1 | Black Secret Technique: Machine One Shot (Crow & Black Ant) | `kankuro-kuroari` | umgesetzt | Kuroari + Karasu. |

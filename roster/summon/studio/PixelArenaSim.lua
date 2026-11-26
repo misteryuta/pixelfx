@@ -128,6 +128,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "network" then return self:castNetwork(owner, M, p, dir) end
 	if M.kind == "spit" then return self:castSpit(owner, M, p, dir) end
 	if M.kind == "staff" then return self:castStaff(owner, M, p, dir) end
+	if M.kind == "dash" then return self:castDash(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -587,6 +588,79 @@ function Sim:stepStaff(c, dt)
 	self:writeCast(c)
 end
 
+-- Kamatari (kind "dash"): appear in front of the summoner, wind up turned to the target (following it), then dash
+-- along a straight path that speeds up all the way; everything within the sickle's reach of the line he has covered
+-- is cut and flung aside by the wind.
+function Sim:castDash(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.range, M.cone)
+	local c = { id = id, f = f, kind = "dash", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * M.length), result = "", hitKind = "", hits = {}, dogs = {},
+		start = p + dir * M.start, pdir = dir, s = 0, v = 0 }
+	c.pos, c.goal = c.start, c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "dash")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepDash(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "windup") end
+	elseif c.phase == "windup" then
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.start
+		if to.Magnitude > 0.5 then c.pdir = to.Unit end
+		if u >= M.windup then enter(c, "dash") end
+	elseif c.phase == "dash" then
+		local s0 = c.s
+		c.s = math.min(M.length, M.v0 * u + 0.5 * M.acc * u * u)
+		c.v = M.v0 + M.acc * u
+		c.pos = c.start + c.pdir * c.s
+		local side = Vector2.new(-c.pdir.Y, c.pdir.X)
+		for _, t in pairs(self.targets) do
+			if t.alive and not t.ally and not c.hits[t] then
+				local rel = t.p - c.start
+				local along, lat = rel:Dot(c.pdir), rel:Dot(side)
+				if math.abs(lat) <= M.W and along >= s0 - 1 and along <= c.s + 1 then
+					c.hits[t] = true
+					t.hp -= M.dmg
+					-- flung aside by the wind, a little forward
+					local away = (c.pdir * 0.6 + side * ((lat >= 0) and 0.8 or -0.8)).Unit
+					t.kb, t.kbLeft, t.dodgeTo = away * (M.kb / M.kbT), M.kbT, nil
+					c.result, c.hitKind, c.hitT = "hit", "Sichel", c.t
+					c.hitName = c.hitName and (c.hitName .. "+" .. t.name) or t.name
+					self:writeTarget(t)
+				end
+			end
+		end
+		if c.s >= M.length then
+			if c.result == "" then c.result = "miss" end
+			c.v = 0
+			enter(c, "stop")
+		end
+	elseif c.phase == "stop" then
+		if u >= M.stop then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.6 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 function Sim:writeCast(c)
 	local f = c.f
 	f:SetAttribute("T", c.t); f:SetAttribute("Phase", c.phase); f:SetAttribute("Result", c.result)
@@ -594,6 +668,12 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "dash" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y)
+		f:SetAttribute("SX", c.start.X); f:SetAttribute("SZ", c.start.Y); f:SetAttribute("PDX", c.pdir.X); f:SetAttribute("PDZ", c.pdir.Y)
+		f:SetAttribute("S", c.s); f:SetAttribute("V", c.v); f:SetAttribute("HitKind", c.hitKind)
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "staff" then
 		local base = c.p + c.sdir * c.M.grip
 		f:SetAttribute("PT", c.pt); f:SetAttribute("EX", c.enma.X); f:SetAttribute("EZ", c.enma.Y)
@@ -662,6 +742,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "network" then return self:stepNetwork(c, dt) end
 	if c.kind == "spit" then return self:stepSpit(c, dt) end
 	if c.kind == "staff" then return self:stepStaff(c, dt) end
+	if c.kind == "dash" then return self:stepDash(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target

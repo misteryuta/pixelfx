@@ -1224,8 +1224,10 @@
      "reworked": false,
      "kind": "aoe",
      "status": "ok",
-     "note": "Kuchiyose: Kirikiri Mai.",
-     "params": null,
+     "note": "Kuchiyose: Kirikiri Mai (Manga 214 / Anime 125, gegen Tayuya): Kamatari reitet den Wirbelwind des Fächers, wird auf seiner Bahn immer schneller und schneidet alles darin.",
+     "params": {
+      "summon": "temari-kamatari-dance"
+     },
      "len": 5.65,
      "contacts": [
       2.1,
