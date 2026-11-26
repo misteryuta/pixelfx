@@ -171,6 +171,61 @@ function A.mount(ctx)
 		card.bb.Enabled = true
 	end
 
+	-- floor decals: a flat part with the frame on its top face, 1 px = 1 SPP on the floor, turned to a heading.
+	-- Image x = forward, image y = right (the bake's convention); mirror = right is the other side.
+	local function newFloor()
+		local part = Instance.new("Part")
+		part.Anchored, part.CanCollide, part.CanQuery, part.CanTouch, part.CastShadow = true, false, false, false, false
+		part.Transparency, part.Size = 1, Vector3.new(1, 0.05, 1)
+		part.Parent = folder
+		local sg = Instance.new("SurfaceGui")
+		sg.Face, sg.SizingMode, sg.PixelsPerStud, sg.LightInfluence, sg.AlwaysOnTop = Enum.NormalId.Top, Enum.SurfaceGuiSizingMode.PixelsPerStud, 1 / SPP, 0, false
+		sg.Adornee = part
+		sg.Parent = part
+		local img = Instance.new("ImageLabel")
+		img.BackgroundTransparency, img.Size, img.ResampleMode = 1, UDim2.fromScale(1, 1), Enum.ResamplerMode.Pixelated
+		img.Parent = sg
+		return { anchor = part, sg = sg, img = img, floor = true }
+	end
+	local function paint(card, pack, k)
+		local meta = pack.meta
+		if card.pack ~= pack then
+			if card.ei then card.ei:Destroy() end
+			card.ei = AssetService:CreateEditableImage({ Size = Vector2.new(meta.cw, meta.ch) })
+			card.buf = buffer.create(meta.cw * meta.ch * 4)
+			card.img.ImageContent = Content.fromObject(card.ei)
+			card.pack, card.k = pack, nil
+		end
+		if card.k ~= k then
+			local f = pack.frames[math.clamp(k, 1, #pack.frames)]
+			buffer.fill(card.buf, 0, 0)
+			local row = f.w * 4
+			for yy = 0, f.h - 1 do buffer.copy(card.buf, ((f.y + yy) * meta.cw + f.x) * 4, pack.raw, f.off + yy * row, row) end
+			card.ei:WritePixelsBuffer(Vector2.zero, Vector2.new(meta.cw, meta.ch), card.buf)
+			card.k = k
+		end
+	end
+	-- checked in Studio (marker image): on a Top-face SurfaceGui the image's x runs along the part's -Z and its y
+	-- along the part's +X. So the part's X is his right, its -Z his forward; the image is flipped when 'right' is the
+	-- mirrored side.
+	local function showFloor(card, pack, k, m, heading, mirror, alpha)
+		paint(card, pack, k)
+		local meta = pack.meta
+		local fw = Vector3.new(math.cos(heading), 0, math.sin(heading))
+		local rt = Vector3.new(-math.sin(heading), 0, math.cos(heading))
+		if mirror then rt = -rt end
+		local rt0 = fw:Cross(Vector3.yAxis) -- right-handed: rt0 x up = -fw
+		local flipY = rt0:Dot(rt) < 0
+		card.img.ImageRectOffset = Vector2.new(0, flipY and meta.ch or 0)
+		card.img.ImageRectSize = Vector2.new(meta.cw, flipY and -meta.ch or meta.ch)
+		local px, py = meta.pivot[1], meta.pivot[2]
+		local centre = O + Vector3.new(m.X, groundAt(m) + 0.07, m.Y) + fw * ((meta.cw / 2 - px) * SPP) + rt * ((meta.ch / 2 - py) * SPP)
+		card.anchor.Size = Vector3.new(meta.ch * SPP, 0.05, meta.cw * SPP)
+		card.anchor.CFrame = CFrame.fromMatrix(centre, rt0, Vector3.yAxis)
+		card.img.ImageTransparency = alpha or 0
+		card.sg.Enabled = true
+	end
+
 	---------------------------------------------------------------- targets
 	local targets = {} -- name -> { p (map), card, image, shake, f }
 	local pops = {}
@@ -251,7 +306,7 @@ function A.mount(ctx)
 		k = ix.loop and (k % n) or math.min(n - 1, k)
 		return ix[view] + k
 	end
-	local function hide(card) if card and card.bb then card.bb.Enabled = false end end
+	local function hide(card) if card and card.bb then card.bb.Enabled = false end; if card and card.sg then card.sg.Enabled = false end end
 	local function stepView(v)
 		local f = v.f
 		local T, phase = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal"
@@ -366,6 +421,142 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- Gamabunta (kind "leap")
+	local function newToad(f)
+		local v = { f = f, kind = "leap", toad = newCard(2), smoke = newCard(4), dust = newCard(3), hit = newCard(5),
+			fseal = newFloor(), shadow = newFloor(), zone = newFloor(), crack = newFloor(), arc = newFloor(), said = {} }
+		views[f] = v
+		return v
+	end
+	local function killToad(v)
+		for _, k in ipairs({ "toad", "smoke", "dust", "hit", "fseal", "shadow", "zone", "crack", "arc" }) do
+			local c = v[k]
+			if c then if c.ei then c.ei:Destroy() end; if c.anchor then c.anchor:Destroy() end end
+		end
+	end
+	local function byProg(pack, anim, view, prog)
+		local ix = pack.meta.index[anim]
+		return ix[view] + math.clamp(math.floor(prog * ix.n), 0, ix.n - 1)
+	end
+	local function stepToad(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local P = M.prefix or "gb_"
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local caster = toMap(cx, cz)
+		local pos = toMap(f:GetAttribute("TX") or cx, f:GetAttribute("TZ") or cz)
+		local h, ty = f:GetAttribute("TH") or 0, f:GetAttribute("TY") or 0
+		local view, face = viewOf(h)
+		local mirror = view == "side" and face < 0
+		local pk = loadPack("toad_gamabunta")
+		-- phase changes seen here (client times for the dust and the cracks)
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.6)
+			elseif phase == "air" then v.takeoffT = T; sfx("whoosh", 0.6)
+			elseif phase == "land" then
+				v.landT = T; sfx("burst", 0.8); ctx.shake(2.4, 0.35)
+			elseif phase == "slash" then sfx("whoosh", 0.8)
+			elseif phase == "follow" then
+				local res = f:GetAttribute("Result")
+				local tgt = targets[f:GetAttribute("Target") or ""]
+				if res == "miss" then pop(toMap(f:GetAttribute("LX") or cx, f:GetAttribute("LZ") or cz) + Vector2.new(math.cos(h), math.sin(h)) * M.standOff, "VERFEHLT", Color3.fromRGB(192, 196, 224)) end
+				if f:GetAttribute("Owner") == player.UserId then
+					addLog(("%s | %s | %s | %s"):format(v.who or "?", dirName(dx, dz), res == "hit" and ("TREFFER (" .. (f:GetAttribute("HitKind") or "") .. ")") or "VERFEHLT",
+						res == "hit" and ("Ziel " .. tostring(f:GetAttribute("HitName"))) or (f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")))
+				end
+			elseif phase == "done" or phase == "abort" then
+				sfx("poof", 0.5)
+				if phase == "abort" and f:GetAttribute("Owner") == player.UserId then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			end
+		end
+		-- a hit: flash on the target, words, shake (once)
+		local hitT = f:GetAttribute("HitT")
+		v.hitShown = v.hitShown or {}
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.hitShown[name] then
+				v.hitShown[name] = true
+				t.shake = 0.35; pop(t.p, "GETROFFEN", Color3.fromRGB(255, 196, 90)); v.hitAt = t.p
+				sfx("bite", 0.7); ctx.shake(1.6, 0.25)
+			end
+		end
+		if v.hitAt and hitT and T - hitT < 0.3 then
+			local hp = loadPack(P .. "hit")
+			show(v.hit, hp, math.floor((T - hitT) * hp.meta.fps) + 1, v.hitAt, 1, 0, false, 0.5)
+		else hide(v.hit) end
+		-- the summoning formula under Naruto's palm
+		if phase == "seal" or (phase == "appear" and u < 0.4) then
+			local sp = loadPack(P .. "fseal")
+			showFloor(v.fseal, sp, math.min(sp.meta.frames, math.floor(T * sp.meta.fps) + 1), caster + Vector2.new(dx, dz) * 1.5, math.atan2(dz, dx), false, phase == "appear" and u / 0.4 or 0)
+		else hide(v.fseal) end
+		-- the toad
+		local ending = phase == "done" or phase == "abort"
+		local anim, k
+		if phase == "appear" then
+			if u >= 0.12 then anim = "sit"; k = frameOf(pk, "sit", view, u) end
+		elseif phase == "crouch" then anim = "crouch"; k = byProg(pk, "crouch", view, u / M.crouch)
+		elseif phase == "air" then
+			local q = u / M.air
+			if q < 0.3 then k = byProg(pk, "leap", view, q / 0.3) elseif q < 0.72 then k = frameOf(pk, "air", view, u) else k = byProg(pk, "fall", view, (q - 0.72) / 0.28) end
+		elseif phase == "land" then k = byProg(pk, "land", view, u / M.land)
+		elseif phase == "draw" then k = byProg(pk, "draw", view, u / M.draw)
+		elseif phase == "slash" or phase == "follow" then
+			local ba = f:GetAttribute("BA") or M.sword.from
+			local sp = math.clamp((M.sword.from - ba) / (M.sword.from - M.sword.to), 0, 1)
+			local ix = pk.meta.index.slash
+			v.slashFrame = math.clamp(math.round(sp * (ix.n - 1)), 0, ix.n - 1)
+			k = ix[view] + v.slashFrame
+		elseif phase == "look" then k = frameOf(pk, "look", view, u)
+		elseif ending and v.lastK and u < 0.12 then k = v.lastK end
+		if k then
+			v.lastK = k
+			show(v.toad, pk, k, pos, face, ty / SPP, false, 0)
+			-- seen from behind he stands between the camera and his target: let it show through him
+			v.toad.img.ImageTransparency = (view == "back") and 0.35 or 0
+		else hide(v.toad) end
+		-- smoke: arriving (behind Naruto) and leaving (where he is, at his height)
+		local bs = loadPack(P .. "bigsmoke")
+		local bsLen = bs.meta.frames / bs.meta.fps
+		if phase == "appear" and u < bsLen then
+			show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, toMap(f:GetAttribute("SX") or cx, f:GetAttribute("SZ") or cz), 1, 0, false, 0.4)
+		elseif ending and u < bsLen then
+			show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, ty / SPP, false, 0.4)
+		else hide(v.smoke) end
+		-- his shadow on the floor (smaller the higher he is): the ground contact during the leap
+		if (phase ~= "seal" and not ending and (phase ~= "appear" or u >= 0.12)) or (ending and u < 0.12) then
+			local sh = loadPack(P .. "shadow")
+			showFloor(v.shadow, sh, 1 + math.clamp(math.floor(ty / M.jumpH * sh.meta.frames), 0, sh.meta.frames - 1), pos, h, mirror)
+		else hide(v.shadow) end
+		-- where he comes down (crush ring), during the crouch's end and the leap
+		local lx, lz = f:GetAttribute("LX"), f:GetAttribute("LZ")
+		if phase == "air" and lx then
+			local zp = loadPack(P .. "zone")
+			showFloor(v.zone, zp, math.floor(T * zp.meta.fps) % zp.meta.frames + 1, toMap(lx, lz), 0, false)
+		else hide(v.zone) end
+		-- dust at the take-off and the landing
+		local dp = loadPack(P .. "dust")
+		local dLen = dp.meta.frames / dp.meta.fps
+		if v.landT and T - v.landT < dLen and lx then show(v.dust, dp, math.floor((T - v.landT) * dp.meta.fps) + 1, toMap(lx, lz), 1, 0, false, 0.6)
+		elseif v.takeoffT and T - v.takeoffT < dLen then show(v.dust, dp, math.floor((T - v.takeoffT) * dp.meta.fps) + 1, toMap(f:GetAttribute("FX") or cx, f:GetAttribute("FZ") or cz), 1, 0, false, 0.6)
+		else hide(v.dust) end
+		-- cracks where he landed, fading
+		if v.landT and lx then
+			local a = math.clamp((T - v.landT - 1.2) / 0.8, 0, 1)
+			if a < 1 then showFloor(v.crack, loadPack(P .. "crack"), 1, toMap(lx, lz), 0, false, a) else hide(v.crack) end
+		else hide(v.crack) end
+		-- the sword's sweep on the floor = the hit zone: outlined while he draws, then frame by frame with the blade
+		local ap = loadPack(P .. "arc")
+		if phase == "draw" then showFloor(v.arc, ap, 1, pos, h, mirror, 0.2)
+		elseif phase == "slash" then showFloor(v.arc, ap, 2 + (v.slashFrame or 0), pos, h, mirror)
+		elseif phase == "follow" then showFloor(v.arc, ap, ap.meta.frames, pos, h, mirror, math.clamp(u / M.follow, 0, 1))
+		else hide(v.arc) end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- slots, directions, the training panel
 	local variantIdx = 1
 	for i, v in ipairs(Roster.list) do if v.id == "classic/kakashi-hatake-team-7-sensei" then variantIdx = i end end
@@ -403,7 +594,7 @@ function A.mount(ctx)
 		if op == "cast" then
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
-				local v = views[f] or newView(f)
+				local v = views[f] or (f:GetAttribute("Kind") == "leap" and newToad(f) or newView(f))
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -523,13 +714,13 @@ function A.mount(ctx)
 			elseif t.held then t.card.img.Rotation = math.sin(os.clock() * 30) * 1.5 end
 		end
 		for _, f in ipairs(state.Casts:GetChildren()) do
-			local v = views[f] or newView(f)
-			stepView(v)
+			if f:GetAttribute("Kind") == "leap" then stepToad(views[f] or newToad(f)) else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				killView(v); views[f] = nil
+				if v.kind == "leap" then killToad(v) else killView(v) end
+				views[f] = nil
 			end
 		end
 		for i = #pops, 1, -1 do
@@ -545,7 +736,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do killView(v) end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

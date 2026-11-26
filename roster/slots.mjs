@@ -77,7 +77,7 @@ export const SLOTS = {
   "classic|Naruto Uzumaki (Final Valley)": { desc: "Tal des Endes, Ein-Schweif-Mantel.", moves: [
     [null, "strike", "new", "Rasengan im Ein-Schweif-Mantel gegen Sasuke."],
     ["naruto-uzumaki-rendan", "strike", "actor", "Uzumaki Naruto Rendan. Clip zeigt Naruto ohne Kyūbi-Mantel."],
-    [null, "summon", "new", "Gamabunta: belegt im Konoha Crush, nicht im Tal des Endes."],
+    [null, "summon", "ok", "Kuchiyose: Gamabunta, der mit Gama Dosu Zan angreift (Toad Sword Beheading, Manga 135 / Anime 78): Sprung aufs Ziel, Landung, Schnitt mit der Dosu. Belegt im Konoha Crush, nicht im Tal des Endes.", { summon: "naruto-gamabunta-dosuzan" }],
   ] },
   "classic|Sasuke Uchiha (Final Valley)": { desc: "Tal des Endes, Fluchmal Stufe 2.", moves: [
     [null, "strike", "new", "Schwarzes Chidori im Fluchmal Stufe 2."],

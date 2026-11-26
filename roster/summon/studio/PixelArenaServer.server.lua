@@ -47,7 +47,7 @@ remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
 		if sim:busy(player.UserId) then remote:FireClient(player, "refused", "läuft noch"); return end
 		if sim.t < ready then remote:FireClient(player, "refused", ("Abklingzeit %.1f s"):format(ready - sim.t)); return end
 		cooldown[player.UserId][moveId] = sim.t + M.cooldown
-		local cast = sim:castNinken(player.UserId, c, d.Unit)
+		local cast = sim:cast(player.UserId, moveId, c, d.Unit)
 		remote:FireClient(player, "cast", cast.id, M.lock)
 	elseif op == "abort" then
 		sim:abort(player.UserId)
@@ -59,6 +59,7 @@ remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
 		elseif op == "pause" then state:SetAttribute("Paused", a == true)
 		elseif op == "frame" then state:SetAttribute("Paused", true); sim:step(0, 1 / 20)
 		elseif op == "targets" then sim:setTargetMode(a, b)
+		elseif op == "tplace" then sim:placeTarget(a, b)
 		elseif op == "cooldowns" then cooldown[player.UserId] = {} end
 	end
 end)

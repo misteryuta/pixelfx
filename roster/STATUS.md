@@ -4,9 +4,9 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
-| Naruto Classic | 26 | 65 | 28 | 6 | 1 | 30 |
+| Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
 | Naruto Shippūden | 55 | 130 | 52 | 6 | 9 | 62 |
-| **Gesamt** | 81 | 195 | 80 | 12 | 10 | 92 |
+| **Gesamt** | 81 | 195 | 81 | 12 | 10 | 91 |
 
 ## Classic
 
@@ -54,7 +54,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 3 | Sand Shield | `gaara-suna-no-tate` | umgesetzt | Suna no Tate (automatisch). |
 | Naruto Uzumaki (Final Valley) | 84 | Epic | Exam Prodigies | 1 | One-Tailed Vermilion Rasengan | – | fehlt | Rasengan im Ein-Schweif-Mantel gegen Sasuke. |
 |  |  |  |  | 2 | Uzumaki Barrage | `naruto-uzumaki-rendan` | Clip da, Anwender offen | Uzumaki Naruto Rendan. Clip zeigt Naruto ohne Kyūbi-Mantel. |
-|  |  |  |  | 3 | Summoning: Gamabunta | – | fehlt | Gamabunta: belegt im Konoha Crush, nicht im Tal des Endes. |
+|  |  |  |  | 3 | Summoning: Gamabunta | – | umgesetzt | Kuchiyose: Gamabunta, der mit Gama Dosu Zan angreift (Toad Sword Beheading, Manga 135 / Anime 78): Sprung aufs Ziel, Landung, Schnitt mit der Dosu. Belegt im Konoha Crush, nicht im Tal des Endes. |
 | Sasuke Uchiha (Final Valley) | 84 | Epic | Exam Prodigies | 1 | Cursed Seal Stage 2: Onyx Chidori | – | fehlt | Schwarzes Chidori im Fluchmal Stufe 2. |
 |  |  |  |  | 2 | Lion's Barrage | – | fehlt | Shishi Rendan. |
 |  |  |  |  | 3 | Fire Style: Phoenix Flower Jutsu | `fire-phoenix-flower` | Clip da, Anwender offen | Hōsenka no Jutsu; Clip mit Standard-Anwender. |

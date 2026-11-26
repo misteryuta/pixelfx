@@ -99,7 +99,8 @@ export class Canvas {
       if (this.col[k] && sz >= this.z[k] - 1.6) this.col[k] = rgb(color);
     }
   }
-  // finish: contour where a nearer part overlaps a farther one, then the outline; RGBA bytes
+  // finish: contour where a nearer part overlaps a farther one, then the outline; RGBA bytes. Part 990 (a smear of a
+  // fast blade) gets neither.
   pixels() {
     const { w, h } = this, out = new Uint8ClampedArray(w * h * 4);
     const at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? -1 : y * w + x);
@@ -109,7 +110,7 @@ export class Canvas {
       if (!this.col[k]) continue;
       for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         const n = at(x + dx, y + dy);
-        if (n >= 0 && this.col[n] && this.part[n] !== this.part[k] && this.z[n] > this.z[k] + 2.2) { col[k] = mixc(this.col[k], OUTLINE, 0.55); break; }
+        if (n >= 0 && this.col[n] && this.part[n] !== this.part[k] && this.part[n] !== 990 && this.part[k] !== 990 && this.z[n] > this.z[k] + 2.2) { col[k] = mixc(this.col[k], OUTLINE, 0.55); break; }
       }
     }
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -117,7 +118,7 @@ export class Canvas {
       let c = col[k];
       if (!c) {
         let edge = false;
-        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = at(x + dx, y + dy); if (n >= 0 && this.col[n]) edge = true; }
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = at(x + dx, y + dy); if (n >= 0 && this.col[n] && this.part[n] !== 990) edge = true; }
         if (!edge) continue;
         c = OUTLINE;
       }

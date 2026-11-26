@@ -894,9 +894,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "summon",
-     "status": "new",
-     "note": "Gamabunta: belegt im Konoha Crush, nicht im Tal des Endes.",
-     "params": null
+     "status": "ok",
+     "note": "Kuchiyose: Gamabunta, der mit Gama Dosu Zan angreift (Toad Sword Beheading, Manga 135 / Anime 78): Sprung aufs Ziel, Landung, Schnitt mit der Dosu. Belegt im Konoha Crush, nicht im Tal des Endes.",
+     "params": {
+      "summon": "naruto-gamabunta-dosuzan"
+     }
     }
    ]
   },
