@@ -3,26 +3,57 @@
 --   1  Madara (Flashback) - Perfect Susanoo: grip at the scabbard, the point leaving it, a side cut, a floor wave
 --   2  Sasuke (Kage Summit) - Susanoo Arrow: nock, draw, aim, loose; the arrow flies on its own
 --   3  Itachi - Yata Mirror Defense: a full guard; the kunai of the throwing post end on the mirror's face
--- The moves are the live moves of the roster (pixelfx/src/fx/live, same uploaded atlases, LiveData); here they play as
--- camera-facing cards in the stage's 2.5D view, facing left or right with the player, and their hits are checked
--- against where the straw targets stand on the map at that moment (a target out of the cut's band is missed).
+-- The moves are the live moves of the roster (pixelfx/src/fx/live, LiveData for timing, anchors and hits); here they
+-- play as camera-facing cards in the stage's 2.5D view, facing left or right with the player, and their hits are
+-- checked against where the straw targets stand on the map at that moment (a target out of the cut's band is missed).
+-- The pixels are embedded in the place (Packs: zstd + base64 in StringValues, like PixelBASItachiAnimations) and
+-- written into an EditableImage per card, frame by frame: no image upload, no asset ownership across accounts.
 -- Everything is local (the stage runs on the client). mount(ctx) -> cleanup().
 local RunService = game:GetService("RunService")
 local Input = game:GetService("UserInputService")
-local ContentProvider = game:GetService("ContentProvider")
 local SoundService = game:GetService("SoundService")
 local AssetService = game:GetService("AssetService")
+local EncodingService = game:GetService("EncodingService")
 local Players = game:GetService("Players")
 
 local LIVE = require(script:WaitForChild("LiveData"))
+local PACKS = script:WaitForChild("Packs")
 local T = {}
+
+-- one book's frames: "LIVE", u16 count, then per frame u16 x, y, w, h (in its cell) and w*h*4 RGBA bytes
+local packCache = {}
+local function loadPack(folder)
+	if packCache[folder] then return packCache[folder] end
+	local parts, i = {}, 1
+	while folder:FindFirstChild(("P%03d"):format(i)) do parts[i] = folder[("P%03d"):format(i)].Value; i += 1 end
+	local raw = EncodingService:DecompressBuffer(EncodingService:Base64Decode(buffer.fromstring(table.concat(parts))), Enum.CompressionAlgorithm.Zstd)
+	assert(buffer.readstring(raw, 0, 4) == "LIVE", "live pack format")
+	local n, o, frames = buffer.readu16(raw, 4), 6, {}
+	for k = 1, n do
+		local x, y, w, h = buffer.readu16(raw, o), buffer.readu16(raw, o + 2), buffer.readu16(raw, o + 4), buffer.readu16(raw, o + 6)
+		o += 8
+		frames[k] = { x = x, y = y, w = w, h = h, off = o }
+		o += w * h * 4
+	end
+	local pack = { raw = raw, frames = frames }
+	packCache[folder] = pack
+	return pack
+end
+-- attach each book of the live data to its pack
+for id, def in pairs(LIVE) do
+	local f = PACKS:FindFirstChild(id)
+	if f then
+		def.actor.packFolder = f:FindFirstChild("actor")
+		for k, b in pairs(def.fx) do b.packFolder = f:FindFirstChild("fx_" .. k) end
+	end
+end
 
 -- the live moves are drawn for 72 px tall fighters; Itachi on this map is ~10.7 studs tall
 local SPP = 10.7 / 72
 local MOVES = {
-	{ key = Enum.KeyCode.One, id = "madara-perfect-susanoo", who = "MADARA", name = "PERFECT SUSANOO" },
-	{ key = Enum.KeyCode.Two, id = "sasuke-susanoo-arrow-summit", who = "SASUKE", name = "SUSANOO-PFEIL" },
-	{ key = Enum.KeyCode.Three, id = "itachi-yata-mirror", who = "ITACHI", name = "YATA-SPIEGEL" },
+	{ key = Enum.KeyCode.One, id = "madara-perfect-susanoo", who = "MADARA", name = "PERFECT SUSANOO", zoom = 1.55, lift = 18 },
+	{ key = Enum.KeyCode.Two, id = "sasuke-susanoo-arrow-summit", who = "SASUKE", name = "SUSANOO-PFEIL", zoom = 1.15, lift = 6 },
+	{ key = Enum.KeyCode.Three, id = "itachi-yata-mirror", who = "ITACHI", name = "YATA-SPIEGEL", zoom = 1.15, lift = 6 },
 }
 local SFX = {
 	punch = 9114457006, parry = 9114457006, block = 9113483651, kick = 9113522776, heavy = 9113569832, whoosh = 9120972444,
@@ -64,14 +95,27 @@ function T.mount(ctx)
 		img.Parent = bb
 		return { anchor = anchor, bb = bb, img = img }
 	end
+	-- the frame's pixels into the card's own EditableImage (made at the book's cell size on first use), then mirrored
+	-- by the image rect when facing left
 	local function placeBook(card, book, frame, x, z, face, lift)
-		local idx = frame - 1
-		for _, sh in ipairs(book.sheets) do
-			if idx < sh.n then card.img.Image = sh.id; break end
-			idx -= sh.n
+		if card.book ~= book then
+			if card.ei then card.ei:Destroy() end
+			card.ei = AssetService:CreateEditableImage({ Size = Vector2.new(book.cw, book.ch) })
+			card.buf = buffer.create(book.cw * book.ch * 4)
+			card.img.ImageContent = Content.fromObject(card.ei)
+			card.book, card.frame = book, nil
 		end
-		local col, row, flip = idx % book.cols, math.floor(idx / book.cols), face < 0
-		card.img.ImageRectOffset = Vector2.new(col * book.cw + (flip and book.cw or 0), row * book.ch)
+		if card.frame ~= frame and book.packFolder then
+			local pack = loadPack(book.packFolder)
+			local f = pack.frames[math.clamp(frame, 1, #pack.frames)]
+			buffer.fill(card.buf, 0, 0)
+			local row = f.w * 4
+			for yy = 0, f.h - 1 do buffer.copy(card.buf, ((f.y + yy) * book.cw + f.x) * 4, pack.raw, f.off + yy * row, row) end
+			card.ei:WritePixelsBuffer(Vector2.zero, Vector2.new(book.cw, book.ch), card.buf)
+			card.frame = frame
+		end
+		local flip = face < 0
+		card.img.ImageRectOffset = Vector2.new(flip and book.cw or 0, 0)
 		card.img.ImageRectSize = Vector2.new(flip and -book.cw or book.cw, book.ch)
 		card.bb.Size = UDim2.fromScale(book.cw * SPP, book.ch * SPP)
 		-- the card is screen-aligned: its centre sits (pivot -> centre) away from the feet; up on screen is world up / cos
@@ -81,7 +125,18 @@ function T.mount(ctx)
 		local p = Vector2.new(x, z)
 		card.anchor.Position = O + Vector3.new(x, ground(p), z)
 	end
-	local function kill(card) if card and card.anchor then card.anchor:Destroy() end end
+	local function kill(card)
+		if not card then return end
+		if card.ei then card.ei:Destroy(); card.ei = nil end
+		if card.anchor then card.anchor:Destroy() end
+	end
+	-- warm the packs up in the background (the decompress takes a moment the first time)
+	task.spawn(function()
+		for _, def in pairs(LIVE) do
+			if def.actor.packFolder then loadPack(def.actor.packFolder); task.wait() end
+			for _, b in pairs(def.fx) do if b.packFolder then loadPack(b.packFolder) end end
+		end
+	end)
 
 	---------------------------------------------------------------- the straw targets and the throwing post
 	-- drawn here pixel by pixel (no upload): a post, a straw body with a red target ring, a sack head with crossed eyes
@@ -228,11 +283,12 @@ function T.mount(ctx)
 		cast = c
 		ctx.lock(true)
 		ctx.say(m.who .. ": " .. m.name)
+		-- a big manifestation: the camera eases back (no cut) so the whole Susanoo and the target are in the frame
+		if ctx.camera then ctx.camera(m.zoom, m.lift) end
 		task.spawn(function()
-			local list = {}
-			for _, sh in ipairs(def.actor.sheets) do local l = Instance.new("ImageLabel"); l.Image = sh.id; table.insert(list, l) end
-			for _, b in pairs(def.fx) do for _, sh in ipairs(b.sheets) do local l = Instance.new("ImageLabel"); l.Image = sh.id; table.insert(list, l) end end
-			ContentProvider:PreloadAsync(list)
+			-- the pixels are in the place: decode them (once) before the clock starts, so frame 1 is really on screen
+			if def.actor.packFolder then loadPack(def.actor.packFolder) end
+			for _, b in pairs(def.fx) do if b.packFolder then loadPack(b.packFolder) end end
 			if cast ~= c then return end
 			c.t0 = os.clock()
 			c.card.bb.Enabled = true
@@ -247,6 +303,7 @@ function T.mount(ctx)
 		ctx.hidePlayer(false)
 		ctx.lock(false)
 		ctx.say(nil)
+		if ctx.camera then ctx.camera(nil) end
 	end
 	local function guardUp()
 		if not cast or not cast.t0 then return nil end
@@ -405,6 +462,7 @@ function T.mount(ctx)
 		hint:Destroy()
 		ctx.hidePlayer(false)
 		ctx.lock(false)
+		if ctx.camera then ctx.camera(nil) end
 	end
 end
 
