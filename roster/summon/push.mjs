@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 const R = "C:/Users/yanni/Downloads/BuildAShinobi_JutsuModels/pixelfx/roster/";
 const VER = "C:/Users/yanni/AppData/Local/Roblox/Versions/version-8d7a1009c17e4ff8";
 const CHUNK = 190000;
-const moves = process.argv.slice(2).length ? process.argv.slice(2) : ["ninken"];
+const moves = process.argv.slice(2).length ? process.argv.slice(2) : ["ninken", "gamabunta", "katsuyu"];
 const lua = (v) => {
   if (v === null || v === undefined) return "nil";
   if (typeof v === "number") return String(Math.round(v * 1000) / 1000);
@@ -26,7 +26,7 @@ const defs = { moves: {}, books: {}, dogs: [] };
 let packs = "";
 for (const m of moves) {
   const j = JSON.parse(readFileSync(R + `summon/packs/${m}.json`, "utf8"));
-  defs.moves[j.move.id] = j.move;
+  for (const mv of j.moves ?? [j.move]) defs.moves[mv.id] = mv;
   for (const [name, b] of Object.entries(j.books)) {
     const { b64, raw, ...meta } = b;
     defs.books[name] = meta;

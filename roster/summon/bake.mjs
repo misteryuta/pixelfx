@@ -34,7 +34,7 @@ const books = {}, sheet = [];
 // frame cut to the union of what is drawn, the pivot kept on the floor point)
 for (const R of M.RIGS ?? []) {
   const BW = 760, BH = 560, bx = BW / 2, by = BH - 150, full = [], index = {};
-  for (const [an, A] of Object.entries(M.ANIMS)) {
+  for (const [an, A] of Object.entries(R.anims ?? M.ANIMS)) {
     index[an] = { fps: A.fps, loop: !!A.loop, n: A.frames };
     for (const v of M.VIEWS) {
       index[an][v] = full.length + 1;
@@ -90,7 +90,7 @@ for (const [fx, F] of Object.entries(M.FX)) {
   sheet.push({ id: fx, cw, ch, cells });
   console.log("fx", fx, F.frames, "b64", p.b64.length);
 }
-writeFileSync(ROOT + `roster/summon/packs/${name}.json`, JSON.stringify({ move: M.MOVE, books }));
+writeFileSync(ROOT + `roster/summon/packs/${name}.json`, JSON.stringify({ move: M.MOVE, moves: M.MOVES, books }));
 // ---- preview: every frame of every book, wrapped at ~3000 px, x1 (SHEET_Z to enlarge)
 const Z = +(process.env.SHEET_Z ?? 1), MAXW = 3000;
 const lay = sheet.map((s) => { const cols = Math.max(1, Math.min(s.cells.length, Math.floor(MAXW / (s.cw * Z)))); return { ...s, cols, rows: Math.ceil(s.cells.length / cols) }; });

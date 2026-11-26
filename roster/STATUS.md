@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
-| Naruto Shippūden | 55 | 130 | 52 | 6 | 9 | 62 |
-| **Gesamt** | 81 | 195 | 81 | 12 | 10 | 91 |
+| Naruto Shippūden | 55 | 130 | 54 | 6 | 9 | 60 |
+| **Gesamt** | 81 | 195 | 83 | 12 | 10 | 89 |
 
 ## Classic
 
@@ -136,9 +136,9 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Kisame Hoshigaki (Samehada Fusion) | 90 | Epic | Akatsuki | 1 | Water Prison Shark Dance | `kisame-shark-dance` | umgesetzt | Suirō Samehada. |
 |  |  |  |  | 2 | Super Shark Bomb | `kisame-daikoudan` | umgesetzt | Suiton: Daikōdan. |
 |  |  |  |  | 3 | Five Feeding Sharks | – | fehlt | Goshokuzame. |
-| Tsunade (Fifth Hokage) | 89 | Epic | Five Kage | 1 | Katsuyu: Immense Network Healing | – | fehlt | Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha). |
+| Tsunade (Fifth Hokage) | 89 | Epic | Five Kage | 1 | Katsuyu: Immense Network Healing | – | umgesetzt | Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha). |
 |  |  |  |  | 2 | Strength of a Hundred Technique | – | fehlt | Doppelung: Tsūtenkyaku hat Tsunade schon in Classic (Heavenly Spear Foot wäre derselbe Sturz-Tritt). Ersatz: Byakugō no Jutsu, die Zeichen breiten sich über den Körper, Dauer-Regeneration während des Kampfes (gegen Madara). |
-|  |  |  |  | 3 | Katsuyu Acid Slime | – | fehlt | Katsuyus Säure (Zesshi Nensan). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu). |
+|  |  |  |  | 3 | Katsuyu Acid Slime | – | umgesetzt | Katsuyus Säure: Tongue Tooth Sticky Acid (Zesshi Nensan, Manga 170 / Anime 96, gegen Manda). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu). |
 | Orochimaru (Eight-Headed Serpent) | 89 | Epic | Serpents | 1 | Eight Branches Technique | `orochimaru-yamata` | umgesetzt | Yamata no Jutsu. |
 |  |  |  |  | 2 | Kusanagi Sword: Longsword of the Sky | `orochimaru-kusanagi` | nur verwandter Clip | Kein Doppel: Kū no Tachi (Manga 123) ist der aus dem Mund schnellende Langstoß; Classic 'Sword of Kusanagi' wird geführt. Braucht eigenen Clip, solange beide Slots denselben zeigen. |
 |  |  |  |  | 3 | Many Hidden Shadow Snake Hands | – | fehlt | Doppelung: Sanjū Rashōmon steht schon in Classic. Ersatz: Sen'ei Tajashu, viele Schlangen aus den Ärmeln binden das Ziel (Tenchi-Brücke). |

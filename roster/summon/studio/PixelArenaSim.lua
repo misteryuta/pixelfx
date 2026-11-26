@@ -13,6 +13,9 @@ local function angleOf(v) return math.atan2(v.Y, v.X) end
 local HOLES = { bull = { -90, 4.6 }, uhei = { -140, 4.3 }, shiba = { -40, 4.3 }, akino = { 180, 4.1 }, urushi = { 0, 4.1 },
 	guruko = { 140, 3.7 }, bisuke = { 40, 3.5 }, pakkun = { 90, 3.1 } }
 local HOMES = { T1 = v2(30, 0), T2 = v2(52, 7), T3 = v2(30, 26) }
+-- allies (wounded: 40 of 100), for the healing moves; never hit by the attacks
+local ALLIES = { A1 = v2(14, -14), A2 = v2(16, 12), A3 = v2(-14, 8) }
+local ALLY_HP = 40
 
 function Sim.new(state, defs)
 	local self = setmetatable({ state = state, defs = defs, casts = {}, nextId = 1, targets = {} }, Sim)
@@ -31,7 +34,10 @@ function Sim.new(state, defs)
 end
 
 function Sim:resetTargets()
-	for name, home in pairs(HOMES) do
+	local all = {}
+	for n, h in pairs(HOMES) do all[n] = h end
+	for n, h in pairs(ALLIES) do all[n] = h end
+	for name, home in pairs(all) do
 		local t = self.targets[name]
 		if not t then
 			local f = Instance.new("Configuration")
@@ -40,12 +46,14 @@ function Sim:resetTargets()
 			t = { name = name, f = f }
 			self.targets[name] = t
 		end
-		t.home, t.p, t.alive, t.held, t.hp, t.mode, t.phase = home, home, true, false, 100, "stand", 0
+		t.ally = ALLIES[name] ~= nil
+		t.home, t.p, t.alive, t.held, t.hp, t.mode, t.phase = home, home, true, false, t.ally and ALLY_HP or 100, "stand", 0
 		self:writeTarget(t)
 	end
 end
 function Sim:writeTarget(t)
 	t.f:SetAttribute("X", t.p.X); t.f:SetAttribute("Z", t.p.Y)
+	t.f:SetAttribute("Ally", t.ally == true)
 	t.f:SetAttribute("Alive", t.alive); t.f:SetAttribute("Held", t.held); t.f:SetAttribute("Hp", t.hp); t.f:SetAttribute("Mode", t.mode)
 end
 -- test behaviours: stand, walk (back and forth across the cast lines), dodge (steps aside when the ground bulges
@@ -54,7 +62,7 @@ function Sim:setTargetMode(name, mode)
 	for n, t in pairs(self.targets) do
 		if name == nil or n == name then
 			if mode == "remove" then t.alive = false
-			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, 100, "stand", 0, nil
+			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, t.ally and ALLY_HP or 100, "stand", 0, nil
 			else t.mode, t.alive, t.phase = mode, true, 0 end
 			self:writeTarget(t)
 		end
@@ -71,7 +79,7 @@ end
 function Sim:acquire(p, dir, range, coneDeg)
 	local best, bd = nil, math.huge
 	for _, t in pairs(self.targets) do
-		if t.alive then
+		if t.alive and not t.ally then
 			local rel = t.p - p
 			local d = rel.Magnitude
 			if d > 0.5 and d <= range then
@@ -117,6 +125,8 @@ end
 function Sim:cast(owner, moveId, p, dir)
 	local M = self.defs.moves[moveId]
 	if M.kind == "leap" then return self:castLeap(owner, M, p, dir) end
+	if M.kind == "network" then return self:castNetwork(owner, M, p, dir) end
+	if M.kind == "spit" then return self:castSpit(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -159,16 +169,17 @@ function Sim:castLeap(owner, M, p, dir)
 end
 local function enter(c, phase) c.phase, c.pt = phase, c.t end
 -- knock a target away from a point (the knockback follows the direction it was hit from)
-function Sim:knock(t, from, M)
+function Sim:knock(t, from, M, dir)
 	local d = t.p - from
-	if d.Magnitude < 0.1 then d = Vector2.new(1, 0) end
+	-- right at the centre: along the cast direction
+	if d.Magnitude < 0.1 then d = dir or Vector2.new(1, 0) end
 	t.kb, t.kbLeft = d.Unit * (M.kb / M.kbT), M.kbT
 end
 function Sim:hitTarget(c, t, dmg, kind, from)
 	if c.hits[t] then return end
 	c.hits[t] = true
 	t.hp -= dmg
-	self:knock(t, from, c.M)
+	self:knock(t, from, c.M, c.dir)
 	-- one sweep can cut several: every name is kept ("T1+T3"), the kind of the first hit
 	c.result, c.hitT = "hit", c.t
 	c.hitKind = c.hitKind ~= "" and c.hitKind or kind
@@ -182,7 +193,7 @@ function Sim:bladeSweep(c, a0, a1)
 	local fw, rt = frame(c.head)
 	local pivot = c.pos + fw * W.cf + rt * W.cr
 	for _, t in pairs(self.targets) do
-		if t.alive and not c.hits[t] then
+		if t.alive and not t.ally and not c.hits[t] then
 			local rel = t.p - pivot
 			local lf, lr = rel:Dot(fw), rel:Dot(rt)
 			local rho = rel.Magnitude
@@ -225,7 +236,7 @@ function Sim:stepLeap(c, dt)
 			c.pos, c.h = c.land, 0
 			enter(c, "land")
 			for _, t in pairs(self.targets) do
-				if t.alive and (t.p - c.pos).Magnitude <= M.crushR then self:hitTarget(c, t, M.crushDmg, "Landung", c.pos) end
+				if t.alive and not t.ally and (t.p - c.pos).Magnitude <= M.crushR then self:hitTarget(c, t, M.crushDmg, "Landung", c.pos) end
 			end
 		end
 	elseif c.phase == "land" then
@@ -258,6 +269,198 @@ function Sim:stepLeap(c, dt)
 	self:writeCast(c)
 end
 
+-- Katsuyu: Immense Network Healing. She appears in front of the summoner, divides, one piece per ally in reach
+-- crawls to it (following it), lies on it and heals it; a piece whose ally is gone turns to the nearest other ally or
+-- crawls back and merges with her.
+local function finish(c) c.phase, c.pt, c.endT = "done", c.t, c.t end
+function Sim:castNetwork(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local c = { id = id, f = f, kind = "network", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		result = "", pieces = {}, healed = {}, dogs = {}, goal = p }
+	c.pos, c.head = p + dir * M.spawnFront, snap4(math.atan2(dir.Y, dir.X))
+	-- the allies in reach, nearest first
+	local list = {}
+	for _, t in pairs(self.targets) do
+		if t.ally and t.alive then
+			local rel = t.p - p
+			if rel.Magnitude <= M.range and (rel.Magnitude < 1 or rel.Unit:Dot(dir) >= math.cos(math.rad(M.cone))) then table.insert(list, t) end
+		end
+	end
+	table.sort(list, function(a, b) return (a.p - p).Magnitude < (b.p - p).Magnitude end)
+	c.allies = {}
+	for i = 1, math.min(#list, M.maxPieces) do c.allies[i] = list[i] end
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "network")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	local names = {}
+	for _, a in ipairs(c.allies) do table.insert(names, a.name) end
+	f:SetAttribute("Target", table.concat(names, "+"))
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:nearestAlly(p, except)
+	local best, bd = nil, math.huge
+	for _, t in pairs(self.targets) do
+		if t.ally and t.alive and t ~= except and (t.p - p).Magnitude < bd then best, bd = t, (t.p - p).Magnitude end
+	end
+	return best
+end
+function Sim:stepNetwork(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "divide") end
+	elseif c.phase == "divide" then
+		if u >= M.divide then
+			if #c.allies == 0 then enter(c, "look"); c.result = "miss"
+			else
+				-- the pieces come off her sides, alternately, and set off
+				local fw = Vector2.new(math.cos(c.head), math.sin(c.head))
+				local sd = Vector2.new(-fw.Y, fw.X)
+				for i, a in ipairs(c.allies) do
+					local pos = c.pos + sd * ((i % 2 == 0) and 1 or -1) * (2 + i) - fw * (i * 1.5)
+					local to = a.p - pos
+					c.pieces[i] = { pos = pos, head = math.atan2(to.Y, to.X), tgt = a, state = "crawl", healT = 0 }
+				end
+				enter(c, "travel")
+			end
+		end
+	elseif c.phase == "travel" then
+		local busy = false
+		for _, pc in ipairs(c.pieces) do
+			if pc.state == "crawl" then
+				if not (pc.tgt and pc.tgt.alive) then
+					-- its ally is gone: the nearest other one, or back to her
+					pc.tgt = self:nearestAlly(pc.pos, pc.tgt)
+					if not pc.tgt then pc.state = "return" end
+				end
+			end
+			if pc.state == "crawl" or pc.state == "return" then
+				busy = true
+				local goal = pc.state == "crawl" and pc.tgt.p or c.pos
+				local to = goal - pc.pos
+				if to.Magnitude > 0.05 then local dA = (math.atan2(to.Y, to.X) - pc.head + math.pi) % (math.pi * 2) - math.pi; pc.head += math.clamp(dA, -7 * dt, 7 * dt) end
+				local stepLen = math.min(to.Magnitude, M.speed * dt)
+				if to.Magnitude > 0.05 then pc.pos += Vector2.new(math.cos(pc.head), math.sin(pc.head)) * stepLen end
+				if pc.state == "crawl" and (pc.tgt.p - pc.pos).Magnitude <= M.attach then pc.state, pc.healT = "heal", 0
+				elseif pc.state == "return" and (c.pos - pc.pos).Magnitude <= 1.5 then pc.state = "merged" end
+			elseif pc.state == "heal" then
+				if not pc.tgt.alive then pc.state = "crawl"; busy = true
+				else
+					busy = true
+					pc.pos = pc.tgt.p
+					local add = math.min(M.rate * dt, 100 - pc.tgt.hp)
+					if add > 0 then pc.tgt.hp += add; c.healed[pc.tgt.name] = (c.healed[pc.tgt.name] or 0) + add; self:writeTarget(pc.tgt) end
+					pc.healT += dt
+					if pc.healT >= M.heal then pc.state = "done" end
+				end
+			end
+		end
+		if not busy or u >= M.maxTravel + M.heal then
+			local any = false
+			for _ in pairs(c.healed) do any = true end
+			c.result = any and "hit" or "miss"
+			finish(c)
+		end
+	elseif c.phase == "look" then
+		if u >= M.missLook then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.8 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
+-- Katsuyu Acid Slime (Tongue Tooth Sticky Acid): she rears up turned to the target (following it), spits a glob from
+-- her mouth that flies in an arc to where the target was when she spat; it bursts there (hit, thrown back) and
+-- leaves a pool that eats at whoever stands in it.
+function Sim:castSpit(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.range, M.cone)
+	local c = { id = id, f = f, kind = "spit", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * M.missRange), result = "", hitKind = "", hits = {}, dotted = {}, dogs = {} }
+	if math.abs(dir.Y) > math.abs(dir.X) then c.pos = p - dir * 4 + Vector2.new(-M.spawnSide, 0)
+	else c.pos = p - dir * M.spawnBack end
+	c.head = snap4(math.atan2(dir.Y, dir.X))
+	c.goal = c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "spit")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepSpit(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "rear") end
+	elseif c.phase == "rear" then
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.pos
+		if to.Magnitude > 0.5 then c.head = snap4(math.atan2(to.Y, to.X)) end
+		if u >= M.rear then
+			local fw = frame(c.head)
+			c.from = c.pos + fw * M.mouthF
+			c.flyT = math.max(0.15, (c.aim - c.from).Magnitude / M.speed)
+			c.globT = c.t
+			enter(c, "spit")
+		end
+	elseif c.phase == "spit" or c.phase == "fly" then
+		if c.phase == "spit" and u >= M.spit then enter(c, "fly") end
+		if c.t >= c.globT + c.flyT then
+			-- the burst
+			for _, t in pairs(self.targets) do
+				if t.alive and not t.ally and (t.p - c.aim).Magnitude <= M.splashR then self:hitTarget(c, t, M.dmg, "Spritzer", c.aim) end
+			end
+			c.splashT = c.t
+			enter(c, "pool")
+		end
+	elseif c.phase == "pool" then
+		-- the pool eats at whoever stands in it (also someone walking in later)
+		for _, t in pairs(self.targets) do
+			if t.alive and not t.ally and (t.p - c.aim).Magnitude <= M.poolR then
+				t.hp -= M.dot * dt
+				c.dotted[t.name] = (c.dotted[t.name] or 0) + M.dot * dt
+				if not c.hits[t] then
+					c.hits[t] = true
+					c.result, c.hitT = "hit", c.t
+					c.hitKind = c.hitKind ~= "" and c.hitKind or "Pfuetze"
+					c.hitName = c.hitName and (c.hitName .. "+" .. t.name) or t.name
+				end
+				self:writeTarget(t)
+			end
+		end
+		if u >= M.pool then
+			if c.result == "" then c.result = "miss" end
+			finish(c)
+		end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.8 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 function Sim:writeCast(c)
 	local f = c.f
 	f:SetAttribute("T", c.t); f:SetAttribute("Phase", c.phase); f:SetAttribute("Result", c.result)
@@ -265,6 +468,26 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "network" or c.kind == "spit" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
+		f:SetAttribute("HitKind", c.hitKind or "")
+		if c.kind == "network" then
+			f:SetAttribute("NP", #c.pieces)
+			for i, pc in ipairs(c.pieces) do
+				f:SetAttribute("P" .. i .. "X", pc.pos.X); f:SetAttribute("P" .. i .. "Z", pc.pos.Y); f:SetAttribute("P" .. i .. "H", pc.head)
+				f:SetAttribute("P" .. i .. "S", pc.state); f:SetAttribute("P" .. i .. "G", pc.tgt and pc.tgt.name or "")
+			end
+			local hl = {}
+			for n, v in pairs(c.healed) do table.insert(hl, ("%s +%d"):format(n, math.floor(v + 0.5))) end
+			table.sort(hl)
+			f:SetAttribute("Healed", table.concat(hl, ", "))
+		else
+			f:SetAttribute("AX", c.aim.X); f:SetAttribute("AZ", c.aim.Y)
+			if c.from then f:SetAttribute("FX", c.from.X); f:SetAttribute("FZ", c.from.Y); f:SetAttribute("GlobT", c.globT); f:SetAttribute("FlyT", c.flyT) end
+			if c.splashT then f:SetAttribute("SplashT", c.splashT) end
+			if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+		end
+	end
 	if c.kind == "leap" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("TX", c.pos.X); f:SetAttribute("TZ", c.pos.Y); f:SetAttribute("TY", c.h)
 		f:SetAttribute("TH", c.head); f:SetAttribute("BA", c.ba); f:SetAttribute("HitKind", c.hitKind)
@@ -298,6 +521,8 @@ end
 
 function Sim:stepCast(c, dt)
 	if c.kind == "leap" then return self:stepLeap(c, dt) end
+	if c.kind == "network" then return self:stepNetwork(c, dt) end
+	if c.kind == "spit" then return self:stepSpit(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target
@@ -384,7 +609,7 @@ function Sim:stepTargets(dt)
 						else
 							local side = Vector2.new(-c.dir.Y, c.dir.X)
 							if side.Magnitude < 0.5 then side = Vector2.new(1, 0) end
-							t.dodgeTo = t.p + side * 8
+							t.dodgeTo = t.p + side * ((c.M.dodge and c.M.dodge.side) or 8)
 						end
 					end
 				end

@@ -46,7 +46,7 @@ end
 A.loadPack = loadPack
 
 -- the straw dummy (drawn pixel by pixel; no upload)
-function A.dummyImage(thrower)
+function A.dummyImage(thrower, ally)
 	local W, H = 26, 54
 	local img = AssetService:CreateEditableImage({ Size = Vector2.new(W, H) })
 	local px = buffer.create(W * H * 4)
@@ -59,10 +59,17 @@ function A.dummyImage(thrower)
 	local wood, woodD, straw, strawD, sack, ink, red = { 128, 84, 48 }, { 84, 52, 30 }, { 222, 184, 96 }, { 168, 128, 58 }, { 210, 190, 150 }, { 30, 24, 28 }, { 200, 40, 40 }
 	rect(12, 30, 14, 53, wood); rect(14, 30, 14, 53, woodD)
 	rect(1, 22, 24, 25, wood); rect(1, 25, 24, 25, woodD)
-	rect(5, 16, 20, 40, straw); rect(5, 16, 6, 40, strawD); rect(19, 16, 20, 40, strawD)
-	for y = 18, 40, 3 do put(8, y, strawD); put(16, y + 1, strawD) end
-	for a = 0, 35 do local t = a / 36 * math.pi * 2; put(13 + math.round(math.cos(t) * 4), 28 + math.round(math.sin(t) * 4), red) end
-	put(13, 28, red)
+	if ally then
+		-- a friend: blue cloth over the straw, a green medic's cross
+		local cloth, clothD, green = { 92, 140, 210 }, { 60, 98, 164 }, { 60, 200, 120 }
+		rect(5, 16, 20, 40, cloth); rect(5, 16, 6, 40, clothD); rect(19, 16, 20, 40, clothD)
+		rect(12, 23, 14, 33, green); rect(8, 27, 18, 29, green)
+	else
+		rect(5, 16, 20, 40, straw); rect(5, 16, 6, 40, strawD); rect(19, 16, 20, 40, strawD)
+		for y = 18, 40, 3 do put(8, y, strawD); put(16, y + 1, strawD) end
+		for a = 0, 35 do local t = a / 36 * math.pi * 2; put(13 + math.round(math.cos(t) * 4), 28 + math.round(math.sin(t) * 4), red) end
+		put(13, 28, red)
+	end
 	rect(7, 2, 18, 15, sack); rect(7, 2, 8, 15, strawD)
 	for i = 0, 2 do put(9 + i, 6 + i, ink); put(11 - i, 6 + i, ink); put(14 + i, 6 + i, ink); put(16 - i, 6 + i, ink) end
 	rect(10, 12, 15, 12, ink)
@@ -244,13 +251,22 @@ function A.mount(ctx)
 	local function syncTarget(f)
 		local t = targets[f.Name]
 		if not t then
-			local image, W, H = A.dummyImage(false)
+			local ally = f:GetAttribute("Ally") == true
+			local image, W, H = A.dummyImage(false, ally)
 			local card = newCard(1)
 			card.img.ImageContent = Content.fromObject(image)
 			local s = SPP * 1.25
-			t = { name = f.Name, card = card, image = image, shake = 0, f = f, W = W * s, H = H * s, oy = (H / 2 - 1) * s / COS }
+			-- health: a bar over the head (green for friends, red for targets)
+			local bg = Instance.new("Frame")
+			bg.BackgroundColor3, bg.BorderSizePixel, bg.Position, bg.Size = Color3.fromRGB(20, 18, 30), 0, UDim2.fromScale(0.08, 0), UDim2.fromScale(0.84, 0.045)
+			bg.Parent = card.bb
+			local fill = Instance.new("Frame")
+			fill.BackgroundColor3, fill.BorderSizePixel, fill.Size = ally and Color3.fromRGB(80, 220, 130) or Color3.fromRGB(230, 70, 60), 0, UDim2.fromScale(1, 1)
+			fill.Parent = bg
+			t = { name = f.Name, card = card, image = image, shake = 0, f = f, W = W * s, H = H * s, oy = (H / 2 - 1) * s / COS, ally = ally, bar = fill }
 			targets[f.Name] = t
 		end
+		t.bar.Size = UDim2.fromScale(math.clamp((f:GetAttribute("Hp") or 100) / 100, 0, 1), 1)
 		t.p = toMap(f:GetAttribute("X") or 0, f:GetAttribute("Z") or 0)
 		t.alive = f:GetAttribute("Alive") ~= false
 		t.held = f:GetAttribute("Held") == true
@@ -260,7 +276,7 @@ function A.mount(ctx)
 	-- the targets as other test abilities see them (same objects: a hit there shakes the same dummy)
 	function A.targets()
 		local list = {}
-		for _, t in pairs(targets) do if t.alive then table.insert(list, t) end end
+		for _, t in pairs(targets) do if t.alive and not t.ally then table.insert(list, t) end end
 		return list
 	end
 	ctx.arenaTargets = A.targets
@@ -557,6 +573,171 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- Katsuyu (kinds "network" and "spit")
+	local function newSlug(f)
+		local v = { f = f, kind = f:GetAttribute("Kind"), slug = newCard(2), smoke = newCard(4), shadow = newFloor(), pieces = {}, slime = {},
+			aim = newFloor(), pool = newFloor(), glob = newCard(3), splash = newCard(4), steam = newCard(3), said = {}, popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killSlug(v)
+		for _, k in ipairs({ "slug", "smoke", "shadow", "aim", "pool", "glob", "splash", "steam" }) do
+			local c = v[k]
+			if c then if c.ei then c.ei:Destroy() end; if c.anchor then c.anchor:Destroy() end end
+		end
+		for _, pc in pairs(v.pieces) do for _, c in ipairs({ pc.card, pc.glow, pc.puff }) do if c.ei then c.ei:Destroy() end; if c.anchor then c.anchor:Destroy() end end end
+		for _, sl in ipairs(v.slime) do if sl.card.ei then sl.card.ei:Destroy() end; sl.card.anchor:Destroy() end
+	end
+	local function stepSlug(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local h = f:GetAttribute("KH") or 0
+		local view, face = viewOf(h)
+		local mirror = view == "side" and face < 0
+		local pk = loadPack("slug_katsuyu")
+		local ending = phase == "done" or phase == "abort"
+		local mine = f:GetAttribute("Owner") == player.UserId
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.6)
+			elseif phase == "spit" then sfx("whoosh", 0.7)
+			elseif phase == "pool" then sfx("burst", 0.6); ctx.shake(1.2, 0.2)
+			elseif ending then
+				sfx("poof", 0.5)
+				if mine then
+					if phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")")
+					elseif v.kind == "network" then
+						local healed = f:GetAttribute("Healed") or ""
+						addLog(("%s | %s | %s"):format(v.who or "?", dirName(dx, dz), healed ~= "" and ("GEHEILT " .. healed) or (f:GetAttribute("Target") == "" and "kein Verbuendeter in Reichweite" or "niemand erreicht")))
+					else
+						local res = f:GetAttribute("Result")
+						addLog(("%s | %s | %s | %s"):format(v.who or "?", dirName(dx, dz), res == "hit" and ("TREFFER (" .. (f:GetAttribute("HitKind") or "") .. ")") or "VERFEHLT",
+							res == "hit" and ("Ziel " .. tostring(f:GetAttribute("HitName"))) or (f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")))
+					end
+				end
+			end
+		end
+		-- her own animation
+		local k
+		local leaveT = nil -- (spit) she leaves once the glob has landed
+		if phase == "appear" then if u >= 0.12 then k = frameOf(pk, "idle", view, u) end
+		elseif phase == "divide" then k = byProg(pk, "divide", view, u / M.divide)
+		elseif phase == "travel" or phase == "look" then k = frameOf(pk, "idle", view, T)
+		elseif phase == "rear" then k = byProg(pk, "rear", view, u / M.rear)
+		elseif phase == "spit" then k = byProg(pk, "spit", view, u / M.spit)
+		elseif phase == "fly" then k = byProg(pk, "after", view, u / M.after)
+		elseif phase == "pool" then
+			local since = T - (f:GetAttribute("GlobT") or T) - M.spit
+			if since < M.after then k = byProg(pk, "after", view, since / M.after) elseif u < 0.35 then k = frameOf(pk, "idle", view, T) else leaveT = PT + 0.35 end
+		elseif ending and v.lastK and u < 0.12 then k = v.lastK end
+		if k then v.lastK = k; show(v.slug, pk, k, pos, face, 0, false, 0); v.slug.img.ImageTransparency = (view == "back") and 0.3 or 0
+		else hide(v.slug) end
+		-- smoke: arriving, leaving (at the end of the healing; for the acid once it has landed)
+		local bs = loadPack("ky_bigsmoke")
+		local bsLen = bs.meta.frames / bs.meta.fps
+		local goneAt = leaveT or (ending and PT) or v.goneAt
+		if leaveT and not v.goneAt then v.goneAt = leaveT; sfx("poof", 0.4) end
+		if phase == "appear" and u < bsLen then show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, 0, false, 0.4)
+		elseif goneAt and T - goneAt < bsLen and T >= goneAt then show(v.smoke, bs, math.floor((T - goneAt) * bs.meta.fps) + 1, pos, 1, 0, false, 0.4)
+		else hide(v.smoke) end
+		if k then showFloor(v.shadow, loadPack("ky_shadow"), 1, pos, h, mirror) else hide(v.shadow) end
+
+		if v.kind == "network" then
+			-- the pieces: crawling to their allies (view from each one's heading), lying on them glowing, puffing away
+			local pp, pc0 = loadPack("slug_piece"), nil
+			local popLen = pp.meta.index.pop.n / pp.meta.index.pop.fps
+			for i = 1, f:GetAttribute("NP") or 0 do
+				local pc = v.pieces[i]
+				if not pc then pc = { card = newCard(3), glow = newCard(4), puff = newCard(5), born = T }; v.pieces[i] = pc end
+				local m = toMap(f:GetAttribute("P" .. i .. "X") or 0, f:GetAttribute("P" .. i .. "Z") or 0)
+				local ph = f:GetAttribute("P" .. i .. "H") or 0
+				local st = f:GetAttribute("P" .. i .. "S") or "crawl"
+				local pv, pf = viewOf(ph)
+				if pc.st ~= st then
+					if (st == "done" or st == "merged") and not pc.goneT then pc.goneT = T; pc.goneAt = m; sfx("poof", 0.25)
+						local tg = targets[f:GetAttribute("P" .. i .. "G") or ""]
+						if st == "done" and tg then pop(tg.p, "GEHEILT", Color3.fromRGB(120, 240, 170)) end
+					end
+					pc.st = st
+				end
+				if ending and not pc.goneT then pc.goneT = T; pc.goneAt = m end
+				if pc.goneT then
+					hide(pc.card); hide(pc.glow)
+					local pf2 = loadPack("ky_puff")
+					local q = T - pc.goneT
+					if q < pf2.meta.frames / pf2.meta.fps then show(pc.puff, pf2, math.floor(q * pf2.meta.fps) + 1, pc.goneAt, 1, st == "done" and 18 or 0, false, 0.3) else hide(pc.puff) end
+				elseif st == "heal" then
+					-- on the ally: over its body, in front of it, glowing
+					local tg = targets[f:GetAttribute("P" .. i .. "G") or ""]
+					local at = tg and tg.p or m
+					show(pc.card, pp, frameOf(pp, "heal", "side", T + i * 0.2), at, (i % 2 == 0) and 1 or -1, 22, false, 0.15)
+					local hg = loadPack("ky_heal")
+					show(pc.glow, hg, math.floor(T * hg.meta.fps + i) % hg.meta.frames + 1, at, 1, 0, false, 0.2)
+				else
+					local q = T - pc.born
+					local kk = q < popLen and byProg(pp, "pop", pv, q / popLen) or frameOf(pp, "crawl", pv, T + i * 0.13)
+					show(pc.card, pp, kk, m, pf, 0, false, 0.05)
+					hide(pc.glow)
+					-- a slime trail behind it
+					if not pc.trail or (m - pc.trail).Magnitude > 1.6 then
+						pc.trail = m
+						local sl = { card = newFloor(), born = T }
+						showFloor(sl.card, loadPack("ky_slime"), 1, m, ph, false)
+						table.insert(v.slime, sl)
+					end
+				end
+			end
+			for j = #v.slime, 1, -1 do
+				local sl = v.slime[j]
+				local a = math.clamp((T - sl.born - 0.6) / 1.2, 0, 1)
+				sl.card.img.ImageTransparency = a
+				if a >= 1 then if sl.card.ei then sl.card.ei:Destroy() end; sl.card.anchor:Destroy(); table.remove(v.slime, j) end
+			end
+		else
+			-- the acid: the landing spot marked while she rears and while the glob flies; the glob's arc; the burst; the pool
+			local aimM = toMap(f:GetAttribute("AX") or cx, f:GetAttribute("AZ") or cz)
+			local ap = loadPack("ky_aim")
+			if phase == "rear" or phase == "spit" or phase == "fly" then showFloor(v.aim, ap, math.floor(T * ap.meta.fps) % ap.meta.frames + 1, aimM, 0, false) else hide(v.aim) end
+			local gT, fT = f:GetAttribute("GlobT"), f:GetAttribute("FlyT")
+			if gT and fT and (phase == "spit" or phase == "fly") then
+				local q = math.clamp((T - gT) / fT, 0, 1)
+				local from = toMap(f:GetAttribute("FX"), f:GetAttribute("FZ"))
+				local gm = from:Lerp(aimM, q)
+				local gh = M.mouthH * (1 - q) + 4 * M.arcH * q * (1 - q)
+				local gp = loadPack("ky_glob")
+				show(v.glob, gp, math.floor(T * gp.meta.fps) % gp.meta.frames + 1, gm, 1, gh / SPP, false, 0.5)
+			else hide(v.glob) end
+			local sT = f:GetAttribute("SplashT")
+			local sp = loadPack("ky_splash")
+			if sT and T - sT < sp.meta.frames / sp.meta.fps then show(v.splash, sp, math.floor((T - sT) * sp.meta.fps) + 1, aimM, 1, 0, false, 0.5) else hide(v.splash) end
+			if sT and (phase == "pool" or (ending and u < 0.4)) then
+				local left = phase == "pool" and (M.pool - u) or -u
+				local pl = loadPack("ky_pool")
+				showFloor(v.pool, pl, math.floor(T * pl.meta.fps) % pl.meta.frames + 1, aimM, 0, false, math.clamp(1 - (left + 0.4) / 0.6, 0, 1))
+				local stp = loadPack("ky_steam")
+				show(v.steam, stp, math.floor(T * stp.meta.fps) % stp.meta.frames + 1, aimM, 1, 0, false, 0.2)
+				v.steam.img.ImageTransparency = math.clamp(1 - (left + 0.4) / 0.6, 0, 1)
+			else hide(v.pool); hide(v.steam) end
+			-- hits: words and a shake per target, once
+			for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+				local t = targets[name]
+				if t and not v.popped[name] then
+					v.popped[name] = true
+					t.shake = 0.35
+					pop(t.p, (f:GetAttribute("HitKind") == "Pfuetze") and "VERAETZT" or "GETROFFEN", Color3.fromRGB(240, 220, 80))
+					ctx.shake(1.2, 0.2)
+				end
+			end
+			if phase == "pool" and f:GetAttribute("Result") ~= "hit" and not v.missPop and u > M.pool - 0.1 then v.missPop = true; pop(aimM, "VERFEHLT", Color3.fromRGB(192, 196, 224)) end
+		end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- slots, directions, the training panel
 	local variantIdx = 1
 	for i, v in ipairs(Roster.list) do if v.id == "classic/kakashi-hatake-team-7-sensei" then variantIdx = i end end
@@ -594,7 +775,8 @@ function A.mount(ctx)
 		if op == "cast" then
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
-				local v = views[f] or (f:GetAttribute("Kind") == "leap" and newToad(f) or newView(f))
+				local kind = f:GetAttribute("Kind")
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -714,12 +896,15 @@ function A.mount(ctx)
 			elseif t.held then t.card.img.Rotation = math.sin(os.clock() * 30) * 1.5 end
 		end
 		for _, f in ipairs(state.Casts:GetChildren()) do
-			if f:GetAttribute("Kind") == "leap" then stepToad(views[f] or newToad(f)) else stepView(views[f] or newView(f)) end
+			local kind = f:GetAttribute("Kind")
+			if kind == "leap" then stepToad(views[f] or newToad(f))
+			elseif kind == "network" or kind == "spit" then stepSlug(views[f] or newSlug(f))
+			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -736,7 +921,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

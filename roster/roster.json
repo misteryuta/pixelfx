@@ -2612,13 +2612,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "heal",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha).",
      "params": {
       "replace": {
        "name": "Katsuyu: Immense Network Healing",
        "src": "Narutopedia: Katsuyu: Immense Network Healing, Manga 424 / Anime Shippūden 159"
-      }
+      },
+      "summon": "tsunade-katsuyu-network"
      }
     },
     {
@@ -2646,9 +2647,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "aoe",
-     "status": "new",
-     "note": "Katsuyus Säure (Zesshi Nensan). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu).",
-     "params": null
+     "status": "ok",
+     "note": "Katsuyus Säure: Tongue Tooth Sticky Acid (Zesshi Nensan, Manga 170 / Anime 96, gegen Manda). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu).",
+     "params": {
+      "summon": "tsunade-katsuyu-acid"
+     }
     }
    ]
   },

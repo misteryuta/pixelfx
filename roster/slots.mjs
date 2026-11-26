@@ -214,9 +214,9 @@ export const SLOTS = {
     [null, "projectile", "new", "Goshokuzame."],
   ] },
   "shippuden|Tsunade (Fifth Hokage)": { desc: "Fünfte Hokage, Kage-Gipfel.", moves: [
-    [null, "heal", "new", "Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha).", { replace: { name: "Katsuyu: Immense Network Healing", src: "Narutopedia: Katsuyu: Immense Network Healing, Manga 424 / Anime Shippūden 159" } }],
+    [null, "heal", "ok", "Doppelung: Sōzō Saisei hat Tsunade schon in Classic. Ersatz: Katsuyu: Mōryōjika, Katsuyu teilt sich und je ein Teilkörper legt sich auf einen Verbündeten und heilt ihn (Pains Angriff auf Konoha).", { replace: { name: "Katsuyu: Immense Network Healing", src: "Narutopedia: Katsuyu: Immense Network Healing, Manga 424 / Anime Shippūden 159" }, summon: "tsunade-katsuyu-network" }],
     [null, "transform", "new", "Doppelung: Tsūtenkyaku hat Tsunade schon in Classic (Heavenly Spear Foot wäre derselbe Sturz-Tritt). Ersatz: Byakugō no Jutsu, die Zeichen breiten sich über den Körper, Dauer-Regeneration während des Kampfes (gegen Madara).", { replace: { name: "Strength of a Hundred Technique", src: "Narutopedia: Ninja Art Creation Rebirth — Strength of a Hundred Technique, Manga 577 / Anime Shippūden 333" } }],
-    [null, "aoe", "new", "Katsuyus Säure (Zesshi Nensan). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu)."],
+    [null, "aoe", "ok", "Katsuyus Säure: Tongue Tooth Sticky Acid (Zesshi Nensan, Manga 170 / Anime 96, gegen Manda). Kein Doppel: Classic-Katsuyu ist die Teilung als Abwehr (Katsuyu Daibunretsu).", { summon: "tsunade-katsuyu-acid" }],
   ] },
   "shippuden|Orochimaru (Eight-Headed Serpent)": { desc: "Yamata no Jutsu gegen Sasuke.", moves: [
     ["orochimaru-yamata", "aoe", "ok", "Yamata no Jutsu."],

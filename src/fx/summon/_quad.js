@@ -44,7 +44,9 @@ export class Canvas {
     this.z = new Float32Array(w * h).fill(-1e9);
     this.part = new Int16Array(w * h).fill(-1);
     this.nparts = 0;
-    this.L = norm([-0.45, 0.8, 0.4]); // light: up, from the screen left, a little from the viewer
+    // light: from the screen's upper left and a little from the viewer, in every view (fixed to the animal it came
+    // from behind in the front view and left those faces dark)
+    this.L = norm(add(add(scl(this.B.X, -0.45), scl(this.B.Up, 0.8)), scl(this.B.D, 0.4)));
   }
   // screen position of an animal-space point
   proj(p) { const B = this.B; return [this.ox + dot(p, B.X), this.oy - dot(p, B.Up), dot(p, B.D)]; }
