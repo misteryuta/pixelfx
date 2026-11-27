@@ -270,7 +270,7 @@ function A.mount(ctx)
 		t.p = toMap(f:GetAttribute("X") or 0, f:GetAttribute("Z") or 0)
 		t.alive = f:GetAttribute("Alive") ~= false
 		t.held = f:GetAttribute("Held") == true
-		t.card.bb.Enabled = t.alive
+		t.card.bb.Enabled = t.alive and f:GetAttribute("Hidden") ~= true
 		settle(t.card, O + Vector3.new(t.p.X, groundAt(t.p), t.p.Y), 0, t.oy, t.W, t.H, 0)
 	end
 	-- the targets as other test abilities see them (same objects: a hit there shakes the same dummy)
@@ -962,6 +962,98 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- the Gourd Toad (kind "tongue")
+	local function newTongue(f)
+		local v = { f = f, kind = "tongue", body = newCard(2), puff = newCard(4), tip = newCard(3), segs = {}, wrap = newCard(4),
+			bubbles = newCard(4), splash = newCard(4), lane = newFloor(), popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killTongue(v)
+		for _, n in ipairs({ "body", "puff", "tip", "wrap", "bubbles", "splash", "lane" }) do kill(v[n]) end
+		for _, c in ipairs(v.segs) do kill(c) end
+	end
+	local function stepTongue(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local mouth = toMap(f:GetAttribute("MX") or cx, f:GetAttribute("MZ") or cz)
+		local td = Vector2.new(f:GetAttribute("TDX") or dx, f:GetAttribute("TDZ") or dz)
+		local L = f:GetAttribute("L") or 0
+		local h = math.atan2(td.Y, td.X)
+		local view, face = viewOf(h)
+		local pk = loadPack("gourd_toad")
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.5); v.puffT = T
+			elseif phase == "tongue" then sfx("whoosh", 0.7)
+			elseif phase == "pull" then sfx("bite", 0.6)
+			elseif phase == "swallow" then sfx("burst", 0.5); ctx.shake(1, 0.2)
+			elseif phase == "spit" then sfx("burst", 0.5); v.spitT = T
+			elseif phase == "retract" then
+				if mine then addLog(("%s | %s | VERFEHLT | %s"):format(v.who or "?", dirName(dx, dz), f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")) end
+				pop(mouth + td * L, "VERFEHLT", Color3.fromRGB(192, 196, 224))
+			elseif ending then
+				sfx("poof", 0.4); v.puffT = T
+				if mine and phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			end
+			if phase == "pull" and mine then addLog(("%s | %s | TREFFER (Zunge) | Ziel %s"):format(v.who or "?", dirName(dx, dz), tostring(f:GetAttribute("HitName")))) end
+		end
+		-- the toad
+		local k
+		if phase == "appear" then if u > 0.1 then k = frameOf(pk, "idle", view, u) end
+		elseif phase == "open" then k = byProg(pk, "open", view, u / M.open)
+		elseif phase == "aim" or phase == "tongue" or phase == "pull" or phase == "retract" then k = byProg(pk, "shoot", view, 0)
+		elseif phase == "swallow" then k = byProg(pk, "swallow", view, u / M.swallow)
+		elseif phase == "inside" then k = frameOf(pk, "full", view, u)
+		elseif phase == "spit" then k = byProg(pk, "spit", view, u / M.spit)
+		elseif phase == "close" then k = byProg(pk, "open", view, 1 - u / M.close)
+		elseif ending and u < 0.1 and v.lastK then k = v.lastK end
+		if k then v.lastK = k; show(v.body, pk, k, pos, face, 0, false, 0) else hide(v.body) end
+		local pf = loadPack("gg_puff")
+		if v.puffT and T - v.puffT < pf.meta.frames / pf.meta.fps then show(v.puff, pf, math.floor((T - v.puffT) * pf.meta.fps) + 1, pos, 1, 0, false, 0.3) else hide(v.puff) end
+		-- the tongue's line on the floor while it takes aim (the tell)
+		if phase == "open" or phase == "aim" then showFloor(v.lane, loadPack("gg_lane"), math.floor(T * 12) % 4 + 1, mouth, h, false, phase == "open" and 0.55 or 0) else hide(v.lane) end
+		-- the tongue: pieces along the line at the mouth's height, the tip at its end
+		if (phase == "tongue" or phase == "pull" or phase == "retract") and L > 0.3 then
+			local rot = math.deg(math.atan2(td.Y * math.sin(ctx.pitch), td.X))
+			show(v.tip, loadPack("gg_tip"), 1, mouth + td * L, 1, M.mouthPx, false, 0.12); v.tip.img.Rotation = rot
+			local sp = loadPack("gg_tongue")
+			local n = math.max(0, math.floor((L - 0.8) / 3.2))
+			for i = 1, math.max(n, #v.segs) do
+				local c = v.segs[i]
+				if i <= n then
+					if not c then c = newCard(3); v.segs[i] = c end
+					show(c, sp, 1, mouth + td * math.min(L - 1.2, (i - 0.5) * 3.2), 1, M.mouthPx, false, 0.1); c.img.Rotation = rot
+				elseif c then hide(c) end
+			end
+		else
+			hide(v.tip)
+			for _, c in ipairs(v.segs) do hide(c) end
+		end
+		-- the catch wrapped in the tongue while it is reeled in
+		local grab = targets[f:GetAttribute("Grab") or ""]
+		if phase == "pull" and grab then
+			local wp = loadPack("gg_wrap")
+			show(v.wrap, wp, math.floor(T * wp.meta.fps) % wp.meta.frames + 1, grab.p, 1, 0, false, 0.2)
+		else hide(v.wrap) end
+		-- inside: acid bubbling off the full toad
+		if phase == "inside" then local bp = loadPack("gg_bubbles"); show(v.bubbles, bp, math.floor(T * bp.meta.fps) % bp.meta.frames + 1, pos, 1, 34, false, 0.3) else hide(v.bubbles) end
+		local sp2 = loadPack("gg_splash")
+		if v.spitT and T - v.spitT < sp2.meta.frames / sp2.meta.fps then show(v.splash, sp2, math.floor((T - v.spitT) * sp2.meta.fps) + 1, mouth + td * 2, 1, 0, false, 0.4) else hide(v.splash) end
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.popped[name] then v.popped[name] = true; t.shake = 0.35; pop(t.p, "GEPACKT", Color3.fromRGB(255, 196, 90)) end
+		end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- the Baku (kind "suck")
 	local function newSuck(f)
 		local v = { f = f, kind = "suck", body = newCard(2), smoke = newCard(4), plume = newCard(4), debris = newCard(4),
@@ -1082,7 +1174,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1208,12 +1300,13 @@ function A.mount(ctx)
 			elseif kind == "staff" then stepStaff(views[f] or newStaff(f))
 			elseif kind == "dash" then stepDash(views[f] or newDash(f))
 			elseif kind == "suck" then stepSuck(views[f] or newSuck(f))
+			elseif kind == "tongue" then stepTongue(views[f] or newTongue(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1230,7 +1323,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

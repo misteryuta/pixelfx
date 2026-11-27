@@ -201,7 +201,7 @@ export const SLOTS = {
     ["jiraiya-goemon", "aoe", "ok", "Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt."],
     [null, "strike", "new", "Sennin-Ōdama Rasengan."],
     ["jiraiya-ult-gamarinshou", "illusion", "ok", "Magen: Gamarinshō."],
-    [null, "bind", "new", "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).", { replace: { name: "Barrier: Toad Gourd Prison", src: "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133" } }],
+    [null, "bind", "ok", "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).", { replace: { name: "Barrier: Toad Gourd Prison", src: "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133" }, summon: "jiraiya-gourd-prison" }],
   ] },
   "shippuden|Hiruzen Sarutobi (Prime — Flashback)": { desc: "Rückblende: Hiruzen in seiner besten Zeit.", moves: [
     [null, "bind", "ok", "Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor.", { replace: { name: "Monkey King Enma: Adamantine Prison Wall", src: "Narutopedia: Adamantine Prison Wall, Manga 122 / Anime 72" }, summon: "hiruzen-enma-prison" }],

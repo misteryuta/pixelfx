@@ -54,6 +54,7 @@ end
 function Sim:writeTarget(t)
 	t.f:SetAttribute("X", t.p.X); t.f:SetAttribute("Z", t.p.Y)
 	t.f:SetAttribute("Ally", t.ally == true)
+	t.f:SetAttribute("Hidden", t.hidden == true)
 	t.f:SetAttribute("Alive", t.alive); t.f:SetAttribute("Held", t.held); t.f:SetAttribute("Hp", t.hp); t.f:SetAttribute("Mode", t.mode)
 end
 -- test behaviours: stand, walk (back and forth across the cast lines), dodge (steps aside when the ground bulges
@@ -62,7 +63,7 @@ function Sim:setTargetMode(name, mode)
 	for n, t in pairs(self.targets) do
 		if name == nil or n == name then
 			if mode == "remove" then t.alive = false
-			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, t.ally and ALLY_HP or 100, "stand", 0, nil
+			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, t.ally and ALLY_HP or 100, "stand", 0, nil; t.hidden = false
 			else t.mode, t.alive, t.phase = mode, true, 0 end
 			self:writeTarget(t)
 		end
@@ -130,6 +131,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "staff" then return self:castStaff(owner, M, p, dir) end
 	if M.kind == "dash" then return self:castDash(owner, M, p, dir) end
 	if M.kind == "suck" then return self:castSuck(owner, M, p, dir) end
+	if M.kind == "tongue" then return self:castTongue(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -662,6 +664,111 @@ function Sim:stepDash(c, dt)
 	self:writeCast(c)
 end
 
+-- the Gourd Toad (kind "tongue"): beside the summoner; it takes aim (following the target), the tongue shoots out
+-- along a line, the tip grabs what it reaches, reels it in, the toad swallows it (held inside, worn down by the
+-- acid), then spits it out; a miss reels the tongue back empty.
+function Sim:castTongue(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.range, M.cone)
+	local side = Vector2.new(-dir.Y, dir.X)
+	local c = { id = id, f = f, kind = "tongue", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * M.Lmax), result = "", hitKind = "", hits = {}, dogs = {}, L = 0, tdir = dir }
+	c.pos = p + dir * M.front + side * M.side
+	c.mouth = c.pos + dir * M.mouthF
+	c.goal = c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "tongue")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepTongue(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "open") end
+	elseif c.phase == "open" then
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.pos
+		if to.Magnitude > 0.5 then c.tdir = to.Unit end
+		c.mouth = c.pos + c.tdir * M.mouthF
+		if u >= M.open then
+			c.reach = math.min(M.Lmax, (c.aim - c.mouth).Magnitude + 1)
+			enter(c, "aim")
+		end
+	elseif c.phase == "aim" then
+		if u >= M.aim then enter(c, "tongue") end
+	elseif c.phase == "tongue" then
+		local L0 = c.L
+		c.L = math.min(c.reach, c.L + M.speed * dt)
+		local side = Vector2.new(-c.tdir.Y, c.tdir.X)
+		for _, t in pairs(self.targets) do
+			if t.alive and not t.ally and not c.grabbed then
+				local rel = t.p - c.mouth
+				local along, lat = rel:Dot(c.tdir), math.abs(rel:Dot(side))
+				if lat <= M.W and along >= L0 - 1 and along <= c.L + 0.5 then
+					c.grabbed = t
+					t.held, t.dodgeTo, t.kbLeft = true, nil, 0
+					c.L = math.max(along, 0.5)
+					c.result, c.hitKind, c.hitT, c.hitName = "hit", "Zunge", c.t, t.name
+					self:writeTarget(t)
+					enter(c, "pull")
+					break
+				end
+			end
+		end
+		if c.phase == "tongue" and c.L >= c.reach then c.result = "miss"; enter(c, "retract") end
+	elseif c.phase == "pull" then
+		local g = c.grabbed
+		c.L = math.max(0, c.L - M.pull * dt)
+		if g and g.alive then g.p = c.mouth + c.tdir * c.L; self:writeTarget(g) end
+		if c.L <= 0.4 then
+			if g then g.hidden = true; self:writeTarget(g) end
+			c.inside = true
+			enter(c, "swallow")
+		end
+	elseif c.phase == "swallow" then
+		if u >= M.swallow then enter(c, "inside") end
+	elseif c.phase == "inside" then
+		local g = c.grabbed
+		if g and g.alive then g.hp -= M.dot * dt; g.p = c.pos; self:writeTarget(g) end
+		if u >= M.hold or not (g and g.alive) then enter(c, "spit") end
+	elseif c.phase == "spit" then
+		if u >= M.spit or not c.grabbed then
+			local g = c.grabbed
+			if g then
+				g.held, g.hidden = false, false
+				g.p = c.mouth + c.tdir * 2
+				g.kb, g.kbLeft = c.tdir * (M.kb / M.kbT), M.kbT
+				self:writeTarget(g)
+				c.grabbed = nil
+			end
+			c.inside = false
+			finish(c)
+		end
+	elseif c.phase == "retract" then
+		c.L = math.max(0, c.L - M.retract * dt)
+		if c.L <= 0 then enter(c, "close") end
+	elseif c.phase == "close" then
+		if u >= M.close then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.6 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 -- the Baku (kind "suck"): appear behind the summoner, brace turned to the target (following it) while the dust
 -- already streams into the cone, then inhale: everyone in the cone from the mouth is caught, dragged to the mouth and
 -- held there, worn down; released at the end.
@@ -762,6 +869,13 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "tongue" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y)
+		f:SetAttribute("MX", c.mouth.X); f:SetAttribute("MZ", c.mouth.Y); f:SetAttribute("TDX", c.tdir.X); f:SetAttribute("TDZ", c.tdir.Y)
+		f:SetAttribute("L", c.L); f:SetAttribute("HitKind", c.hitKind); f:SetAttribute("Inside", c.inside == true)
+		f:SetAttribute("Grab", c.grabbed and c.grabbed.name or "")
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "suck" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
 		f:SetAttribute("HitKind", c.hitKind)
@@ -825,6 +939,7 @@ function Sim:abort(owner)
 			for t in pairs(c.carried or {}) do t.held = false; self:writeTarget(t) end
 			if c.bound then c.bound.held = false; self:writeTarget(c.bound); c.bound = nil end
 			for t in pairs(c.caught or {}) do t.held = false; self:writeTarget(t) end
+			if c.grabbed then local g = c.grabbed; g.held, g.hidden = false, false; if c.kind == "tongue" and c.inside then g.p = c.mouth + c.tdir * 2 end; self:writeTarget(g); c.grabbed = nil end
 			c.carried, c.caught = {}, {}
 			self:writeCast(c)
 		end
@@ -847,6 +962,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "staff" then return self:stepStaff(c, dt) end
 	if c.kind == "dash" then return self:stepDash(c, dt) end
 	if c.kind == "suck" then return self:stepSuck(c, dt) end
+	if c.kind == "tongue" then return self:stepTongue(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target

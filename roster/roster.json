@@ -2454,13 +2454,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).",
      "params": {
       "replace": {
        "name": "Barrier: Toad Gourd Prison",
        "src": "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133"
-      }
+      },
+      "summon": "jiraiya-gourd-prison"
      }
     }
    ]

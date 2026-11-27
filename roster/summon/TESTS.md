@@ -272,6 +272,38 @@ Gefundener und behobener Fehler:
 
 Bildtests: Ab dieser Sitzung rendert Pixel BAS wieder (Studio wurde neu gestartet). Die Bildtests von Katsuyu (vorn/hinten), Enma und Kamatari sind damit nachholbar.
 
+## Jiraiya (Sage Mode), Shippūden, Slot 4: Barrier: Toad Gourd Prison (Kekkai: Gama Hyōrō, Manga 381 / Anime Shippūden 133)
+
+Das ist der Shippūden-Ersatz für Gamaguchi Shibari, das Jiraiya schon in Classic hat.
+
+Aussehen (Narutopedia-Infobox „Hyōtan Gama“): eine kleine Kröte in Kürbisform, magentarot, mit einem Kopf-Kolben auf einem Bauch-Kolben. Dazu ein grünes gemustertes Band an der Taille, zwei spitze Ohren, gelbe Augen, dunkle Winkel auf Gliedern und Rücken, lange Finger und der Stöpsel mit „酒“ im Maul. Rig mit Seiten-, Vorder- und Rückansicht; mit Inhalt wird der Bauch rund.
+
+Ablauf (Server):
+
+1. Puff, die Kröte sitzt vor Jiraiya, etwas zur Seite.
+2. Öffnen (0,25 s): Sie dreht sich zum Ziel (folgt ihm), der Stöpsel ist raus.
+3. Zielen (0,3 s): Die Linie steht fest und zeigt sich am Boden. Das ist das Signal.
+4. Zunge mit 70 Studs/s, bis 24 Studs. Die Spitze packt, was sie erreicht, und wickelt sich darum.
+5. Einholen, Schlucken: Das Ziel ist verschwunden (verborgen, festgehalten). Im Bauch 3 s Säure, 6 pro Sekunde.
+6. Ausspucken vor die Kröte mit Rückstoß, Puff.
+7. Fehlschlag: Die Zunge kommt leer zurück, der Stöpsel kommt wieder rein.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| G1 | Treffer | rechts | 8,0 | T1 gepackt, eingeholt, im Bauch (Hidden und Held true), ausgespuckt bei 19.9; −18 | bestanden, Bild geprüft (Zunge mit Umwicklung, „GEPACKT“) | Server bestanden |
+| G2 | tritt beim Zielen von der Linie | rechts | 8,0 | Zunge leer zurück | bestanden | – |
+| G3 | Treffer | unten | 30,-16 | T1 verschluckt | bestanden, Bild geprüft (Vorderansicht, voller Bauch, T1 unsichtbar) | – |
+| G4 | weicht aus | unten | 30,-16 | Fehlschlag | bestanden | Server bestanden |
+| G5 | Treffer | oben | 52,22 | T2 verschluckt | bestanden, Bild geprüft (Rückansicht, Zunge nach oben um T2) | Server bestanden |
+| G6 | weicht aus | oben | 52,22 | Fehlschlag | bestanden | – |
+| G7 | Ziel läuft beim Öffnen | rechts | 8,0 | Zunge schräg (0.94, 0.35) auf T1 bei 30,10.9; Treffer | bestanden | – |
+| G8 | Ziel beim Öffnen entfernt | rechts | 8,0 | Zunge zum letzten Ort, leer | bestanden | – |
+| G9 | kein Ziel im Kegel | links | 8,0 | Fehlschlag | bestanden | – |
+| G10 | Abbruch im Bauch | rechts | 8,0 | Ziel sofort draußen, sichtbar und frei (vor dem Maul) | bestanden | – |
+| G11 | Abbruch beim Einholen | rechts | 8,0 | Ziel frei | bestanden | – |
+
+Beim ersten Durchgang gefunden: Die Kröte folgte dem Ziel während des ganzen Signals, Ausweichen war damit wirkungslos (G2). Jetzt gibt es zwei Phasen: Öffnen (folgt) und Zielen (fest, Ausweichsignal).
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

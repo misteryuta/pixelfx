@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
-| Naruto Shippūden | 55 | 130 | 56 | 6 | 9 | 58 |
-| **Gesamt** | 81 | 195 | 85 | 12 | 10 | 87 |
+| Naruto Shippūden | 55 | 130 | 57 | 6 | 9 | 57 |
+| **Gesamt** | 81 | 195 | 86 | 12 | 10 | 86 |
 
 ## Classic
 
@@ -129,7 +129,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Jiraiya (Sage Mode) | 91 | Legendary | Five Kage | 1 | Sage Art: Bath of Boiling Oil | `jiraiya-goemon` | umgesetzt | Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt. |
 |  |  |  |  | 2 | Massive Rasengan | – | fehlt | Sennin-Ōdama Rasengan. |
 |  |  |  |  | 3 | Frog Song Genjutsu | `jiraiya-ult-gamarinshou` | umgesetzt | Magen: Gamarinshō. |
-|  |  |  |  | 4 | Barrier: Toad Gourd Prison | – | fehlt | Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain). |
+|  |  |  |  | 4 | Barrier: Toad Gourd Prison | – | umgesetzt | Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain). |
 | Hiruzen Sarutobi (Prime — Flashback) | 90 | Epic | Five Kage | 1 | Monkey King Enma: Adamantine Prison Wall | – | umgesetzt | Doppelung: Enma als Kongōnyoi (Stab) hat Hiruzen schon in Classic. Ersatz mit demselben Tier, anderer Handlung: Kongō Rōheki, Enma klont sich als Stab zu einem Gitterkäfig um das Ziel. Belegt im Konoha Crush (Manga 122); die Rückblende liegt davor. |
 |  |  |  |  | 2 | Five-Element Combo Blast | – | fehlt | 'Five-Element Combo Blast': Spiel-/Animetechnik, nicht im Manga. |
 |  |  |  |  | 3 | Earth Release: Earth-Style Wall | – | fehlt | Doppelung: Shuriken Kage Bunshin hat Hiruzen schon in Classic. Ersatz: Doton: Doryūheki, Erdwall aus dem Mund (Konoha Crush, Manga 120). |
