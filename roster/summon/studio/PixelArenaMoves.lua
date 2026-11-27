@@ -124,6 +124,8 @@ return function(Sim)
 	-- the next stage, or the end
 	function Sim:nextStage(c)
 		local S = c.M.stages
+		-- a stage that only follows a success (the genjutsu took: she comes out of the tree)
+		if S and c.stage < #S and S[c.stage + 1].needHit and c.result ~= "hit" then enter(c, "recover"); return end
 		if S and c.stage < #S then
 			c.stage += 1
 			local st = S[c.stage]
@@ -418,6 +420,8 @@ return function(Sim)
 				local g = c.grab
 				if g and g.alive then
 					if st.dot then g.hp -= self:dmgOf(c, st.dot) * dt; self:writeTarget(g) end
+					-- pulled to the caster (Bansho Ten'in)
+					if st.pull then local d = c.cpos - g.p; if d.Magnitude > (st.pullTo or 2.4) then g.p += d.Unit * math.min(d.Magnitude - (st.pullTo or 2.4), st.pull * dt); self:writeTarget(g) end end
 					c.tip = g.p
 				end
 				if u >= (st.hold or 2) or not (g and g.alive) then
@@ -433,6 +437,13 @@ return function(Sim)
 			end
 		elseif m == "zone" then
 			local R = st.radius or 6
+			-- a pull toward the middle (Chibaku Tensei): everything near is drawn in
+			if st.pull then
+				for _, t in ipairs(self:foes(function(t) return (t.p - c.zone).Magnitude <= R * 1.8 and not t.held end)) do
+					local d = c.zone - t.p
+					if d.Magnitude > 0.6 then t.p += d.Unit * math.min(d.Magnitude, st.pull * dt); t.dodgeTo = nil; self:writeTarget(t) end
+				end
+			end
 			if now - c.tickT >= 0.5 then
 				c.tickT = now
 				for _, t in ipairs(self:foes(function(t) return (t.p - c.zone).Magnitude <= R end)) do
@@ -466,6 +477,8 @@ return function(Sim)
 					local to
 					-- behind where the target was when the aim was fixed (stepping away in time makes it miss)
 					if st.to == "behind" then to = c.aim + c.adir * (st.behind or 2.5); c.adir = -c.adir
+					-- to the target wherever it is now (a seal on it: the Flying Thunder God)
+					elseif st.to == "target" and c.target and c.target.alive then local d = c.target.p - c.cpos; if d.Magnitude > 0.5 then c.adir = d.Unit end; to = c.target.p - c.adir * (st.behind or 1.8)
 					elseif st.to == "marker" and c.marker then to = c.marker
 					else to = c.aim end
 					c.cpos = to

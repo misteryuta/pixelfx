@@ -62,6 +62,7 @@ remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
 		elseif op == "targets" then sim:setTargetMode(a, b)
 		elseif op == "tplace" then sim:placeTarget(a, b)
 		elseif op == "throw" then sim:throw(sim.targets[a], b)
+		elseif op == "ownerhp" and sim.owner then local o = sim:owner(player.UserId); o.hp = math.clamp(tonumber(a) or 100, 0, 100); sim:writeOwner(o)
 		elseif op == "cooldowns" then cooldown[player.UserId] = {} end
 	end
 end)

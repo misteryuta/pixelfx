@@ -254,7 +254,8 @@ return function(H)
 						anchor.Parent = H.folder
 						local copy = g:Clone()
 						copy.Adornee, copy.Parent = anchor, anchor
-						for _, d in ipairs(copy:GetDescendants()) do if d:IsA("ImageLabel") and M.cloneTint then d.ImageColor3 = M.cloneTint; d.ImageTransparency = M.cloneAlpha or 0 end end
+						-- a tinted copy (afterimages, a clone of lightning): cloneTint = { r, g, b }
+						for _, d in ipairs(copy:GetDescendants()) do if d:IsA("ImageLabel") and M.cloneTint then d.ImageColor3 = Color3.fromRGB(M.cloneTint[1], M.cloneTint[2], M.cloneTint[3]); d.ImageTransparency = M.cloneAlpha or 0 end end
 						k = { anchor = anchor, gui = copy }
 						v.clones[i] = k
 						sfx("poof", 0.3)

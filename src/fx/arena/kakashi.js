@@ -9,7 +9,7 @@
 //     dragon's body grows along the line, its head at the front) -> retract (it collapses into spray)
 //   slot 4 "Hidden Mist Jutsu" (Kirigakure, used by Kakashi with the Sharingan in the Land of Waves): a thick mist
 //     round him; whoever is inside cannot see to aim (the dummies' kunai go wide).
-import { crackle, lane, speed, spark, band, ring, mist, pool, burst, H, px, rnd, blendDisc, blendEllipse } from "./_fx.js";
+import { crackle, lane, speed, spark, band, ring, mist, pool, burst, mark, H, px, rnd, blendDisc, blendEllipse } from "./_fx.js";
 
 const W1 = "#f0faff", W2 = "#7ac8f0", W3 = "#2a6ab0";
 export const MOVES = [
@@ -45,6 +45,44 @@ export const MOVES = [
     look: [
       { book: "kk_fog", at: "zone", ground: true, phases: ["zone_go"] },
       { book: "kk_mist", at: "zone", lift: 0, phases: ["zone_go"] },
+    ] },
+  // Mangekyō Sharingan (Shippuden):
+  //   slot 1 "Kamui Snipe" (Kamui at range, Manga 429 against Deva Path / Deidara Manga 274): his left eye fixed on
+  //     a distant point, the space there twists into a spiral and is torn away. The focus moves from his eye to the
+  //     target, where the space warps. blast (small, at the aimed place, a long tell)
+  //   slot 2 "Lightning Release: Shadow Clone" (Raiton Kage Bunshin, Manga 420 against Kakuzu... Pain): a clone of
+  //     lightning; whoever touches it is shocked and paralysed. clones (one, electric)
+  //   slot 3 "Lightning Beast Tracking Fang" (Raijū Tsuiga, Manga 474 against Sasuke): a hound of lightning that hunts
+  //     the target. shot (homing)
+  { id: "kakashi-kamui-snipe", kind: "arena", variant: "shippuden/kakashi-hatake-mangekyo-sharingan", slot: 1,
+    seal: 0.3, recover: 0.5, range: 40, cone: 45, cooldown: 11, lock: 0.3, hitPop: "KAMUI",
+    stages: [{ mech: "blast", aim: 0.7, tell: 0.55, radius: 2.6, hit: { dmg: 34, kb: 0, status: "stun", statusT: 1 }, after: 0.8, hitKind: "Kamui" }],
+    dodge: { phase: "tell", side: 6 },
+    sfx: { aim: "cast", tell: "rumble", blast_go: "burst" },
+    look: [
+      { book: "kk_mseye", at: "caster", lift: 60, phases: ["aim", "tell", "blast_go"] },
+      { book: "kk_focus", at: "aim", lift: 30, phases: ["aim", "tell"] },
+      { book: "kk_twist", at: "blast", lift: 30, phases: ["blast_go"], play: "once" },
+    ] },
+  { id: "kakashi-raiton-kage-bunshin", kind: "arena", variant: "shippuden/kakashi-hatake-mangekyo-sharingan", slot: 2,
+    seal: 0.4, recover: 0.4, range: 32, cone: 50, cooldown: 9, lock: 0.4, cloneTint: [150, 205, 255], cloneAlpha: 0.15,
+    stages: [{ mech: "clones", aim: 0.25, tell: 0.25, count: 1, fan: 0, speed: 30, reach: 2.4, range: 32, hit: { dmg: 12, kb: 2, status: "stun", statusT: 2.2 }, hitKind: "Raiton Kage Bunshin" }],
+    dodge: { phase: "tell", back: 16 },
+    sfx: { seal: "cast", clones_go: "poof" },
+    look: [
+      { book: "kk_chirp", at: "hand", lift: 26, handF: 1.4, phases: ["seal", "aim", "tell"] },
+      { book: "kk_cloneaura", at: "clone", phases: ["clones_go"] },
+      { book: "kk_hit", at: "impact", lift: 32, play: "once" },
+    ] },
+  { id: "kakashi-raijuu-tsuiga", kind: "arena", variant: "shippuden/kakashi-hatake-mangekyo-sharingan", slot: 3,
+    seal: 0.5, recover: 0.4, range: 40, cone: 50, cooldown: 9, lock: 0.5,
+    stages: [{ mech: "shot", aim: 0.3, tell: 0.3, from: 2, speed: 34, homing: 2.6, radius: 2, reach: 40, hit: { dmg: 24, kb: 8, status: "stun", statusT: 1.2 }, impact: 0.4, hitKind: "Raijū Tsuiga" }],
+    dodge: { phase: "tell", back: 18 },
+    sfx: { seal: "cast", shot_go: "whoosh", impact: "burst" },
+    look: [
+      { book: "kk_chirp", at: "hand", lift: 26, handF: 1.4, phases: ["seal", "aim", "tell"] },
+      { book: "kk_hound", at: "proj", lift: 20, views: true },
+      { book: "kk_hit", at: "impact", lift: 26, play: "once" },
     ] },
 ];
 
@@ -86,6 +124,13 @@ export const FX = {
   spray: { cw: 60, ch: 60, ox: 30, oy: 50, frames: 7, fps: 16, draw(p, u) { for (let k = 0; k < 12; k++) { const a = -Math.PI * (0.1 + 0.8 * rnd(k)), d = 30 * u * (0.5 + 0.5 * rnd(k + 2)); blendDisc(p, Math.cos(a) * d, Math.sin(a) * d * 0.9 + 25 * u * u, 2 + 2 * rnd(k + 4), H(k % 2 ? W1 : W2), 1 - u); } } },
   splash: burst({ R: 30, c: [W1, W2, W3], smoke: "#c8d8e8", frames: 9 }),
   // Hidden Mist: the floor fogged (loop), banks of mist standing round (loop)
+  // Kamui: the Mangekyō at his eye (loop), the focus on the target (a faint spiral, loop), the space twisting and torn
+  mseye: mark({ kind: "spiral", c: ["#ff6060", "#2a0a0a"], R: 6 }),
+  focus: { cw: 60, ch: 60, ox: 30, oy: 30, frames: 6, fps: 10, loop: true, draw(p, u) { for (let t = 0; t < 12; t += 0.06) { const r = t * 2.2, a = t * 1.4 - u * 6.28; p.blend(Math.cos(a) * r, Math.sin(a) * r * 0.8, H("#1c1428"), 0.35 + 0.03 * t); } } },
+  twist: { cw: 110, ch: 110, ox: 55, oy: 55, frames: 10, fps: 16, draw(p, u) { const k = Math.sin(Math.min(1, u * 1.2) * Math.PI), a = 1 - Math.max(0, (u - 0.7) / 0.3); for (let t = 0; t < 18; t += 0.04) { const r = t * 2.6 * (0.4 + k), ang = t * (1 + 2 * u) - u * 12; p.blend(Math.cos(ang) * r, Math.sin(ang) * r * 0.8, H(t > 12 ? "#5a4a6a" : "#0c0810"), a * 0.85); } blendDisc(p, 0, 0, 10 * k, H("#000000"), a); } },
+  // Lightning Shadow Clone: the crackle round the clone (loop); Lightning Beast: the hound (views)
+  cloneaura: crackle({ R: 30, bolts: 6, core: 0 }),
+  hound: { views: true, cw: 80, ch: 50, ox: 40, oy: 30, frames: 4, fps: 16, loop: true, draw(p, u, i, view) { const c1 = H("#ffffff"), c2 = H("#9ad8ff"); if (view === "side") { blendEllipse(p, -4, 0, 18, 8, c2, 0.8); blendEllipse(p, 14, -4, 9, 7, c2, 0.85); p.line(20, -2, 30, 0, c1); p.line(18, -10, 14, -18, c1); p.line(-22, -2, -34, -8 + Math.sin(u * 6.28) * 4, c1); for (let k = 0; k < 4; k++) p.line(-10 + k * 6, 6, -14 + k * 6 + (k % 2 ? 4 : -4) * Math.sin(u * 6.28), 16, c2); } else { blendDisc(p, 0, -2, 12, c2, 0.8); blendDisc(p, 0, -6, 7, c1, 0.7); for (const sg of [1, -1]) p.line(sg * 6, -12, sg * 10, -22, c1); } crackle({ R: 22, bolts: 4, core: 0 }).draw(p, u, i); } },
   fog: pool({ R: Math.round(px(12)), c: ["#d8e0e8", "#b8c4d0"], bubbles: "#f0f4f8", a: 0.35 }),
   mist: mist({ R: Math.round(px(12)), a: 0.5, n: 22 }),
 };

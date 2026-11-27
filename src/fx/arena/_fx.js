@@ -217,3 +217,39 @@ export const spikes = ({ R = 34, n = 7, h = 40, c = ["#b8a888", "#8a7a5a", "#5a4
   cw: Math.ceil(R * 2.6), ch: Math.ceil(h * 1.6 + 10), ox: Math.ceil(R * 1.3), oy: Math.ceil(h * 1.4), frames, fps,
   draw(p, u) { const [c1, c2, c3] = pal(c), k = ease(Math.min(1, u * 2.2)), a = u > 0.75 ? 1 - (u - 0.75) / 0.25 : 1; for (let s = 0; s < n; s++) { const x = ((s + 0.5) / n - 0.5) * R * 2, hh = h * (0.5 + 0.5 * rnd(s)) * k, w = 5 + 4 * rnd(s + 1), lean = (rnd(s + 2) - 0.5) * 8; p.poly([[x - w, 0], [x + w, 0], [x + lean, -hh]], c2, a); p.poly([[x - w * 0.3, 0], [x + w * 0.4, 0], [x + lean * 0.9, -hh * 0.92]], c1, a); p.line(x + w, 0, x + lean, -hh, c3, a); } },
 });
+
+// a dragon's head (water, fire, wood ...): seen from the side (facing +x), the front (coming at the camera), the back;
+// views: true (loop)
+export const dragonHead = ({ c = ["#f0faff", "#7ac8f0", "#2a6ab0"], mouth = "#103050", s = 1, frames = 4, fps = 12 } = {}) => ({
+  views: true, cw: Math.ceil(64 * s), ch: Math.ceil(54 * s), ox: Math.ceil(32 * s), oy: Math.ceil(27 * s), frames, fps, loop: true,
+  draw(p, u, i, view) {
+    const [c1, c2, c3] = c.map(H), jaw = (3 + 3 * Math.sin(u * TAU)) * s, K = s;
+    if (view === "side") {
+      blendEllipse(p, -4 * K, 0, 16 * K, 11 * K, c3, 0.9); blendEllipse(p, -3 * K, -K, 13 * K, 8 * K, c2, 0.92);
+      for (let x = 6 * K; x <= 22 * K; x++) { p.blend(x, -5 * K + (x - 6 * K) * 0.15, c2, 0.95); p.blend(x, -4 * K + (x - 6 * K) * 0.15, c1, 0.7); p.blend(x, 3 * K + (x - 6 * K) * 0.25 + jaw * (x - 6 * K) / (16 * K), c2, 0.95); }
+      p.rect(2 * K, -6 * K, 3, 2, hex("#ffffff"));
+      for (let k = 0; k < 4; k++) p.line(-10 * K - k * 3 * K, -8 * K, -20 * K - k * 4 * K, -16 * K - k * 2 * K, c1, 0.8);
+    } else if (view === "front") {
+      blendDisc(p, 0, 0, 15 * K, c3, 0.9); blendDisc(p, 0, -K, 12 * K, c2, 0.92);
+      blendEllipse(p, 0, 4 * K, 7 * K, 3 * K + jaw * 0.7, H(mouth), 0.9);
+      for (const sg of [1, -1]) { p.rect(sg * 6 * K - 1, -6 * K, 3, 2, hex("#ffffff")); p.line(sg * 8 * K, 2 * K, sg * 22 * K, 0, c1, 0.8); p.line(sg * 6 * K, -10 * K, sg * 12 * K, -20 * K, c1, 0.85); }
+    } else {
+      blendDisc(p, 0, 0, 14 * K, c3, 0.9); blendDisc(p, 0, K, 11 * K, c2, 0.92);
+      for (const sg of [1, -1]) p.line(sg * 5 * K, -8 * K, sg * 11 * K, -20 * K, c1, 0.85);
+      for (let k = 0; k < 5; k++) p.line((k - 2) * 3 * K, -12 * K, (k - 2) * 4 * K, -22 * K - (k % 2) * 3, c1, 0.7);
+    }
+  },
+});
+// the Shinigami (the Reaper Death Seal's death god) looming behind the caster: a pale translucent giant with a knife
+// in its mouth, its arm reaching through (loop)
+export const reaper = ({ frames = 6, fps = 8 } = {}) => ({
+  cw: 120, ch: 170, ox: 60, oy: 160, frames, fps, loop: true,
+  draw(p, u) {
+    const a = 0.45, w = hex("#e8e4f0"), d = hex("#6a5a8a"), k = hex("#2a1a3a");
+    blendEllipse(p, 0, -60, 34, 70, w, a * 0.6);
+    blendEllipse(p, 0, -132, 22, 24, w, a); for (const sg of [1, -1]) { p.line(sg * 12, -150, sg * 20, -164, d, 0.8); blendDisc(p, sg * 8, -134, 3, k, 0.9); }
+    p.line(-10, -118, 12, -120, hex("#c8ccd8"), 0.9); p.rect(-4, -124, 8, 3, k, 0.8);
+    for (let y = -100; y < 0; y += 6) p.line(-30 + Math.sin(y * 0.1 + u * 6.28) * 4, y, 30 + Math.sin(y * 0.1 + u * 6.28 + 1) * 4, y, d, 0.15);
+    for (let k2 = 0; k2 < 6; k2++) { const ph = (u + k2 / 6) % 1; blendDisc(p, (rnd(k2) - 0.5) * 70, -ph * 160, 4, w, 0.25 * (1 - ph)); }
+  },
+});
