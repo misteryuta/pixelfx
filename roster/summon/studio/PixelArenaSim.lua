@@ -133,6 +133,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "suck" then return self:castSuck(owner, M, p, dir) end
 	if M.kind == "tongue" then return self:castTongue(owner, M, p, dir) end
 	if M.kind == "song" then return self:castSong(owner, M, p, dir) end
+	if M.kind == "beast" then return self:castBeast(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -665,6 +666,72 @@ function Sim:stepDash(c, dt)
 	self:writeCast(c)
 end
 
+-- Kurama (kind "beast"): appear behind the summoner under the Sharingan, charge the Tailed Beast Ball following the
+-- target, lock the aim (the ring shows), swallow, fire: the ball flies from the mouth to the ring and bursts there.
+function Sim:castBeast(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.range, M.cone)
+	local c = { id = id, f = f, kind = "beast", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * M.missRange), result = "", hitKind = "", hits = {}, dogs = {} }
+	if math.abs(dir.Y) > math.abs(dir.X) then c.pos = p - dir * 4 + Vector2.new(-M.spawnSide, 0)
+	else c.pos = p - dir * M.spawnBack end
+	c.head = snap4(math.atan2(dir.Y, dir.X))
+	c.goal = c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "beast")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepBeast(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	local fw = Vector2.new(math.cos(c.head), math.sin(c.head))
+	c.mouth = c.pos + fw * M.mouthF
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "charge") end
+	elseif c.phase == "charge" then
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.pos
+		if to.Magnitude > 0.5 then c.head = snap4(math.atan2(to.Y, to.X)) end
+		if u >= M.charge then enter(c, "lock") end
+	elseif c.phase == "lock" then
+		if u >= M.lock then enter(c, "swallow") end
+	elseif c.phase == "swallow" then
+		if u >= M.swallow then
+			c.from, c.globT = c.mouth, c.t
+			c.flyT = math.max(0.15, (c.aim - c.from).Magnitude / M.speed)
+			enter(c, "fire")
+		end
+	elseif c.phase == "fire" then
+		if c.t >= c.globT + c.flyT then
+			for _, t in pairs(self.targets) do
+				if t.alive and not t.ally and (t.p - c.aim).Magnitude <= M.blastR then self:hitTarget(c, t, M.dmg, "Bijuudama", c.aim) end
+			end
+			if c.result == "" then c.result = "miss" end
+			c.blastT = c.t
+			enter(c, "blast")
+		end
+	elseif c.phase == "blast" then
+		if u >= M.after then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.8 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 -- the Sage Toads' song (kind "song"): on the summoner's shoulders they look for the harmony (the reach shows), then
 -- sing: everyone inside the reach at that moment is caught in the illusion (held), until the song ends.
 function Sim:castSong(owner, M, p, dir)
@@ -934,6 +1001,13 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "beast" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
+		f:SetAttribute("AX", c.aim.X); f:SetAttribute("AZ", c.aim.Y); f:SetAttribute("HitKind", c.hitKind)
+		if c.from then f:SetAttribute("FX", c.from.X); f:SetAttribute("FZ", c.from.Y); f:SetAttribute("GlobT", c.globT); f:SetAttribute("FlyT", c.flyT) end
+		if c.blastT then f:SetAttribute("BlastT", c.blastT) end
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "song" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("CX", c.center.X); f:SetAttribute("CZ", c.center.Y); f:SetAttribute("HitKind", c.hitKind)
 		local names = {}
@@ -1037,6 +1111,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "suck" then return self:stepSuck(c, dt) end
 	if c.kind == "tongue" then return self:stepTongue(c, dt) end
 	if c.kind == "song" then return self:stepSong(c, dt) end
+	if c.kind == "beast" then return self:stepBeast(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target

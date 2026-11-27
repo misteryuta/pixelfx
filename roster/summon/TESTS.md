@@ -337,6 +337,38 @@ Jiraiya bleibt während des Gesangs gesperrt.
 | F8 | Ziel läuft während der Harmoniesuche hinein | rechts | 4,0 | T2 (auf 26,12 gesetzt) und T1 gefangen; Verbündeter A2 im Kreis unberührt | bestanden | – |
 | F9 | Abbruch im Bann | rechts | 4,0 | T1 sofort frei | bestanden | – |
 
+## Madara Uchiha (Uchiha-Clan-Anführer, Rückblende), Shippūden, Slot 3: Nine-Tails Summoning
+
+Belege (Narutopedia):
+
+- Madara kontrolliert Kurama mit dem Sharingan im Kampf gegen Hashirama im späteren Tal des Endes (Manga 399, 620, 621, 626).
+- Kurama kontert dort Hashiramas Holzdrachen mit einem Bijūdama (Manga 620, S. 14).
+- Ohne Susanoo-Rüstung, weil Madaras Slot 1 schon Perfect Susanoo ist (höchstens ein Susanoo-Move pro Grundset).
+
+Aussehen: rotoranger Fuchs, schwarzes Fell um die roten Augen bis zu den Ohren, neun lange Schwänze, menschenähnlicher Oberkörper mit Krallenhänden. Unter dem Sharingan zeigen die Augen drei Tomoe. Rig mit Seiten-, Vorder- und Rückansicht; die neun Schwänze sind glatte Röhren im Fächer. Von hinten ist er zu 35 % durchsichtig.
+
+Ablauf (Server):
+
+1. Rauch, Kurama hinter Madara (bei oben/unten neben ihm). Ein roter Tomoe-Blitz zeigt die Sharingan-Kontrolle.
+2. Laden (0,7 s): Er geht auf alle viere, das Maul öffnet sich, Chakra sammelt sich zur schwarzen Kugel vor dem Maul. Er folgt dem Ziel.
+3. Fixieren (0,45 s): Der rote Explosionsring liegt fest am Boden. Das ist das Signal.
+4. Schlucken, dann Feuern: Die Kugel fliegt vom Maul zum Ring.
+5. Explosion mit 7 Studs Radius: 28 Schaden, Rückstoß 10. Ein Krater bleibt kurz.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| K1 | Treffer | rechts | 0,0 | T1 getroffen, nach 40,0 geschleudert, 72 Leben | bestanden, Bild geprüft (Kurama geduckt, Kugel vor dem Maul, Ring bei T1) | Server bestanden |
+| K2 | weicht beim Fixieren aus | rechts | 0,0 | Fehlschlag | bestanden | – |
+| K3 | Treffer | unten | 30,-24 | T1 getroffen, nach unten geschleudert | bestanden, Bild geprüft (Vorderansicht, Explosionskuppel, Krater, „GETROFFEN“) | – |
+| K4 | weicht aus | unten | 30,-24 | Fehlschlag | bestanden | Server bestanden |
+| K5 | Treffer | oben | 52,30 | T2 getroffen, nach oben geschleudert | bestanden, Bild geprüft (Rückansicht durchsichtig, Kugel im Flug zum Ring) | Server bestanden |
+| K6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | – |
+| K7 | Ziel läuft | rechts | 0,0 | Ring beim Fixieren auf T1 (30,10.4); T1 läuft weiter aus dem Ring, Fehlschlag | bestanden | – |
+| K8 | Ziel beim Laden entfernt | rechts | 0,0 | Kugel auf den letzten Ort, Fehlschlag | bestanden | – |
+| K9 | kein Ziel im Kegel | links | 0,0 | Fehlschlag | bestanden | – |
+| K10 | zwei im Explosionsradius | rechts | 0,0 | T1 und T3 (auf 33,4 gesetzt) getroffen | bestanden | – |
+| K11 | Abbruch im Flug | rechts | 0,0 | Keine Explosion, kein Schaden | bestanden | – |
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

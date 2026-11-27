@@ -1549,9 +1549,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "summon",
-     "status": "new",
-     "note": "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende).",
-     "params": null
+     "status": "ok",
+     "note": "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende; Manga 399, 620, 621, 626). Kurama feuert einen Bijūdama wie gegen Hashiramas Holzdrachen (Manga 620 S. 14); ohne Susanoo-Rüstung, weil Slot 1 schon Perfect Susanoo ist.",
+     "params": {
+      "summon": "madara-kurama-bijuudama"
+     }
     },
     {
      "slot": 4,

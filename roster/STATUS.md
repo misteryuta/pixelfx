@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
-| Naruto Shippūden | 55 | 130 | 57 | 6 | 9 | 57 |
-| **Gesamt** | 81 | 195 | 86 | 12 | 10 | 86 |
+| Naruto Shippūden | 55 | 130 | 58 | 6 | 9 | 56 |
+| **Gesamt** | 81 | 195 | 87 | 12 | 10 | 85 |
 
 ## Classic
 
@@ -84,7 +84,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |---|---:|---|---|---:|---|---|---|---|
 | Madara Uchiha (Uchiha Clan Leader — Flashback) | 99 | Legendary | Uchiha Clan | 1 | Perfect Susanoo | – | umgesetzt | LIVE statt Cutscene (2026-11-25): eigenes blaues Complete-Body-Susanoo-Rig (Tengu-Nase, seitlich gebundenes Haar, Flügel, Rüstung, Katana mit Scheide). Hand greift am Scheidenmund, kurzes Innehalten, die Spitze verlässt die Scheide mit Lichtsaum, Seitenhieb durch den anvisierten Raum, Bodenwelle ab Kontakt, Staub verzögert; Ausweichen möglich. Madara mit Ewigem Mangekyō (Rückblende), nicht Rinnegan. Die alte 19,5-s-Cutscene ist aus dem Spiel genommen (Dateien bleiben in blender/). |
 |  |  |  |  | 2 | Majestic Destroyer Flame | `madara-gouka-mekkyaku` | umgesetzt | Gōka Mekkyaku. |
-|  |  |  |  | 3 | Nine-Tails Summoning | – | fehlt | Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende). |
+|  |  |  |  | 3 | Nine-Tails Summoning | – | umgesetzt | Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende; Manga 399, 620, 621, 626). Kurama feuert einen Bijūdama wie gegen Hashiramas Holzdrachen (Manga 620 S. 14); ohne Susanoo-Rüstung, weil Slot 1 schon Perfect Susanoo ist. |
 |  |  |  |  | 4 | Gunbai Reflection | – | fehlt | Uchiha Gaeshi mit dem Gunbai. |
 | Pain (Six Paths of Pain) | 98 | Legendary | Akatsuki | 1 | Shinra Tensei (Almighty Push) | `pain-shinra-tensei` | umgesetzt | Shinra Tensei. |
 |  |  |  |  | 2 | Chibaku Tensei (Planetary Devastation) | `pain-chibaku-tensei` | umgesetzt | Chibaku Tensei gegen Naruto. |

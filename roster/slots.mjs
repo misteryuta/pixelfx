@@ -134,7 +134,7 @@ export const SLOTS = {
   "shippuden|Madara Uchiha (Uchiha Clan Leader — Flashback)": { desc: "Rückblende: Clanführer im Kampf gegen Hashirama.", moves: [
     [null, "aoe", "ok", "LIVE statt Cutscene (2026-11-25): eigenes blaues Complete-Body-Susanoo-Rig (Tengu-Nase, seitlich gebundenes Haar, Flügel, Rüstung, Katana mit Scheide). Hand greift am Scheidenmund, kurzes Innehalten, die Spitze verlässt die Scheide mit Lichtsaum, Seitenhieb durch den anvisierten Raum, Bodenwelle ab Kontakt, Staub verzögert; Ausweichen möglich. Madara mit Ewigem Mangekyō (Rückblende), nicht Rinnegan. Die alte 19,5-s-Cutscene ist aus dem Spiel genommen (Dateien bleiben in blender/).", { live: "madara-perfect-susanoo" }],
     ["madara-gouka-mekkyaku", "aoe", "ok", "Gōka Mekkyaku."],
-    [null, "summon", "new", "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende)."],
+    [null, "summon", "ok", "Kurama unter Kontrolle des Sharingan, Tal des Endes (Rückblende; Manga 399, 620, 621, 626). Kurama feuert einen Bijūdama wie gegen Hashiramas Holzdrachen (Manga 620 S. 14); ohne Susanoo-Rüstung, weil Slot 1 schon Perfect Susanoo ist.", { summon: "madara-kurama-bijuudama" }],
     [null, "defense", "new", "Uchiha Gaeshi mit dem Gunbai."],
   ] },
   "shippuden|Pain (Six Paths of Pain)": { desc: "Sechs Pfade, Angriff auf Konoha.", moves: [

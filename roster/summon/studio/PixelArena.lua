@@ -962,6 +962,101 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- Kurama (kind "beast")
+	local function newBeast(f)
+		local v = { f = f, kind = "beast", body = newCard(2), smoke = newCard(4), eyes = newCard(5), charge = newCard(4), ball = newCard(4),
+			blast = newCard(5), shadow = newFloor(), zone = newFloor(), crater = newFloor(), popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killBeast(v)
+		for _, n in ipairs({ "body", "smoke", "eyes", "charge", "ball", "blast", "shadow", "zone", "crater" }) do kill(v[n]) end
+	end
+	local function stepBeast(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local h = f:GetAttribute("KH") or 0
+		local fw = Vector2.new(math.cos(h), math.sin(h))
+		local view, face = viewOf(h)
+		local mirror = view == "side" and face < 0
+		local pk = loadPack("fox_kurama")
+		local aimM = toMap(f:GetAttribute("AX") or cx, f:GetAttribute("AZ") or cz)
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.8); v.eyeT = T + 0.3
+			elseif phase == "charge" then sfx("rumble", 0.7)
+			elseif phase == "lock" then sfx("rumble", 0.9)
+			elseif phase == "fire" then sfx("whoosh", 1); ctx.shake(1.5, 0.25)
+			elseif phase == "blast" then
+				sfx("burst", 1); ctx.shake(3, 0.5)
+				if mine then
+					local res = f:GetAttribute("Result")
+					addLog(("%s | %s | %s | %s"):format(v.who or "?", dirName(dx, dz), res == "hit" and "TREFFER (Bijuudama)" or "VERFEHLT", res == "hit" and ("Ziel " .. tostring(f:GetAttribute("HitName"))) or (f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")))
+					if res ~= "hit" then pop(aimM, "VERFEHLT", Color3.fromRGB(192, 196, 224)) end
+				end
+			elseif ending then
+				sfx("poof", 0.6)
+				if mine and phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			end
+		end
+		local k
+		if phase == "appear" then if u > 0.15 then k = frameOf(pk, "idle", view, u) end
+		elseif phase == "charge" or phase == "lock" then k = frameOf(pk, "charge", view, T)
+		elseif phase == "swallow" then k = byProg(pk, "swallow", view, u / M.swallow)
+		elseif phase == "fire" then k = byProg(pk, "fire", view, math.min(1, u / 0.3))
+		elseif phase == "blast" then k = byProg(pk, "recover", view, u / M.after)
+		elseif ending and u < 0.12 and v.lastK then k = v.lastK end
+		if k then v.lastK = k; show(v.body, pk, k, pos, face, 0, false, 0); v.body.img.ImageTransparency = (view == "back") and 0.35 or 0 else hide(v.body) end
+		if k then showFloor(v.shadow, loadPack("kr_shadow"), 1, pos, h, mirror) else hide(v.shadow) end
+		local bs = loadPack("kr_bigsmoke")
+		local bLen = bs.meta.frames / bs.meta.fps
+		if (phase == "appear" or ending) and u < bLen then show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, 0, false, 0.4) else hide(v.smoke) end
+		-- the Sharingan taking hold of its eyes
+		local ep = loadPack("kr_eyes")
+		if v.eyeT and T >= v.eyeT and T - v.eyeT < ep.meta.frames / ep.meta.fps then show(v.eyes, ep, math.floor((T - v.eyeT) * ep.meta.fps) + 1, pos + fw * M.headF, 1, M.headPx, false, 0.6) else hide(v.eyes) end
+		-- the ball gathering before its mouth
+		local mouthM = pos + fw * M.mouthF
+		if phase == "charge" or phase == "lock" then
+			local cp = loadPack("kr_charge")
+			show(v.charge, cp, math.floor(T * cp.meta.fps) % cp.meta.frames + 1, mouthM + fw * 1.5, 1, M.mouthPx, false, 0.5)
+		else hide(v.charge) end
+		-- where it will land (fixed: the tell)
+		if phase == "lock" or phase == "swallow" or phase == "fire" then
+			local zp = loadPack("kr_zone")
+			showFloor(v.zone, zp, math.floor(T * zp.meta.fps) % zp.meta.frames + 1, aimM, 0, false)
+		elseif phase == "charge" then
+			local zp = loadPack("kr_zone")
+			showFloor(v.zone, zp, math.floor(T * zp.meta.fps) % zp.meta.frames + 1, aimM, 0, false, 0.65)
+		else hide(v.zone) end
+		-- the ball in flight: from the mouth (at its height) down to the ring
+		local gT, fT = f:GetAttribute("GlobT"), f:GetAttribute("FlyT")
+		if phase == "fire" and gT and fT then
+			local q = math.clamp((T - gT) / fT, 0, 1)
+			local from = toMap(f:GetAttribute("FX"), f:GetAttribute("FZ"))
+			local bp = loadPack("kr_ball")
+			show(v.ball, bp, math.floor(T * bp.meta.fps) % bp.meta.frames + 1, from:Lerp(aimM, q), 1, M.mouthPx * (1 - q) + 6, false, 0.5)
+		else hide(v.ball) end
+		local bT = f:GetAttribute("BlastT")
+		local bl = loadPack("kr_blast")
+		if bT and T - bT < bl.meta.frames / bl.meta.fps then show(v.blast, bl, math.floor((T - bT) * bl.meta.fps) + 1, aimM, 1, 0, false, 0.8) else hide(v.blast) end
+		if bT then
+			local fade = math.clamp((T - bT - 0.6) / 1.2, 0, 1)
+			if fade < 1 then showFloor(v.crater, loadPack("kr_crater"), 1, aimM, 0, false, fade) else hide(v.crater) end
+		else hide(v.crater) end
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.popped[name] then v.popped[name] = true; t.shake = 0.4; pop(t.p, "GETROFFEN", Color3.fromRGB(255, 120, 90)) end
+		end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- the Sage Toads' song (kind "song")
 	local function newSong(f)
 		local v = { f = f, kind = "song", fuka = newCard(3), shima = newCard(3), puff = newCard(4), notes = newCard(4), reach = newFloor(), prisons = {}, popped = {} }
@@ -1252,7 +1347,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1380,12 +1475,13 @@ function A.mount(ctx)
 			elseif kind == "suck" then stepSuck(views[f] or newSuck(f))
 			elseif kind == "tongue" then stepTongue(views[f] or newTongue(f))
 			elseif kind == "song" then stepSong(views[f] or newSong(f))
+			elseif kind == "beast" then stepBeast(views[f] or newBeast(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1402,7 +1498,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()
