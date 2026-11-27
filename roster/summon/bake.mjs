@@ -9,7 +9,9 @@ const { createFrame, clearFrame, painterFor, composite } = await import("file://
 const { encodePNG } = await import("file:///" + ROOT + "tools/lib/png.mjs");
 const { Canvas, drawDog } = await import("file:///" + ROOT + "src/fx/summon/_quad.js?" + Date.now());
 const name = process.argv[2] ?? "ninken";
-const M = await import("file:///" + ROOT + `src/fx/summon/${name}.js?` + Date.now());
+// a summon (src/fx/summon/<name>.js) or a roster move set (arena/<name> -> src/fx/arena/<name>.js)
+const M = await import("file:///" + ROOT + `src/fx/${name.includes("/") ? name : "summon/" + name}.js?` + Date.now());
+const base = name.split("/").pop();
 mkdirSync(ROOT + "roster/summon/packs", { recursive: true });
 mkdirSync(ROOT + "records/summon", { recursive: true });
 
@@ -78,19 +80,21 @@ for (const id of M.DOGS ?? []) {
   console.log(id, cw + "x" + ch, cells.length, "frames, b64", p.b64.length);
 }
 // ---- the ground effects
-for (const [fx, F] of Object.entries(M.FX)) {
+// (views: true: one book per direction, _side / _front / _back; the painter gets the view as its 4th argument)
+for (const [fx, F] of Object.entries(M.FX ?? {})) for (const view of F.views ? ["side", "front", "back"] : [null]) {
   const cw = F.cw ?? 96, ch = F.ch ?? 64, ox = F.ox ?? 48, oy = F.oy ?? 44, fr = createFrame(cw, ch), cells = [];
   for (let i = 0; i < F.frames; i++) {
     clearFrame(fr);
-    F.draw(painterFor(fr).place(ox, oy, false), F.loop ? i / F.frames : i / Math.max(1, F.frames - 1), i);
+    F.draw(painterFor(fr).place(ox, oy, false), F.loop ? i / F.frames : i / Math.max(1, F.frames - 1), i, view);
     cells.push(composite(fr, new Uint8ClampedArray(cw * ch * 4), null));
   }
   const p = pack(cells, cw, ch);
-  books[(M.PREFIX ?? "fx_") + fx] = { cw, ch, pivot: [ox, oy], frames: F.frames, fps: F.fps, loop: !!F.loop, ground: !!F.ground, ...p };
-  sheet.push({ id: fx, cw, ch, cells });
-  console.log("fx", fx, F.frames, "b64", p.b64.length);
+  const key = (M.PREFIX ?? "fx_") + fx + (view ? "_" + view : "");
+  books[key] = { cw, ch, pivot: [ox, oy], frames: F.frames, fps: F.fps, loop: !!F.loop, ground: !!F.ground, ...p };
+  sheet.push({ id: key, cw, ch, cells });
+  console.log("fx", key, F.frames, "b64", p.b64.length);
 }
-writeFileSync(ROOT + `roster/summon/packs/${name}.json`, JSON.stringify({ move: M.MOVE, moves: M.MOVES, books }));
+writeFileSync(ROOT + `roster/summon/packs/${base}.json`, JSON.stringify({ move: M.MOVE, moves: M.MOVES, books }));
 // ---- preview: every frame of every book, wrapped at ~3000 px, x1 (SHEET_Z to enlarge)
 const Z = +(process.env.SHEET_Z ?? 1), MAXW = 3000;
 const lay = sheet.map((s) => { const cols = Math.max(1, Math.min(s.cells.length, Math.floor(MAXW / (s.cw * Z)))); return { ...s, cols, rows: Math.ceil(s.cells.length / cols) }; });
@@ -102,6 +106,6 @@ for (const s of lay) {
   s.cells.forEach((px, n) => { const cx = (n % s.cols) * s.cw, cy = Y + Math.floor(n / s.cols) * s.ch; for (let y = 0; y < s.ch; y++) for (let x = 0; x < s.cw; x++) { const o = (y * s.cw + x) * 4; if (!px[o + 3]) continue; for (let a = 0; a < Z; a++) for (let b = 0; b < Z; b++) { const d = (((cy + y) * Z + a) * W + (cx + x) * Z + b) * 4; img[d] = px[o]; img[d + 1] = px[o + 1]; img[d + 2] = px[o + 2]; } } });
   Y += s.ch * s.rows;
 }
-writeFileSync(ROOT + `records/summon/${name}_sheet.png`, encodePNG(W, H, img));
+writeFileSync(ROOT + `records/summon/${base}_sheet.png`, encodePNG(W, H, img));
 const tot = Object.values(books).reduce((a, b) => a + b.b64.length, 0);
 console.log("total b64", tot, "sheet", W + "x" + H);

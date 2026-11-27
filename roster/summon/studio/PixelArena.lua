@@ -274,6 +274,17 @@ function A.mount(ctx)
 			targets[f.Name] = t
 		end
 		t.bar.Size = UDim2.fromScale(math.clamp((f:GetAttribute("Hp") or 100) / 100, 0, 1), 1)
+		local stt = f:GetAttribute("Status") or ""
+		local active = stt ~= "" and (f:GetAttribute("StatusEnd") or 0) > (state:GetAttribute("SimT") or 0)
+		t.status = active and stt or nil
+		if active and t.lastStatusEnd ~= f:GetAttribute("StatusEnd") then
+			t.lastStatusEnd = f:GetAttribute("StatusEnd")
+			if t.shownStatus ~= stt then
+				local words = { stun = "BETAEUBT", seal = "VERSIEGELT", blind = "GEBLENDET", confuse = "VERWIRRT", slow = "VERLANGSAMT", burn = "BRENNT" }
+				pop(toMap(f:GetAttribute("X") or 0, f:GetAttribute("Z") or 0), words[stt] or stt, Color3.fromRGB(200, 170, 255))
+			end
+		end
+		t.shownStatus = active and stt or nil
 		t.p = toMap(f:GetAttribute("X") or 0, f:GetAttribute("Z") or 0)
 		t.alive = f:GetAttribute("Alive") ~= false
 		t.held = f:GetAttribute("Held") == true
@@ -1119,6 +1130,12 @@ function A.mount(ctx)
 		else hide(k.card) end
 	end
 
+	---------------------------------------------------------------- the roster's own techniques (kind "arena", PixelArena.MovesView)
+	local MV = require(script:WaitForChild("MovesView"))({ show = show, showFloor = showFloor, newCard = newCard, newFloor = newFloor, kill = kill, hide = hide,
+		loadPack = loadPack, viewOf = viewOf, toMap = toMap, pop = pop, sfx = sfx, addLog = addLog, dirName = dirName, ctx = ctx, SPP = SPP,
+		Defs = Defs, targets = targets, player = player, folder = folder, origin = O, START = START })
+	local function newArena(f) local v = MV.new(f); views[f] = v; return v end
+
 	local function newDragon(f)
 		local v = { f = f, kind = "dragon", body = newCard(2), dust = newCard(4), smoke = newCard(4), headC = newCard(3), segs = {}, recv = {},
 			coil = newCard(4), lane = newFloor(), cracks = newFloor(), popped = {} }
@@ -1580,7 +1597,7 @@ function A.mount(ctx)
 	local last = nil -- the last cast: { slot, pos, dir }
 	local pendingWho = nil
 	local function variant() return Roster.list[variantIdx] end
-	local function isLive(v) for _, s in ipairs(v.slots) do if s.live or s.summon then return true end end return false end
+	local function isLive(v) for _, s in ipairs(v.slots) do if s.live or s.summon or s.arena then return true end end return false end
 	local function dirVec()
 		if dirMode == "unten" then return Vector2.new(0, 1) elseif dirMode == "oben" then return Vector2.new(0, -1)
 		elseif dirMode == "rechts" then return Vector2.new(1, 0) elseif dirMode == "links" then return Vector2.new(-1, 0) end
@@ -1592,7 +1609,7 @@ function A.mount(ctx)
 		local v = variant()
 		local s = v.slots[slot]
 		if not s then return end
-		if s.summon then
+		if s.summon or s.arena then
 			local p = pos or ctx.pos()
 			local d = dir or dirVec()
 			last = { slot = slot, pos = p, dir = d }
@@ -1610,7 +1627,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or (kind == "dragon" and newDragon(f)) or (kind == "guard" and newGuard(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or (kind == "dragon" and newDragon(f)) or (kind == "guard" and newGuard(f)) or (kind == "arena" and newArena(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1654,9 +1671,10 @@ function A.mount(ctx)
 	panel = { log = logL }
 	local function refresh()
 		local v = variant()
-		title.Text = ("[ ] VARIANTE: %s (%s)"):format(v.cell, v.era == "classic" and "Classic" or "Shippuden")
+		local own = state:FindFirstChild("Owners") and state.Owners:FindFirstChild("U" .. tostring(player.UserId))
+		title.Text = ("[ ] VARIANTE: %s (%s)%s"):format(v.cell, v.era == "classic" and "Classic" or "Shippuden", own and ("   LP " .. tostring(own:GetAttribute("Hp") or 100)) or "")
 		local lines = {}
-		for i, s in ipairs(v.slots) do lines[i] = ("%d  %s%s"):format(i, s.name, s.summon and "  [BESCHWOERUNG LIVE]" or s.live and "  [LIVE]" or "") end
+		for i, s in ipairs(v.slots) do lines[i] = ("%d  %s%s"):format(i, s.name, s.summon and "  [BESCHWOERUNG LIVE]" or s.arena and "  [2.5D LIVE]" or s.live and "  [LIVE]" or "") end
 		slotsL.Text = table.concat(lines, "\n")
 		for _, k in ipairs({ "blick", "unten", "oben", "rechts", "links" }) do buttons["d_" .. k].BackgroundColor3 = (dirMode == k) and Color3.fromRGB(120, 70, 40) or Color3.fromRGB(46, 52, 96) end
 	end
@@ -1687,6 +1705,8 @@ function A.mount(ctx)
 	button("t_reset", "RESET+RESPAWN", 356, 168, 104, function() remote:FireServer("respawn"); remote:FireServer("targets", nil, "reset"); remote:FireServer("cooldowns") end)
 	gui.Parent = player:WaitForChild("PlayerGui")
 	refresh()
+	-- the caster's health in the title stays current
+	task.spawn(function() while alive and gui.Parent do refresh(); task.wait(0.3) end end)
 	-- the test hook (Studio): same calls as the buttons, for scripted playtests
 	local hook = Instance.new("BindableFunction")
 	hook.Name = "ArenaTest"
@@ -1723,7 +1743,8 @@ function A.mount(ctx)
 		if not alive then return end
 		for _, f in ipairs(state.Targets:GetChildren()) do syncTarget(f) end
 		for _, t in pairs(targets) do
-			if t.held then t.card.img.ImageColor3 = Color3.fromRGB(255, 214, 160) elseif t.shake <= 0 then t.card.img.ImageColor3 = Color3.new(1, 1, 1) end
+			local tints = { stun = Color3.fromRGB(200, 200, 255), seal = Color3.fromRGB(220, 200, 150), blind = Color3.fromRGB(150, 150, 170), confuse = Color3.fromRGB(230, 170, 230), slow = Color3.fromRGB(170, 210, 255), burn = Color3.fromRGB(255, 150, 110) }
+			if t.held then t.card.img.ImageColor3 = Color3.fromRGB(255, 214, 160) elseif t.status and tints[t.status] then t.card.img.ImageColor3 = tints[t.status] elseif t.shake <= 0 then t.card.img.ImageColor3 = Color3.new(1, 1, 1) end
 			if t.shake > 0 then
 				t.shake -= dt
 				t.card.img.Rotation = math.sin(t.shake * 60) * 6 * t.shake / 0.35
@@ -1742,6 +1763,7 @@ function A.mount(ctx)
 			elseif kind == "beast" then stepBeast(views[f] or newBeast(f))
 			elseif kind == "dragon" then stepDragon(views[f] or newDragon(f))
 			elseif kind == "guard" then stepGuard(views[f] or newGuard(f))
+			elseif kind == "arena" then MV.step(views[f] or newArena(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		local threats = state:FindFirstChild("Threats")
@@ -1750,7 +1772,7 @@ function A.mount(ctx)
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) elseif v.kind == "guard" then killGuard(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) elseif v.kind == "guard" then killGuard(v) elseif v.kind == "arena" then MV.kill(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1767,7 +1789,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) elseif v.kind == "guard" then killGuard(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) elseif v.kind == "guard" then killGuard(v) elseif v.kind == "arena" then MV.kill(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, k in pairs(threatViews) do kill(k.card) end
 		for _, q in ipairs(pops) do kill(q.card) end

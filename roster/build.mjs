@@ -83,6 +83,13 @@ async function clipTiming(key) {
 const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const seen = new Set();
 const dupLog = [];
+// the 2.5D arena moves (src/fx/arena/<figure>.js MOVES: variant + slot -> id): such a slot is live on the stage
+const { readdirSync } = await import("node:fs");
+const ARENA = {};
+for (const file of readdirSync(ROOT + "src/fx/arena").filter((x) => x.endsWith(".js") && !x.startsWith("_"))) {
+  const A = await import("file:///" + ROOT + "src/fx/arena/" + file);
+  for (const mv of A.MOVES ?? []) ARENA[mv.variant + "#" + mv.slot] = mv.id;
+}
 for (const v of variants) {
   const k = v.era + "|" + v.cell, s = SLOTS[k];
   if (!s) throw new Error("no slots for " + k);
@@ -100,7 +107,8 @@ for (const v of variants) {
     // documented replacement (params.replace = { name, was, src }); "fileName" keeps the roster file's wording
     const rp = params?.replace;
     if (rp) dupLog.push({ era: v.era, cell: v.cell, slot: i + 1, was: name, now: rp.name ?? null, src: rp.src, note: note ?? "" });
-    v.slots.push({ slot: i + 1, name: rp?.name ?? name, fileName: name, clip: clip && inPlace ? clip : null, pendingClip: clip && !inPlace ? clip : null, reworked: REWORKED.includes(clip), kind, status, note: note ?? "", params: params ?? null, ...tt });
+    const arena = ARENA[v.id + "#" + (i + 1)];
+    v.slots.push({ slot: i + 1, name: rp?.name ?? name, fileName: name, clip: clip && inPlace ? clip : null, pendingClip: clip && !inPlace ? clip : null, reworked: REWORKED.includes(clip), kind, status: arena ? "ok" : status, note: note ?? "", params: arena ? { ...(params ?? {}), arena } : params ?? null, ...tt });
   }
   delete v.moves;
 }

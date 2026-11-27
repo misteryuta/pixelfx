@@ -30,7 +30,7 @@ end
 local function slotMove(variantId, slot)
 	local v = Roster.byId[variantId]
 	local s = v and v.slots[slot]
-	return s and s.summon or nil
+	return s and (s.summon or s.arena) or nil
 end
 
 remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
@@ -53,6 +53,7 @@ remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
 		sim:abort(player.UserId)
 	elseif op == "respawn" then
 		sim:abort(player.UserId)
+		if sim.resetOwner then sim:resetOwner(player.UserId) end
 		cooldown[player.UserId] = {}
 	elseif tester(player) then
 		if op == "time" then state:SetAttribute("TimeScale", math.clamp(tonumber(a) or 1, 0.05, 2)); state:SetAttribute("Paused", false)

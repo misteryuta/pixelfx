@@ -83,9 +83,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "summon",
-     "status": "new",
+     "status": "ok",
      "note": "Edo Tensei: im Konoha Crush ruft er die Ersten beiden Hokage.",
-     "params": null
+     "params": {
+      "arena": "orochimaru-edo-tensei"
+     }
     },
     {
      "slot": 2,
@@ -97,7 +99,9 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Klinge aus dem Schlangenmaul.",
-     "params": null,
+     "params": {
+      "arena": "orochimaru-kusanagi"
+     },
      "len": 4.45,
      "contacts": [
       1.45
@@ -112,9 +116,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "seal",
-     "status": "new",
+     "status": "ok",
      "note": "Gogyō Fūin auf Narutos Siegel, Wald des Todes.",
-     "params": null
+     "params": {
+      "arena": "orochimaru-gogyo-fuuin"
+     }
     },
     {
      "slot": 4,
@@ -124,9 +130,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "defense",
-     "status": "new",
+     "status": "ok",
      "note": "Rashōmon gegen Hiruzens Enma. Zeitkonflikt: das dreifache Rashōmon ist erst in Shippūden belegt (Manga 295); hier als Kuchiyose: Rashōmon gezeigt.",
-     "params": null
+     "params": {
+      "arena": "orochimaru-rashomon"
+     }
     }
    ]
   },
@@ -151,9 +159,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
-     "status": "new",
+     "status": "ok",
      "note": "Gamaguchi Shibari: Magen einer Kröte, gegen Itachi und Kisame.",
-     "params": null
+     "params": {
+      "arena": "jiraiya-gamaguchi"
+     }
     },
     {
      "slot": 2,
@@ -163,9 +173,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Jiraiyas eigenes Rasengan; der vorhandene Clip ist Narutos Version mit Schattendoppelgänger.",
-     "params": null
+     "params": {
+      "arena": "jiraiya-rasengan"
+     }
     },
     {
      "slot": 3,
@@ -177,7 +189,9 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Gamayu Endan mit Gamabunta gegen Orochimaru, Tanzaku.",
-     "params": null,
+     "params": {
+      "arena": "jiraiya-gamayu-endan"
+     },
      "len": 7.4,
      "contacts": [
       3.1,
@@ -198,7 +212,9 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Hari Jizō/Kebari Senbon, Haarnadeln.",
-     "params": null,
+     "params": {
+      "arena": "jiraiya-kebari-senbon"
+     },
      "len": 4.7,
      "contacts": [
       2.2,
@@ -232,9 +248,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "heal",
-     "status": "new",
+     "status": "ok",
      "note": "Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto.",
-     "params": null
+     "params": {
+      "arena": "tsunade-souzou-saisei"
+     }
     },
     {
      "slot": 2,
@@ -246,7 +264,9 @@
      "kind": "strike",
      "status": "ok",
      "note": "Tsūtenkyaku, Fersenhieb aus der Höhe.",
-     "params": null,
+     "params": {
+      "arena": "tsunade-tsuutenkyaku"
+     },
      "len": 4.9,
      "contacts": [
       1.85
@@ -263,7 +283,9 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht.",
-     "params": null,
+     "params": {
+      "arena": "tsunade-ranshinshou"
+     },
      "len": 4.85,
      "contacts": [
       1.3,
@@ -539,7 +561,9 @@
      "kind": "strike",
      "status": "ok",
      "note": "Raikiri gegen Haku/Zabuza.",
-     "params": null,
+     "params": {
+      "arena": "kakashi-raikiri"
+     },
      "len": 4.05,
      "contacts": [
       2
@@ -554,9 +578,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "projectile",
-     "status": "new",
+     "status": "ok",
      "note": "Sharingan-Kopie von Zabuzas Suiryūdan, Spiegelduell.",
-     "params": null
+     "params": {
+      "arena": "kakashi-copy-water-dragon"
+     }
     },
     {
      "slot": 3,
@@ -580,9 +606,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "buff",
-     "status": "new",
+     "status": "ok",
      "note": "Kirigakure im Land der Wellen ist Zabuzas Technik; Kakashi als Anwender laut Datei (Sharingan-Kopie).",
-     "params": null
+     "params": {
+      "arena": "kakashi-hidden-mist"
+     }
     }
    ]
   },
@@ -607,9 +635,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "transform",
-     "status": "new",
+     "status": "ok",
      "note": "Zeitkonflikt: das sechste Tor zeigt Guy erst in Shippūden. Darstellung auf die belegte Shippūden-Version begrenzt.",
-     "params": null
+     "params": {
+      "arena": "guy-keimon"
+     }
     },
     {
      "slot": 2,
@@ -619,9 +649,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "partial",
+     "status": "ok",
      "note": "Dynamic Entry. Der vorhandene Clip ist ein generischer Taijutsu-Austausch.",
-     "params": null,
+     "params": {
+      "arena": "guy-dynamic-entry"
+     },
      "len": 4.35,
      "contacts": [
       0.7,
@@ -643,9 +675,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "'Strong Fist Hurricane': Übersetzung uneindeutig (Konoha Gōriki Senpū).",
-     "params": null
+     "params": {
+      "arena": "guy-goriki-senpuu"
+     }
     }
    ]
   },
@@ -672,7 +706,9 @@
      "kind": "illusion",
      "status": "ok",
      "note": "Kirigakure no Jutsu mit Muon Satsujin. Spielzustand: Ziel verliert ihn aus dem Blick.",
-     "params": null,
+     "params": {
+      "arena": "zabuza-kirigakure"
+     },
      "len": 5.3,
      "contacts": [
       2.8
@@ -689,7 +725,9 @@
      "kind": "bind",
      "status": "ok",
      "note": "Suirō no Jutsu gegen Kakashi: Hand bleibt im Wasser.",
-     "params": null,
+     "params": {
+      "arena": "zabuza-suirou"
+     },
      "len": 5.05,
      "contacts": [
       1.25,
@@ -705,9 +743,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "projectile",
-     "status": "actor",
+     "status": "ok",
      "note": "Suiryūdan; Clip mit Standard-Anwender.",
-     "params": null,
+     "params": {
+      "arena": "zabuza-suiryuudan"
+     },
      "len": 7.417,
      "contacts": [
       3.667,
@@ -804,7 +844,9 @@
      "kind": "bind",
      "status": "ok",
      "note": "Sabaku Kyū + Sabaku Sōsō: ein Move, zwei Phasen.",
-     "params": null,
+     "params": {
+      "arena": "gaara-sabaku-sousou"
+     },
      "len": 5.35,
      "contacts": [
       2.15,
@@ -820,9 +862,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "transform",
-     "status": "new",
+     "status": "ok",
      "note": "Tanuki Neiri: Gaara schläft, Shukaku übernimmt. 'Mini-Shukaku' = Teilverwandlung.",
-     "params": null
+     "params": {
+      "arena": "gaara-tanuki-neiri"
+     }
     },
     {
      "slot": 3,
@@ -834,7 +878,9 @@
      "kind": "defense",
      "status": "ok",
      "note": "Suna no Tate (automatisch).",
-     "params": null,
+     "params": {
+      "arena": "gaara-suna-no-tate"
+     },
      "len": 4.7,
      "contacts": [
       2.3,
@@ -865,9 +911,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Rasengan im Ein-Schweif-Mantel gegen Sasuke.",
-     "params": null
+     "params": {
+      "arena": "naruto-vermilion-rasengan"
+     }
     },
     {
      "slot": 2,
@@ -877,9 +925,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "actor",
+     "status": "ok",
      "note": "Uzumaki Naruto Rendan. Clip zeigt Naruto ohne Kyūbi-Mantel.",
-     "params": null,
+     "params": {
+      "arena": "naruto-uzumaki-rendan"
+     },
      "len": 4.85,
      "contacts": [
       1.2,
@@ -927,9 +977,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Schwarzes Chidori im Fluchmal Stufe 2.",
-     "params": null
+     "params": {
+      "arena": "sasuke-onyx-chidori"
+     }
     },
     {
      "slot": 2,
@@ -939,9 +991,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Shishi Rendan.",
-     "params": null
+     "params": {
+      "arena": "sasuke-shishi-rendan"
+     }
     },
     {
      "slot": 3,
@@ -951,9 +1005,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "projectile",
-     "status": "actor",
+     "status": "ok",
      "note": "Hōsenka no Jutsu; Clip mit Standard-Anwender.",
-     "params": null,
+     "params": {
+      "arena": "sasuke-housenka"
+     },
      "len": 8.25,
      "contacts": [
       2.25,
@@ -1023,9 +1079,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Ura Renge, fünftes Tor.",
-     "params": null
+     "params": {
+      "arena": "lee-ura-renge"
+     }
     },
     {
      "slot": 2,
@@ -1037,7 +1095,9 @@
      "kind": "strike",
      "status": "ok",
      "note": "Omote Renge.",
-     "params": null,
+     "params": {
+      "arena": "lee-omote-renge"
+     },
      "len": 4.75,
      "contacts": [
       1.35,
@@ -1127,7 +1187,9 @@
      "kind": "seal",
      "status": "ok",
      "note": "Hakke Rokujūyon Shō: schließt Tenketsu -> Spielzustand: Jutsu gesperrt.",
-     "params": null,
+     "params": {
+      "arena": "neji-hakke-64"
+     },
      "len": 5.75,
      "contacts": [
       1.55,
@@ -1149,7 +1211,9 @@
      "kind": "defense",
      "status": "ok",
      "note": "Hakkeshō Kaiten.",
-     "params": null,
+     "params": {
+      "arena": "neji-kaiten"
+     },
      "len": 4.1,
      "contacts": [
       1.6,
@@ -1292,7 +1356,9 @@
      "kind": "bind",
      "status": "ok",
      "note": "Kagemane no Jutsu: Verbindung über den Boden, gekoppelte Bewegung.",
-     "params": null,
+     "params": {
+      "arena": "shikamaru-kagemane"
+     },
      "len": 4.9,
      "contacts": [
       2.15,
@@ -1424,9 +1490,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "seal",
-     "status": "new",
+     "status": "ok",
      "note": "Jūken auf die Tenketsu, gegen Neji.",
-     "params": null
+     "params": {
+      "arena": "hinata-juuken"
+     }
     }
    ]
   },
@@ -1936,7 +2004,9 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Senpō: Fūton Rasenshuriken.",
-     "params": null,
+     "params": {
+      "arena": "naruto-rasenshuriken"
+     },
      "len": 5.85,
      "contacts": [
       2.45,
@@ -1957,9 +2027,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "partial",
+     "status": "ok",
      "note": "Clip zeigt ein einzelnes Ōdama Rasengan, kein Rendan.",
-     "params": null,
+     "params": {
+      "arena": "naruto-rasengan-rendan"
+     },
      "len": 7.35,
      "contacts": [
       2.75,
@@ -1978,7 +2050,9 @@
      "kind": "strike",
      "status": "ok",
      "note": "Kawazu Kumite.",
-     "params": null,
+     "params": {
+      "arena": "naruto-kawazu-kumite"
+     },
      "len": 4.75,
      "contacts": [
       1.55,
@@ -1995,9 +2069,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Zwei Ōdama-Rasengan mit Doppelgängern.",
-     "params": null
+     "params": {
+      "arena": "naruto-two-great-rasengan"
+     }
     }
    ]
   },
@@ -2102,7 +2178,8 @@
      "status": "ok",
      "note": "LIVE (2026-11-25): eigenes lila Susanoo-Rig der Gipfel-Stufe (Hörner, Zahnkranz an der Kapuze, Kinnfortsatz). Narutopedia: Bogen am linken Handgelenk, Pfeil aus einer Kugel in der rechten Hand. Anlegen, Spannen, Zielen, Lösen mit eigenen Posen; der Pfeil fliegt als Projektil weiter, ein Schild stoppt ihn. Mangekyō (Kap. 480), nicht Ewiges.",
      "params": {
-      "live": "sasuke-susanoo-arrow-summit"
+      "live": "sasuke-susanoo-arrow-summit",
+      "arena": "sasuke-susanoo-arrow"
      }
     },
     {
@@ -2115,7 +2192,9 @@
      "kind": "barrier",
      "status": "ok",
      "note": "Narutopedia: Blaze Release: Kagutsuchi (Anime-Englisch: Inferno Style: Flame Control), Debüt Manga Kap. 464 / Anime Folge 203. Amaterasu links, Formung rechts; Rippen-Susanoo mit Flammen (Kap. 463), Stachelbarriere vor sich, die schützt und durchbohrt (Kap. 464).",
-     "params": null,
+     "params": {
+      "arena": "sasuke-flame-control"
+     },
      "len": 5.45,
      "contacts": [
       2.05,
@@ -2134,7 +2213,9 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Kirin gegen Itachi.",
-     "params": null,
+     "params": {
+      "arena": "sasuke-kirin"
+     },
      "len": 6.5,
      "contacts": [
       3.3,
@@ -2150,9 +2231,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "aoe",
-     "status": "new",
+     "status": "ok",
      "note": "Amaterasu aus Sasukes linkem Auge (Narutopedia, Kagutsuchi-Seite).",
-     "params": null
+     "params": {
+      "arena": "sasuke-amaterasu"
+     }
     }
    ]
   },
@@ -2321,7 +2404,9 @@
      "kind": "projectile",
      "status": "ok",
      "note": "Zeitkonflikt: der Kisame-Kampf liegt nach dem Gipfel, vor dem Krieg. Slot bleibt laut Datei.",
-     "params": null,
+     "params": {
+      "arena": "guy-hirudora"
+     },
      "len": 4.65,
      "contacts": [
       2.3
@@ -2338,7 +2423,9 @@
      "kind": "strike",
      "status": "ok",
      "note": "Asa Kujaku, sechstes Tor.",
-     "params": null,
+     "params": {
+      "arena": "guy-asa-kujaku"
+     },
      "len": 5.25,
      "contacts": [
       1.2,
@@ -2360,13 +2447,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: das Öffnen eines Tores (Classic: sechstes Tor) ist derselbe Spielzustand; das siebte Tor bleibt sichtbarer Zustand der Variante (Hirudora öffnet es). Ersatz: Dynamic Action, Salto auf das Ziel und Schlag-Tritt-Serie, gegen Kisames Doppelgänger (Shippūden Folge 13).",
      "params": {
       "replace": {
        "name": "Dynamic Action",
        "src": "Narutopedia: Dynamic Action, Anime Shippūden 13"
-      }
+      },
+      "arena": "guy-dynamic-action"
      }
     },
     {
@@ -2377,13 +2465,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: Konoha Senpū ist dieselbe Drehtritt-Familie wie Classic 'Strong Fist Hurricane' (Konoha Gōriki Senpū). Ersatz: Konoha Saiha Shōfū, Ellbogenstoß mit Stützarm, zerbricht im Kisame-Kampf Yaguras Korallen.",
      "params": {
       "replace": {
        "name": "Leaf Rock-Destroying Rise",
        "src": "Narutopedia: Leaf Rock-Destroying Rise, Manga 505 / Anime Shippūden 250"
-      }
+      },
+      "arena": "guy-rock-destroying-rise"
      }
     }
    ]
@@ -2411,7 +2500,9 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt.",
-     "params": null,
+     "params": {
+      "arena": "jiraiya-goemon"
+     },
      "len": 5.15,
      "contacts": [
       2.05,
@@ -2429,9 +2520,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "new",
+     "status": "ok",
      "note": "Sennin-Ōdama Rasengan.",
-     "params": null
+     "params": {
+      "arena": "jiraiya-oodama-rasengan"
+     }
     },
     {
      "slot": 3,
@@ -2644,13 +2737,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "transform",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: Tsūtenkyaku hat Tsunade schon in Classic (Heavenly Spear Foot wäre derselbe Sturz-Tritt). Ersatz: Byakugō no Jutsu, die Zeichen breiten sich über den Körper, Dauer-Regeneration während des Kampfes (gegen Madara).",
      "params": {
       "replace": {
        "name": "Strength of a Hundred Technique",
        "src": "Narutopedia: Ninja Art Creation Rebirth — Strength of a Hundred Technique, Manga 577 / Anime Shippūden 333"
-      }
+      },
+      "arena": "tsunade-byakugou"
      }
     },
     {
@@ -2692,7 +2786,9 @@
      "kind": "aoe",
      "status": "ok",
      "note": "Yamata no Jutsu.",
-     "params": null,
+     "params": {
+      "arena": "orochimaru-yamata"
+     },
      "len": 6.3,
      "contacts": [
       2.15,
@@ -2714,9 +2810,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "projectile",
-     "status": "partial",
+     "status": "ok",
      "note": "Kein Doppel: Kū no Tachi (Manga 123) ist der aus dem Mund schnellende Langstoß; Classic 'Sword of Kusanagi' wird geführt. Braucht eigenen Clip, solange beide Slots denselben zeigen.",
-     "params": null,
+     "params": {
+      "arena": "orochimaru-longsword"
+     },
      "len": 4.45,
      "contacts": [
       1.45
@@ -2731,13 +2829,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
-     "status": "new",
+     "status": "ok",
      "note": "Doppelung: Sanjū Rashōmon steht schon in Classic. Ersatz: Sen'ei Tajashu, viele Schlangen aus den Ärmeln binden das Ziel (Tenchi-Brücke).",
      "params": {
       "replace": {
        "name": "Many Hidden Shadow Snake Hands",
        "src": "Narutopedia: Many Hidden Shadow Snake Hands, Manga 290 / Anime Shippūden 39"
-      }
+      },
+      "arena": "orochimaru-senei-tajashu"
      }
     }
    ]
@@ -2763,9 +2862,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "aoe",
-     "status": "new",
+     "status": "ok",
      "note": "Ryūsa Bakuryū.",
-     "params": null
+     "params": {
+      "arena": "gaara-ryuusa-bakuryuu"
+     }
     },
     {
      "slot": 2,
@@ -2777,7 +2878,9 @@
      "kind": "seal",
      "status": "ok",
      "note": "Sabaku Taisō: begraben und verdichtet.",
-     "params": null,
+     "params": {
+      "arena": "gaara-sabaku-taisou-fuuin"
+     },
      "len": 6.3,
      "contacts": [
       1.9,
@@ -2793,9 +2896,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "defense",
-     "status": "partial",
+     "status": "ok",
      "note": "Kein Doppel: Zettai Bōgyo: Shukaku no Tate ist der große Schild für ein Gebiet, Classic Suna no Tate der automatische Eigenschutz. Braucht eigenen Clip.",
-     "params": null,
+     "params": {
+      "arena": "gaara-shukaku-shield"
+     },
      "len": 4.7,
      "contacts": [
       2.3,
@@ -3612,9 +3717,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "actor",
+     "status": "ok",
      "note": "Zeitkonflikt: Lee nutzt Asa Kujaku erst im Krieg. Clip mit Guy.",
-     "params": null,
+     "params": {
+      "arena": "lee-asa-kujaku"
+     },
      "len": 5.25,
      "contacts": [
       1.2,
@@ -3636,9 +3743,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "strike",
-     "status": "partial",
+     "status": "ok",
      "note": "Clip zeigt Konoha Senpū, nicht Gōriki Senpū.",
-     "params": null,
+     "params": {
+      "arena": "lee-senpuu"
+     },
      "len": 3.25,
      "contacts": [
       1.15,
@@ -3882,13 +3991,14 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "projectile",
-     "status": "partial",
+     "status": "ok",
      "note": "Doppelung: Hakke Rokujūyon Shō bleibt in Classic. Ersatz: Hakke Kūshō, ein einzelner gerichteter Fernstoß. Der Clip hängt Hakke Hasangeki an; der Slot braucht den Einzelstoß.",
      "params": {
       "replace": {
        "name": "Eight Trigrams Vacuum Palm",
        "src": "Narutopedia: Eight Trigrams Vacuum Palm, Manga 256 / Anime Shippūden 13"
-      }
+      },
+      "arena": "neji-vacuum-palm"
      },
      "len": 5.1,
      "contacts": [
@@ -3956,7 +4066,9 @@
      "kind": "bind",
      "status": "ok",
      "note": "Kage Nui: Schattenstränge steigen aus einer Schattenfläche und durchbohren das Ziel (gegen Hidan/Kakuzu). Eigene Silhouette und Trefferlogik, kein Kagemane.",
-     "params": null,
+     "params": {
+      "arena": "shikamaru-kagenui"
+     },
      "len": 5.7,
      "contacts": [
       2.5,
@@ -4141,7 +4253,9 @@
      "kind": "strike",
      "status": "ok",
      "note": "Jūho Sōshiken.",
-     "params": null,
+     "params": {
+      "arena": "hinata-twin-lions"
+     },
      "len": 4.6,
      "contacts": [
       1.95,

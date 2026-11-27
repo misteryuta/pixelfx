@@ -69,7 +69,7 @@ function Sim:setTargetMode(name, mode)
 	for n, t in pairs(self.targets) do
 		if name == nil or n == name then
 			if mode == "remove" then t.alive = false
-			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, t.ally and ALLY_HP or 100, "stand", 0, nil; t.hidden = false
+			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, t.ally and ALLY_HP or 100, "stand", 0, nil; t.hidden = false; t.status = nil; t.f:SetAttribute("Status", "")
 			else t.mode, t.alive, t.phase, t.throwT, t.thrown = mode, true, 0, 0, false end
 			self:writeTarget(t)
 		end
@@ -142,6 +142,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "beast" then return self:castBeast(owner, M, p, dir) end
 	if M.kind == "dragon" then return self:castDragon(owner, M, p, dir) end
 	if M.kind == "guard" then return self:castGuard(owner, M, p, dir) end
+	if M.kind == "arena" then return self:castArena(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -853,6 +854,10 @@ function Sim:throw(t, at)
 	f.Name = "K" .. id
 	local d = (at - t.p).Unit
 	local k = { id = id, f = f, from = t.name, p = t.p, start = t.p, at = at, dir = d, state = "fly", t0 = self.t, flown = 0 }
+	-- the cast whose caster it is thrown at (its caster may move: a rush, a blink, a swap)
+	for _, c in pairs(self.casts) do
+		if c.phase ~= "done" and c.phase ~= "abort" and ((c.cpos or c.p) - at).Magnitude <= 2.5 then k.cast = c end
+	end
 	f:SetAttribute("From", t.name); f:SetAttribute("DX", d.X); f:SetAttribute("DZ", d.Y); f:SetAttribute("T0", self.t)
 	f:SetAttribute("AX", at.X); f:SetAttribute("AZ", at.Y)
 	self.threats[id] = k
@@ -872,10 +877,31 @@ function Sim:stepThreats(dt)
 			local p0 = k.p
 			local stepLen = TH.speed * dt
 			local done = false
+			if k.reflected then k.f:SetAttribute("DX", k.dir.X); k.f:SetAttribute("DZ", k.dir.Y) end
 			-- in small steps (a fast kunai must not pass through her between two frames)
 			local n = math.max(1, math.ceil(stepLen / 0.5))
 			for i = 1, n do
 				local q = p0 + k.dir * (stepLen * i / n)
+				-- the caster's own guard (arena moves)
+				if not k.guarded and not k.reflected and self.guardThreat then
+					local g = self:guardThreat(k, q)
+					if g then k.guarded = true; k.by = g end
+					if g == "block" or g == "swap" then k.p, k.state, k.endT = q, "blocked", self.t; done = true; break end
+					if g == "reflect" then k.p = q; p0 = q; done = true; break end
+				end
+				-- a kunai sent back: it hits its thrower
+				if k.reflected then
+					for _, t in pairs(self.targets) do
+						if t.alive and not t.ally and (t.p - q).Magnitude <= 1.6 then
+							t.hp -= TH.dmg
+							self:writeTarget(t)
+							k.p, k.state, k.endT = q, "returned", self.t
+							done = true
+							break
+						end
+					end
+					if done then break end
+				end
 				for _, c in pairs(self.casts) do
 					-- (still there for the first moments of leaving, until the smoke covers her)
 					if c.kind == "guard" and (c.phase == "guard" or c.phase == "split" or c.phase == "merge" or (c.phase == "leave" and c.t - c.pt < 0.3)) then
@@ -901,9 +927,12 @@ function Sim:stepThreats(dt)
 					end
 				end
 				if done then break end
-				-- the one it was thrown at
-				if (q - k.at).Magnitude <= TH.hitR then
+				-- the one it was thrown at (where its caster is now); a phased caster lets it pass
+				local aimAt = (k.cast and k.cast.cpos) or k.at
+				if not k.reflected and not k.phased and (q - aimAt).Magnitude <= TH.hitR then
 					k.p, k.state, k.endT = q, "through", self.t
+					local o = k.cast and self.owners and self.owners[k.cast.owner]
+					if o then o.hp = math.max(0, o.hp - TH.dmg); self:writeOwner(o) end
 					for _, c in pairs(self.casts) do
 						if c.kind == "guard" and c.phase ~= "done" and c.phase ~= "abort" and (c.p - k.at).Magnitude <= TH.hitR + 0.5 then
 							c.through += 1
@@ -1370,7 +1399,7 @@ function Sim:abort(owner)
 			for t in pairs(c.caught or {}) do t.held = false; self:writeTarget(t) end
 			if c.grabbed then local g = c.grabbed; g.held, g.hidden = false, false; if c.kind == "tongue" and c.inside then g.p = c.mouth + c.tdir * 2 end; self:writeTarget(g); c.grabbed = nil end
 			c.carried, c.caught = {}, {}
-			self:writeCast(c)
+			if c.kind == "arena" then self:releaseArena(c); self:writeArena(c) else self:writeCast(c) end
 		end
 	end
 end
@@ -1396,6 +1425,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "beast" then return self:stepBeast(c, dt) end
 	if c.kind == "dragon" then return self:stepDragon(c, dt) end
 	if c.kind == "guard" then return self:stepGuard(c, dt) end
+	if c.kind == "arena" then return self:stepArena(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target
@@ -1474,10 +1504,18 @@ function Sim:stepTargets(dt)
 			end
 			if best then
 				t.throwT = (t.throwT or 0) + dt
-				if t.throwT >= (t.thrown and Sim.THROW.every or Sim.THROW.first) then self:throw(t, best.p); t.throwT, t.thrown = 0, true end
+				local st = self.statusOf and self:statusOf(t)
+				if t.throwT >= (t.thrown and Sim.THROW.every or Sim.THROW.first) and st ~= "stun" and st ~= "seal" then
+					local at = best.cpos or best.p
+					if st == "blind" then at = at + Vector2.new((math.random() - 0.5) * 14, (math.random() - 0.5) * 14)
+					elseif st == "confuse" then local a = math.random() * math.pi * 2; at = t.p + Vector2.new(math.cos(a), math.sin(a)) * 20 end
+					self:throw(t, at); t.throwT, t.thrown = 0, true
+				end
 			end
 		end
-		if t.alive and not t.held and not (t.kbLeft and t.kbLeft > 0) then
+		local tst = self.statusOf and self:statusOf(t)
+		if tst == "burn" and t.alive then t.hp -= 4 * dt end
+		if t.alive and not t.held and not (t.kbLeft and t.kbLeft > 0) and tst ~= "stun" then
 			if t.mode == "walk" or t.mode == "throwwalk" then
 				t.phase += dt
 				t.p = t.home + Vector2.new(0, math.sin(t.phase * 0.9) * 11)
@@ -1517,8 +1555,16 @@ function Sim:step(realDt, forced)
 	self.t += dt
 	self.state:SetAttribute("SimT", self.t)
 	self:stepTargets(dt)
+	for _, o in pairs(self.owners or {}) do
+		if o.buff and o.buff.untilT > self.t and o.buff.regen > 0 and o.hp < 100 then o.hp = math.min(100, o.hp + o.buff.regen * dt); self:writeOwner(o) end
+		if o.buff and o.buff.untilT <= self.t then o.buff = nil; self:writeOwner(o) end
+	end
 	for _, c in pairs(self.casts) do self:stepCast(c, dt) end
 	self:stepThreats(dt)
 end
+
+-- the roster's own techniques (PixelArena.Moves): installs castArena / stepArena and the rest
+local movesModule = script.Parent:FindFirstChild("Moves")
+if movesModule then require(movesModule)(Sim) end
 
 return Sim
