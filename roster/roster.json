@@ -2436,8 +2436,10 @@
      "reworked": false,
      "kind": "illusion",
      "status": "ok",
-     "note": "Magen: Gamarinshō.",
-     "params": null,
+     "note": "Magen: Gamarinshō (Demonic Illusion: Toad Confrontation Chant, Manga 379 / Anime Shippūden 132): Fukasaku und Shima auf Jiraiyas Schultern suchen die Harmonie (die Reichweite zeigt sich), dann fängt der Gesang jeden darin; vier Krötensamurai halten das Opfer in einem Wasserwürfel.",
+     "params": {
+      "summon": "jiraiya-frog-song"
+     },
      "len": 6.65,
      "contacts": [
       1.95,

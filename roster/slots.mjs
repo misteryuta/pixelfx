@@ -200,7 +200,7 @@ export const SLOTS = {
   "shippuden|Jiraiya (Sage Mode)": { desc: "Sennin-Modus gegen Pain.", moves: [
     ["jiraiya-goemon", "aoe", "ok", "Senpō: Goemon; 'Bath of Boiling Oil' als Übersetzung gleichgesetzt."],
     [null, "strike", "new", "Sennin-Ōdama Rasengan."],
-    ["jiraiya-ult-gamarinshou", "illusion", "ok", "Magen: Gamarinshō."],
+    ["jiraiya-ult-gamarinshou", "illusion", "ok", "Magen: Gamarinshō (Demonic Illusion: Toad Confrontation Chant, Manga 379 / Anime Shippūden 132): Fukasaku und Shima auf Jiraiyas Schultern suchen die Harmonie (die Reichweite zeigt sich), dann fängt der Gesang jeden darin; vier Krötensamurai halten das Opfer in einem Wasserwürfel.", { summon: "jiraiya-frog-song" }],
     [null, "bind", "ok", "Doppelung: Gamaguchi Shibari hat Jiraiya schon in Classic. Ersatz: Kekkai: Gama Hyōtan Rō, eine kleine Kürbiskröte zieht das Ziel mit der Zunge zu sich und schließt es ein (gegen Pain).", { replace: { name: "Barrier: Toad Gourd Prison", src: "Narutopedia: Barrier: Toad Gourd Prison, Manga 381 / Anime Shippūden 133" }, summon: "jiraiya-gourd-prison" }],
   ] },
   "shippuden|Hiruzen Sarutobi (Prime — Flashback)": { desc: "Rückblende: Hiruzen in seiner besten Zeit.", moves: [

@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 const R = "C:/Users/yanni/Downloads/BuildAShinobi_JutsuModels/pixelfx/roster/";
 const VER = "C:/Users/yanni/AppData/Local/Roblox/Versions/version-8d7a1009c17e4ff8";
 const CHUNK = 190000;
-const moves = process.argv.slice(2).length ? process.argv.slice(2) : ["ninken", "gamabunta", "katsuyu", "enma", "kamatari", "baku", "gourd"];
+const moves = process.argv.slice(2).length ? process.argv.slice(2) : ["ninken", "gamabunta", "katsuyu", "enma", "kamatari", "baku", "gourd", "sage"];
 const lua = (v) => {
   if (v === null || v === undefined) return "nil";
   if (typeof v === "number") return String(Math.round(v * 1000) / 1000);

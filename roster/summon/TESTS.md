@@ -304,6 +304,39 @@ Ablauf (Server):
 
 Beim ersten Durchgang gefunden: Die Kröte folgte dem Ziel während des ganzen Signals, Ausweichen war damit wirkungslos (G2). Jetzt gibt es zwei Phasen: Öffnen (folgt) und Zielen (fest, Ausweichsignal).
 
+## Jiraiya (Sage Mode), Shippūden, Slot 3: Frog Song Genjutsu (Demonic Illusion: Toad Confrontation Chant, Manga 379 / Anime Shippūden 132)
+
+Aussehen (Narutopedia, Bild „Shima“):
+
+- **Fukasaku:** grüne Kröte, weißer Irokesen, dicke weiße Brauen, kleiner Kinnbart
+- **Shima:** blassgrünes Gesicht, violette Lippen, violette Locken wie Lockenwickler unter einem Haarnetz
+- beide in Umhängen mit hohem Kragen, graue Ohrscheiben, schläfrige gelbe Augen
+
+Beide sitzen auf Jiraiyas Schultern, wie im Sage Mode. Rigs mit Seiten-, Vorder- und Rückansicht; von hinten tauschen sie die Seiten.
+
+Im Genjutsu: vier Krötensamurai (Haarknoten, blaue Rüstung, Schwert hoch) halten das Opfer in einem Wasserwürfel, der hinter und vor dem Opfer gezeichnet ist.
+
+Ablauf (Server):
+
+1. Puff, die Kröten auf den Schultern.
+2. Harmoniesuche, 1,6 s: Noten steigen auf, die Reichweite (Kreis mit 20 Studs Radius, 10 Studs vor Jiraiya) zeigt sich am Boden und pulsiert. Das ist das Signal; laut Narutopedia verraten die beiden dabei ihre Position.
+3. Gesang: Wer in diesem Moment in der Reichweite ist, ist gefangen und 3,5 s gehalten (5 Schaden). Verbündete nie.
+4. Ende: Die Kröten husten (überanstrengte Kehlen), Puff.
+
+Jiraiya bleibt während des Gesangs gesperrt.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| F1 | Treffer | rechts | 4,0 | T1 gefangen (Held true) | bestanden, Bild geprüft (Kröten, Reichweitenkreis, T1 im Kreis) | Server bestanden |
+| F2 | läuft weg | rechts | 4,0 | niemand in Hörweite | bestanden | – |
+| F3 | Treffer | unten | 30,-24 | T1 gefangen | bestanden | – |
+| F4 | läuft weg | unten | 30,-24 | Fehlschlag | bestanden | Server bestanden |
+| F5 | Treffer | oben | 52,22 | T2 gefangen | bestanden, Bild geprüft (Kröten von hinten, T2 im Wasserwürfel mit Samurai) | Server bestanden |
+| F6 | läuft weg | oben | 52,22 | Fehlschlag (erst beim zweiten Durchgang: mit 15 Studs Weglauf blieb T2 genau auf dem Rand, jetzt 18) | bestanden | – |
+| F7 | zwei in Hörweite | unten | 30,-2 | T1 und T3 gefangen | bestanden, Bild geprüft (beide im Wasserwürfel, Samurai) | – |
+| F8 | Ziel läuft während der Harmoniesuche hinein | rechts | 4,0 | T2 (auf 26,12 gesetzt) und T1 gefangen; Verbündeter A2 im Kreis unberührt | bestanden | – |
+| F9 | Abbruch im Bann | rechts | 4,0 | T1 sofort frei | bestanden | – |
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

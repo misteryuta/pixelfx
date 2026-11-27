@@ -132,6 +132,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "dash" then return self:castDash(owner, M, p, dir) end
 	if M.kind == "suck" then return self:castSuck(owner, M, p, dir) end
 	if M.kind == "tongue" then return self:castTongue(owner, M, p, dir) end
+	if M.kind == "song" then return self:castSong(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -664,6 +665,70 @@ function Sim:stepDash(c, dt)
 	self:writeCast(c)
 end
 
+-- the Sage Toads' song (kind "song"): on the summoner's shoulders they look for the harmony (the reach shows), then
+-- sing: everyone inside the reach at that moment is caught in the illusion (held), until the song ends.
+function Sim:castSong(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.ahead + M.radius, 70)
+	local c = { id = id, f = f, kind = "song", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, result = "", hitKind = "", hits = {}, caught = {}, dogs = {} }
+	c.center = p + dir * M.ahead
+	c.goal = c.center
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "song")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepSong(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "prep") end
+	elseif c.phase == "prep" then
+		if u >= M.prep then
+			-- the harmony is found: whoever is inside the reach now hears it
+			for _, t in pairs(self.targets) do
+				if t.alive and not t.ally and (t.p - c.center).Magnitude <= M.radius then
+					c.caught[t] = true
+					t.held, t.dodgeTo, t.kbLeft = true, nil, 0
+					t.hp -= M.dmg
+					c.hits[t] = true
+					c.result, c.hitKind, c.hitT = "hit", "Genjutsu", c.t
+					c.hitName = c.hitName and (c.hitName .. "+" .. t.name) or t.name
+					self:writeTarget(t)
+				end
+			end
+			if c.result == "" then c.result = "miss" end
+			enter(c, "sing")
+		end
+	elseif c.phase == "sing" then
+		if u >= M.sing then enter(c, c.result == "hit" and "hold" or "release") end
+	elseif c.phase == "hold" then
+		if u >= M.hold then
+			for t in pairs(c.caught) do t.held = false; self:writeTarget(t) end
+			c.caught = {}
+			enter(c, "release")
+		end
+	elseif c.phase == "release" then
+		if u >= M.release then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.6 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 -- the Gourd Toad (kind "tongue"): beside the summoner; it takes aim (following the target), the tongue shoots out
 -- along a line, the tip grabs what it reaches, reels it in, the toad swallows it (held inside, worn down by the
 -- acid), then spits it out; a miss reels the tongue back empty.
@@ -869,6 +934,14 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "song" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("CX", c.center.X); f:SetAttribute("CZ", c.center.Y); f:SetAttribute("HitKind", c.hitKind)
+		local names = {}
+		for t in pairs(c.caught) do table.insert(names, t.name) end
+		table.sort(names)
+		f:SetAttribute("Caught", table.concat(names, "+"))
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "tongue" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y)
 		f:SetAttribute("MX", c.mouth.X); f:SetAttribute("MZ", c.mouth.Y); f:SetAttribute("TDX", c.tdir.X); f:SetAttribute("TDZ", c.tdir.Y)
@@ -963,6 +1036,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "dash" then return self:stepDash(c, dt) end
 	if c.kind == "suck" then return self:stepSuck(c, dt) end
 	if c.kind == "tongue" then return self:stepTongue(c, dt) end
+	if c.kind == "song" then return self:stepSong(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target
