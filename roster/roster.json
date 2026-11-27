@@ -1643,9 +1643,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "summon",
-     "status": "actor",
-     "note": "Gedō Mazō; der Clip ist mit Nagato als Rufer gebacken.",
-     "params": null,
+     "status": "ok",
+     "note": "Kuchiyose: Gedō Mazō (Manga 447 / Anime Shippūden 173; über die Sechs Pfade beschwörbar, Manga 254): die Statue steigt hinter Pain auf, die schwarzen Empfänger stecken in seinem Rücken (ihr Preis), aus dem Maul fährt ein Chakra-Drache und entzieht dem Ziel das Chakra. Live-Beschwörung statt des Clips (der mit Nagato gebacken ist).",
+     "params": {
+      "summon": "pain-gedo-dragon"
+     },
      "len": 6,
      "contacts": [
       2.8,

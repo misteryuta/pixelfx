@@ -962,6 +962,113 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- the Gedo Statue (kind "dragon")
+	local function newDragon(f)
+		local v = { f = f, kind = "dragon", body = newCard(2), dust = newCard(4), smoke = newCard(4), headC = newCard(3), segs = {}, recv = {},
+			coil = newCard(4), lane = newFloor(), cracks = newFloor(), popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killDragon(v)
+		for _, n in ipairs({ "body", "dust", "smoke", "headC", "coil", "lane", "cracks" }) do kill(v[n]) end
+		for _, c in ipairs(v.segs) do kill(c) end
+		for _, c in ipairs(v.recv) do kill(c) end
+	end
+	local function stepDragon(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local caster = toMap(cx, cz)
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local h = f:GetAttribute("KH") or 0
+		local fw = Vector2.new(math.cos(h), math.sin(h))
+		local view, face = viewOf(h)
+		local mouth = toMap(f:GetAttribute("MX") or cx, f:GetAttribute("MZ") or cz)
+		local ld = Vector2.new(f:GetAttribute("LDX") or dx, f:GetAttribute("LDZ") or dz)
+		local L = f:GetAttribute("L") or 0
+		local pk = loadPack("statue_gedo")
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "rise" then sfx("rumble", 0.9); ctx.shake(2, 0.6); v.riseT = T
+			elseif phase == "lock" then sfx("rumble", 0.6)
+			elseif phase == "fly" then sfx("whoosh", 0.8)
+			elseif phase == "coil" then sfx("bite", 0.6)
+			elseif phase == "back" and f:GetAttribute("Result") ~= "hit" then
+				if mine then addLog(("%s | %s | VERFEHLT | %s"):format(v.who or "?", dirName(dx, dz), f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")) end
+				pop(mouth + ld * L, "VERFEHLT", Color3.fromRGB(192, 196, 224))
+			elseif phase == "sink" then sfx("rumble", 0.6); v.sinkT = T
+			elseif ending then
+				sfx("poof", 0.4)
+				if mine and phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			end
+			if phase == "coil" and mine then addLog(("%s | %s | TREFFER (Drache) | Ziel %s"):format(v.who or "?", dirName(dx, dz), tostring(f:GetAttribute("HitName")))) end
+		end
+		-- the statue
+		local k
+		if phase == "rise" then k = byProg(pk, "rise", view, u / M.rise)
+		elseif phase == "track" then k = frameOf(pk, "idle", view, u)
+		elseif phase == "lock" then k = byProg(pk, "open", view, u / M.lock)
+		elseif phase == "fly" or phase == "coil" or phase == "back" then k = frameOf(pk, "roar", view, T)
+		elseif phase == "sink" then k = byProg(pk, "sink", view, u / M.sink)
+		elseif ending and v.lastK and u < 0.1 then k = v.lastK end
+		if k then v.lastK = k; show(v.body, pk, k, pos, face, 0, false, 0); v.body.img.ImageTransparency = (view == "back") and 0.35 or 0 else hide(v.body) end
+		-- the ground breaking as it rises, the cracks staying while it stands
+		local rp = loadPack("gd_rise")
+		if v.riseT and T - v.riseT < rp.meta.frames / rp.meta.fps then show(v.dust, rp, math.floor((T - v.riseT) * rp.meta.fps) + 1, pos, 1, 0, false, 0.3)
+		elseif v.sinkT and T - v.sinkT < rp.meta.frames / rp.meta.fps then show(v.dust, rp, math.floor((T - v.sinkT) * rp.meta.fps) + 1, pos, 1, 0, false, 0.3)
+		else hide(v.dust) end
+		if k then showFloor(v.cracks, loadPack("gd_cracks"), 1, pos, h, view == "side" and face < 0) else hide(v.cracks) end
+		-- the black receivers from its belly into Pain's back (its price), while it stands
+		local showRecv = phase == "rise" or phase == "track"
+		local from = pos + fw * M.chestF
+		local span = caster - from
+		local n = showRecv and math.max(1, math.floor(span.Magnitude / 3)) or 0
+		local rot = math.deg(math.atan2(span.Unit.Y * math.sin(ctx.pitch), span.Unit.X))
+		for i = 1, math.max(n, #v.recv) do
+			local c = v.recv[i]
+			if i <= n then
+				if not c then c = newCard(1); v.recv[i] = c end
+				local q = (i - 0.5) / n
+				show(c, loadPack("gd_receiver"), 1, from + span * q, 1, M.chestPx * (1 - q) + 40 * q, false, (view == "front") and -3 or -0.2); c.img.Rotation = rot
+			elseif c then hide(c) end
+		end
+		-- the dragon's path once fixed (the tell), the dragon snaking out along it, its head
+		if phase == "lock" then showFloor(v.lane, loadPack("gd_lane"), math.floor(T * 10) % 4 + 1, mouth, math.atan2(ld.Y, ld.X), false, 0) else hide(v.lane) end
+		if (phase == "fly" or phase == "coil" or phase == "back") and L > 0.5 then
+			local side = Vector2.new(-ld.Y, ld.X)
+			local rotD = math.deg(math.atan2(ld.Y * math.sin(ctx.pitch), ld.X))
+			local bp = loadPack("gd_body")
+			local m = math.max(0, math.floor((L - 1.5) / 2.6))
+			for i = 1, math.max(m, #v.segs) do
+				local c = v.segs[i]
+				if i <= m then
+					if not c then c = newCard(3); v.segs[i] = c end
+					local a = (i - 0.5) * 2.6
+					local wig = math.sin(a * 0.45 - T * 7) * 1.1
+					show(c, bp, math.floor(T * 12 + i) % 4 + 1, mouth + ld * a + side * wig, 1, M.mouthPx * (1 - math.min(1, a / 10)) + 30 * math.min(1, a / 10), false, 0.1); c.img.Rotation = rotD
+				elseif c then hide(c) end
+			end
+			local hp2 = loadPack("gd_head")
+			local tipH = M.mouthPx * (1 - math.min(1, L / 10)) + 30 * math.min(1, L / 10)
+			show(v.headC, hp2, math.floor(T * 12) % 4 + 1, mouth + ld * L, 1, tipH, false, 0.15); v.headC.img.Rotation = rotD
+		else
+			hide(v.headC)
+			for _, c in ipairs(v.segs) do hide(c) end
+		end
+		local grab = targets[f:GetAttribute("Grab") or ""]
+		if phase == "coil" and grab then local cp = loadPack("gd_coil"); show(v.coil, cp, math.floor(T * cp.meta.fps) % cp.meta.frames + 1, grab.p, 1, 0, false, 0.3) else hide(v.coil) end
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.popped[name] then v.popped[name] = true; t.shake = 0.35; pop(t.p, "CHAKRA ENTZOGEN", Color3.fromRGB(190, 160, 255)) end
+		end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- Kurama (kind "beast")
 	local function newBeast(f)
 		local v = { f = f, kind = "beast", body = newCard(2), smoke = newCard(4), eyes = newCard(5), charge = newCard(4), ball = newCard(4),
@@ -1347,7 +1454,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or (kind == "dragon" and newDragon(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1476,12 +1583,13 @@ function A.mount(ctx)
 			elseif kind == "tongue" then stepTongue(views[f] or newTongue(f))
 			elseif kind == "song" then stepSong(views[f] or newSong(f))
 			elseif kind == "beast" then stepBeast(views[f] or newBeast(f))
+			elseif kind == "dragon" then stepDragon(views[f] or newDragon(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1498,7 +1606,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

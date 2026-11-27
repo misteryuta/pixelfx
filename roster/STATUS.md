@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
-| Naruto Shippūden | 55 | 130 | 58 | 6 | 9 | 56 |
-| **Gesamt** | 81 | 195 | 87 | 12 | 10 | 85 |
+| Naruto Shippūden | 55 | 130 | 59 | 5 | 9 | 56 |
+| **Gesamt** | 81 | 195 | 88 | 11 | 10 | 85 |
 
 ## Classic
 
@@ -89,7 +89,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Pain (Six Paths of Pain) | 98 | Legendary | Akatsuki | 1 | Shinra Tensei (Almighty Push) | `pain-shinra-tensei` | umgesetzt | Shinra Tensei. |
 |  |  |  |  | 2 | Chibaku Tensei (Planetary Devastation) | `pain-chibaku-tensei` | umgesetzt | Chibaku Tensei gegen Naruto. |
 |  |  |  |  | 3 | Banshō Ten'in | `pain-banshou-tenin` | umgesetzt | Banshō Ten'in. |
-|  |  |  |  | 4 | Summoning: Gedo Statue | `nagato-gedo-mazo` | Clip da, Anwender offen | Gedō Mazō; der Clip ist mit Nagato als Rufer gebacken. |
+|  |  |  |  | 4 | Summoning: Gedo Statue | `nagato-gedo-mazo` | umgesetzt | Kuchiyose: Gedō Mazō (Manga 447 / Anime Shippūden 173; über die Sechs Pfade beschwörbar, Manga 254): die Statue steigt hinter Pain auf, die schwarzen Empfänger stecken in seinem Rücken (ihr Preis), aus dem Maul fährt ein Chakra-Drache und entzieht dem Ziel das Chakra. Live-Beschwörung statt des Clips (der mit Nagato gebacken ist). |
 | Minato Namikaze (Fourth Hokage — Flashback) | 97 | Legendary | Five Kage | 1 | Flying Raijin Level 2 | `minato-hiraishin` | nur verwandter Clip | Hiraishin Level 2 ist eine eigene Stufe (Ziel per Berührung markiert); der Clip zeigt Kunai + Rasengan. |
 |  |  |  |  | 2 | Rasengan | – | fehlt | Minatos Rasengan allein. |
 |  |  |  |  | 3 | Flying Raijin: Guiding Thunder | `minato-hiraishin-rasengan` | umgesetzt | Kunai, Sprung zum Zeichen, Rasengan in den Rücken (gegen Tobi). |

@@ -141,7 +141,7 @@ export const SLOTS = {
     ["pain-shinra-tensei", "aoe", "ok", "Shinra Tensei."],
     ["pain-chibaku-tensei", "bind", "ok", "Chibaku Tensei gegen Naruto."],
     ["pain-banshou-tenin", "strike", "ok", "Banshō Ten'in."],
-    ["nagato-gedo-mazo", "summon", "actor", "Gedō Mazō; der Clip ist mit Nagato als Rufer gebacken."],
+    ["nagato-gedo-mazo", "summon", "ok", "Kuchiyose: Gedō Mazō (Manga 447 / Anime Shippūden 173; über die Sechs Pfade beschwörbar, Manga 254): die Statue steigt hinter Pain auf, die schwarzen Empfänger stecken in seinem Rücken (ihr Preis), aus dem Maul fährt ein Chakra-Drache und entzieht dem Ziel das Chakra. Live-Beschwörung statt des Clips (der mit Nagato gebacken ist).", { summon: "pain-gedo-dragon" }],
   ] },
   "shippuden|Minato Namikaze (Fourth Hokage — Flashback)": { desc: "Rückblende: Nacht des Kyūbi-Angriffs.", moves: [
     ["minato-hiraishin", "teleport", "partial", "Hiraishin Level 2 ist eine eigene Stufe (Ziel per Berührung markiert); der Clip zeigt Kunai + Rasengan."],

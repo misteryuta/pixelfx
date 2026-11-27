@@ -134,6 +134,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "tongue" then return self:castTongue(owner, M, p, dir) end
 	if M.kind == "song" then return self:castSong(owner, M, p, dir) end
 	if M.kind == "beast" then return self:castBeast(owner, M, p, dir) end
+	if M.kind == "dragon" then return self:castDragon(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -666,6 +667,94 @@ function Sim:stepDash(c, dt)
 	self:writeCast(c)
 end
 
+-- the Gedo Statue (kind "dragon"): rises behind the summoner, turns to the target (following it), the path is fixed,
+-- the chakra dragon flies along it; its head takes whoever it reaches and draws the chakra out (held, worn down).
+function Sim:castDragon(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.range, M.cone)
+	local c = { id = id, f = f, kind = "dragon", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * 24), result = "", hitKind = "", hits = {}, dogs = {}, L = 0 }
+	if math.abs(dir.Y) > math.abs(dir.X) then c.pos = p - dir * 4 + Vector2.new(-M.spawnSide, 0)
+	else c.pos = p - dir * M.spawnBack end
+	c.head = snap4(math.atan2(dir.Y, dir.X))
+	c.mouth = c.pos + Vector2.new(math.cos(c.head), math.sin(c.head)) * M.mouthF
+	c.ldir = (c.aim - c.mouth).Magnitude > 0.5 and (c.aim - c.mouth).Unit or dir
+	c.goal = c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "dragon")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepDragon(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "rise") end
+	elseif c.phase == "rise" then
+		if u >= M.rise then enter(c, "track") end
+	elseif c.phase == "track" then
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.pos
+		if to.Magnitude > 0.5 then c.head = snap4(math.atan2(to.Y, to.X)) end
+		c.mouth = c.pos + Vector2.new(math.cos(c.head), math.sin(c.head)) * M.mouthF
+		local lt = c.aim - c.mouth
+		if lt.Magnitude > 0.5 then c.ldir = lt.Unit end
+		if u >= M.track then
+			c.reach = math.min(M.Lmax, lt.Magnitude + 1.5)
+			enter(c, "lock")
+		end
+	elseif c.phase == "lock" then
+		if u >= M.lock then enter(c, "fly") end
+	elseif c.phase == "fly" then
+		local L0 = c.L
+		c.L = math.min(c.reach, c.L + M.speed * dt)
+		local side = Vector2.new(-c.ldir.Y, c.ldir.X)
+		for _, t in pairs(self.targets) do
+			if t.alive and not t.ally and not c.grabbed then
+				local rel = t.p - c.mouth
+				local along, lat = rel:Dot(c.ldir), math.abs(rel:Dot(side))
+				if lat <= M.W and along >= L0 - 1 and along <= c.L + 0.5 then
+					c.grabbed = t
+					t.held, t.dodgeTo, t.kbLeft = true, nil, 0
+					c.L = math.max(along, 1)
+					c.result, c.hitKind, c.hitT, c.hitName = "hit", "Drache", c.t, t.name
+					self:writeTarget(t)
+					enter(c, "coil")
+					break
+				end
+			end
+		end
+		if c.phase == "fly" and c.L >= c.reach then c.result = "miss"; enter(c, "back") end
+	elseif c.phase == "coil" then
+		local g = c.grabbed
+		if g and g.alive then g.hp -= M.drain * dt; self:writeTarget(g) end
+		if u >= M.coil or not (g and g.alive) then
+			if g then g.held = false; self:writeTarget(g) end
+			c.grabbed = nil
+			enter(c, "back")
+		end
+	elseif c.phase == "back" then
+		c.L = math.max(0, c.L - M.back * dt)
+		if c.L <= 0 then enter(c, "sink") end
+	elseif c.phase == "sink" then
+		if u >= M.sink then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.6 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 -- Kurama (kind "beast"): appear behind the summoner under the Sharingan, charge the Tailed Beast Ball following the
 -- target, lock the aim (the ring shows), swallow, fire: the ball flies from the mouth to the ring and bursts there.
 function Sim:castBeast(owner, M, p, dir)
@@ -1001,6 +1090,13 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "dragon" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
+		f:SetAttribute("MX", c.mouth.X); f:SetAttribute("MZ", c.mouth.Y); f:SetAttribute("LDX", c.ldir.X); f:SetAttribute("LDZ", c.ldir.Y)
+		f:SetAttribute("L", c.L); f:SetAttribute("HitKind", c.hitKind); f:SetAttribute("Grab", c.grabbed and c.grabbed.name or "")
+		if c.reach then f:SetAttribute("Reach", c.reach) end
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "beast" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
 		f:SetAttribute("AX", c.aim.X); f:SetAttribute("AZ", c.aim.Y); f:SetAttribute("HitKind", c.hitKind)
@@ -1112,6 +1208,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "tongue" then return self:stepTongue(c, dt) end
 	if c.kind == "song" then return self:stepSong(c, dt) end
 	if c.kind == "beast" then return self:stepBeast(c, dt) end
+	if c.kind == "dragon" then return self:stepDragon(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target

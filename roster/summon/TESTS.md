@@ -369,6 +369,41 @@ Ablauf (Server):
 | K10 | zwei im Explosionsradius | rechts | 0,0 | T1 und T3 (auf 33,4 gesetzt) getroffen | bestanden | – |
 | K11 | Abbruch im Flug | rechts | 0,0 | Keine Explosion, kein Schaden | bestanden | – |
 
+## Pain (Six Paths of Pain), Shippūden, Slot 4: Summoning: Gedo Statue (Kuchiyose: Gedō Mazō, Manga 447 / Anime Shippūden 173)
+
+Belege (Narutopedia: Summoning: Demonic Statue of the Outer Path; Demonic Statue of the Outer Path; Viertes Databook S. 247):
+
+- Nur das Rinnegan kann die Statue beschwören, auch über die Sechs Pfade.
+- Statt Blut zahlt der Beschwörer mit Lebenskraft: Schwarze Empfänger aus ihrem Bauch stecken in seinem Rücken.
+- Aus dem Maul kommt Chakra in Drachenform, das dem Ziel das Chakra entzieht.
+
+Aussehen: riesige, mumienartige Gestalt in stumpfem Mauvegrau, der Unterkörper wie eine Robe, fingerartige Stacheln am Rücken. Über den neun Augen liegt eine Augenbinde. Lange Arme mit Eisenschellen und abgerissenen Kettengliedern. Geschlossen beißt sie auf eine Schriftrolle, die zwei Seile unter der Binde halten; beim Angriff fällt die Rolle, und das Maul öffnet sich mit gezackten Zähnen. Rig mit Seiten-, Vorder- und Rückansicht; von hinten ist sie zu 35 % durchsichtig.
+
+Ablauf (Server):
+
+1. Siegel (0,4 s).
+2. Aufsteigen (0,9 s): Die Statue steigt hinter Pain aus dem Boden (bei oben/unten neben ihm), mit Staub und Bodenrissen. Eine dünne schwarze Schnur führt in Pains Rücken; das ist der Preis.
+3. Verfolgen (0,5 s): Sie dreht sich zum Ziel und folgt ihm.
+4. Fixieren (0,4 s): Die Rolle fällt, das Maul öffnet sich. Die Bahn des Drachen liegt violett am Boden. Das ist das Signal: aus der Bahn treten.
+5. Flug: Der Chakra-Drache schlängelt mit 30 Studs/s aus dem Maul die Bahn entlang (bis 34 Studs, Breite 2,4). Sein Kopf packt, wen er erreicht.
+6. Umschlingen (2,5 s): Der Drache windet sich um das Ziel und zieht 8 Leben pro Sekunde ab („CHAKRA ENTZOGEN“). Das Ziel ist festgehalten.
+7. Der Drache kehrt ins Maul zurück, die Statue versinkt im Boden.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| D1 | Treffer | rechts | 0,0 | T1 gepackt und ausgesaugt, 80 Leben | bestanden, Bild geprüft (Drache im Flug auf der Bahn) | Server bestanden |
+| D2 | weicht beim Fixieren aus | rechts | 0,0 | Fehlschlag | bestanden | – |
+| D3 | Treffer | unten | 30,-24 | T1 gepackt | bestanden, Bild geprüft (Vorderansicht beim Verfolgen, dann Umschlingen) | – |
+| D4 | weicht aus | unten | 30,-24 | Fehlschlag | bestanden | Server bestanden |
+| D5 | Treffer | oben | 52,30 | T2 gepackt | bestanden, Bild geprüft (Rückansicht durchsichtig, Umschlingen) | Server bestanden |
+| D6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | – |
+| D7 | Ziel läuft | rechts | 0,0 | Bahn beim Fixieren auf (0,94; 0,35), T1 bei 30,10.4; T1 läuft aus der Bahn, Fehlschlag | bestanden | – |
+| D8 | Ziel beim Verfolgen entfernt | rechts | 0,0 | Fehlschlag | bestanden | – |
+| D9 | kein Ziel im Kegel | links | 0,0 | Fehlschlag | bestanden | – |
+| D10 | Abbruch beim Umschlingen | rechts | 0,0 | Ziel freigegeben (Held false) | bestanden | – |
+
+Korrektur nach dem ersten Bild: Die Empfänger sahen wie Störbalken quer über dem Gesicht aus. Jetzt ist es eine einzelne dünne Schnur, die nur beim Aufsteigen und Verfolgen sichtbar ist.
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).
