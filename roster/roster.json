@@ -3369,9 +3369,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "bind",
-     "status": "new",
-     "note": "Kuchiyose: Baku.",
-     "params": null
+     "status": "ok",
+     "note": "Kuchiyose: Baku (Manga 479, Kage-Gipfel, gegen Sasukes Susanoo): der Baku stemmt sich in den Boden und saugt mit offenem Maul alles im Kegel an, während er durch den Rüssel ausbläst.",
+     "params": {
+      "summon": "danzo-baku-suction"
+     }
     }
    ]
   },

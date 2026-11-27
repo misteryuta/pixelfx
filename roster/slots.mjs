@@ -271,7 +271,7 @@ export const SLOTS = {
   "shippuden|Danzō Shimura (Izanagi / Sharingan Arm)": { desc: "Kage-Gipfel, Kampf gegen Sasuke.", moves: [
     [null, "intangible", "new", "Izanagi."],
     [null, "aoe", "new", "Fūton: Shinkū Taigyoku."],
-    [null, "bind", "new", "Kuchiyose: Baku."],
+    [null, "bind", "ok", "Kuchiyose: Baku (Manga 479, Kage-Gipfel, gegen Sasukes Susanoo): der Baku stemmt sich in den Boden und saugt mit offenem Maul alles im Kegel an, während er durch den Rüssel ausbläst.", { summon: "danzo-baku-suction" }],
   ] },
   "shippuden|Darui (Kage Summit Bodyguard)": { desc: "Leibwächter des Raikage beim Kage-Gipfel.", moves: [
     ["darui-laser-circus", "projectile", "ok", "Zeitkonflikt: Laser Circus ist im Krieg gegen Kinkaku belegt."],

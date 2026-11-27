@@ -962,6 +962,88 @@ function A.mount(ctx)
 		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
 	end
 
+	---------------------------------------------------------------- the Baku (kind "suck")
+	local function newSuck(f)
+		local v = { f = f, kind = "suck", body = newCard(2), smoke = newCard(4), plume = newCard(4), debris = newCard(4),
+			cone = newFloor(), claws = newFloor(), shadow = newFloor(), popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killSuck(v)
+		for _, n in ipairs({ "body", "smoke", "plume", "debris", "cone", "claws", "shadow" }) do kill(v[n]) end
+	end
+	local function stepSuck(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local h = f:GetAttribute("KH") or 0
+		local fw = Vector2.new(math.cos(h), math.sin(h))
+		local view, face = viewOf(h)
+		local mirror = view == "side" and face < 0
+		local pk = loadPack("baku")
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.7)
+			elseif phase == "brace" then sfx("rumble", 0.6); ctx.shake(1.2, 0.3)
+			elseif phase == "draw" then sfx("rumble", 0.8)
+			elseif phase == "suck" then sfx("whoosh", 0.9)
+			elseif phase == "release" then
+				if mine then
+					local res = f:GetAttribute("Result")
+					addLog(("%s | %s | %s | %s"):format(v.who or "?", dirName(dx, dz), res == "hit" and ("TREFFER (" .. (f:GetAttribute("HitKind") or "") .. ")") or "VERFEHLT",
+						res == "hit" and ("Ziel " .. tostring(f:GetAttribute("HitName"))) or (f:GetAttribute("Target") ~= "" and ("Ziel " .. f:GetAttribute("Target") .. " nicht erreicht") or "kein Ziel im Kegel")))
+					if res ~= "hit" then pop(pos + fw * (M.mouthF + 10), "VERFEHLT", Color3.fromRGB(192, 196, 224)) end
+				end
+			elseif ending then
+				sfx("poof", 0.5)
+				if mine and phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")") end
+			end
+		end
+		local k2
+		if phase == "appear" then if u >= 0.15 then k2 = frameOf(pk, "idle", view, u) end
+		elseif phase == "brace" then k2 = byProg(pk, "brace", view, u / M.brace)
+		elseif phase == "draw" then k2 = byProg(pk, "brace", view, 1)
+		elseif phase == "suck" then k2 = frameOf(pk, "suck", view, u)
+		elseif phase == "release" then k2 = byProg(pk, "release", view, u / M.release)
+		elseif ending and u < 0.12 and v.lastK then k2 = v.lastK end
+		if k2 then v.lastK = k2; show(v.body, pk, k2, pos, face, 0, false, 0); v.body.img.ImageTransparency = (view == "back") and 0.35 or 0 else hide(v.body) end
+		if k2 then showFloor(v.shadow, loadPack("bk_shadow"), 1, pos, h, mirror) else hide(v.shadow) end
+		local bs = loadPack("bk_bigsmoke")
+		local bLen = bs.meta.frames / bs.meta.fps
+		if phase == "appear" and u < bLen then show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, 0, false, 0.4)
+		elseif ending and u < bLen then show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, 0, false, 0.4)
+		else hide(v.smoke) end
+		-- the cone: dust already streaming in while it braces (the tell), the catch zone while it inhales
+		local mouthM = pos + fw * M.mouthF
+		if phase == "brace" or phase == "draw" or phase == "suck" then
+			local cp = loadPack("bk_cone")
+			showFloor(v.cone, cp, math.floor(T * cp.meta.fps) % cp.meta.frames + 1, mouthM, h, false, phase == "brace" and 0.6 or phase == "draw" and 0.15 or 0)
+		else hide(v.cone) end
+		-- the claws dug in (from the brace on)
+		if phase == "brace" or phase == "draw" or phase == "suck" or phase == "release" then showFloor(v.claws, loadPack("bk_claws"), 1, pos, h, mirror) else hide(v.claws) end
+		-- the trunk blowing, the grit whirling into the mouth
+		if phase == "suck" then
+			local pp, dp = loadPack("bk_plume"), loadPack("bk_debris")
+			show(v.plume, pp, math.floor(T * pp.meta.fps) % pp.meta.frames + 1, pos + fw * M.tipF, 1, M.tipPx, false, 0.3)
+			show(v.debris, dp, math.floor(T * dp.meta.fps) % dp.meta.frames + 1, mouthM + fw * 2, 1, 0, false, 0.6)
+		else hide(v.plume); hide(v.debris) end
+		for _, name in ipairs(string.split(f:GetAttribute("HitName") or "", "+")) do
+			local t = targets[name]
+			if t and not v.popped[name] then
+				v.popped[name] = true
+				t.shake = 0.35
+				pop(t.p, "GEZOGEN", Color3.fromRGB(255, 196, 90)); sfx("bite", 0.5)
+			end
+		end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+	end
+
 	---------------------------------------------------------------- slots, directions, the training panel
 	local variantIdx = 1
 	for i, v in ipairs(Roster.list) do if v.id == "classic/kakashi-hatake-team-7-sensei" then variantIdx = i end end
@@ -1000,7 +1082,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1125,12 +1207,13 @@ function A.mount(ctx)
 			elseif kind == "network" or kind == "spit" then stepSlug(views[f] or newSlug(f))
 			elseif kind == "staff" then stepStaff(views[f] or newStaff(f))
 			elseif kind == "dash" then stepDash(views[f] or newDash(f))
+			elseif kind == "suck" then stepSuck(views[f] or newSuck(f))
 			else stepView(views[f] or newView(f)) end
 		end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1147,7 +1230,7 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()

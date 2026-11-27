@@ -129,6 +129,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "spit" then return self:castSpit(owner, M, p, dir) end
 	if M.kind == "staff" then return self:castStaff(owner, M, p, dir) end
 	if M.kind == "dash" then return self:castDash(owner, M, p, dir) end
+	if M.kind == "suck" then return self:castSuck(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -661,6 +662,99 @@ function Sim:stepDash(c, dt)
 	self:writeCast(c)
 end
 
+-- the Baku (kind "suck"): appear behind the summoner, brace turned to the target (following it) while the dust
+-- already streams into the cone, then inhale: everyone in the cone from the mouth is caught, dragged to the mouth and
+-- held there, worn down; released at the end.
+function Sim:castSuck(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local tgt = self:acquire(p, dir, M.acqRange, M.acqCone)
+	local c = { id = id, f = f, kind = "suck", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		target = tgt, aim = tgt and tgt.p or (p + dir * 20), result = "", hitKind = "", hits = {}, caught = {}, dogs = {} }
+	if math.abs(dir.Y) > math.abs(dir.X) then c.pos = p - dir * 4 + Vector2.new(-M.spawnSide, 0)
+	else c.pos = p - dir * M.spawnBack end
+	c.head = snap4(math.atan2(dir.Y, dir.X))
+	c.goal = c.aim
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "suck")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", tgt and tgt.name or "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+function Sim:stepSuck(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	local tg = c.target
+	local fw = Vector2.new(math.cos(c.head), math.sin(c.head))
+	local mouth = c.pos + fw * M.mouthF
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "brace") end
+	elseif c.phase == "brace" then
+		if tg and tg.alive then c.aim = tg.p end
+		local to = c.aim - c.pos
+		if to.Magnitude > 0.5 then c.head = snap4(math.atan2(to.Y, to.X)) end
+		-- shuffle sideways so the mouth's line passes through the target
+		local fw2 = Vector2.new(math.cos(c.head), math.sin(c.head))
+		local side = Vector2.new(-fw2.Y, fw2.X)
+		local lat = (c.aim - c.pos):Dot(side)
+		c.pos += side * math.clamp(lat, -M.align * dt, M.align * dt)
+		if u >= M.brace then enter(c, "draw") end
+	elseif c.phase == "draw" then
+		if u >= M.draw then enter(c, "suck") end
+	elseif c.phase == "suck" then
+		local pull = M.pull * math.min(1, u / M.ramp)
+		local cosC = math.cos(math.rad(M.cone))
+		for _, t in pairs(self.targets) do
+			if t.alive and not t.ally then
+				local rel = t.p - mouth
+				local d = rel.Magnitude
+				if not c.caught[t] and d <= M.range and d > 0.1 and rel.Unit:Dot(fw) >= cosC then
+					c.caught[t] = true
+					t.held, t.dodgeTo, t.kbLeft = true, nil, 0
+					if not c.hits[t] then
+						c.hits[t] = true
+						c.result, c.hitKind, c.hitT = "hit", "Sog", c.t
+						c.hitName = c.hitName and (c.hitName .. "+" .. t.name) or t.name
+					end
+				end
+				if c.caught[t] then
+					-- dragged toward the mouth (and held a little in front of it)
+					local stop = mouth + fw * M.stopR
+					local to = stop - t.p
+					if to.Magnitude > 0.05 then t.p += to.Unit * math.min(to.Magnitude, pull * dt) end
+					t.hp -= M.dot * dt
+					self:writeTarget(t)
+				end
+			end
+		end
+		if u >= M.suck then
+			for t in pairs(c.caught) do
+				t.held = false
+				t.kb, t.kbLeft = fw * (M.kb / M.kbT), M.kbT
+				self:writeTarget(t)
+			end
+			c.caught = {}
+			if c.result == "" then c.result = "miss" end
+			enter(c, "release")
+		end
+	elseif c.phase == "release" then
+		if u >= M.release then finish(c) end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.8 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+
 function Sim:writeCast(c)
 	local f = c.f
 	f:SetAttribute("T", c.t); f:SetAttribute("Phase", c.phase); f:SetAttribute("Result", c.result)
@@ -668,6 +762,14 @@ function Sim:writeCast(c)
 	if c.burst then f:SetAttribute("BX", c.burst.X); f:SetAttribute("BZ", c.burst.Y); f:SetAttribute("BurstT", c.burstT) end
 	if c.lockT then f:SetAttribute("LockT", c.lockT) end
 	if c.endT then f:SetAttribute("EndT", c.endT) end
+	if c.kind == "suck" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
+		f:SetAttribute("HitKind", c.hitKind)
+		local n = 0
+		for _ in pairs(c.caught) do n += 1 end
+		f:SetAttribute("Caught", n)
+		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
+	end
 	if c.kind == "dash" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y)
 		f:SetAttribute("SX", c.start.X); f:SetAttribute("SZ", c.start.Y); f:SetAttribute("PDX", c.pdir.X); f:SetAttribute("PDZ", c.pdir.Y)
@@ -722,7 +824,8 @@ function Sim:abort(owner)
 			if c.target and c.held then c.target.held = false; self:writeTarget(c.target) end
 			for t in pairs(c.carried or {}) do t.held = false; self:writeTarget(t) end
 			if c.bound then c.bound.held = false; self:writeTarget(c.bound); c.bound = nil end
-			c.carried = {}
+			for t in pairs(c.caught or {}) do t.held = false; self:writeTarget(t) end
+			c.carried, c.caught = {}, {}
 			self:writeCast(c)
 		end
 	end
@@ -743,6 +846,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "spit" then return self:stepSpit(c, dt) end
 	if c.kind == "staff" then return self:stepStaff(c, dt) end
 	if c.kind == "dash" then return self:stepDash(c, dt) end
+	if c.kind == "suck" then return self:stepSuck(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target

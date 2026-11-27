@@ -5,8 +5,8 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
 | Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
-| Naruto Shippūden | 55 | 130 | 55 | 6 | 9 | 59 |
-| **Gesamt** | 81 | 195 | 84 | 12 | 10 | 88 |
+| Naruto Shippūden | 55 | 130 | 56 | 6 | 9 | 58 |
+| **Gesamt** | 81 | 195 | 85 | 12 | 10 | 87 |
 
 ## Classic
 
@@ -171,7 +171,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 |  |  |  |  | 3 | Full Chōmei Transformation | – | fehlt | Volle Verwandlung in Chōmei (Anime/Spiel). |
 | Danzō Shimura (Izanagi / Sharingan Arm) | 87 | Epic | Five Kage | 1 | Izanagi Reality Rewrite | – | fehlt | Izanagi. |
 |  |  |  |  | 2 | Wind Style: Vacuum Great Sphere | – | fehlt | Fūton: Shinkū Taigyoku. |
-|  |  |  |  | 3 | Summoning: Baku | – | fehlt | Kuchiyose: Baku. |
+|  |  |  |  | 3 | Summoning: Baku | – | umgesetzt | Kuchiyose: Baku (Manga 479, Kage-Gipfel, gegen Sasukes Susanoo): der Baku stemmt sich in den Boden und saugt mit offenem Maul alles im Kegel an, während er durch den Rüssel ausbläst. |
 | Darui (Kage Summit Bodyguard) | 83 | Rare | Five Kage | 1 | Storm Release: Laser Circus | `darui-laser-circus` | umgesetzt | Zeitkonflikt: Laser Circus ist im Krieg gegen Kinkaku belegt. |
 |  |  |  |  | 2 | Water Style: Water Wall | – | fehlt | Suiton: Mizu no Kabe. |
 | Yugito Nii (Two-Tails / Matatabi) | 82 | Rare | Jinchūriki | 1 | Mouse Hairball (Blue Fire) | – | fehlt | Blaues Feuer der Nekomata (Anime). |

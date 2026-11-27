@@ -234,6 +234,44 @@ Ablauf (Server):
 
 Nicht im Bild geprüft: Pixel BAS rendert im Spielmodus weiterhin keine 3D-Ansicht. Geprüft sind die Bake-Blätter (`records/summon/kamatari_sheet.png`, `kamatari_turnaround.png`).
 
+## Danzō Shimura (Izanagi / Sharingan Arm), Shippūden, Slot 3: Summoning: Baku (Manga 479)
+
+Aussehen (Narutopedia „Appearance“, Anime-Bild „Baku Anime“):
+
+- riesige elefantenartige Chimäre, dunkelorange
+- Rüssel, Beine und Augenpartie hell, Beine und Füße getigert
+- große Stoßzähne, Bart, lange schwarze Krallen
+- Bandagen um den Kopf, Plattenpanzer an der Rüsselwurzel
+
+Rig mit Seiten-, Vorder- und Rückansicht.
+
+Ablauf (Server):
+
+1. Erscheinen im Rauch hinter Danzō, bei Würfen nach oben oder unten neben ihm.
+2. Stemmen (0,4 s): Er dreht sich zum Ziel und schiebt sich seitlich, bis die Maulachse durchs Ziel geht. Die Krallen graben sich ein (Risse am Boden).
+3. Ansaugen (0,45 s): Der Kegel steht jetzt fest (32 Studs, ±20°), Staub strömt sichtbar zum Maul. Das ist das Signal.
+4. Saugen (2,4 s): Maul weit offen, Rüssel hoch und ausblasend. Wer im Kegel ist, wird gefangen, bis vor das Maul gezogen, festgehalten und zermürbt (4 pro Sekunde). Wer einmal gefangen ist, bleibt es.
+5. Loslassen mit kleinem Rückstoß, dann Rauch.
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| B1 | Treffer | rechts | 0,0 | T1 von 30 bis vors Maul gezogen, losgelassen bei 10.3; −10 | bestanden, Bild geprüft (Profil, Rüssel hoch, Kegel am Boden) | Server bestanden |
+| B2 | Ziel tritt beim Ansaugen aus dem Kegel | rechts | 0,0 | Fehlschlag | bestanden | Server bestanden |
+| B3 | Treffer | unten | 30,-28 | Baku richtet sich von x 20 auf x 30 aus; T1 und T3 (auf derselben Achse) gezogen | bestanden, Bild geprüft (Vorderansicht, Krallenrisse, „GEZOGEN“) | – |
+| B4 | T1 tritt heraus | unten | 30,-28 | T1 frei; T3 dahinter (nicht im Ausweich-Modus) wird gezogen | bestanden | – |
+| B5 | Treffer | oben | 52,30 | T2 gezogen | bestanden, Bild geprüft (Rückansicht durchsichtig, Kegel nach oben) | Server bestanden |
+| B6 | tritt heraus | oben | 52,30 | Fehlschlag | bestanden | – |
+| B7 | Ziel läuft beim Stemmen | rechts | 0,0 | Er schiebt sich auf die Linie des Ziels (z 11), T1 gefangen | bestanden | – |
+| B8 | Ziel beim Stemmen entfernt | rechts | 0,0 | Fehlschlag | bestanden | – |
+| B9 | kein Ziel im Kegel | links | 0,0 | Fehlschlag | bestanden | – |
+| B10 | Abbruch beim Saugen | rechts | 0,0 | Ziel sofort frei (Held true → false) | bestanden | – |
+
+Gefundener und behobener Fehler:
+
+- **Freigabe beim Abbruch:** Sie landete beim ersten Patch in Enmas Käfig-Code statt in der Abbruch-Funktion, weil dieselbe Ankerzeile zweimal vorkommt. Ein gezogenes Ziel blieb dadurch nach dem Abbruch gefangen (B10). Jetzt steht sie in `Sim:abort`. Der Käfig ist danach erneut geprüft (gefangen, freigegeben).
+
+Bildtests: Ab dieser Sitzung rendert Pixel BAS wieder (Studio wurde neu gestartet). Die Bildtests von Katsuyu (vorn/hinten), Enma und Kamatari sind damit nachholbar.
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).
