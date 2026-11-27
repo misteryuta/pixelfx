@@ -284,9 +284,11 @@
      "pendingClip": null,
      "reworked": false,
      "kind": "defense",
-     "status": "new",
-     "note": "Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda).",
-     "params": null
+     "status": "ok",
+     "note": "Kuchiyose: Katsuyu mit Katsuyu Daibunretsu (Slug Great Division, Manga 170 / Anime 96, gegen Manda): Katsuyu steht aufgerichtet zwischen Tsunade und dem nächsten Gegner und kommt um sie herum auf dessen Seite. Ein Wurf oder Schlag, der sie erreicht, lässt sie in viele kleine Schnecken zerfallen, er bleibt wirkungslos; sie setzen sich wieder zusammen. Ein Angriff von einer Seite, die sie noch nicht erreicht hat, kommt durch.",
+     "params": {
+      "summon": "tsunade-katsuyu-division"
+     }
     }
    ]
   },

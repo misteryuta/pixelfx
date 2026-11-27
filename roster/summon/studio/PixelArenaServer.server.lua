@@ -60,6 +60,7 @@ remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
 		elseif op == "frame" then state:SetAttribute("Paused", true); sim:step(0, 1 / 20)
 		elseif op == "targets" then sim:setTargetMode(a, b)
 		elseif op == "tplace" then sim:placeTarget(a, b)
+		elseif op == "throw" then sim:throw(sim.targets[a], b)
 		elseif op == "cooldowns" then cooldown[player.UserId] = {} end
 	end
 end)

@@ -404,6 +404,42 @@ Ablauf (Server):
 
 Korrektur nach dem ersten Bild: Die Empfänger sahen wie Störbalken quer über dem Gesicht aus. Jetzt ist es eine einzelne dünne Schnur, die nur beim Aufsteigen und Verfolgen sichtbar ist.
 
+## Tsunade (Fifth Hokage), Classic, Slot 4: Summoning: Katsuyu mit Slug Great Division (Katsuyu Daibunretsu, Manga 170 / Anime 96)
+
+Beleg (Narutopedia: Slug Great Division, Tō no Sho S. 204): Wird Katsuyu körperlich angegriffen, teilt sie sich in unzählige kleinere Katsuyu, und der Angriff verpufft. Die Teile vereinigen sich wieder, wann sie wollen, und sie kann das beliebig wiederholen, bis der Angreifer aufgibt. Kein Doppel zu Shippūden: Dort heilt die Teilung Verbündete (Mōryōjika, Slot 1), hier ist sie Abwehr.
+
+Testangreifer: Die Puppen werfen Kunai auf den Beschwörer. Möglich ist das über den Server-Befehl `throw` (Puppe, Zielpunkt), über die Modi `throw` und `throwwalk` (alle 1,3 s, der erste Wurf 1,2 s nach Beginn eines Casts) und über den neuen Knopf „WIRFT“ im Panel. Die werfende Puppe trägt dann den blauen Gurt und den Kunai in der Hand. Ein Kunai fliegt mit 32 Studs/s, reicht bis zu 44 Studs weit und trifft den Beschwörer innerhalb von 1,4 Studs.
+
+Ablauf (Server):
+
+1. Siegel (0,35 s), Rauch.
+2. Katsuyu erscheint 8 Studs vor Tsunade, hoch aufgerichtet, in Wurfrichtung (0,55 s).
+3. Wache (5,5 s): Katsuyu gleitet um Tsunade herum (1,1 rad/s) und bleibt zwischen ihr und dem nächsten Gegner im Umkreis von 42 Studs. Ist der Gegner weg, hält sie die Seite, auf der sie ihn zuletzt gesehen hat.
+4. Ein Wurf, der ihren Körper erreicht (dünn am Schwanz, voll ab der aufgerichteten Säule), löst die Teilung aus (0,45 s): 26 kleine Schnecken springen von der Wurflinie weg, und der Kunai fällt zwischen ihnen zu Boden. Danach kriechen sie zurück (0,9 s), und sie ist wieder ganz. Ein weiterer Wurf, während sie geteilt ist, verpufft ebenso.
+5. Ist die Wache vorbei, geht sie im Rauch. Ein Treffer danach fällt nur noch ab und löst keine neue Teilung aus, damit ein Dauerwerfer sie nicht festhält.
+
+Ein Angriff von einer Seite, die sie noch nicht erreicht hat, trifft Tsunade („GETROFFEN“).
+
+| # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
+|---|---|---|---|---|---|---|
+| G1 | Wurf von vorn (T1 auf 30,0) | rechts | 0,0 | abgewehrt, Teilung bei 1,77 s, wieder ganz bei 3,13 s | bestanden, Bild geprüft (Kunai im Flug; Teilung: kleine Schnecken weichen der Linie aus, Kunai fällt) | Server bestanden |
+| G2 | Wurf von hinten (T1 auf -30,0) | rechts | 0,0 | durchgekommen: Sie ist bei 1,5 s erst ein Stück herum | bestanden | – |
+| G3 | Wurf von vorn | unten | 30,-24 | abgewehrt | bestanden, Bild geprüft (Teilung, Schnecken links und rechts der Wurflinie) | – |
+| G4 | Wurf von hinten (T1 auf 30,-54) | unten | 30,-24 | durchgekommen | bestanden | Server bestanden |
+| G5 | Wurf von vorn (T2, T3 entfernt) | oben | 52,30 | abgewehrt | bestanden, Bild geprüft (Rückansicht durchsichtig, T2 dahinter sichtbar; Teilung) | Server bestanden |
+| G6 | Wurf von hinten (T2 auf 52,60) | oben | 52,30 | durchgekommen | bestanden | – |
+| G7 | T1 läuft und wirft (throwwalk) | rechts | 0,0 | folgt ihm, 5 von 5 abgewehrt, Abgang bei 7,13 s | bestanden | – |
+| G8 | T1 wechselt bei 2,0 s nach hinten | rechts | 0,0 | Wurf bei 2,2 s durchgekommen; bei 5,0 s steht sie auf -8,0, Wurf bei 5,2 s abgewehrt | bestanden | – |
+| G9 | T1 läuft, T1 und T3 bei 1,6 s entfernt | rechts | 0,0 | hält die letzte Seite (7,52; 2,73), nichts abgewehrt | bestanden | – |
+| G10 | zwei Würfe im Abstand von 0,3 s | rechts | 0,0 | beide abgewehrt, der zweite trifft sie geteilt | bestanden | – |
+| G11 | Abbruch während der Teilung | rechts | 0,0 | Abbruch, keine Reste (0 Ansichten) | bestanden | – |
+| G12 | Würfe am Ende (6,2 s und 6,85 s) | rechts | 0,0 | der erste fällt beim Abgang an ihr ab, der zweite trifft Tsunade, als sie weg ist | bestanden | – |
+
+Korrekturen beim Testen:
+- Ihr Körper zählte erst überall mit voller Breite, auch am Schwanz. Dann deckte sie Tsunade schon nach einer Vierteldrehung von hinten. Jetzt ist er am Schwanz dünn (2 Studs).
+- Ein Dauerwerfer konnte ihren Abgang endlos hinauszögern. Nach Ablauf der Wache gibt es keine neue Teilung mehr.
+- Die Teilstücke waren so groß wie die Heilstücke aus Shippūden und lasen sich nicht als „unzählige kleine“. Jetzt sind es 26 kleinere (`slug_bit`, k 0,11).
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

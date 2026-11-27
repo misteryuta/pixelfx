@@ -250,9 +250,16 @@ function A.mount(ctx)
 	A.pop = pop
 	local function syncTarget(f)
 		local t = targets[f.Name]
+		local thrower = (f:GetAttribute("Mode") or ""):sub(1, 5) == "throw"
+		if t and t.thrower ~= thrower then
+			local image = A.dummyImage(thrower, t.ally)
+			t.card.img.ImageContent = Content.fromObject(image)
+			t.image:Destroy()
+			t.image, t.thrower = image, thrower
+		end
 		if not t then
 			local ally = f:GetAttribute("Ally") == true
-			local image, W, H = A.dummyImage(false, ally)
+			local image, W, H = A.dummyImage(thrower, ally)
 			local card = newCard(1)
 			card.img.ImageContent = Content.fromObject(image)
 			local s = SPP * 1.25
@@ -263,7 +270,7 @@ function A.mount(ctx)
 			local fill = Instance.new("Frame")
 			fill.BackgroundColor3, fill.BorderSizePixel, fill.Size = ally and Color3.fromRGB(80, 220, 130) or Color3.fromRGB(230, 70, 60), 0, UDim2.fromScale(1, 1)
 			fill.Parent = bg
-			t = { name = f.Name, card = card, image = image, shake = 0, f = f, W = W * s, H = H * s, oy = (H / 2 - 1) * s / COS, ally = ally, bar = fill }
+			t = { name = f.Name, card = card, image = image, shake = 0, f = f, W = W * s, H = H * s, oy = (H / 2 - 1) * s / COS, ally = ally, bar = fill, thrower = thrower }
 			targets[f.Name] = t
 		end
 		t.bar.Size = UDim2.fromScale(math.clamp((f:GetAttribute("Hp") or 100) / 100, 0, 1), 1)
@@ -963,6 +970,151 @@ function A.mount(ctx)
 	end
 
 	---------------------------------------------------------------- the Gedo Statue (kind "dragon")
+	---------------------------------------------------------------- Katsuyu's Slug Great Division (kind "guard")
+	local function newGuard(f)
+		local v = { f = f, kind = "guard", slug = newCard(2), smoke = newCard(4), shadow = newFloor(), burst = newCard(4), pieces = {}, popped = {} }
+		views[f] = v
+		return v
+	end
+	local function killGuard(v)
+		for _, n in ipairs({ "slug", "smoke", "shadow", "burst" }) do kill(v[n]) end
+		for _, c in ipairs(v.pieces) do kill(c) end
+	end
+	local function hashR(i) local x = math.sin(i * 127.1 + 311.7) * 43758.5453; return x - math.floor(x) end
+	local function stepGuard(v)
+		local f = v.f
+		local M = Defs.moves[f:GetAttribute("Move")]
+		local T, phase, PT = f:GetAttribute("T") or 0, f:GetAttribute("Phase") or "seal", f:GetAttribute("PT") or 0
+		local u = T - PT
+		local cx, cz, dx, dz = f:GetAttribute("X"), f:GetAttribute("Z"), f:GetAttribute("DX"), f:GetAttribute("DZ")
+		local mine = f:GetAttribute("Owner") == player.UserId
+		local ending = phase == "done" or phase == "abort"
+		local pos = toMap(f:GetAttribute("KX") or cx, f:GetAttribute("KZ") or cz)
+		local h = f:GetAttribute("KH") or 0
+		local fw = Vector2.new(math.cos(h), math.sin(h))
+		local view, face = viewOf(h)
+		local mirror = view == "side" and face < 0
+		local pk = loadPack("slug_katsuyu")
+		local splitT = f:GetAttribute("SplitT")
+		if v.lastPhase ~= phase then
+			local was = v.lastPhase
+			v.lastPhase = phase
+			if phase == "appear" then sfx("poof", 0.6)
+			elseif phase == "split" then
+				sfx("burst", 0.6)
+				pop(toMap(f:GetAttribute("SX") or cx, f:GetAttribute("SZ") or cz), "TEILUNG", Color3.fromRGB(190, 240, 222))
+			elseif phase == "leave" then sfx("poof", 0.5)
+			elseif ending and mine then
+				if phase == "abort" then addLog("abgebrochen (" .. tostring(was) .. ")")
+				else
+					local nb, nt = f:GetAttribute("Blocked") or 0, f:GetAttribute("Through") or 0
+					addLog(("%s | %s | %s%s"):format(v.who or "?", dirName(dx, dz),
+						nb > 0 and ("ABGEWEHRT %d (Teilung) von %s"):format(nb, tostring(f:GetAttribute("HitName"))) or "nichts abgewehrt",
+						nt > 0 and (" | DURCHGEKOMMEN %d"):format(nt) or ""))
+				end
+			end
+		end
+		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+		-- whole: reared up between the summoner and the enemy; after a division the lumps sink back
+		local whole = phase == "appear" or phase == "guard" or phase == "leave"
+		local k
+		if phase == "appear" then if u >= 0.12 then k = frameOf(pk, "guard", view, u) end
+		elseif phase == "guard" or (phase == "leave" and u < 0.3) then
+			local rT = f:GetAttribute("ReformT")
+			local rl = pk.meta.index.reform.n / pk.meta.index.reform.fps
+			if rT and T - rT < rl then k = byProg(pk, "reform", view, (T - rT) / rl) else k = frameOf(pk, "guard", view, T) end
+		elseif ending and v.lastK and u < 0.1 and v.wasWhole then k = v.lastK end
+		v.wasWhole = whole
+		if k then
+			v.lastK = k
+			show(v.slug, pk, k, pos, face, 0, false, 0)
+			-- seen from the front or the back she stands between the camera and the summoner (or hides her): see-through
+			v.slug.img.ImageTransparency = (view ~= "side") and 0.35 or 0
+			showFloor(v.shadow, loadPack("ky_shadow"), 1, pos, h, mirror)
+		else hide(v.slug); hide(v.shadow) end
+		-- smoke: arriving, leaving
+		local bs = loadPack("ky_bigsmoke")
+		local bsLen = bs.meta.frames / bs.meta.fps
+		if phase == "appear" and u < bsLen then show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, 0, false, 0.4)
+		elseif phase == "leave" and u < bsLen then show(v.smoke, bs, math.floor(u * bs.meta.fps) + 1, pos, 1, 0, false, 0.4)
+		else hide(v.smoke) end
+		if phase == "leave" and u >= 0.3 then hide(v.slug); hide(v.shadow) end
+		-- the burst where the blow landed
+		local sp = loadPack("ky_split")
+		if splitT and T - splitT < sp.meta.frames / sp.meta.fps and T >= splitT then
+			show(v.burst, sp, math.floor((T - splitT) * sp.meta.fps) + 1, toMap(f:GetAttribute("SX"), f:GetAttribute("SZ")), 1, 0, false, 0.5)
+		else hide(v.burst) end
+		-- the small slugs: off her body, scattering away from the blow's line, then crawling back together
+		local inPieces = phase == "split" or phase == "merge"
+		local n = M.pieces
+		if inPieces then
+			local pp = loadPack("slug_bit")
+			local popLen = pp.meta.index.pop.n / pp.meta.index.pop.fps
+			local tail, front = pos - fw * M.tail, pos + fw * M.reach
+			local side = Vector2.new(-fw.Y, fw.X)
+			local at = toMap(f:GetAttribute("SX") or cx, f:GetAttribute("SZ") or cz)
+			local sd = Vector2.new(f:GetAttribute("SDX") or 1, f:GetAttribute("SDZ") or 0)
+			local perp = Vector2.new(-sd.Y, sd.X)
+			for i = 1, n do
+				local c = v.pieces[i]
+				if not c then c = newCard(3); v.pieces[i] = c end
+				local o = tail:Lerp(front, (i - 0.5) / n) + side * ((hashR(i) - 0.5) * 1.6 * M.bodyR)
+				local sgn = (o - at):Dot(perp) >= 0 and 1 or -1
+				local away = (perp * sgn + sd * ((hashR(i + 40) - 0.5) * 0.8)).Unit
+				local sc = o + away * M.scatter * (0.6 + 0.7 * hashR(i + 9))
+				local m, hd, kk
+				if phase == "split" then
+					local q = math.clamp(u / M.split, 0, 1)
+					m = o:Lerp(sc, 1 - (1 - q) ^ 3)
+					hd = math.atan2(away.Y, away.X)
+					local pv = viewOf(hd)
+					kk = u < popLen and byProg(pp, "pop", pv, u / popLen) or frameOf(pp, "crawl", pv, T + i * 0.13)
+				else
+					local q = math.clamp(u / M.merge, 0, 1)
+					local home = pos + (o - pos) * 0.35
+					m = sc:Lerp(home, q * q * (3 - 2 * q))
+					local to = home - sc
+					hd = math.atan2(to.Y, to.X)
+					kk = frameOf(pp, "crawl", (viewOf(hd)), T + i * 0.13)
+				end
+				local _, pf = viewOf(hd)
+				show(c, pp, kk, m, pf, 0, false, 0.05)
+			end
+		else
+			for _, c in ipairs(v.pieces) do hide(c) end
+		end
+	end
+
+	-- the dummies' thrown kunai (Threats): flying, falling in the swarm when she divides, or reaching the summoner
+	local threatViews = {}
+	local function stepThreat(tf)
+		local k = threatViews[tf]
+		if not k then k = { card = newCard(3) }; threatViews[tf] = k end
+		local st = tf:GetAttribute("State") or "fly"
+		local m = toMap(tf:GetAttribute("X") or 0, tf:GetAttribute("Z") or 0)
+		local d = Vector2.new(tf:GetAttribute("DX") or 1, tf:GetAttribute("DZ") or 0)
+		local T = state:GetAttribute("SimT") or 0
+		local rot = math.deg(math.atan2(d.Y * math.sin(ctx.pitch), d.X))
+		local kp = loadPack("ky_kunai")
+		if k.st ~= st then
+			k.st = st
+			if st == "fly" then sfx("whoosh", 0.35)
+			elseif st == "through" then
+				sfx("bite", 0.6); ctx.shake(1, 0.15)
+				pop(m, "GETROFFEN", Color3.fromRGB(255, 96, 80))
+				addLog(("Kunai von %s trifft den Beschwoerer"):format(tostring(tf:GetAttribute("From"))))
+			end
+		end
+		if st == "fly" then
+			show(k.card, kp, 1, m, 1, 34, false, 0.4); k.card.img.Rotation = rot; k.card.img.ImageTransparency = 0
+		elseif st == "blocked" then
+			-- falls among the small slugs and lies there
+			local q = math.clamp((T - (tf:GetAttribute("EndT") or T)) / 0.25, 0, 1)
+			show(k.card, kp, 1, m, 1, 34 * (1 - q * q), false, 0.4); k.card.img.Rotation = rot + 70 * q
+			k.card.img.ImageTransparency = math.clamp((T - (tf:GetAttribute("EndT") or T) - 0.8) / 0.4, 0, 1)
+		else hide(k.card) end
+	end
+
 	local function newDragon(f)
 		local v = { f = f, kind = "dragon", body = newCard(2), dust = newCard(4), smoke = newCard(4), headC = newCard(3), segs = {}, recv = {},
 			coil = newCard(4), lane = newFloor(), cracks = newFloor(), popped = {} }
@@ -1454,7 +1606,7 @@ function A.mount(ctx)
 			local f = state.Casts:WaitForChild("C" .. a, 2)
 			if f then
 				local kind = f:GetAttribute("Kind")
-				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or (kind == "dragon" and newDragon(f)) or newView(f)
+				local v = views[f] or (kind == "leap" and newToad(f)) or ((kind == "network" or kind == "spit") and newSlug(f)) or (kind == "staff" and newStaff(f)) or (kind == "dash" and newDash(f)) or (kind == "suck" and newSuck(f)) or (kind == "tongue" and newTongue(f)) or (kind == "song" and newSong(f)) or (kind == "beast" and newBeast(f)) or (kind == "dragon" and newDragon(f)) or (kind == "guard" and newGuard(f)) or newView(f)
 				v.who = pendingWho
 				v.locked = true
 				ctx.lock(true)
@@ -1469,7 +1621,7 @@ function A.mount(ctx)
 	local gui = Instance.new("ScreenGui")
 	gui.Name, gui.ResetOnSpawn, gui.DisplayOrder = "PixelArenaPanel", false, 60
 	local frame = Instance.new("Frame")
-	frame.Size, frame.Position, frame.AnchorPoint = UDim2.fromOffset(470, 300), UDim2.new(0, 16, 0, 92), Vector2.new(0, 0)
+	frame.Size, frame.Position, frame.AnchorPoint = UDim2.fromOffset(520, 300), UDim2.new(0, 16, 0, 92), Vector2.new(0, 0)
 	frame.BackgroundColor3, frame.BackgroundTransparency, frame.BorderSizePixel = Color3.fromRGB(16, 18, 38), 0.12, 0
 	frame.Parent = gui
 	local function label(text, x, y, w, h, size)
@@ -1523,6 +1675,7 @@ function A.mount(ctx)
 	button("slow", "T ZEITLUPE", 176, 140, 84, function() timeScale = (timeScale == 1) and 0.25 or 1; remote:FireServer("time", timeScale) end)
 	button("frame", "F BILD", 264, 140, 62, function() remote:FireServer("frame") end)
 	button("abort", "Q ABBRUCH", 330, 140, 84, function() remote:FireServer("abort") end)
+	button("t_throw", "WIRFT", 418, 140, 92, function() remote:FireServer("targets", nil, "throw") end)
 	button("t_walk", "ZIEL LAEUFT", 10, 168, 96, function() remote:FireServer("targets", nil, "walk") end)
 	button("t_dodge", "WEICHT AUS", 110, 168, 92, function() remote:FireServer("targets", nil, "dodge") end)
 	button("t_stand", "STEHT", 206, 168, 58, function() remote:FireServer("targets", nil, "stand") end)
@@ -1584,12 +1737,16 @@ function A.mount(ctx)
 			elseif kind == "song" then stepSong(views[f] or newSong(f))
 			elseif kind == "beast" then stepBeast(views[f] or newBeast(f))
 			elseif kind == "dragon" then stepDragon(views[f] or newDragon(f))
+			elseif kind == "guard" then stepGuard(views[f] or newGuard(f))
 			else stepView(views[f] or newView(f)) end
 		end
+		local threats = state:FindFirstChild("Threats")
+		if threats then for _, tf in ipairs(threats:GetChildren()) do stepThreat(tf) end end
+		for tf, k in pairs(threatViews) do if not tf.Parent then kill(k.card); threatViews[tf] = nil end end
 		for f, v in pairs(views) do
 			if not f.Parent then
 				if v.locked then ctx.lock(false) end
-				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) else killView(v) end
+				if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) elseif v.kind == "guard" then killGuard(v) else killView(v) end
 				views[f] = nil
 			end
 		end
@@ -1606,8 +1763,9 @@ function A.mount(ctx)
 		alive = false
 		for _, c in ipairs(conns) do c:Disconnect() end
 		remote:FireServer("respawn")
-		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) else killView(v) end end
+		for _, v in pairs(views) do if v.kind == "leap" then killToad(v) elseif v.kind == "network" or v.kind == "spit" then killSlug(v) elseif v.kind == "staff" then killStaff(v) elseif v.kind == "dash" then killDash(v) elseif v.kind == "suck" then killSuck(v) elseif v.kind == "tongue" then killTongue(v) elseif v.kind == "song" then killSong(v) elseif v.kind == "beast" then killBeast(v) elseif v.kind == "dragon" then killDragon(v) elseif v.kind == "guard" then killGuard(v) else killView(v) end end
 		for _, t in pairs(targets) do kill(t.card); t.image:Destroy() end
+		for _, k in pairs(threatViews) do kill(k.card) end
 		for _, q in ipairs(pops) do kill(q.card) end
 		gui:Destroy()
 		ctx.lock(false)

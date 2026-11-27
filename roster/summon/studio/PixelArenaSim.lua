@@ -25,6 +25,11 @@ function Sim.new(state, defs)
 	self.castsFolder = state:FindFirstChild("Casts") or Instance.new("Folder")
 	self.castsFolder.Name = "Casts"
 	self.castsFolder.Parent = state
+	-- the dummies' attacks on the summoner (thrown kunai): the guard moves stop them
+	self.threatsFolder = state:FindFirstChild("Threats") or Instance.new("Folder")
+	self.threatsFolder.Name = "Threats"
+	self.threatsFolder.Parent = state
+	self.threats, self.nextThreat = {}, 1
 	state:SetAttribute("TimeScale", 1)
 	state:SetAttribute("Paused", false)
 	state:SetAttribute("SimT", 0)
@@ -58,13 +63,14 @@ function Sim:writeTarget(t)
 	t.f:SetAttribute("Alive", t.alive); t.f:SetAttribute("Held", t.held); t.f:SetAttribute("Hp", t.hp); t.f:SetAttribute("Mode", t.mode)
 end
 -- test behaviours: stand, walk (back and forth across the cast lines), dodge (steps aside when the ground bulges
--- under it), removed (gone mid-cast)
+-- under it), removed (gone mid-cast), throw / throwwalk (throws a kunai at the summoner of the nearest running cast
+-- every THROW.every seconds; throwwalk walks as well)
 function Sim:setTargetMode(name, mode)
 	for n, t in pairs(self.targets) do
 		if name == nil or n == name then
 			if mode == "remove" then t.alive = false
 			elseif mode == "reset" then t.alive, t.p, t.held, t.hp, t.mode, t.kbLeft, t.dodgeTo = true, t.home, false, t.ally and ALLY_HP or 100, "stand", 0, nil; t.hidden = false
-			else t.mode, t.alive, t.phase = mode, true, 0 end
+			else t.mode, t.alive, t.phase, t.throwT, t.thrown = mode, true, 0, 0, false end
 			self:writeTarget(t)
 		end
 	end
@@ -135,6 +141,7 @@ function Sim:cast(owner, moveId, p, dir)
 	if M.kind == "song" then return self:castSong(owner, M, p, dir) end
 	if M.kind == "beast" then return self:castBeast(owner, M, p, dir) end
 	if M.kind == "dragon" then return self:castDragon(owner, M, p, dir) end
+	if M.kind == "guard" then return self:castGuard(owner, M, p, dir) end
 	return self:castNinken(owner, p, dir)
 end
 
@@ -755,6 +762,173 @@ function Sim:stepDragon(c, dt)
 	self:writeCast(c)
 end
 
+-- Katsuyu's Slug Great Division (kind "guard"): she appears in front of the summoner and keeps between her and the
+-- nearest enemy, sliding round her (turn rad/s); a thrown weapon that reaches her body makes her divide (split), it
+-- comes to nothing; the small slugs merge again and she guards on. An attack from a side she has not come round to
+-- yet reaches the summoner.
+function Sim:castGuard(owner, M, p, dir)
+	local id = self.nextId
+	self.nextId += 1
+	local f = Instance.new("Configuration")
+	f.Name = "C" .. id
+	local c = { id = id, f = f, kind = "guard", move = M.id, M = M, owner = owner, p = p, dir = dir, t = 0, phase = "seal", pt = 0,
+		result = "", hitKind = "", hits = {}, dogs = {}, goal = p, blocked = 0, through = 0, blockedBy = {} }
+	c.bearing = math.atan2(dir.Y, dir.X)
+	c.pos = p + dir * M.spawnFront
+	c.head = c.bearing
+	f:SetAttribute("Owner", owner); f:SetAttribute("Move", M.id); f:SetAttribute("Kind", "guard")
+	f:SetAttribute("X", p.X); f:SetAttribute("Z", p.Y); f:SetAttribute("DX", dir.X); f:SetAttribute("DZ", dir.Y)
+	f:SetAttribute("Target", "")
+	self.casts[id] = c
+	self:writeCast(c)
+	f.Parent = self.castsFolder
+	return c
+end
+-- her body on the floor (at kunai height): along her heading, thin at the tail, full where she rears up
+function Sim:guardBody(c)
+	local fw = Vector2.new(math.cos(c.head), math.sin(c.head))
+	return c.pos - fw * c.M.tail, c.pos + fw * c.M.reach, c.M.bodyR, c.M.tailR
+end
+-- distance from q to the segment a-b, and where along it (0 at a .. 1 at b)
+local function segDist(q, a, b)
+	local ab = b - a
+	local l2 = ab:Dot(ab)
+	local u = l2 > 0 and math.clamp((q - a):Dot(ab) / l2, 0, 1) or 0
+	return (q - (a + ab * u)).Magnitude, u
+end
+Sim.segDist = segDist
+function Sim:stepGuard(c, dt)
+	local M = c.M
+	c.t += dt
+	local u = c.t - c.pt
+	if c.phase == "seal" then
+		if u >= M.seal then enter(c, "appear") end
+	elseif c.phase == "appear" then
+		if u >= M.appear then enter(c, "guard"); c.guardEnd = c.t + M.guard end
+	elseif c.phase == "guard" then
+		-- the nearest enemy within reach of the summoner: she comes round to its side (a removed one: she holds the
+		-- side she last saw it on)
+		local best, bd = nil, M.range
+		for _, t in pairs(self.targets) do
+			if t.alive and not t.ally then
+				local d = (t.p - c.p).Magnitude
+				if d > 0.5 and d <= bd then best, bd = t, d end
+			end
+		end
+		c.watch = best
+		if best then
+			local want = math.atan2(best.p.Y - c.p.Y, best.p.X - c.p.X)
+			local d = (want - c.bearing + math.pi) % (math.pi * 2) - math.pi
+			c.bearing += math.clamp(d, -M.turn * dt, M.turn * dt)
+		end
+		c.head = c.bearing
+		c.pos = c.p + Vector2.new(math.cos(c.bearing), math.sin(c.bearing)) * M.spawnFront
+		if c.t >= c.guardEnd then enter(c, "leave") end
+	elseif c.phase == "split" then
+		if u >= M.split then enter(c, "merge") end
+	elseif c.phase == "merge" then
+		if u >= M.merge then
+			c.reformT = c.t
+			if c.t >= c.guardEnd then enter(c, "leave") else enter(c, "guard") end
+		end
+	elseif c.phase == "leave" then
+		if u >= M.leave then
+			c.result = c.through > 0 and "through" or (c.blocked > 0 and "blocked" or "none")
+			finish(c)
+		end
+	end
+	if (c.phase == "done" or c.phase == "abort") and c.t >= (c.endT or c.t) + 0.6 then
+		c.f:Destroy()
+		self.casts[c.id] = nil
+		return
+	end
+	self:writeCast(c)
+end
+-- a thrown weapon on its way: blocked by a guard it crosses (she divides), or it reaches whom it was thrown at
+function Sim:throw(t, at)
+	if not (t and t.alive) or typeof(at) ~= "Vector2" or (at - t.p).Magnitude < 1 then return end
+	local id = self.nextThreat
+	self.nextThreat += 1
+	local f = Instance.new("Configuration")
+	f.Name = "K" .. id
+	local d = (at - t.p).Unit
+	local k = { id = id, f = f, from = t.name, p = t.p, start = t.p, at = at, dir = d, state = "fly", t0 = self.t, flown = 0 }
+	f:SetAttribute("From", t.name); f:SetAttribute("DX", d.X); f:SetAttribute("DZ", d.Y); f:SetAttribute("T0", self.t)
+	f:SetAttribute("AX", at.X); f:SetAttribute("AZ", at.Y)
+	self.threats[id] = k
+	self:writeThreat(k)
+	f.Parent = self.threatsFolder
+	return k
+end
+function Sim:writeThreat(k)
+	k.f:SetAttribute("X", k.p.X); k.f:SetAttribute("Z", k.p.Y); k.f:SetAttribute("State", k.state)
+	if k.endT then k.f:SetAttribute("EndT", k.endT) end
+	if k.by then k.f:SetAttribute("By", k.by) end
+end
+function Sim:stepThreats(dt)
+	local TH = Sim.THROW
+	for id, k in pairs(self.threats) do
+		if k.state == "fly" then
+			local p0 = k.p
+			local stepLen = TH.speed * dt
+			local done = false
+			-- in small steps (a fast kunai must not pass through her between two frames)
+			local n = math.max(1, math.ceil(stepLen / 0.5))
+			for i = 1, n do
+				local q = p0 + k.dir * (stepLen * i / n)
+				for _, c in pairs(self.casts) do
+					-- (still there for the first moments of leaving, until the smoke covers her)
+					if c.kind == "guard" and (c.phase == "guard" or c.phase == "split" or c.phase == "merge" or (c.phase == "leave" and c.t - c.pt < 0.3)) then
+						local a, b, r, r0 = self:guardBody(c)
+						local d, along = segDist(q, a, b)
+						-- her girth: from the tail tip to where the column stands (about 70 % along), then full
+						if d <= r0 + (r - r0) * math.min(1, along / 0.7) then
+							-- on her: she divides (again, if she is already in pieces), it falls in the swarm
+							k.p, k.state, k.endT, k.by = q, "blocked", self.t, "C" .. c.id
+							c.blocked += 1
+							c.blockedBy[k.from] = true
+							c.result, c.hitKind = "blocked", "Teilung"
+							-- once her time is up (leaving, or still in pieces) it falls without a new division, so a
+							-- thrower cannot keep her here
+							if c.phase ~= "leave" and c.t < c.guardEnd then
+								c.splitAt, c.splitDir, c.splitT = q, k.dir, c.t
+								if c.phase ~= "split" then enter(c, "split") end
+							end
+							self:writeCast(c)
+							done = true
+							break
+						end
+					end
+				end
+				if done then break end
+				-- the one it was thrown at
+				if (q - k.at).Magnitude <= TH.hitR then
+					k.p, k.state, k.endT = q, "through", self.t
+					for _, c in pairs(self.casts) do
+						if c.kind == "guard" and c.phase ~= "done" and c.phase ~= "abort" and (c.p - k.at).Magnitude <= TH.hitR + 0.5 then
+							c.through += 1
+							c.result = "through"
+							self:writeCast(c)
+						end
+					end
+					done = true
+					break
+				end
+			end
+			if not done then
+				k.p = p0 + k.dir * stepLen
+				k.flown += stepLen
+				if k.flown >= TH.range then k.state, k.endT = "spent", self.t end
+			end
+			self:writeThreat(k)
+		elseif self.t >= (k.endT or self.t) + 1.2 then
+			k.f:Destroy()
+			self.threats[id] = nil
+		end
+	end
+end
+Sim.THROW = { speed = 32, range = 44, dmg = 10, hitR = 1.4, every = 1.3, first = 1.2 }
+
 -- Kurama (kind "beast"): appear behind the summoner under the Sharingan, charge the Tailed Beast Ball following the
 -- target, lock the aim (the ring shows), swallow, fire: the ball flies from the mouth to the ring and bursts there.
 function Sim:castBeast(owner, M, p, dir)
@@ -1097,6 +1271,18 @@ function Sim:writeCast(c)
 		if c.reach then f:SetAttribute("Reach", c.reach) end
 		if c.hitT then f:SetAttribute("HitT", c.hitT); f:SetAttribute("HitName", c.hitName) end
 	end
+	if c.kind == "guard" then
+		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
+		f:SetAttribute("HitKind", c.hitKind); f:SetAttribute("Blocked", c.blocked); f:SetAttribute("Through", c.through)
+		f:SetAttribute("Watch", c.watch and c.watch.name or "")
+		local by = {}
+		for n in pairs(c.blockedBy) do table.insert(by, n) end
+		table.sort(by)
+		f:SetAttribute("HitName", table.concat(by, "+"))
+		if c.splitT then f:SetAttribute("SplitT", c.splitT); f:SetAttribute("SX", c.splitAt.X); f:SetAttribute("SZ", c.splitAt.Y); f:SetAttribute("SDX", c.splitDir.X); f:SetAttribute("SDZ", c.splitDir.Y) end
+		if c.reformT then f:SetAttribute("ReformT", c.reformT) end
+		if c.guardEnd then f:SetAttribute("GuardEnd", c.guardEnd) end
+	end
 	if c.kind == "beast" then
 		f:SetAttribute("PT", c.pt); f:SetAttribute("KX", c.pos.X); f:SetAttribute("KZ", c.pos.Y); f:SetAttribute("KH", c.head)
 		f:SetAttribute("AX", c.aim.X); f:SetAttribute("AZ", c.aim.Y); f:SetAttribute("HitKind", c.hitKind)
@@ -1209,6 +1395,7 @@ function Sim:stepCast(c, dt)
 	if c.kind == "song" then return self:stepSong(c, dt) end
 	if c.kind == "beast" then return self:stepBeast(c, dt) end
 	if c.kind == "dragon" then return self:stepDragon(c, dt) end
+	if c.kind == "guard" then return self:stepGuard(c, dt) end
 	local M = c.M
 	c.t += dt
 	local tg = c.target
@@ -1279,8 +1466,19 @@ function Sim:stepTargets(dt)
 			t.p += t.kb * k
 			t.kbLeft -= k
 		end
+		if t.alive and not t.held and (t.mode == "throw" or t.mode == "throwwalk") then
+			-- throws at the summoner of the nearest running cast in reach (the clock runs only while there is one)
+			local best, bd = nil, Sim.THROW.range
+			for _, c in pairs(self.casts) do
+				if c.phase ~= "done" and c.phase ~= "abort" and (c.p - t.p).Magnitude < bd then best, bd = c, (c.p - t.p).Magnitude end
+			end
+			if best then
+				t.throwT = (t.throwT or 0) + dt
+				if t.throwT >= (t.thrown and Sim.THROW.every or Sim.THROW.first) then self:throw(t, best.p); t.throwT, t.thrown = 0, true end
+			end
+		end
 		if t.alive and not t.held and not (t.kbLeft and t.kbLeft > 0) then
-			if t.mode == "walk" then
+			if t.mode == "walk" or t.mode == "throwwalk" then
 				t.phase += dt
 				t.p = t.home + Vector2.new(0, math.sin(t.phase * 0.9) * 11)
 			elseif t.mode == "dodge" then
@@ -1320,6 +1518,7 @@ function Sim:step(realDt, forced)
 	self.state:SetAttribute("SimT", self.t)
 	self:stepTargets(dt)
 	for _, c in pairs(self.casts) do self:stepCast(c, dt) end
+	self:stepThreats(dt)
 end
 
 return Sim

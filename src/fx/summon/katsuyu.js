@@ -15,11 +15,23 @@
 //           acid will land is marked on the floor
 //   spit    the head snaps forward, the mouth opens: a glob of acid flies in an arc to that place
 //   splash  where it lands it bursts (hit, thrown back) and leaves a pool that keeps eating at whoever stands in it
+// and Tsunade (Fifth Hokage, Classic) slot 4 "Summoning: Katsuyu" with Slug Great Division (Katsuyu Daibunretsu,
+// Manga 170 / Anime 96, against Manda): when she is physically attacked she divides into countless small slugs, each a
+// whole Katsuyu, so the attack comes to nothing; they combine again when they wish and she can do it over and over
+// until the attacker gives up (Narutopedia: Slug Great Division, To no Sho p. 204):
+//   appear  smoke in front of Tsunade, Katsuyu reared up high between her and the enemy
+//   guard   she slides round Tsunade to stay between her and the nearest enemy, turning to face it (she has to come
+//           round: an attack from a side she has not reached yet gets through)
+//   split   a blow or a thrown weapon reaches her: she bursts into small slugs that scatter off its line; it falls
+//           to the ground in the swarm, no damage
+//   merge   the small slugs crawl back together and she is whole again (and can divide again)
+//   leave   the guard's time is up: smoke
 // The slug is a 3D rig (src/fx/summon/_slug.js) in side / front / back.
 import { KATSUYU, MINI, drawSlug, Canvas } from "./_slug.js";
 import { hex, mix } from "../../core/index.js";
 
 const SPP = 10.7 / 72;
+const BIT = { ...MINI, name: "Katsuyu (klein)", k: 0.11 };
 const ease = (u) => 1 - (1 - u) ** 3;
 const lerp = (a, b, u) => a + (b - a) * u;
 
@@ -29,6 +41,9 @@ const BIG = {
   rear: { frames: 4, fps: 10, pose: (u) => ({ rear: lerp(0.85, 1, ease(u)), nod: -0.5 * ease(u), phase: 0, wave: 0.3 }) },
   spit: { frames: 3, fps: 12, pose: (u) => ({ rear: lerp(1, 0.95, u), nod: lerp(-0.5, 0.6, ease(u)), mouth: lerp(0.3, 1, u), wave: 0.2 }) },
   after: { frames: 4, fps: 8, pose: (u) => ({ rear: lerp(0.95, 0.85, u), nod: lerp(0.6, 0, u), mouth: 1 - u, wave: 0.4, phase: u }) },
+  // the guard: reared up high, swaying a little (loop); whole again after a division (lumps sinking back)
+  guard: { frames: 6, fps: 6, loop: true, pose: (u) => ({ rear: 1, nod: -0.15, phase: u, wave: 0.6 }) },
+  reform: { frames: 4, fps: 12, pose: (u) => ({ rear: lerp(0.7, 1, ease(u)), nod: -0.15, phase: u, wave: 1.2, divide: 1 - u }) },
 };
 const PIECE = {
   crawl: { frames: 6, fps: 12, loop: true, pose: (u) => ({ rear: 0.12, phase: u, wave: 1 }) },
@@ -40,6 +55,8 @@ export const VIEWS = ["side", "front", "back"];
 export const RIGS = [
   { book: "slug_katsuyu", S: KATSUYU, draw: drawSlug, pitch: 0.36, anims: BIG },
   { book: "slug_piece", S: MINI, draw: drawSlug, pitch: 0.36, anims: PIECE },
+  // the division: many small ones (countless, so much smaller than the pieces that lie on an ally)
+  { book: "slug_bit", S: BIT, draw: drawSlug, pitch: 0.36, anims: { crawl: PIECE.crawl, pop: PIECE.pop } },
 ];
 
 // where the mouth is when she spits (from the rig: the acid leaves from there)
@@ -70,6 +87,16 @@ export const MOVES = [
     poolR: 5.5, pool: 2.2, dot: 7,
     dodge: { phase: "spit", side: 9 },
     cooldown: 7, lock: 0.35 },
+  { id: "tsunade-katsuyu-division", kind: "guard",
+    variant: "classic/tsunade-fifth-hokage", slot: 4,
+    seal: 0.35, appear: 0.55, guard: 5.5, leave: 0.5,
+    spawnFront: 8,            // her foot this far in front of Tsunade, on the side she guards
+    turn: 1.1,                // how fast she comes round Tsunade (rad/s)
+    range: 42,                // she turns to the nearest enemy within this of Tsunade
+    tail: 5.4, reach: 9.2,    // her body behind / in front of her foot at kunai height (the rig reared up: the column rises at 9)
+    bodyR: 5.0, tailR: 2.0,   // half her girth where she rears up / at the tail tip: an attack crossing this is on her
+    split: 0.45, merge: 0.9, pieces: 26, scatter: 6,
+    cooldown: 9, lock: 0.35 },
 ];
 
 // ---- effects (billboards, and floor decals with ground: true: image x = forward, y = right, 1 px = 1 SPP)
@@ -80,6 +107,25 @@ const SM1 = hex("#f4f2f6"), SM2 = hex("#cfcbd8"), SM3 = hex("#9e98ac");
 const AC1 = hex("#f6e04a"), AC2 = hex("#e8a82c"), AC3 = hex("#b8d040"), ACD = hex("#7a6a18");
 const GR1 = hex("#8cf0c0"), GR2 = hex("#3cc890"), GRW = hex("#e8fff4");
 export const FX = {
+  // her division: a burst of slime where the blow lands, pale droplets flying off (the small slugs scatter from it)
+  split: { cw: 220, ch: 200, ox: 110, oy: 150, frames: 8, fps: 18, draw(p, u) {
+    const a = 1 - u * u;
+    blendEllipse(p, 0, -40, 40 * (0.5 + u), 34 * (0.5 + u), SM1, 0.45 * a);
+    for (let c = 0; c < 20; c++) {
+      const ang = rnd(c) * Math.PI * 2, d = (30 + 60 * rnd(c + 3)) * ease(u);
+      const x = Math.cos(ang) * d, y = -40 + Math.sin(ang) * d * 0.7 + 50 * u * u;
+      blendDisc(p, x, y, 2.5 + 2.5 * rnd(c + 6), c % 3 ? SM1 : hex("#bfe8dc"), a);
+      if (c % 4 === 0) p.blend(x - 1, y - 1, hex("#ffffff"), a);
+    }
+  } },
+  // a thrown kunai, point toward +x (the game turns the card to its flight); pivot at its middle
+  kunai: { cw: 40, ch: 12, ox: 20, oy: 6, frames: 1, fps: 1, draw(p) {
+    const ink = hex("#1c1a24"), steel = hex("#9aa2b0"), hi = hex("#e4e8f0"), grip = hex("#2c2838"), wrap = hex("#5a5068");
+    for (let x = 2; x <= 16; x++) { const w = Math.round((16 - x) * 0.32) + 1; p.rect(x, -w, 1, 2 * w + 1, ink); if (w > 1) p.rect(x, -w + 1, 1, 2 * w - 1, steel); p.blend(x, -1, hi, 1); }
+    p.rect(17, -1, 2, 3, ink);
+    p.rect(-10, -1, 12, 3, ink); for (let x = -9; x <= 1; x++) p.rect(x, 0, 1, 1, x % 2 ? grip : wrap);
+    p.ring(-14, 0, 3, 1, ink); p.ring(-14, 0, 2, 1, steel);
+  } },
   // the summoning cloud (also when she leaves)
   bigsmoke: { cw: 380, ch: 300, ox: 190, oy: 250, frames: 12, fps: 18, draw(p, u) {
     const a = 1 - Math.max(0, (u - 0.55) / 0.45);

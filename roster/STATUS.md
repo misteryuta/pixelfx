@@ -4,9 +4,9 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 
 | Bereich | Varianten | Slots | umgesetzt | Clip da, Anwender offen | nur verwandt | fehlt |
 |---|---:|---:|---:|---:|---:|---:|
-| Naruto Classic | 26 | 65 | 29 | 6 | 1 | 29 |
+| Naruto Classic | 26 | 65 | 30 | 6 | 1 | 28 |
 | Naruto Shippūden | 55 | 130 | 59 | 5 | 9 | 56 |
-| **Gesamt** | 81 | 195 | 88 | 11 | 10 | 85 |
+| **Gesamt** | 81 | 195 | 89 | 11 | 10 | 84 |
 
 ## Classic
 
@@ -23,7 +23,7 @@ Quelle: `naruto_classic_and_shippuden_complete_roster.md`
 | Tsunade (Fifth Hokage) | 93 | Legendary | Legends | 1 | Creation Rebirth | – | fehlt | Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto. |
 |  |  |  |  | 2 | Heaven Kick of Pain | `tsunade-tsuutenkyaku` | umgesetzt | Tsūtenkyaku, Fersenhieb aus der Höhe. |
 |  |  |  |  | 3 | Nervous System Rupture | `tsunade-ranshinshou` | umgesetzt | Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht. |
-|  |  |  |  | 4 | Summoning: Katsuyu | – | fehlt | Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda). |
+|  |  |  |  | 4 | Summoning: Katsuyu | – | umgesetzt | Kuchiyose: Katsuyu mit Katsuyu Daibunretsu (Slug Great Division, Manga 170 / Anime 96, gegen Manda): Katsuyu steht aufgerichtet zwischen Tsunade und dem nächsten Gegner und kommt um sie herum auf dessen Seite. Ein Wurf oder Schlag, der sie erreicht, lässt sie in viele kleine Schnecken zerfallen, er bleibt wirkungslos; sie setzen sich wieder zusammen. Ein Angriff von einer Seite, die sie noch nicht erreicht hat, kommt durch. |
 | Hiruzen Sarutobi (Third Hokage) | 92 | Legendary | Legends | 1 | Reaper Death Seal | `hiruzen-shiki-fuujin` | umgesetzt | Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt. |
 |  |  |  |  | 2 | Monkey King Enma: Adamantine Staff | `hiruzen-enma` | umgesetzt | Enma als Kongōnyoi (Henge: Kongōnyoi, Manga 120 / Anime 71): Enma erscheint als Affe, springt Hiruzen in die Hände und wird zum Stab, der sich ausfährt; die Spitze trifft und schiebt. |
 |  |  |  |  | 3 | Fire Style: Dragon Flame Bomb | `fire-karyuu-endan` | Clip da, Anwender offen | Katon: Karyū Endan; Clip mit Standard-Anwender. Hiruzen als Anwender: Anime-Konoha-Crush (zu belegen). |

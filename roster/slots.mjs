@@ -28,7 +28,7 @@ export const SLOTS = {
     [null, "heal", "new", "Byakugō no In: Sōzō Saisei, erstmals gegen Orochimaru und Kabuto."],
     ["tsunade-tsuutenkyaku", "strike", "ok", "Tsūtenkyaku, Fersenhieb aus der Höhe."],
     ["tsunade-ranshinshou", "illusion", "ok", "Ranshinshō: vertauschte Nervensignale. Spielzustand: Steuerung vertauscht."],
-    [null, "defense", "new", "Kuchiyose: Katsuyu (Tanzaku, Anime 96). Handlung: Katsuyu Daibunretsu, sie zerfällt bei einem Treffer in viele kleine Schnecken und weicht so aus (gegen Manda)."],
+    [null, "defense", "ok", "Kuchiyose: Katsuyu mit Katsuyu Daibunretsu (Slug Great Division, Manga 170 / Anime 96, gegen Manda): Katsuyu steht aufgerichtet zwischen Tsunade und dem nächsten Gegner und kommt um sie herum auf dessen Seite. Ein Wurf oder Schlag, der sie erreicht, lässt sie in viele kleine Schnecken zerfallen, er bleibt wirkungslos; sie setzen sich wieder zusammen. Ein Angriff von einer Seite, die sie noch nicht erreicht hat, kommt durch.", { summon: "tsunade-katsuyu-division" }],
   ] },
   "classic|Hiruzen Sarutobi (Third Hokage)": { desc: "Dritter Hokage, Konoha Crush.", moves: [
     ["hiruzen-shiki-fuujin", "seal", "ok", "Shiki Fūjin gegen Orochimaru; versiegelt dessen Arme -> Spielzustand: Jutsu gesperrt."],
