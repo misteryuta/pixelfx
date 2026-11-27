@@ -642,7 +642,11 @@ function A.mount(ctx)
 			local since = T - (f:GetAttribute("GlobT") or T) - M.spit
 			if since < M.after then k = byProg(pk, "after", view, since / M.after) elseif u < 0.35 then k = frameOf(pk, "idle", view, T) else leaveT = PT + 0.35 end
 		elseif ending and v.lastK and u < 0.12 then k = v.lastK end
-		if k then v.lastK = k; show(v.slug, pk, k, pos, face, 0, false, 0); v.slug.img.ImageTransparency = (view == "back") and 0.3 or 0
+		-- see-through from behind, and from the front when she stands right in front of the summoner (healing cast down
+		-- the screen: she would hide Tsunade completely)
+		local rel = pos - toMap(cx, cz)
+		local covers = view == "front" and rel.Y > 0 and math.abs(rel.X) < 8
+		if k then v.lastK = k; show(v.slug, pk, k, pos, face, 0, false, 0); v.slug.img.ImageTransparency = (view == "back" or covers) and 0.3 or 0
 		else hide(v.slug) end
 		-- smoke: arriving, leaving (at the end of the healing; for the acid once it has landed)
 		local bs = loadPack("ky_bigsmoke")

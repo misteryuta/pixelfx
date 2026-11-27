@@ -110,7 +110,7 @@ Ablauf (Server):
 |---|---|---|---|---|---|---|
 | H1 | zwei Verbündete | rechts | 0,0 | A1 +36, A2 +36; A3 (hinter ihr) nicht | bestanden, Bild geprüft (Kriechen mit Spur, Liegen mit Leuchten) | Server bestanden |
 | H2 | A2 verschwindet unterwegs | rechts | 0,0 | Das Stück dreht zum nächsten Verbündeten A1; A1 +60 (bis 100) | bestanden | – |
-| H3 | zwei Verbündete | unten | 0,-30 | A1 +36, A3 +36 | bestanden | Server bestanden |
+| H3 | zwei Verbündete | unten | 0,-30 | A1 +36, A3 +36 | bestanden, Bild geprüft (Vorderansicht vor Tsunade, nach der Korrektur durchsichtig; Stücke kriechen zu A1 und A3) | Server bestanden |
 | H4 | zwei Verbündete | oben | 0,30 | A2 +36, A3 +36 | bestanden | Server bestanden |
 | H5 | kein Verbündeter im Kegel | unten | 0,20 | Teilung, dann sieht sie sich um und geht: „kein Verbündeter in Reichweite“ | bestanden | Server bestanden |
 | H6 | Verbündete laufen | rechts | 0,0 | Die Stücke folgen und bleiben auf ihnen (Stück und A1 beide bei 14,-4.4); je +36 | bestanden | – |
@@ -131,9 +131,9 @@ Ablauf (Server):
 |---|---|---|---|---|---|---|
 | S1 | Treffer | rechts | 0,0 | Spritzer T1, dann Pfütze (73 Leben) | bestanden, Bild geprüft (Zielring, Flug, Spritzer, Pfütze) | Server bestanden |
 | S2 | Ziel weicht beim Ausspucken aus | rechts | 0,0 | Fehlschlag | bestanden | Server bestanden |
-| S3 | Treffer | unten | 30,-28 | Spritzer T1, Rückstoß nach unten (30,5) | bestanden | Server bestanden |
+| S3 | Treffer | unten | 30,-28 | Spritzer T1, Rückstoß nach unten (30,5) | bestanden, Bild geprüft (Vorderansicht beim Aufrichten neben Tsunade, Zielring auf T1) | Server bestanden |
 | S4 | weicht aus | unten | 30,-28 | Fehlschlag | bestanden | Server bestanden |
-| S5 | Treffer | oben | 52,30 | Spritzer T2, Rückstoß nach oben (52,2) | bestanden | Server bestanden |
+| S5 | Treffer | oben | 52,30 | Spritzer T2, Rückstoß nach oben (52,2) | bestanden, Bild geprüft (Rückansicht durchsichtig, Klumpen im Flug zum Ring bei T2) | Server bestanden |
 | S6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | Server bestanden |
 | S7 | Ziel läuft beim Aufrichten | rechts | 0,0 | Sie folgt; Landepunkt = Ort beim Ausspucken (30,11); Treffer | bestanden | – |
 | S8 | Ziel beim Aufrichten entfernt | rechts | 0,0 | Spuckt auf den letzten Ort; Fehlschlag | bestanden | – |
@@ -143,7 +143,9 @@ Ablauf (Server):
 
 Gefundener und behobener Fehler: Ein Ziel genau im Zentrum eines Spritzers oder einer Landung wurde immer nach rechts gestoßen. Jetzt geht der Rückstoß entlang der Wurfrichtung.
 
-Nicht im Bild geprüft: Katsuyu in der Vorder- und Rückansicht im Spiel. Bei diesem Durchgang blieb Pixel BAS im Spielmodus schwarz, nur die GUI war sichtbar, auch ganz ohne Wurf. Die Edit-Ansicht war normal. Das ist nachzuholen. Die Server-Fälle sind vollständig.
+Bildtest nachgeholt (2026-11-27, Pixel BAS v558): Vorder- und Rückansicht im Spiel geprüft (H3, S3, S5).
+
+Befund und Korrektur: Bei der Heilung nach unten steht Katsuyu 8 Studs vor Tsunade in der Vorderansicht und verdeckte sie ganz. Jetzt wird sie zu 30 % durchsichtig, wenn sie in der Vorderansicht vor dem Beschwörer steht, so wie in der Rückansicht.
 
 ## Hiruzen Sarutobi: Monkey King Enma, zwei Moves
 
@@ -171,11 +173,11 @@ Hiruzen bleibt währenddessen gesperrt.
 
 | # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
 |---|---|---|---|---|---|---|
-| A1 | Treffer | rechts | 0,0 | Spitze trägt T1 bis 31,4, Abwurf bis 35,4 | bestanden | Server bestanden |
+| A1 | Treffer | rechts | 0,0 | Spitze trägt T1 bis 31,4, Abwurf bis 35,4 | bestanden, Bild geprüft (Stab aus Hiruzens Händen bis T1, goldene Spitze an T1) | Server bestanden |
 | A2 | weicht beim Ausstoßen aus | rechts | 0,0 | Fehlschlag | bestanden | – |
-| A3 | Treffer | unten | 30,-24 | T1 nach unten getragen (30,11.4) | bestanden | – |
+| A3 | Treffer | unten | 30,-24 | T1 nach unten getragen (30,11.4) | bestanden, Bild geprüft (Enma in Affengestalt neben Hiruzen, Vorderansicht) | – |
 | A4 | weicht aus | unten | 30,-24 | Fehlschlag | bestanden | Server bestanden |
-| A5 | Treffer | oben | 52,30 | T2 nach oben getragen (52,-5.4) | bestanden | Server bestanden |
+| A5 | Treffer | oben | 52,30 | T2 nach oben getragen (52,-5.4) | bestanden, Bild geprüft (Stab senkrecht nach oben, T2 an der Spitze) | Server bestanden |
 | A6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | – |
 | A7 | Ziel läuft beim Ausholen | rechts | 0,0 | Stoß schräg (0.94, 0.34) auf T1 bei 30,11; Treffer | bestanden | – |
 | A8 | Ziel beim Ausholen entfernt | rechts | 0,0 | Stoß zum letzten Ort; Fehlschlag | bestanden | – |
@@ -193,7 +195,7 @@ Ablauf:
 
 | # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
 |---|---|---|---|---|---|---|
-| K1 | Treffer | rechts | 0,0 | T1 gefangen | bestanden | Server bestanden |
+| K1 | Treffer | rechts | 0,0 | T1 gefangen | bestanden, Bild geprüft (Käfig mit schwarzen Stäben und goldenen Enden um T1, der Stab kurz in Hiruzens Händen) | Server bestanden |
 | K2 | weicht aus | rechts | 0,0 | leerer Käfig, Fehlschlag | bestanden | – |
 | K3 | Treffer | unten | 30,-24 | T1 gefangen | bestanden | Server bestanden |
 | K4 | weicht aus | unten | 30,-24 | Fehlschlag | bestanden | – |
@@ -203,7 +205,9 @@ Ablauf:
 | K8 | Ziel beim Ausholen entfernt | rechts | 0,0 | leerer Käfig am letzten Ort | bestanden | – |
 | K9 | Abbruch im Käfig | rechts | 0,0 | T1 sofort frei | bestanden | – |
 
-Nicht im Bild geprüft: Enma, der Stab und der Käfig im Spiel. Pixel BAS rendert in dieser Sitzung im Spielmodus keine 3D-Ansicht. Sogar ein neonroter Würfel und ein AlwaysOnTop-Billboard direkt vor der Kamera blieben unsichtbar; nur die Bildschirm-GUI erscheint. Geprüft sind nur die Bake-Blätter (`records/summon/enma_sheet.png`, `enma_turnaround.png`).
+Bildtest nachgeholt (2026-11-27, Pixel BAS v558): Enma, der Stab und der Käfig im Spiel geprüft (A1, A3, A5, K1).
+
+Befund und Korrektur: Enma erschien 3,5 Studs neben Hiruzen, und der Beschwörer verdeckte ihn zur Hälfte. Jetzt sind es 5,5 Studs (`side`); A1, A3, A5 und K1 sind danach erneut bestanden.
 
 ## Temari (Genin), Classic, Slot 1: Summoning: Quick Beheading Dance (Kirikiri Mai, Manga 214 / Anime 125)
 
@@ -220,11 +224,11 @@ Ablauf (Server):
 
 | # | Fall | Richtung | Start | Ergebnis (Server) | Pixel BAS | vfx test |
 |---|---|---|---|---|---|---|
-| D1 | Treffer | rechts | 0,0 | T1 geschnitten, zur Seite geschleudert (34.2,5.6); Höchstgeschwindigkeit 121 | bestanden | Server bestanden |
+| D1 | Treffer | rechts | 0,0 | T1 geschnitten, zur Seite geschleudert (34.2,5.6); Höchstgeschwindigkeit 121 | bestanden, Bild geprüft (Lauf: blasser werdend, Nachbilder, Windspuren am Boden) | Server bestanden |
 | D2 | weicht beim Loslaufen aus | rechts | 0,0 | Fehlschlag | bestanden | – |
-| D3 | Treffer | unten | 30,-28 | T1 geschnitten | bestanden | – |
+| D3 | Treffer | unten | 30,-28 | T1 geschnitten | bestanden, Bild geprüft (Vorderansicht beim Ausholen mit Sichel, Laterne, Bahn zu T1) | – |
 | D4 | weicht aus | unten | 30,-28 | Fehlschlag | bestanden | Server bestanden |
-| D5 | Treffer | oben | 52,30 | T2 geschnitten | bestanden | Server bestanden |
+| D5 | Treffer | oben | 52,30 | T2 geschnitten | bestanden, Bild geprüft (Rückansicht im Lauf mit Nachbildern zu T2) | Server bestanden |
 | D6 | weicht aus | oben | 52,30 | Fehlschlag | bestanden | – |
 | D7 | Ziel läuft beim Ausholen | rechts | 0,0 | Bahn schräg (0.94, 0.35) auf T1 bei 30,10.2; Treffer | bestanden | – |
 | D8 | Ziel beim Ausholen entfernt | rechts | 0,0 | Lauf zum letzten Ort; Fehlschlag | bestanden | – |
@@ -232,7 +236,7 @@ Ablauf (Server):
 | D10 | zwei Ziele auf der Bahn | oben | 30,40 | T3 und T1 geschnitten | bestanden | – |
 | D11 | Abbruch im Lauf | rechts | 0,0 | Rauch; nach 1,2 / 2,4 / 3,6 s 1 / 0 / 1 neue Teile (nur das Kunai des Werfers) | bestanden | – |
 
-Nicht im Bild geprüft: Pixel BAS rendert im Spielmodus weiterhin keine 3D-Ansicht. Geprüft sind die Bake-Blätter (`records/summon/kamatari_sheet.png`, `kamatari_turnaround.png`).
+Bildtest nachgeholt (2026-11-27, Pixel BAS v558): Kamatari im Spiel geprüft (D1, D3, D5).
 
 ## Danzō Shimura (Izanagi / Sharingan Arm), Shippūden, Slot 3: Summoning: Baku (Manga 479)
 

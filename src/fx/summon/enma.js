@@ -37,7 +37,7 @@ export const RIGS = [
 
 const common = {
   seal: 0.3, appear: 0.5, henge: 0.35, aim: 0.35,
-  side: 3.5,                 // Enma appears this far to Hiruzen's side
+  side: 5.5,                 // Enma appears this far to Hiruzen's side (clear of him: at 3.5 the summoner hid half of him)
   grip: 0.8,                 // the staff's butt is this far in front of Hiruzen
   L0: 4.5,                   // the staff's length in his hands
   speed: 62, retract: 85,    // studs/s out and back
