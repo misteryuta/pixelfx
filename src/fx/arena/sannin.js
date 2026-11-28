@@ -52,7 +52,7 @@ export const MOVES = [
     floorTell("sn_wlane"),
     L("sn_wood", "line", ["line_go"], { stage: 2, rotate: true, seg: 2.4, lift: 0 }),
     L("sn_water", "line", ["line_go"], { stage: 3, rotate: true, seg: 2.6, lift: 26 }),
-    impact("sn_splash", { lift: 20 }),
+    impact("cm_splash", { lift: 20 }),
   ], { seal: 0.6, lock: 0.6, cooldown: 12 }),
   mv(OC, 2, "orochimaru-kusanagi", [
     { mech: "line", aim: 0.3, tell: 0.25, from: 1, len: 26, speed: 120, width: 1.2, hold: 0.25, fade: 0.2, hit: { dmg: 24, kb: 6 }, hitKind: "Kusanagi" },
@@ -95,7 +95,7 @@ export const MOVES = [
   ], [ atCaster("sn_marks", ["heal_go"]), atCaster("sn_glow", ["heal_go"]) ], { seal: 0.5, lock: 0.5, cooldown: 14 }),
   mv(TC, 2, "tsunade-tsuutenkyaku", [
     { mech: "rush", leap: true, aim: 0.35, tell: 0.35, air: 0.65, height: 10, radius: 5, hit: { dmg: 30, kb: 10, kbT: 0.3 }, impact: 0.5, hitKind: "Tsūtenkyaku" },
-  ], [ aimRing("sn_tring"), L("sn_shadow", "land", ["rush_go"], { ground: true }), impact("sn_quake"), impact("sn_rocks") ], { shake: 2.4, dodge: { phase: "tell", side: 9 } }),
+  ], [ aimRing("sn_tring"), L("sn_shadow", "land", ["rush_go"], { ground: true }), impact("cm_slam"), impact("cm_landing") ], { shake: 2.4, dodge: { phase: "tell", side: 9 } }),
   mv(TC, 3, "tsunade-ranshinshou", [
     { mech: "rush", aim: 0.3, tell: 0.3, speed: 44, reach: 2.2, reachMax: 32, hits: 1, hit: { dmg: 6, kb: 4, status: "confuse", statusT: 5 }, impact: 0.4, hitKind: "Ranshinshō" },
   ], [ hand("sn_tspark", ["seal", "aim", "tell", "rush_go"]), floorTell("sn_lane"), impact("sn_nerve", { lift: 40 }) ], { hitPop: "VERWIRRT" }),

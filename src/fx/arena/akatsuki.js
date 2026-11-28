@@ -39,7 +39,7 @@ const mv = (variant, slot, id, stages, look, extra = {}) => ({ id, kind: "arena"
   sfx: { rush_go: "whoosh", combo: "bite", impact: "burst", line_go: "whoosh", shot_go: "whoosh", blast_go: "burst", bind_go: "whoosh", hold: "bite", guard_go: "rumble", buff_go: "rumble", zone_go: "rumble", state_go: "cast", blink_go: "whoosh", heal_go: "cast" }, stages, look, ...extra });
 export const MOVES = [
   mv(V.pain, 1, "pain-shinra-tensei", [{ mech: "guard", mode: "reflect", radius: 4.6, dur: 1.4, pulse: 11, pulseHit: { dmg: 16, kb: 22, kbT: 0.45 }, hitKind: "Shinra Tensei" }],
-    [ atCaster("ak_push", ["guard_go"], { play: "once" }), atCaster("ak_pushring", ["guard_go"], { ground: true, play: "once" }), L("ak_flick", "block", ["guard_go"], { play: "once", lift: 30 }) ], { seal: 0.3, lock: 0.3, cooldown: 10, shake: 2, dodge: { phase: "seal", back: 12 } }),
+    [ atCaster("ak_push", ["guard_go"], { play: "once" }), atCaster("ak_pushring", ["guard_go"], { ground: true, play: "once" }), L("ak_flick", "block", ["guard_go"], { play: "once", lift: 30 }) ], { seal: 0.3, lock: 0.3, cooldown: 10, shake: 2, dodge: { phase: "seal", back: 16 } }),
   mv(V.pain, 2, "pain-chibaku-tensei", [{ mech: "zone", aim: 0.45, tell: 0.5, radius: 6, dur: 3, dot: 9, status: "stun", pull: 12, hitKind: "Chibaku Tensei" }],
     [ hand("ak_core", ["seal", "aim", "tell"], { lift: 60, handF: 0.4 }), aimRing("ak_cring", ["tell"]), L("ak_rocks", "zone", ["zone_go"], { lift: 40 }), L("ak_dark", "zone", ["zone_go"], { lift: 70 }), L("ak_crater", "zone", ["zone_go"], { ground: true }) ], { seal: 0.6, lock: 0.6, cooldown: 13, dodge: { phase: "tell", back: 16 } }),
   mv(V.pain, 3, "pain-bansho-tenin", [{ mech: "bind", aim: 0.3, tell: 0.3, speed: 80, follow: false, radius: 2.4, reachMax: 30, hold: 0.9, pull: 40, pullTo: 2.4, crush: { dmg: 18, kb: 12 }, crushKind: "Banshō Ten'in", back: 80, hitKind: "Banshō Ten'in" }],
@@ -63,9 +63,9 @@ export const MOVES = [
   mv(V.kis, 1, "kisame-shark-dance", [{ mech: "zone", at: "self", noAim: true, radius: 10, dur: 4, dot: 5, status: "slow", hitKind: "Suirō Sameodori" }],
     [ L("ak_wdome", "zone", ["zone_go"]), L("ak_wfloor", "zone", ["zone_go"], { ground: true }), L("ak_sharks", "zone", ["zone_go"], { lift: 20 }) ], { seal: 0.6, lock: 0.6, cooldown: 12, start: null, dodge: { phase: "seal", back: 12 } }),
   mv(V.kis, 2, "kisame-daikoudan", [{ mech: "shot", aim: 0.35, tell: 0.4, from: 3, speed: 28, radius: 3, reach: 34, burst: 5.5, hit: { dmg: 14, kb: 6 }, burstHit: { dmg: 18, kb: 14 }, impact: 0.6, hitKind: "Daikōdan" }],
-    [ hand("ak_wseal", ["seal", "aim", "tell"], { lift: 34 }), floorTell("ak_klane"), L("ak_bigshark", "proj", null, { views: true, lift: 30 }), impact("ak_wburst") ], { seal: 0.6, lock: 0.6, cooldown: 10, shake: 1.6 }),
-  mv(V.kis, 3, "kisame-goshokuzame", [{ mech: "shot", aim: 0.3, tell: 0.3, from: 2, count: 5, spread: 60, gap: 0.08, speed: 26, homing: 1.6, radius: 1.8, reach: 40, hit: { dmg: 8, kb: 3 }, impact: 0.4, hitKind: "Goshokuzame" }],
-    [ hand("ak_wseal", ["seal", "aim", "tell"], { lift: 34 }), L("ak_shark", "proj", null, { views: true, lift: 14 }), impact("ak_bite", { lift: 26 }) ], { seal: 0.5, lock: 0.5, cooldown: 9, dodge: { phase: "tell", back: 20 } }),
+    [ hand("ak_wseal", ["seal", "aim", "tell"], { lift: 34 }), floorTell("ak_klane"), L("ak_bigshark", "proj", null, { views: true, lift: 30 }), impact("cm_splash") ], { seal: 0.6, lock: 0.6, cooldown: 10, shake: 1.6 }),
+  mv(V.kis, 3, "kisame-goshokuzame", [{ mech: "shot", aim: 0.3, tell: 0.3, from: 2, count: 5, spread: 60, gap: 0.08, speed: 26, homing: 1.6, radius: 1.8, reach: 30, hit: { dmg: 8, kb: 3 }, impact: 0.4, hitKind: "Goshokuzame" }],
+    [ hand("ak_wseal", ["seal", "aim", "tell"], { lift: 34 }), L("ak_shark", "proj", null, { views: true, lift: 14 }), impact("ak_bite", { lift: 26 }) ], { seal: 0.5, lock: 0.5, cooldown: 9, dodge: { phase: "tell", back: 26 } }),
   mv(V.kon, 1, "konan-paper-sea", [
     { mech: "zone", aim: 0.4, tell: 0.45, radius: 9, dur: 1.4, dot: 0, status: "slow", hitKind: "Shikigami no Mai" },
     { mech: "blast", skipAim: true, at: "zone", radius: 9, waves: 3, gap: 0.3, hit: { dmg: 11, kb: 4 }, after: 0.6, hitKind: "Sechshundert Milliarden Kibaku Fuda" },
@@ -77,9 +77,9 @@ export const MOVES = [
   mv(V.dei, 1, "deidara-c4", [{ mech: "zone", aim: 0.5, tell: 0.5, radius: 8, dur: 3, dot: 9, hitKind: "C4 Karura" }],
     [ L("ak_c4", "aim", ["aim", "tell"], { lift: 0 }), aimRing("ak_c4ring", ["tell"]), L("ak_motes", "zone", ["zone_go"], { lift: 10 }), L("ak_eat", "target", ["zone_go"]) ], { seal: 0.7, lock: 0.7, cooldown: 14, dodge: { phase: "tell", back: 16 } }),
   mv(V.dei, 2, "deidara-c3", [{ mech: "blast", aim: 0.35, tell: 0.7, radius: 9, delay: 0.5, hit: { dmg: 34, kb: 16, kbT: 0.4 }, after: 0.9, hitKind: "C3" }],
-    [ hand("ak_clay", ["seal", "aim", "tell"]), aimRing("ak_c3ring", ["tell"]), L("ak_c3drop", "aim", ["tell", "blast_go"], { lift: 0 }), L("ak_c3boom", "blast", ["blast_go"], { play: "once" }), L("ak_c3crater", "blast", ["blast_go"], { ground: true }) ], { seal: 0.5, lock: 0.5, cooldown: 12, shake: 2.6, dodge: { phase: "tell", back: 14 } }),
-  mv(V.dei, 3, "deidara-c2", [{ mech: "shot", aim: 0.3, tell: 0.3, from: 3, count: 3, spread: 50, gap: 0.2, speed: 30, homing: 2, radius: 1.8, reach: 40, burst: 3.2, hit: { dmg: 8 }, burstHit: { dmg: 10, kb: 8 }, impact: 0.4, hitKind: "C2 Dragon" }],
-    [ hand("ak_clay", ["seal", "aim", "tell"]), L("ak_missile", "proj", null, { views: true, lift: 34 }), impact("ak_clayboom", { lift: 10 }) ], { seal: 0.5, lock: 0.5, cooldown: 10, dodge: { phase: "tell", back: 20 } }),
+    [ hand("ak_clay", ["seal", "aim", "tell"]), aimRing("ak_c3ring", ["tell"]), L("ak_c3drop", "aim", ["tell", "blast_go"], { lift: 0 }), L("cm_explobig", "blast", ["blast_go"], { play: "once" }), L("ak_c3crater", "blast", ["blast_go"], { ground: true }) ], { seal: 0.5, lock: 0.5, cooldown: 12, shake: 2.6, dodge: { phase: "tell", back: 14 } }),
+  mv(V.dei, 3, "deidara-c2", [{ mech: "shot", aim: 0.3, tell: 0.3, from: 3, count: 3, spread: 50, gap: 0.2, speed: 30, homing: 2, radius: 1.8, reach: 30, burst: 3.2, hit: { dmg: 8 }, burstHit: { dmg: 10, kb: 8 }, impact: 0.4, hitKind: "C2 Dragon" }],
+    [ hand("ak_clay", ["seal", "aim", "tell"]), L("ak_missile", "proj", null, { views: true, lift: 34 }), impact("ak_clayboom", { lift: 10 }) ], { seal: 0.5, lock: 0.5, cooldown: 10, dodge: { phase: "tell", back: 26 } }),
   mv(V.sas, 1, "sasori-hundred-puppets", [{ mech: "shot", aim: 0.35, tell: 0.4, from: 2, count: 10, spread: 64, gap: 0.03, speed: 30, radius: 1.8, reach: 32, hit: { dmg: 6, kb: 3 }, impact: 0.4, hitKind: "Akahigi: Hyakki no Sōen" }],
     [ hand("ak_strings", ["seal", "aim", "tell", "shot_go"], { lift: 34 }), L("ak_pfan", "caster", ["tell"], { ground: true, rotate: true }), proj("ak_puppet", { rotate: false, lift: 30 }), impact("ak_cut", { lift: 30 }) ], { seal: 0.6, lock: 0.6, cooldown: 12, dodge: { phase: "tell", back: 14 } }),
   mv(V.sas, 2, "sasori-iron-sand", [{ mech: "blast", aim: 0.4, tell: 0.45, radius: 6.5, waves: 2, gap: 0.4, hit: { dmg: 12, kb: 4 }, after: 0.7, hitKind: "Satetsu Kaihō" }],
@@ -91,7 +91,7 @@ export const MOVES = [
   mv(V.kak, 2, "kakuzu-searing-migraine", [{ mech: "line", aim: 0.4, tell: 0.45, from: 2.5, len: 30, speed: 32, width: 5, hold: 0.5, fade: 0.4, dot: 30, hit: { status: "burn", statusT: 3, kb: 8 }, hitKind: "Katon: Zukokku + Fūton: Atsugai" }],
     [ atCaster("ak_masks", ["seal", "aim", "tell", "line_go"]), floorTell("ak_mlane"), L("ak_firewind", "line", ["line_go"], { rotate: true, seg: 3.4, lift: 22 }) ], { seal: 0.6, lock: 0.6, cooldown: 11, dodge: { phase: "tell", side: 10 } }),
   mv(V.kak, 3, "kakuzu-gian", [{ mech: "line", aim: 0.3, tell: 0.35, from: 2, len: 34, speed: 140, width: 1.6, hold: 0.3, fade: 0.2, hit: { dmg: 26, kb: 6, status: "stun", statusT: 1.5 }, hitKind: "Raiton: Gian" }],
-    [ atCaster("ak_masks", ["seal", "aim", "tell"]), floorTell("ak_llane"), L("ak_gian", "line", ["line_go"], { rotate: true, seg: 2, lift: 34 }), impact("ak_zap", { lift: 30 }) ], { seal: 0.5, lock: 0.5 }),
+    [ atCaster("ak_masks", ["seal", "aim", "tell"]), floorTell("ak_llane"), L("ak_gian", "line", ["line_go"], { rotate: true, seg: 2, lift: 34 }), impact("cm_zap", { lift: 30 }) ], { seal: 0.5, lock: 0.5 }),
   mv(V.hid, 1, "hidan-shiji-hyouketsu", [
     { mech: "rush", aim: 0.3, tell: 0.3, speed: 44, reach: 3.4, stand: 3, reachMax: 32, hits: 1, hit: { dmg: 6, kb: 2 }, impact: 0.2, hitKind: "Blutritual" },
     { mech: "state", skipAim: true, needHit: true, reach: 60, sight: 180, single: true, status: "stun", statusT: 1.5, dmg: 30, dur: 1.4, hitKind: "Jujutsu: Shiji Hyōketsu" },

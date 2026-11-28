@@ -1133,7 +1133,7 @@ function A.mount(ctx)
 	---------------------------------------------------------------- the roster's own techniques (kind "arena", PixelArena.MovesView)
 	local MV = require(script:WaitForChild("MovesView"))({ show = show, showFloor = showFloor, newCard = newCard, newFloor = newFloor, kill = kill, hide = hide,
 		loadPack = loadPack, viewOf = viewOf, toMap = toMap, pop = pop, sfx = sfx, addLog = addLog, dirName = dirName, ctx = ctx, SPP = SPP,
-		Defs = Defs, targets = targets, player = player, folder = folder, origin = O, START = START })
+		Defs = Defs, targets = targets, player = player, folder = folder, origin = O, START = START, groundAt = groundAt, debug = function() return A.debugOn == true end })
 	local function newArena(f) local v = MV.new(f); views[f] = v; return v end
 
 	local function newDragon(f)
@@ -1703,6 +1703,8 @@ function A.mount(ctx)
 	button("t_stand", "STEHT", 206, 168, 58, function() remote:FireServer("targets", nil, "stand") end)
 	button("t_remove", "ENTFERNEN", 268, 168, 84, function() remote:FireServer("targets", "T1", "remove") end)
 	button("t_reset", "RESET+RESPAWN", 356, 168, 104, function() remote:FireServer("respawn"); remote:FireServer("targets", nil, "reset"); remote:FireServer("cooldowns") end)
+	-- the debug view: origin, aim point, its line on the floor, the active hit zones
+	button("debug", "DEBUG", 464, 168, 50, function() A.debugOn = not A.debugOn; buttons.debug.BackgroundColor3 = A.debugOn and Color3.fromRGB(120, 70, 40) or Color3.fromRGB(46, 52, 96) end)
 	gui.Parent = player:WaitForChild("PlayerGui")
 	refresh()
 	-- the caster's health in the title stays current
@@ -1720,7 +1722,8 @@ function A.mount(ctx)
 		elseif op == "server" then remote:FireServer(a, b, c); return true
 		elseif op == "place" and ctx.place then ctx.place(START + a, b); return true
 		elseif op == "pos" then return ctx.pos() - START
-		elseif op == "views" then local n = 0; for _ in pairs(views) do n += 1 end; return n end
+		elseif op == "views" then local n = 0; for _ in pairs(views) do n += 1 end; return n
+		elseif op == "debug" then A.debugOn = a == true; return A.debugOn end
 	end
 
 	local keys = { [Enum.KeyCode.One] = 1, [Enum.KeyCode.Two] = 2, [Enum.KeyCode.Three] = 3, [Enum.KeyCode.Four] = 4 }

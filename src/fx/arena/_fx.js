@@ -253,3 +253,21 @@ export const reaper = ({ frames = 6, fps = 8 } = {}) => ({
     for (let k2 = 0; k2 < 6; k2++) { const ph = (u + k2 / 6) % 1; blendDisc(p, (rnd(k2) - 0.5) * 70, -ph * 160, 4, w, 0.25 * (1 - ph)); }
   },
 });
+
+// a pixelfx library effect used as drawn by the library (bake.mjs renders it on transparency at its own pixel scale):
+// lib("impacts/hit-spark", { options: { palette: [...] }, t: 0.6 })
+export const lib = (id, o = {}) => ({ lib: id, fps: 15, ...o });
+// palettes for the library effects (dark to light)
+export const PALS = {
+  fire: ["#4a1712", "#8a1f17", "#c9281f", "#f2561d", "#ff8a2a", "#ffc23d", "#ffe26b", "#fff3a6"],
+  chakra: ["#0c1a3a", "#1a3a7a", "#2a5ab0", "#3a8ae0", "#6ab0f0", "#a8e0ff", "#d8f4ff", "#ffffff"],
+  red: ["#2a0808", "#5a1010", "#8a1a14", "#c02a1a", "#e85a30", "#ff8a50", "#ffd0b0", "#ffffff"],
+  dark: ["#000000", "#0c0810", "#1c1428", "#3a2a5a", "#5a3aa0", "#8a6ae0", "#c8b8ff", "#ffffff"],
+  purple: ["#1a0a2a", "#3a1a5a", "#5a2a8a", "#7a3ab0", "#a070e0", "#c8a0f0", "#f0e0ff", "#ffffff"],
+  water: ["#0a2040", "#123a6a", "#1a5a9a", "#2a6ab0", "#4a90d0", "#7ac8f0", "#c0e8ff", "#f0faff"],
+  sand: ["#3a2a18", "#5a4428", "#8a6a40", "#a88858", "#c8a870", "#e0c890", "#f0dcb0", "#fff4dc"],
+  earth: ["#2a1712", "#4a3a28", "#6a5038", "#8a7050", "#a89070", "#c8b090", "#e8d8b8", "#ffffff"],
+  wind: ["#1a3a30", "#2a5a4a", "#3a7a64", "#5a9a80", "#8ac8b0", "#b8e8d8", "#e0fff4", "#ffffff"],
+  steam: ["#3a3a40", "#5a5a64", "#7a7a84", "#9a9aa4", "#b8b8c0", "#d8d8e0", "#ececf0", "#ffffff"],
+  green: ["#0a2a14", "#14502a", "#1a7a3a", "#2aa858", "#5ad080", "#9af0b0", "#d0ffe0", "#ffffff"],
+};

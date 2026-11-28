@@ -39,7 +39,73 @@ return function(H)
 		local v = { f = f, kind = "arena", pools = {}, said = {}, popped = {}, clones = {} }
 		return v
 	end
+	-------------------------------------------------------------- debug view (panel DEBUG / ArenaTest "debug")
+	local DBG = { origin = Color3.fromRGB(80, 255, 120), aim = Color3.fromRGB(255, 70, 70), zone = Color3.fromRGB(255, 220, 60), line = Color3.fromRGB(120, 200, 255) }
+	local function dpart(v, i)
+		v.dbg = v.dbg or {}
+		local p = v.dbg[i]
+		if not p then
+			p = Instance.new("Part")
+			p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch, p.CastShadow, p.Material = true, false, false, false, false, Enum.Material.Neon
+			p.Parent = H.folder
+			v.dbg[i] = p
+		end
+		p.Transparency = 0.55
+		return p
+	end
+	local function floorY(m) return (H.groundAt and H.groundAt(m) or 0) + 0.15 end
+	-- a disc of radius r (studs) at a map point
+	local function disc(v, i, m, r, color)
+		local p = dpart(v, i)
+		p.Shape = Enum.PartType.Cylinder
+		p.Size = Vector3.new(0.08, r * 2, r * 2)
+		p.CFrame = CFrame.new(H.origin + Vector3.new(m.X, floorY(m), m.Y)) * CFrame.Angles(0, 0, math.pi / 2)
+		p.Color = color
+	end
+	-- a band from map point a along d, length len, half width w
+	local function bandPart(v, i, a, d, len, w, color)
+		local p = dpart(v, i)
+		p.Shape = Enum.PartType.Block
+		local mid = a + d * (len / 2)
+		p.Size = Vector3.new(math.max(0.1, w * 2), 0.08, math.max(0.1, len))
+		p.CFrame = CFrame.lookAt(H.origin + Vector3.new(mid.X, floorY(mid), mid.Y), H.origin + Vector3.new(mid.X + d.X, floorY(mid), mid.Y + d.Y))
+		p.Color = color
+	end
+	function A.debug(v, f, M, st, phase, cpos, adir, aim, ending)
+		local n = 0
+		if H.debug and H.debug() and not ending then
+			local function nx() n += 1; return n end
+			local c, a = toMap(cpos.X, cpos.Y), toMap(aim.X, aim.Y)
+			disc(v, nx(), c, 0.6, DBG.origin)
+			disc(v, nx(), a, 0.5, DBG.aim)
+			local d = (a - c)
+			if d.Magnitude > 0.3 then bandPart(v, nx(), c, d.Unit, d.Magnitude, 0.08, DBG.line) end
+			local m = st.mech
+			local function attr(x, z) local X, Z = f:GetAttribute(x), f:GetAttribute(z); return X and toMap(X, Z) end
+			if m == "shot" then
+				for i = 1, f:GetAttribute("NP") or 0 do if f:GetAttribute("P" .. i .. "S") == "fly" then disc(v, nx(), attr("P" .. i .. "X", "P" .. i .. "Z"), st.radius or 1.6, DBG.zone) end end
+				if phase == "tell" then bandPart(v, nx(), c, adir, st.reach or st.range or 30, st.radius or 1.6, DBG.zone) end
+			elseif m == "line" and f:GetAttribute("L") then
+				local o = attr("LX", "LZ"); local ld = Vector2.new(f:GetAttribute("LDX"), f:GetAttribute("LDZ"))
+				bandPart(v, nx(), o, ld, math.max(0.2, f:GetAttribute("L")), st.width or 2, DBG.zone)
+			elseif m == "line" and phase == "tell" then bandPart(v, nx(), c, adir, st.len or 30, st.width or 2, DBG.zone)
+			elseif m == "blast" then local b = attr("BX", "BZ") or (st.at == "self" and c or a); disc(v, nx(), b, st.radius or 5, DBG.zone)
+			elseif m == "rush" then
+				if st.leap then disc(v, nx(), attr("LandX", "LandZ") or a, st.radius or 5, DBG.zone) else disc(v, nx(), c, st.reach or 2.4, DBG.zone) end
+			elseif m == "bind" then local t = attr("TX", "TZ"); if t then disc(v, nx(), t, st.radius or 1.6, DBG.zone) end
+			elseif m == "zone" then local z = attr("ZX", "ZZ") or (st.at == "self" and c or a); disc(v, nx(), z, st.radius or 6, DBG.zone)
+			elseif m == "guard" or (m == "heal" and st.self) or m == "buff" then disc(v, nx(), c, st.radius or st.pulse or 3, DBG.zone)
+			elseif m == "state" then
+				local R, half = st.reach or 26, math.rad(st.sight or 25)
+				for _, s in ipairs({ -1, 1 }) do local e = Vector2.new(adir.X * math.cos(half * s) - adir.Y * math.sin(half * s), adir.X * math.sin(half * s) + adir.Y * math.cos(half * s)); bandPart(v, nx(), c, e, R, 0.1, DBG.zone) end
+			elseif m == "clones" then for i = 1, f:GetAttribute("NC") or 0 do local k = attr("K" .. i .. "X", "K" .. i .. "Z"); if k then disc(v, nx(), k, st.reach or 2.2, DBG.zone) end end
+			elseif m == "blink" then disc(v, nx(), c, st.strike or 3, DBG.zone) end
+		end
+		if v.dbg then for i = n + 1, #v.dbg do v.dbg[i].Transparency = 1 end end
+	end
+
 	function A.kill(v)
+		if v.dbg then for _, p in ipairs(v.dbg) do p:Destroy() end end
 		for _, pool in pairs(v.pools) do for _, c in ipairs(pool) do kill(c) end end
 		for _, k in pairs(v.clones) do if k.anchor then k.anchor:Destroy() end end
 		if v.lifted then local g = findPlayerGui(); if g then g.StudsOffsetWorldSpace = v.lifted end end
@@ -75,6 +141,7 @@ return function(H)
 	local function bookFor(L, d)
 		if not L.views then return loadPack(L.book), 1 end
 		local view, face = viewOf(math.atan2(d.Y, d.X))
+		if view == "side" and face < 0 then local left = loadPack(L.book .. "_left"); if left then return left, 1 end end
 		return loadPack(L.book .. "_" .. view), face
 	end
 	local function put(v, li, i, L, m, d, t)
@@ -111,11 +178,15 @@ return function(H)
 
 		-- the caster: turned to the move, carried along a rush / blink / leap
 		if mine then
+			if not v.signed then v.signed = true; if ctx.sign and M.sign ~= false then ctx.sign() end end
 			local fi = facingIndex(adir)
-			if v.lastFacing ~= fi or (v.lastC and (v.lastC - cpos).Magnitude > 0.05) then
-				if ctx.place and (v.lastC == nil or (v.lastC - cpos).Magnitude > 0.05) and not ending then ctx.place(toMap(cpos.X, cpos.Y), fi) end
-				v.lastFacing, v.lastC = fi, cpos
+			local pre = phase == "seal" or phase == "aim" or phase == "tell"
+			local moved = v.lastC and (v.lastC - cpos).Magnitude > 0.05
+			if not ending and ctx.place and (v.lastC == nil or moved or (pre and v.lastFacing ~= fi)) then
+				ctx.place(toMap(cpos.X, cpos.Y), fi)
+				v.lastFacing = fi
 			end
+			v.lastC = cpos
 			local cy = f:GetAttribute("CY") or 0
 			local g = findPlayerGui()
 			if g then
@@ -269,7 +340,8 @@ return function(H)
 				elseif k then k.anchor:Destroy(); v.clones[i] = nil end
 			end
 		end
-		if v.locked and phase ~= "seal" then v.locked = false; ctx.lock(false) end
+		if v.locked and phase ~= "seal" and phase ~= "aim" and phase ~= "tell" then v.locked = false; ctx.lock(false) end
+		A.debug(v, f, M, st, phase, cpos, adir, aim, ending)
 	end
 	return A
 end

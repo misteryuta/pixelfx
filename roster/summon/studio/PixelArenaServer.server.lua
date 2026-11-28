@@ -56,12 +56,14 @@ remote.OnServerEvent:Connect(function(player, op, a, b, c, d)
 		if sim.resetOwner then sim:resetOwner(player.UserId) end
 		cooldown[player.UserId] = {}
 	elseif tester(player) then
-		if op == "time" then state:SetAttribute("TimeScale", math.clamp(tonumber(a) or 1, 0.05, 2)); state:SetAttribute("Paused", false)
+		if op == "time" then state:SetAttribute("TimeScale", math.clamp(tonumber(a) or 1, 0.05, 4)); state:SetAttribute("Paused", false)
 		elseif op == "pause" then state:SetAttribute("Paused", a == true)
 		elseif op == "frame" then state:SetAttribute("Paused", true); sim:step(0, 1 / 20)
 		elseif op == "targets" then sim:setTargetMode(a, b)
 		elseif op == "tplace" then sim:placeTarget(a, b)
 		elseif op == "throw" then sim:throw(sim.targets[a], b)
+		-- a second caster on the training ground (several casts at once): owner -1, a variant slot at a place
+		elseif op == "ghostcast" then local mid = slotMove(a, b); if mid and typeof(c) == "Vector2" and typeof(d) == "Vector2" then sim:cast(-1, mid, c, d.Unit) end
 		elseif op == "ownerhp" and sim.owner then local o = sim:owner(player.UserId); o.hp = math.clamp(tonumber(a) or 100, 0, 100); sim:writeOwner(o)
 		elseif op == "cooldowns" then cooldown[player.UserId] = {} end
 	end

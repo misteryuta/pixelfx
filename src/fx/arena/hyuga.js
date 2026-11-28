@@ -39,7 +39,7 @@ export const MOVES = [
     atCaster("hy_kaiten", ["guard_go"]),
     atCaster("hy_spinring", ["guard_go"], { ground: true }),
     L("hy_deflect", "block", ["guard_go"], { play: "once", lift: 30 }),
-  ], { cooldown: 8, seal: 0.15, lock: 0.15 }),
+  ], { cooldown: 8, seal: 0.15, lock: 0.15, dodge: { phase: "seal", back: 14 } }),
   base(NJ, 1, "neji-vacuum-palm", [
     { mech: "line", aim: 0.3, tell: 0.3, from: 1.2, len: 22, speed: 90, width: 2.2, hold: 0.15, fade: 0.25, hit: { dmg: 22, kb: 16, kbT: 0.35 }, hitKind: "Hakke Kūshō" },
   ], [

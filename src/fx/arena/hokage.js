@@ -69,7 +69,7 @@ export const MOVES = [
   ], [ hand("hk_seal", ["seal", "aim", "tell"], { lift: 34 }), L("hk_dcone", "caster", ["tell"], { ground: true, rotate: true }), L("hk_dark", "target", ["state_go", "recover"]) ], { hitPop: "DUNKELHEIT", dodge: { phase: "tell", back: 12 } }),
   mv(HA, 4, "hashirama-taijutsu", [
     { mech: "rush", aim: 0.25, tell: 0.25, speed: 50, reach: 2.4, reachMax: 32, hits: 4, combo: 0.8, hit: { dmg: 6 }, finish: { dmg: 14, kb: 12 }, impact: 0.35, hitKind: "Taijutsu" },
-  ], [ floorTell("hk_lane"), L("hk_blows", "grab", ["combo"], { lift: 36 }), impact("hk_dust") ], { seal: 0.2, lock: 0.25 }),
+  ], [ floorTell("hk_lane"), L("hk_blows", "grab", ["combo"], { lift: 36 }), impact("cm_landing") ], { seal: 0.2, lock: 0.25 }),
   mv(TO, 1, "tobirama-suiryuudan", [
     { mech: "line", aim: 0.35, tell: 0.35, from: 2, len: 34, speed: 42, width: 3.2, hold: 0.35, fade: 0.35, hit: { dmg: 24, kb: 11 }, hitKind: "Suiryūdan" },
   ], [ hand("hk_wseal", ["seal", "aim", "tell"], { lift: 34 }), floorTell("hk_wlane"), L("kk_wpool", "caster", ["tell", "line_go"], { ground: true }), L("hk_wbody", "line", ["line_go"], { rotate: true, seg: 2.8, lift: 30 }), L("hk_whead", "line", ["line_go"], { head: true, views: true, lift: 34 }), L("kk_spray", "line", ["retract"], { seg: 5, lift: 10, play: "once" }) ], { seal: 0.7, lock: 0.7 }),
@@ -77,11 +77,11 @@ export const MOVES = [
     { mech: "blast", at: "self", noAim: true, radius: 9, waves: 2, gap: 0.45, delay: 0.2, hit: { dmg: 12, kb: 14, kbT: 0.35 }, after: 0.6, hitKind: "Suishōha" },
   ], [ L("hk_flood", "blast", ["blast_go"], { ground: true }), L("hk_waveup", "blast", ["blast_go"]), L("hk_wring", "blast", ["blast_go"], { play: "once" }) ], { cooldown: 9, dodge: { phase: "seal", back: 12 } }),
   mv(TO, 3, "tobirama-infinite-darkness", [
-    { mech: "state", aim: 0.35, tell: 0.4, reach: 28, sight: 30, status: "blind", statusT: 5, dur: 1, hitKind: "Mugen Ankoku" },
-  ], [ hand("hk_seal", ["seal", "aim", "tell"], { lift: 34 }), L("hk_dcone", "caster", ["tell"], { ground: true, rotate: true }), L("hk_ink", "target", ["state_go", "recover"]) ], { hitPop: "DUNKELHEIT", dodge: { phase: "tell", side: 12 } }),
+    { mech: "state", aim: 0.35, tell: 0.4, reach: 28, sight: 22, status: "blind", statusT: 5, dur: 1, hitKind: "Mugen Ankoku" },
+  ], [ hand("hk_seal", ["seal", "aim", "tell"], { lift: 34 }), L("hk_dcone", "caster", ["tell"], { ground: true, rotate: true }), L("hk_ink", "target", ["state_go", "recover"]) ], { hitPop: "DUNKELHEIT", dodge: { phase: "tell", side: 14 } }),
   mv(TO, 4, "tobirama-raijin-no-ken", [
     { mech: "line", aim: 0.3, tell: 0.3, from: 1.4, len: 18, speed: 110, width: 1.5, hold: 0.25, fade: 0.2, hit: { dmg: 20, kb: 6, status: "stun", statusT: 1.5 }, hitKind: "Raijin no Ken" },
-  ], [ hand("hk_hilt", ["seal", "aim", "tell"]), floorTell("hk_llane"), L("hk_lblade", "line", ["line_go"], { rotate: true, seg: 1.6, lift: 30 }), impact("hk_zap", { lift: 30 }) ], { range: 22 }),
+  ], [ hand("hk_hilt", ["seal", "aim", "tell"]), floorTell("hk_llane"), L("hk_lblade", "line", ["line_go"], { rotate: true, seg: 1.6, lift: 30 }), impact("cm_zap", { lift: 30 }) ], { range: 22 }),
   mv(MI, 1, "minato-hiraishin-nidan", [
     { mech: "shot", aim: 0.3, tell: 0.25, from: 1.5, speed: 60, radius: 1.4, reach: 30, hit: { dmg: 4 }, impact: 0.05, hitKind: "Hiraishin" },
     { mech: "blink", to: "marker", vanish: 0.12, strike: 3.4, hit: { dmg: 24, kb: 12 }, impact: 0.4, hitKind: "Hiraishin Nidan" },
@@ -91,7 +91,7 @@ export const MOVES = [
   ], [ hand("hk_ball", ["seal", "aim", "tell", "rush_go"], { lift: 28 }), floorTell("hk_lane"), impact("hk_ballhit", { lift: 30 }), impact("hk_ring") ], { seal: 0.35, lock: 0.35, shake: 1.4 }),
   mv(MI, 3, "minato-michi-shirube", [
     { mech: "rush", aim: 0.25, tell: 0.25, speed: 62, reach: 2.4, reachMax: 32, hits: 1, hit: { dmg: 6, kb: 10 }, impact: 0.5, hitKind: "Hiraishin-Siegel" },
-    { mech: "blink", skipAim: true, to: "target", behind: 1.8, vanish: 0.12, strike: 3, hit: { dmg: 20, kb: 12 }, impact: 0.4, hitKind: "Hiraishin: Michi Shirube" },
+    { mech: "blink", skipAim: true, needHit: true, to: "target", behind: 1.8, vanish: 0.12, strike: 3, hit: { dmg: 20, kb: 12 }, impact: 0.4, hitKind: "Hiraishin: Michi Shirube" },
   ], [ floorTell("hk_lane"), L("hk_mark", "target", ["impact", "blink_go"], { lift: 40 }), L("hk_flash", "caster", ["blink_go"], { play: "once", lift: 30 }), impact("hk_ballhit", { lift: 30 }) ], { seal: 0.3, lock: 0.3 }),
   reaperMove(MI, 4, "minato-shiki-fuujin"),
 ];

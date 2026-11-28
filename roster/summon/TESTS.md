@@ -444,6 +444,207 @@ Korrekturen beim Testen:
 - Ein Dauerwerfer konnte ihren Abgang endlos hinauszögern. Nach Ablauf der Wache gibt es keine neue Teilung mehr.
 - Die Teilstücke waren so groß wie die Heilstücke aus Shippūden und lasen sich nicht als „unzählige kleine“. Jetzt sind es 26 kleinere (`slug_bit`, k 0,11).
 
+<!-- ARENA:BEGIN -->
+## Eigene Fähigkeiten aller Varianten in vier Richtungen (automatischer Server-Playtest)
+
+Bestand: Pixel BAS hat außer dem Training (PixelArena: Registry `Defs`/`Roster`, Slot-Eingabe 1–4 im Panel, Server-Cast-Handler `PixelArenaServer`) kein eigenes Kampfsystem. Der Shop führt die Signature-Moves je Variante nur als Namen (`SignatureMoveData`). Maßgeblich sind daher die 195 Roster-Slots: 181 als eigene Moves, 13 als Beschwörungen, offen ist 1 (Kurenai, Shippūden: Doppelungsregel, kein belegter Ersatz).
+
+Jede Fähigkeit wird über ihren Slot ausgelöst, der Server entscheidet Treffer, Schaden und Zustände. Geprüft werden je Richtung (rechts, links, unten, oben) ein Treffer und ein Fehlschlag. Beim Fehlschlag weicht das Ziel beim Signal aus. Bei Abwehr-Moves wirft im Treffer-Fall die Puppe Kunai auf den Anwender, im Fehlschlag-Fall greift niemand an. Ein Buff oder eine Selbstheilung allein hat keinen Fehlschlag-Fall.
+
+Zusätzlich prüft der Lauf zwei Sonderfälle an je einem Vertreter pro Mechanik: Drehen direkt vor dem Cast und einen Zielwechsel während der Vorbereitung. Bei jedem Move läuft außerdem ein Abbruch mitten in der Aktion. Danach dürfen kein Cast, kein festgehaltenes Ziel und keine Client-Ansicht übrig bleiben.
+
+**Abnahme (Pixel BAS, 2026-11-28):** 181 von 181 Fähigkeiten bestehen in allen vier Richtungen, 1629 von 1629 Läufen verhalten sich wie erwartet.
+
+| Variante | Slot | Move | Ablauf (Server) | rechts | links | unten | oben | Abbruch |
+|---|---|---|---|---|---|---|---|---|
+| A (Fourth Raikage — Lightning Mode) | 2 | Guillotine Drop | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| A (Fourth Raikage — Lightning Mode) | 1 | Liger Bomb | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| A (Fourth Raikage — Lightning Mode) | 3 | Lightning Straight | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| A (Fourth Raikage — Lightning Mode) | 4 | Body Flicker Blitz | blink | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Anko Mitarashi (Special Jōnin) | 1 | Hidden Shadow Snake Hands | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Asuma Sarutobi (Jōnin) | 1 | Fire Style: Burning Ash | zone → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Killer B (Eight-Tails / Full Gyūki) | 3 | Acrobat (Seven Swords Dance) | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Killer B (Eight-Tails / Full Gyūki) | 1 | Tailed Beast Ball | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Killer B (Eight-Tails / Full Gyūki) | 4 | Ink Clone Sealing | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Killer B (Eight-Tails / Full Gyūki) | 2 | Lariat | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Chōji Akimichi (Chūnin — Pre-War) | 1 | Spiky Human Boulder | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Danzō Shimura (Izanagi / Sharingan Arm) | 1 | Izanagi Reality Rewrite | guard → heal | ✓ self / ✓ | ✓ self / ✓ | ✓ self / ✓ | ✓ self / ✓ | ✓ |
+| Danzō Shimura (Izanagi / Sharingan Arm) | 2 | Wind Style: Vacuum Great Sphere | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Darui (Kage Summit Bodyguard) | 1 | Storm Release: Laser Circus | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Darui (Kage Summit Bodyguard) | 2 | Water Style: Water Wall | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Deidara (C4 Karura) | 3 | C2 Dragon | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Deidara (C4 Karura) | 2 | C3 Eighteen | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Deidara (C4 Karura) | 1 | C4 Karura (Microscopic Bombs) | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Fū (Seven-Tails / Chōmei) | 2 | Bug Bite | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Fū (Seven-Tails / Chōmei) | 3 | Full Chōmei Transformation | buff → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Fū (Seven-Tails / Chōmei) | 1 | Secret Technique: Scale Powder | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Gaara (Fifth Kazekage) | 1 | Sand Tsunami | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Gaara (Chūnin Exams / Shukaku) | 1 | Sand Coffin & Sand Burial | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Gaara (Fifth Kazekage) | 2 | Grand Sand Mausoleum Seal | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Gaara (Fifth Kazekage) | 3 | Absolute Sand Shield | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Gaara (Chūnin Exams / Shukaku) | 3 | Sand Shield | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Gaara (Chūnin Exams / Shukaku) | 2 | Playing Possum (Mini-Shukaku) | buff → shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Might Guy (Seventh Gate — Kisame Fight) | 2 | Morning Peacock | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Might Guy (Seventh Gate — Kisame Fight) | 3 | Dynamic Action | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Might Guy (Jōnin) | 2 | Dynamic Entry | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Might Guy (Jōnin) | 3 | Strong Fist Hurricane | rush → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Might Guy (Seventh Gate — Kisame Fight) | 1 | Hirudora (Daytime Tiger) | buff → shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Might Guy (Jōnin) | 1 | Sixth Gate: Gate of Joy | buff | ✓ selbst+T1 / – | ✓ selbst+T1 / – | ✓ selbst+T1 / – | ✓ selbst+T2 / – | ✓ |
+| Might Guy (Seventh Gate — Kisame Fight) | 4 | Leaf Rock-Destroying Rise | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Haku (Hunter-nin) | 1 | Secret Technique: Crystal Ice Mirrors | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Haku (Hunter-nin) | 2 | Thousand Flying Water Needles of Death | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Han (Five-Tails / Kokuō) | 1 | Boil Release: Unrivaled Strength | buff | ✓ selbst / – | ✓ selbst / – | ✓ selbst / – | ✓ selbst / – | ✓ |
+| Han (Five-Tails / Kokuō) | 2 | Erupting Propulsion Fist | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hashirama Senju (First Hokage — Konoha Crush) | 1 | Wood Style: Deep Forest Emergence | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hashirama Senju (First Hokage — Konoha Crush) | 3 | Bringer-of-Darkness Technique | state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hashirama Senju (First Hokage — Konoha Crush) | 2 | Wood Locking Wall | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hashirama Senju (First Hokage — Konoha Crush) | 4 | Taijutsu Combo | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hidan (Jashin Ritual) | 2 | Triple-Bladed Scythe Throw | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hidan (Jashin Ritual) | 1 | Curse Technique: Death Controlling Possessed Blood | rush → state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hinata Hyūga (Genin) | 1 | Gentle Fist: Tenketsu Strike | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hinata Hyūga (Twin Lion Fists) | 1 | Gentle Step Twin Lion Fists | buff → rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hiruzen Sarutobi (Prime — Flashback) | 3 | Earth Release: Earth-Style Wall | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hiruzen Sarutobi (Prime — Flashback) | 2 | Five-Element Combo Blast | shot → line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hiruzen Sarutobi (Third Hokage) | 3 | Fire Style: Dragon Flame Bomb | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hiruzen Sarutobi (Third Hokage) | 1 | Reaper Death Seal | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Hiruzen Sarutobi (Third Hokage) | 4 | Shuriken Shadow Clone | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Ino Yamanaka (Chūnin) | 1 | Mind Transfer Jutsu | state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Iruka Umino (Chūnin Instructor) | 1 | String Light Formation (Barrier Seal) | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Iruka Umino (Academy Instructor) | 1 | Shurikenjutsu: Paper Bomb Trap | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Itachi Uchiha (Mangekyō Sharingan) | 2 | Amaterasu | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Itachi Uchiha (Mangekyō Sharingan) | 3 | Susanoo: Totsuka Blade | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Itachi Uchiha (Mangekyō Sharingan) | 1 | Tsukuyomi | state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Itachi Uchiha (Mangekyō Sharingan) | 4 | Yata Mirror Defense | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jiraiya (Legendary Sannin) | 1 | Summoning: Toad Mouth Bind | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jiraiya (Legendary Sannin) | 3 | Fire Style: Toad Oil Flame Bullet | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jiraiya (Sage Mode) | 1 | Sage Art: Bath of Boiling Oil | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jiraiya (Legendary Sannin) | 4 | Hair Needle Senbon | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jiraiya (Sage Mode) | 2 | Massive Rasengan | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jiraiya (Legendary Sannin) | 2 | Rasengan | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jūgo (Sage Transformation) | 1 | Multiple Lotus Chakra Cannon | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Jūgo (Sage Transformation) | 2 | Full Curse Mark Piston Punch | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kabuto Yakushi (Snake Cloak) | 1 | Chakra Draining Seal | rush → heal | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kabuto Yakushi (Chūnin Exams) | 1 | Chakra Scalpel | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kabuto Yakushi (Chūnin Exams) | 2 | Temple of Nirvana (Feather Illusion) | state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakashi Hatake (Team 7 Sensei) | 2 | Sharingan Copy: Water Dragon | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakashi Hatake (Team 7 Sensei) | 4 | Hidden Mist Jutsu | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakashi Hatake (Mangekyō Sharingan) | 1 | Kamui Snipe | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakashi Hatake (Mangekyō Sharingan) | 3 | Lightning Beast Tracking Fang | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakashi Hatake (Team 7 Sensei) | 1 | Lightning Blade (Raikiri) | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakashi Hatake (Mangekyō Sharingan) | 2 | Lightning Release: Shadow Clone | clones | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakuzu (Earth Grudge Fear) | 1 | Earth Style: Earth Spear | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakuzu (Earth Grudge Fear) | 3 | Lightning Style: False Darkness | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kakuzu (Earth Grudge Fear) | 2 | Fire/Wind Combo: Searing Migraine | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kankurō (Genin) | 1 | Black Secret Technique: Machine One Shot (Crow & Black Ant) | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kankurō (Kage Summit / Jōnin) | 1 | Red Secret Technique: Machinery Triangles | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kiba & Akamaru (Chūnin) | 1 | Two-Headed Wolf: Fang Passing Fang | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kiba Inuzuka (Genin) | 1 | Fang Over Fang | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kimimaro (Cursed Seal Stage 2) | 3 | Dance of the Larch | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kimimaro (Cursed Seal Stage 2) | 1 | Dance of the Seedling Fern (Bracken Dance) | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kimimaro (Cursed Seal Stage 2) | 2 | Dance of the Clematis: Flower | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kisame Hoshigaki (Samehada Fusion) | 2 | Super Shark Bomb | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kisame Hoshigaki (Samehada Fusion) | 3 | Five Feeding Sharks | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kisame Hoshigaki (Samehada Fusion) | 1 | Water Prison Shark Dance | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Konan (Paper Person of God) | 3 | Paper Chakram | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Konan (Paper Person of God) | 1 | Sacred Paper Emissary (600 Billion Bombs) | zone → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Konan (Paper Person of God) | 2 | Shikigami Dance | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Konohamaru Sarutobi (Rasengan) | 1 | Rasengan | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kurenai Yūhi (Jōnin) | 1 | Demonic Illusion: Tree Binding Death | state → blink | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Kurenai Yūhi (Jōnin) | 2 | Genjutsu Petal Escape | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Rock Lee (Sixth Gate) | 1 | Morning Peacock | buff → rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Rock Lee (Inner Gates — Chūnin Exams) | 2 | Primary Lotus | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Rock Lee (Sixth Gate) | 2 | Leaf Strong Whirlwind | rush → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Rock Lee (Inner Gates — Chūnin Exams) | 1 | Hidden Lotus (Reverse Lotus) | buff → rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Madara Uchiha (Uchiha Clan Leader — Flashback) | 2 | Majestic Destroyer Flame | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Madara Uchiha (Uchiha Clan Leader — Flashback) | 4 | Gunbai Reflection | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Madara Uchiha (Uchiha Clan Leader — Flashback) | 1 | Perfect Susanoo | blast → line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Mei Terumī (Fifth Mizukage) | 1 | Boil Release: Skilled Mist | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Mei Terumī (Fifth Mizukage) | 3 | Water Dragon Pillar | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Mei Terumī (Fifth Mizukage) | 2 | Lava Release: Melting Apparition | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Minato Namikaze (Fourth Hokage — Flashback) | 1 | Flying Raijin Level 2 | shot → blink | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Minato Namikaze (Fourth Hokage — Flashback) | 3 | Flying Raijin: Guiding Thunder | rush → blink | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Minato Namikaze (Fourth Hokage — Flashback) | 2 | Rasengan | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Minato Namikaze (Fourth Hokage — Flashback) | 4 | Reaper Death Seal | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Naruto Uzumaki (Sage Mode) | 3 | Frog Kumite | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Naruto Uzumaki (Sage Mode) | 2 | Massive Rasengan Barrage | clones | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Naruto Uzumaki (Sage Mode) | 1 | Wind Style: Rasenshuriken | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Naruto Uzumaki (Sage Mode) | 4 | Sage Art: Two Great Ball Rasengan | rush → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Naruto Uzumaki (Final Valley) | 2 | Uzumaki Barrage | clones | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Naruto Uzumaki (Final Valley) | 1 | One-Tailed Vermilion Rasengan | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Neji Hyūga (Genin) | 1 | Eight Trigrams Sixty-Four Palms | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Neji Hyūga (Genin) | 2 | Eight Trigrams Palms Revolving Heaven | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Neji Hyūga (Jōnin) | 1 | Eight Trigrams Vacuum Palm | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Obito Uchiha (Tobi / Orange Mask) | 4 | Fire Style: Bomb Blast Dance | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Obito Uchiha (Tobi / Orange Mask) | 1 | Kamui Intangibility | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Obito Uchiha (Tobi / Orange Mask) | 2 | Kamui Warp | blink | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Obito Uchiha (Tobi / Orange Mask) | 3 | Wood Style: Cutting Sprigs | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Ōnoki (Third Tsuchikage) | 4 | Rock Clone | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Ōnoki (Third Tsuchikage) | 1 | Particle Style: Atomic Dismantling Jutsu | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Ōnoki (Third Tsuchikage) | 3 | Added-Weight Rock | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Ōnoki (Third Tsuchikage) | 2 | Light-Weight Rock (Flight) | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Legendary) | 1 | Summoning: Impure World Reincarnation (Edo Tensei) | buff → line → line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Legendary) | 3 | Five Elements Seal | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Legendary) | 2 | Sword of Kusanagi | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Eight-Headed Serpent) | 2 | Kusanagi Sword: Longsword of the Sky | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Legendary) | 4 | Triple Rashōmon | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Eight-Headed Serpent) | 3 | Many Hidden Shadow Snake Hands | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Orochimaru (Eight-Headed Serpent) | 1 | Eight Branches Technique | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Pain (Six Paths of Pain) | 3 | Banshō Ten'in | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Pain (Six Paths of Pain) | 2 | Chibaku Tensei (Planetary Devastation) | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Pain (Six Paths of Pain) | 1 | Shinra Tensei (Almighty Push) | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Rōshi (Four-Tails / Son Gokū) | 1 | Lava Release Chakra Mode | buff | ✓ selbst+T1 / – | ✓ selbst+T1 / – | ✓ selbst+T1 / – | ✓ selbst+T2 / – | ✓ |
+| Rōshi (Four-Tails / Son Gokū) | 2 | Scorching Stream Rock | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sai (Root / Super Beast Imitating Drawing) | 1 | Ninja Art: Super Beast Imitating Drawing (Lions) | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sai (Root / Super Beast Imitating Drawing) | 2 | Sealing Technique: Tiger Vision Staring Bullet | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sakura Haruno (Chūnin) | 1 | Cherry Blossom Impact | rush → blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasori (Hundred Puppets) | 3 | Flamethrower Jet | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasori (Hundred Puppets) | 1 | Red Secret Technique: Performance of a Hundred Puppets | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasori (Hundred Puppets) | 2 | Third Kazekage: Iron Sand World Method | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 4 | Amaterasu | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 2 | Inferno Style: Flame Control | guard → shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Final Valley) | 3 | Fire Style: Phoenix Flower Jutsu | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 3 | Kirin | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Final Valley) | 1 | Cursed Seal Stage 2: Onyx Chidori | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Final Valley) | 2 | Lion's Barrage | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Sasuke Uchiha (Mangekyō Sharingan — Kage Summit) | 1 | Susanoo Arrow | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shikamaru Nara (Genin) | 1 | Shadow Possession Jutsu | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shikamaru Nara (Jōnin) | 1 | Shadow Stitching Jutsu | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shino Aburame (Genin) | 1 | Parasitic Destruction Insect Swarm | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shino Aburame (Destruction Insects) | 1 | Secret Technique: Insect Sphere | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shisui Uchiha (Body Flicker — Flashback) | 2 | Body Flicker Afterimage Clones | clones | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shisui Uchiha (Body Flicker — Flashback) | 3 | Fire Style: Great Fireball | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shisui Uchiha (Body Flicker — Flashback) | 1 | Kotoamatsukami | state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Shizune (Medical Jōnin) | 1 | Ninja Art: Poison Fog | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Suigetsu Hōzuki (Hydrification) | 2 | Executioner's Blade: Great Cleave | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Suigetsu Hōzuki (Hydrification) | 1 | Hydrification Water Gun | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Temari (Wind Scythe / Jōnin) | 1 | Wind Style: Great Cast Net | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Temari (Genin) | 2 | Wind Scythe Jutsu | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tenten (Scroll Summoning — Chūnin) | 1 | Manipulated Tools: Heavenly Chain of Destruction | bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tenten (Genin) | 1 | Rising Twin Dragons | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tobirama Senju (Second Hokage — Konoha Crush) | 3 | Infinite Darkness (Manga/Anime) | state | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tobirama Senju (Second Hokage — Konoha Crush) | 4 | Sword of the Thunder God | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tobirama Senju (Second Hokage — Konoha Crush) | 1 | Water Style: Water Dragon Jutsu | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tobirama Senju (Second Hokage — Konoha Crush) | 2 | Water Shockwave | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tsunade (Fifth Hokage) | 2 | Strength of a Hundred Technique | buff | ✓ selbst / – | ✓ selbst / – | ✓ selbst / – | ✓ selbst / – | ✓ |
+| Tsunade (Fifth Hokage) | 3 | Nervous System Rupture | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Tsunade (Fifth Hokage) | 1 | Creation Rebirth | heal | ✓  / – | ✓  / – | ✓  / – | ✓  / – | ✓ |
+| Tsunade (Fifth Hokage) | 2 | Heaven Kick of Pain | rush | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Utakata (Six-Tails / Saiken) | 2 | Corrosive Alkali Mist | zone | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Utakata (Six-Tails / Saiken) | 1 | Soap Bubble Explosion | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Yamato (Wood Style) | 2 | Wood Locking Wall | guard | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Yamato (Wood Style) | 1 | Wood Style: Four-Pillar Prison | blast | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Yugito Nii (Two-Tails / Matatabi) | 1 | Mouse Hairball (Blue Fire) | shot | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Yugito Nii (Two-Tails / Matatabi) | 2 | Full Matatabi Transformation | buff → line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Zabuza Momochi (Demon of the Hidden Mist) | 1 | Hidden Mist Jutsu | zone → blink | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Zabuza Momochi (Demon of the Hidden Mist) | 2 | Water Prison Jutsu | rush → bind | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+| Zabuza Momochi (Demon of the Hidden Mist) | 3 | Water Style: Water Dragon Jutsu | line | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T1 / ✓ | ✓ T2 / ✓ | ✓ |
+
+Offene Fälle (Figur | Move | Richtung | beobachteter Fehler):
+- keine
+
+**Bildtests noch offen:** Pixel BAS zeigt im Spielmodus kein 3D-Bild, die Karte bleibt schwarz. Die Konsole meldet dazu „experience doesn't have access permission to use asset id …“, also fehlende Asset-Freigaben. vfx test erlaubt kein EditableImage (Game Settings > Security), deshalb zeigt es nur die Server-Logik und die DEBUG-Ansicht. Geprüft sind die gebackenen Blätter (`records/summon/<figur>_sheet.png`).
+<!-- ARENA:END -->
+
 Weitere Prüfungen:
 
 - **Andere Live-Moves:** Sasuke (Mangekyō, Kage Summit) Slot 1 „Susanoo Arrow“ läuft in Pixel BAS über denselben Slot-Pfad (Bild geprüft).

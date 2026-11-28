@@ -32,7 +32,7 @@ export const MOVES = [
       hand("sa_black", ["seal", "aim", "tell", "rush_go"], { lift: 26 }),
       floorTell("sa_lane"),
       L("sa_trail", "caster", ["rush_go"], { rotate: true, lift: 8 }),
-      impact("sa_blackhit", { lift: 32 }),
+      impact("cm_zapdark", { lift: 32 }),
     ] },
   { id: "sasuke-shishi-rendan", kind: "arena", variant: FV, slot: 2,
     seal: 0.25, recover: 0.4, range: 28, cone: 45, cooldown: 6, lock: 0.25, shake: 1.4,
@@ -42,8 +42,8 @@ export const MOVES = [
     look: [
       floorTell("sa_lane"),
       L("sa_blows", "grab", ["combo"], { lift: 40 }),
-      impact("sa_slam"),
-      impact("sa_dust"),
+      impact("cm_slam"),
+      impact("cm_landing"),
     ] },
   { id: "sasuke-housenka", kind: "arena", variant: FV, slot: 3,
     seal: 0.5, recover: 0.4, range: 34, cone: 50, cooldown: 7, lock: 0.5,
@@ -70,10 +70,10 @@ export const MOVES = [
   { id: "sasuke-flame-control", kind: "arena", variant: KS, slot: 2,
     seal: 0.4, recover: 0.4, range: 34, cone: 50, cooldown: 10, lock: 0.4,
     stages: [
-      { mech: "guard", mode: "full", radius: 3.6, dur: 1.8, pulse: 3.6, pulseHit: { dmg: 6, status: "burn", statusT: 2 }, hitKind: "Enton-Schild" },
+      { mech: "guard", mode: "full", radius: 3.6, dur: 1.8, hitKind: "Enton-Schild" },
       { mech: "shot", aim: 0.3, tell: 0.3, from: 2.6, count: 3, spread: 16, gap: 0.08, speed: 40, radius: 1.6, reach: 32, hit: { dmg: 12, kb: 6, status: "burn", statusT: 3 }, impact: 0.4, hitKind: "Enton-Speere" },
     ],
-    dodge: { phase: "tell", side: 7 },
+    dodge: { phase: "seal", back: 30 },
     sfx: { guard_go: "rumble", shot_go: "whoosh" },
     look: [
       atCaster("sa_shield", ["guard_go"]),

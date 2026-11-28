@@ -28,7 +28,7 @@ export const MOVES = [
     [ atCaster("jc_gyuki", ["seal", "aim", "tell", "shot_go"]), hand("jc_ballcharge", ["seal", "aim", "tell"], { lift: 50, handF: 1.2 }), floorTell("jc_blane"), proj("jc_ball", { rotate: false, lift: 40 }), impact("jc_bigboom"), impact("jc_crater") ],
     { seal: 0.9, lock: 0.9, cooldown: 14, shake: 2.6, dodge: { phase: "tell", side: 12 } }),
   mv(V.b, 2, "b-lariat", [rush({ speed: 66, hits: 1, hit: { dmg: 28, kb: 16, kbT: 0.4 }, hitKind: "Lariat" })],
-    [ atCaster("jc_raiton", ["seal", "aim", "tell", "rush_go"]), floorTell("jc_lane"), impact("jc_zap", { lift: 30 }) ], { shake: 1.8 }),
+    [ atCaster("jc_raiton", ["seal", "aim", "tell", "rush_go"]), floorTell("jc_lane"), impact("cm_zap", { lift: 30 }) ], { shake: 1.8 }),
   mv(V.b, 3, "b-acrobat", [rush({ speed: 50, hits: 7, combo: 1.2, hit: { dmg: 4 }, finish: { dmg: 12, kb: 12 }, hitKind: "Acrobat" })],
     [ floorTell("jc_lane"), L("jc_swords", "grab", ["combo"], { lift: 34 }), impact("jc_slash", { lift: 34 }) ]),
   mv(V.b, 4, "b-ink-sealing", [{ mech: "bind", aim: 0.3, tell: 0.3, speed: 40, follow: false, radius: 2.6, reachMax: 30, hold: 2.2, crush: { dmg: 8, status: "seal", statusT: 6 }, back: 50, hitKind: "Sumi" }],

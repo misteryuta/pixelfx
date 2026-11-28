@@ -58,7 +58,7 @@ export const MOVES = [
       L("zb_body", "line", ["line_go"], { rotate: true, seg: 2.8, lift: 28 }),
       L("kk_head", "line", ["line_go"], { head: true, views: true, lift: 32 }),
       L("kk_spray", "line", ["retract"], { seg: 5, lift: 10, play: "once" }),
-      impact("kk_splash", { lift: 20 }),
+      impact("cm_splash", { lift: 20 }),
     ] },
 ];
 

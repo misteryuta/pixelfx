@@ -9,7 +9,7 @@
 //     dragon's body grows along the line, its head at the front) -> retract (it collapses into spray)
 //   slot 4 "Hidden Mist Jutsu" (Kirigakure, used by Kakashi with the Sharingan in the Land of Waves): a thick mist
 //     round him; whoever is inside cannot see to aim (the dummies' kunai go wide).
-import { crackle, lane, speed, spark, band, ring, mist, pool, burst, mark, H, px, rnd, blendDisc, blendEllipse } from "./_fx.js";
+import { crackle, lane, speed, spark, band, ring, mist, pool, burst, mark, lib, PALS, H, px, rnd, blendDisc, blendEllipse } from "./_fx.js";
 
 const W1 = "#f0faff", W2 = "#7ac8f0", W3 = "#2a6ab0";
 export const MOVES = [
@@ -22,7 +22,7 @@ export const MOVES = [
       { book: "kk_chirp", at: "hand", lift: 26, handF: 1.4, phases: ["seal", "aim", "tell", "rush_go"] },
       { book: "kk_lane", at: "caster", ground: true, rotate: true, phases: ["tell"] },
       { book: "kk_trail", at: "caster", rotate: true, lift: 10, phases: ["rush_go"] },
-      { book: "kk_hit", at: "impact", lift: 32, play: "once" },
+      { book: "cm_zap", at: "impact", lift: 32, play: "once" },
     ] },
   { id: "kakashi-copy-water-dragon", kind: "arena", variant: "classic/kakashi-hatake-team-7-sensei", slot: 2,
     seal: 0.8, recover: 0.3, range: 36, cone: 50, cooldown: 8, lock: 0.8,
@@ -36,11 +36,12 @@ export const MOVES = [
       { book: "kk_body", at: "line", rotate: true, seg: 2.6, lift: 26, phases: ["line_go"] },
       { book: "kk_head", at: "line", head: true, views: true, lift: 30, phases: ["line_go"] },
       { book: "kk_spray", at: "line", seg: 5, lift: 10, phases: ["retract"], play: "once" },
-      { book: "kk_splash", at: "impact", lift: 20, play: "once" },
+      { book: "cm_splash", at: "impact", lift: 20, play: "once" },
     ] },
   { id: "kakashi-hidden-mist", kind: "arena", variant: "classic/kakashi-hatake-team-7-sensei", slot: 4,
     seal: 0.5, recover: 0.4, range: 30, cone: 180, cooldown: 10, lock: 0.5,
     stages: [{ mech: "zone", at: "self", noAim: true, radius: 12, dur: 5, dot: 0, status: "blind", hitKind: "Nebel" }],
+    dodge: { phase: "seal", back: 16 },
     sfx: { zone_go: "poof" }, hitPop: "IM NEBEL",
     look: [
       { book: "kk_fog", at: "zone", ground: true, phases: ["zone_go"] },
@@ -72,17 +73,17 @@ export const MOVES = [
     look: [
       { book: "kk_chirp", at: "hand", lift: 26, handF: 1.4, phases: ["seal", "aim", "tell"] },
       { book: "kk_cloneaura", at: "clone", phases: ["clones_go"] },
-      { book: "kk_hit", at: "impact", lift: 32, play: "once" },
+      { book: "cm_zap", at: "impact", lift: 32, play: "once" },
     ] },
   { id: "kakashi-raijuu-tsuiga", kind: "arena", variant: "shippuden/kakashi-hatake-mangekyo-sharingan", slot: 3,
     seal: 0.5, recover: 0.4, range: 40, cone: 50, cooldown: 9, lock: 0.5,
-    stages: [{ mech: "shot", aim: 0.3, tell: 0.3, from: 2, speed: 34, homing: 2.6, radius: 2, reach: 40, hit: { dmg: 24, kb: 8, status: "stun", statusT: 1.2 }, impact: 0.4, hitKind: "Raijū Tsuiga" }],
-    dodge: { phase: "tell", back: 18 },
+    stages: [{ mech: "shot", aim: 0.3, tell: 0.3, from: 2, speed: 34, homing: 2.6, radius: 2, reach: 30, hit: { dmg: 24, kb: 8, status: "stun", statusT: 1.2 }, impact: 0.4, hitKind: "Raijū Tsuiga" }],
+    dodge: { phase: "tell", back: 26 },
     sfx: { seal: "cast", shot_go: "whoosh", impact: "burst" },
     look: [
       { book: "kk_chirp", at: "hand", lift: 26, handF: 1.4, phases: ["seal", "aim", "tell"] },
       { book: "kk_hound", at: "proj", lift: 20, views: true },
-      { book: "kk_hit", at: "impact", lift: 26, play: "once" },
+      { book: "cm_zap", at: "impact", lift: 26, play: "once" },
     ] },
 ];
 
@@ -114,7 +115,6 @@ export const FX = {
     let x = 0, y = -30;
     for (let s = 0; s < 6; s++) { const nx = -s * 20 - 18, ny = -30 + (rnd(s + i * 7) - 0.5) * 18; p.line(x, y, nx, ny, H("#ffffff")); p.line(x, y + 1, nx, ny + 1, H("#5a90f0"), 0.8); x = nx; y = ny; }
   } },
-  hit: { cw: 100, ch: 100, ox: 50, oy: 50, frames: 7, fps: 18, draw(p, u, i) { spark({ R: 36, c: ["#ffffff", "#9ad8ff"] }).draw(p, u); crackle({ R: 34, bolts: 8, core: 8 * (1 - u) }).draw(p, u, i); } },
   // Water Dragon: the seal's chakra (loop), the line (tell), water gathering under him, the body, the head, spray
   seal: { cw: 30, ch: 30, ox: 15, oy: 15, frames: 4, fps: 12, loop: true, draw(p, u) { for (let k = 0; k < 6; k++) { const a = (k / 6) * 6.28 + u * 6.28; p.blend(Math.cos(a) * 9, Math.sin(a) * 6, H(W2), 0.9); } blendDisc(p, 0, 0, 3, H(W1), 0.9); } },
   wlane: lane({ len: px(32), w: Math.round(px(2.6)), c: W2, dark: W3 }),
@@ -122,7 +122,6 @@ export const FX = {
   body: band({ len: 24, w: 12, c: [W1, W2, W3], a: 0.82 }),
   head: { views: true, cw: 60, ch: 50, ox: 30, oy: 25, frames: 4, fps: 12, loop: true, draw(p, u, i, view) { dragonHead(p, u, view); } },
   spray: { cw: 60, ch: 60, ox: 30, oy: 50, frames: 7, fps: 16, draw(p, u) { for (let k = 0; k < 12; k++) { const a = -Math.PI * (0.1 + 0.8 * rnd(k)), d = 30 * u * (0.5 + 0.5 * rnd(k + 2)); blendDisc(p, Math.cos(a) * d, Math.sin(a) * d * 0.9 + 25 * u * u, 2 + 2 * rnd(k + 4), H(k % 2 ? W1 : W2), 1 - u); } } },
-  splash: burst({ R: 30, c: [W1, W2, W3], smoke: "#c8d8e8", frames: 9 }),
   // Hidden Mist: the floor fogged (loop), banks of mist standing round (loop)
   // Kamui: the Mangekyō at his eye (loop), the focus on the target (a faint spiral, loop), the space twisting and torn
   mseye: mark({ kind: "spiral", c: ["#ff6060", "#2a0a0a"], R: 6 }),

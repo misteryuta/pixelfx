@@ -37,14 +37,14 @@ export const MOVES = [
     floorTell("tj_lane"),
     L("tj_trail", "caster", ["rush_go"], { rotate: true, lift: 8 }),
     L("tj_blows", "grab", ["combo"], { lift: 40 }),
-    impact("tj_crater"), impact("tj_dust"),
+    impact("cm_slam"), impact("cm_landing"),
   ], { shake: 1.8 }),
   std(LC, 2, "lee-omote-renge", [
     rush({ speed: 60, hits: 2, combo: 0.6, hit: { dmg: 6 }, finish: { dmg: 24, kb: 4, status: "stun", statusT: 1 }, hitKind: "Omote Renge" }),
   ], [
     floorTell("tj_lane"),
     L("tj_wrap", "grab", ["combo"], { play: "hold" }),
-    impact("tj_crater"), impact("tj_dust"),
+    impact("cm_slam"), impact("cm_landing"),
   ], { shake: 1.6 }),
   std(LS, 1, "lee-asa-kujaku", [
     { mech: "buff", dur: 3, dmgMult: 1.15, show: 0.5, buffName: "Sechstes Tor", hitKind: "Asa Kujaku" },
@@ -75,7 +75,7 @@ export const MOVES = [
   ], [
     floorTell("tj_lane"),
     L("tj_kickstreak", "caster", ["rush_go"], { rotate: true, lift: 24 }),
-    impact("tj_impact", { lift: 30 }),
+    impact("cm_blunt", { lift: 30 }),
   ]),
   std(GC, 3, "guy-goriki-senpuu", [
     rush({ speed: 56, hits: 2, combo: 0.35, hit: { dmg: 8 }, finish: { dmg: 14, kb: 6 }, impact: 0.05, hitKind: "Konoha Gōriki Senpū" }),
@@ -117,7 +117,7 @@ export const MOVES = [
     L("tj_greengates", "caster", ["seal", "aim", "tell", "rush_go"]),
     floorTell("tj_lane"),
     impact("tj_rise", { lift: 0 }),
-    impact("tj_crater"),
+    impact("cm_slam"),
   ], { shake: 1.8 }),
 ];
 

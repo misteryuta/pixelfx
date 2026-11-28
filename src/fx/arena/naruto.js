@@ -39,7 +39,7 @@ export const MOVES = [
     look: [
       L("na_poof", "caster", ["clones_go"], { play: "once" }),
       L("na_kick", "clone", ["clones_go"], { lift: 20 }),
-      impact("na_hit", { lift: 30 }),
+      impact("cm_spark", { lift: 30 }),
     ] },
   { id: "naruto-rasenshuriken", kind: "arena", variant: SM, slot: 1,
     seal: 0.7, recover: 0.4, range: 40, cone: 45, cooldown: 9, lock: 0.7, shake: 2,
@@ -73,7 +73,7 @@ export const MOVES = [
       atCaster("na_sage", ["seal", "aim", "tell", "rush_go", "combo"]),
       floorTell("na_klane"),
       L("na_reach", "grab", ["combo"], { lift: 32 }),
-      impact("na_hit", { lift: 30 }),
+      impact("cm_spark", { lift: 30 }),
     ] },
   { id: "naruto-two-great-rasengan", kind: "arena", variant: SM, slot: 4,
     seal: 0.75, recover: 0.5, range: 32, cone: 45, cooldown: 10, lock: 0.75, shake: 2.2,

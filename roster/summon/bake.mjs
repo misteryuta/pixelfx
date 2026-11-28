@@ -81,7 +81,21 @@ for (const id of M.DOGS ?? []) {
 }
 // ---- the ground effects
 // (views: true: one book per direction, _side / _front / _back; the painter gets the view as its 4th argument)
-for (const [fx, F] of Object.entries(M.FX ?? {})) for (const view of F.views ? ["side", "front", "back"] : [null]) {
+// a pixelfx library effect used as it is drawn (lib: "impacts/hit-spark", options: { palette ... }, fps, t: the
+// seconds kept): rendered on transparency at the library's own pixel scale (72 px fighters), pivot at its origin
+const { loadEffect, renderFrames } = await import("file:///" + ROOT + "tools/lib/fxlib.mjs");
+for (const [fx, F] of Object.entries(M.FX ?? {})) if (F.lib) {
+  const E = await loadEffect(F.lib);
+  if (F.t) E.mod.meta.duration = Math.min(E.mod.meta.duration, F.t);
+  const R = renderFrames(E, { fps: F.fps ?? 15, bg: "none", options: F.options ?? {}, seed: F.seed, margin: 0, actor: false });
+  const cw = R.w, ch = R.h, cells = R.frames.map((fr) => fr.clear);
+  const p = pack(cells, cw, ch);
+  const key = (M.PREFIX ?? "fx_") + fx;
+  books[key] = { cw, ch, pivot: E.meta.origin, frames: cells.length, fps: F.fps ?? 15, loop: !!F.loop, ground: false, ...p };
+  sheet.push({ id: key, cw, ch, cells });
+  console.log("lib", key, F.lib, cells.length, "b64", p.b64.length);
+}
+for (const [fx, F] of Object.entries(M.FX ?? {})) if (!F.lib) for (const view of F.views ? ["side", "front", "back"] : [null]) {
   const cw = F.cw ?? 96, ch = F.ch ?? 64, ox = F.ox ?? 48, oy = F.oy ?? 44, fr = createFrame(cw, ch), cells = [];
   for (let i = 0; i < F.frames; i++) {
     clearFrame(fr);
